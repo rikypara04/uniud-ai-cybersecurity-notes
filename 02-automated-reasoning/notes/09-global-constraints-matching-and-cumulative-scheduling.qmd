@@ -1,0 +1,1390 @@
+---
+title: "Global Constraints, Matching-Based Filtering, and Cumulative Scheduling"
+subtitle: "Lecture 9 - 28 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Why global constraints matter
+
+A **global constraint** is a constraint over a structured collection of variables with a precise, problem-specific meaning. A global constraint can often be rewritten as a Boolean combination of simpler binary or ternary constraints, but that decomposition may propagate much less information than the global relation considered as a whole.
+
+The difference is not primarily syntactic. It concerns the strength and cost of inference.
+
+| Representation | Meaning available to the propagator | Typical consequence |
+|---|---|---|
+| decomposition into small constraints | each local relation is inspected separately | conflicts involving many variables may remain hidden |
+| dedicated global constraint | the complete combinatorial structure is visible | stronger filtering can be performed efficiently |
+
+The best-known example is `all_different`. The lecture develops this constraint in detail and then uses it as a model for understanding why global constraints receive dedicated algorithms.
+
+::: {.callout-important title="Equivalent constraints need not propagate equally"}
+Two formulations may have exactly the same complete solutions while producing different domain reductions during propagation. Logical equivalence therefore does not imply operational equivalence inside a constraint solver.
+:::
+
+# The `all_different` constraint
+
+Let $X_1,\ldots,X_k$ be variables with domains $D_1,\ldots,D_k$. The $k$-ary relation is
+
+$$
+\operatorname{all\_different}(X_1,\ldots,X_k)
+=
+(D_1\times\cdots\times D_k)
+\setminus
+\left\{
+(a_1,\ldots,a_k):
+\exists i<j,\ a_i=a_j
+\right\}.
+$$
+
+Thus, a tuple belongs to the relation exactly when all its components are pairwise distinct.
+
+## Diff-arc consistency
+
+A CSP is **diff-arc consistent** when every `all_different` constraint is hyper-arc consistent. This is a strong, value-by-value support condition.
+
+Consider
+
+$$
+C=\operatorname{all\_different}(X_1,\ldots,X_k),
+$$
+
+where each variable $X_i$ has domain $D_i$. For every variable $X_i$ and every value $a_i\in D_i$, diff-arc consistency requires the existence of values
+
+$$
+a_j\in D_j
+\qquad\text{for every }j\ne i
+$$
+
+such that
+
+$$
+(a_1,\ldots,a_i,\ldots,a_k)
+\in
+\operatorname{all\_different}(X_1,\ldots,X_k).
+$$
+
+Equivalently, after temporarily fixing
+
+$$
+X_i=a_i,
+$$
+
+the remaining variables must still be assignable pairwise distinct values from their current domains. The resulting complete tuple is called a **support** for the value $a_i$.
+
+### What the propagator checks
+
+For every edge between a variable and one of its current values, the propagator asks:
+
+> Can this particular variable-value choice be extended to a complete solution of this `all_different` constraint, using only the current domains?
+
+The possible outcomes are:
+
+| Outcome for $X_i=a_i$ | Propagation consequence |
+|---|---|
+| at least one complete all-distinct assignment contains $X_i=a_i$ | retain $a_i$ in $D_i$ |
+| no complete all-distinct assignment contains $X_i=a_i$ | delete $a_i$ from $D_i$ |
+| no complete all-distinct assignment exists for any value | report failure: the constraint is inconsistent |
+
+This is stronger than checking whether $a_i$ is merely different from some value in each other domain separately. The same choices for the other variables must work **simultaneously** and must be mutually distinct.
+
+### A supported value
+
+Suppose
+
+$$
+D_1=\{1,2\},
+\qquad
+D_2=\{1,2\},
+\qquad
+D_3=\{2,3\}.
+$$
+
+To test $X_1=1$, one complete support is
+
+$$
+(X_1,X_2,X_3)=(1,2,3).
+$$
+
+All three values belong to the respective domains and are pairwise different. Therefore, value $1$ remains in $D_1$.
+
+To test $X_3=2$, one support is
+
+$$
+(X_1,X_2,X_3)=(1,3,2)
+$$
+
+only if $3\in D_2$. In the stated domains, $3\notin D_2$, so this tuple is unavailable. However, the alternative
+
+$$
+(X_1,X_2,X_3)=(1,\text{no available distinct value},2)
+$$
+
+shows the issue: after assigning $X_3=2$, both $X_1$ and $X_2$ must draw distinct values from $\{1,2\}$, but value $2$ is already used. Only value $1$ remains for both variables. Hence $X_3=2$ has no support and can be removed:
+
+$$
+D_3:=\{3\}.
+$$
+
+Once $X_3$ is fixed to $3$, the remaining variables may take $1$ and $2$ in either order.
+
+```{mermaid}
+%%| fig-cap: "Support test for the example domains. Fixing X3 to 2 leaves only value 1 available to both X1 and X2, so no complete all-distinct assignment exists. Fixing X3 to 3 leaves values 1 and 2 available for X1 and X2."
+flowchart LR
+    A["Test X3 = 2"] --> B["X1 and X2 must avoid 2"]
+    B --> C["Both are left with value 1"]
+    C --> D["No injective completion"]
+    D --> E["Remove 2 from D3"]
+
+    F["Test X3 = 3"] --> G["X1 and X2 may use 1 and 2"]
+    G --> H["Injective completion exists"]
+    H --> I["Retain 3 in D3"]
+
+    classDef fail fill:#f8d7da,stroke:#b02a37,stroke-width:2px;
+    classDef keep fill:#e2f0d9,stroke:#548235,stroke-width:2px;
+    class D,E fail;
+    class H,I keep;
+```
+
+### How strong is diff-arc consistency?
+
+For one `all_different` constraint, diff-arc consistency removes **every value that cannot occur in any complete solution of that constraint under the current domains**. No stronger domain-filtering operation can delete an additional value using only that single constraint without deleting a value that has a valid support.
+
+This does not mean that the entire CSP is solved. A value may be supported within one `all_different` constraint but become impossible when other constraints are considered. Propagation therefore alternates among all constraints until a fixed point is reached:
+
+1. one propagator removes unsupported values;
+2. the reduced domains wake other propagators;
+3. those propagators may remove further values;
+4. `all_different` is reconsidered with the new domains;
+5. the process stops when no domain changes, or fails when a domain becomes empty.
+
+### Hall-set intuition
+
+The strength of the global constraint can also be understood through groups of variables. If a set of $r$ variables can collectively use only $r$ values, those values are completely reserved for that group. Every other variable must exclude them.
+
+For example, if
+
+$$
+D_1=D_2=\{1,2\},
+\qquad
+D_3=\{1,2,3\},
+$$
+
+then $X_1$ and $X_2$ must consume values $1$ and $2$ between them. Consequently, $X_3$ cannot use either value and propagation obtains
+
+$$
+D_3:=\{3\}.
+$$
+
+If $r$ variables collectively have fewer than $r$ available values, no injective assignment exists and the constraint fails. The matching-based algorithm developed later in the lecture detects exactly this global competition for values without explicitly enumerating all complete tuples.
+
+::: {.callout-important title="Strength of diff-arc consistency"}
+Diff-arc consistency is the strongest domain-level filtering for one `all_different` constraint: every retained value participates in at least one complete injective assignment for that constraint. It is stronger than pairwise arc consistency because support must be global and simultaneous, not assembled from unrelated pairwise witnesses.
+:::
+
+## Decomposition into pairwise disequalities
+
+The global constraint is logically equivalent to
+
+$$
+\bigwedge_{1\le i<j\le k}X_i\ne X_j.
+$$
+
+However, hyper-arc consistency for the global constraint is stronger than binary arc consistency for the decomposition.
+
+Consider
+
+$$
+D_1=D_2=D_3=\{0,1\}.
+$$
+
+Every value of every variable has local support in each pairwise disequality. Therefore,
+
+$$
+X_1\ne X_2,
+\quad
+X_1\ne X_3,
+\quad
+X_2\ne X_3
+$$
+
+can be binary arc consistent. Nevertheless, three variables cannot receive distinct values from a set containing only two values, so the global `all_different` constraint is inconsistent.
+
+| View | What is checked | Result for three domains $\{0,1\}$ |
+|---|---|---|
+| pairwise disequalities | every value differs from some value in each other domain | arc consistent |
+| global `all_different` | every value extends to one complete all-distinct tuple | inconsistent |
+
+## Why the direct definition is too expensive
+
+Let
+
+$$
+d_i=|D_i|,
+\qquad
+d=\max_i d_i.
+$$
+
+A propagator that tests supports directly by enumerating combinations may require time on the order of
+
+$$
+O(d^{k+1}),
+$$
+
+which is unusable for large arity $k$. The lecture asks an important algorithmic question: is the difficulty intrinsic to the filtering problem, or only a consequence of using a naïve algorithm?
+
+The answer is that stronger filtering can be implemented efficiently by exposing a connection with bipartite matching.
+
+# Bipartite graphs and matchings
+
+A bipartite graph is a triple
+
+$$
+G=\langle X,Y,E\rangle,
+$$
+
+where $X$ and $Y$ are disjoint vertex sets and
+
+$$
+E\subseteq X\times Y.
+$$
+
+Although an edge is written as an ordered pair, the graph edges are treated as undirected.
+
+A **matching** $M\subseteq E$ is a collection of edges with no shared endpoint. A vertex is **matched** if it belongs to an edge of $M$ and **free** otherwise.
+
+```{mermaid}
+%%| fig-cap: "A bipartite graph and one matching. Thick blue edges form the matching; no two selected edges share a vertex."
+flowchart LR
+    X1((x1)) --- Y1((1))
+    X1 --- Y2((2))
+    X2((x2)) --- Y2
+    X2 --- Y3((3))
+    X3((x3)) --- Y1
+    X3 --- Y3
+    X3 --- Y4((4))
+
+    linkStyle 0 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 2 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 6 stroke:#2f6fb0,stroke-width:4px;
+```
+
+## Alternating and augmenting paths
+
+Given a matching $M$, a path is **alternating** when its edges alternate between edges outside $M$ and edges inside $M$.
+
+An alternating path is **augmenting** when:
+
+- it is acyclic;
+- it starts and ends at free vertices.
+
+Because the graph is bipartite, an augmenting path beginning in $X$ ends in $Y$, or conversely. When $M=\varnothing$, every single edge is an augmenting path.
+
+```{mermaid}
+%%| fig-cap: "An augmenting path alternates between unmatched and matched edges and has free endpoints."
+flowchart LR
+    F1((free y0)) --- A((x1))
+    A === B((y1))
+    B --- C((x2))
+    C === D((y2))
+    D --- F2((free x0))
+
+    linkStyle 0 stroke:#d95f02,stroke-width:4px,stroke-dasharray:6 4;
+    linkStyle 1 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 2 stroke:#d95f02,stroke-width:4px,stroke-dasharray:6 4;
+    linkStyle 3 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 4 stroke:#d95f02,stroke-width:4px,stroke-dasharray:6 4;
+```
+
+## Proposition: augmenting a matching increases its size
+
+::: {.callout-warning title="Proposition: augmenting along a path"}
+Let $M$ be a matching in a bipartite graph $G=\langle X,Y,E\rangle$, and let $P$ be an augmenting path for $M$. Then
+
+$$
+M' = M\triangle P
+   = (M\setminus P)\cup(P\setminus M)
+$$
+
+is a matching and
+
+$$
+|M'|=|M|+1.
+$$
+:::
+
+The symmetric difference **toggles** every edge of the path: edges of $P$ that belong to $M$ are removed, while edges of $P$ that do not belong to $M$ are inserted.
+
+### Proof
+
+Write the matching as
+
+$$
+M=
+\{(x_1,y_1),\ldots,(x_k,y_k),
+  (x_{k+1},y_{k+1}),\ldots,(x_n,y_n)\},
+$$
+
+where, without loss of generality, the first $k$ edges are exactly the matched edges used by the augmenting path.
+
+Because $P$ is augmenting, its endpoints are free. Assume that the path starts at free value vertex $y_0\in Y$ and ends at free variable vertex $x_0\in X$. The path has the alternating form
+
+$$
+P=
+\{
+(y_0,x_1),
+(x_1,y_1),
+(y_1,x_2),
+(x_2,y_2),
+\ldots,
+(y_{k-1},x_k),
+(x_k,y_k),
+(y_k,x_0)
+\}.
+$$
+
+The edges
+
+$$
+(x_1,y_1),\ldots,(x_k,y_k)
+$$
+
+belong to $M$, whereas
+
+$$
+(y_0,x_1),
+(y_1,x_2),
+\ldots,
+(y_{k-1},x_k),
+(y_k,x_0)
+$$
+
+do not belong to $M$.
+
+After taking the symmetric difference,
+
+$$
+\begin{aligned}
+M'
+={}&(M\setminus P)\cup(P\setminus M)\\
+={}&\{
+(y_0,x_1),
+(y_1,x_2),
+\ldots,
+(y_{k-1},x_k),
+(y_k,x_0),\\
+&\qquad
+(x_{k+1},y_{k+1}),\ldots,(x_n,y_n)
+\}.
+\end{aligned}
+$$
+
+We must prove two facts.
+
+#### 1. $M'$ is still a matching
+
+Inside the path, every internal vertex was incident to one matched path edge and one unmatched path edge. Toggling the path removes the former and inserts the latter, so every internal vertex is still incident to exactly one selected edge.
+
+The endpoints $y_0$ and $x_0$ were free in $M$ by the definition of augmenting path. Each endpoint becomes incident to exactly one newly inserted edge. No conflict is created with an edge outside the path.
+
+Finally, all edges of $M$ outside $P$ are unchanged. Since $M$ was a matching, their endpoints are pairwise distinct and do not conflict with the path endpoints after the toggle. Therefore, no two edges of $M'$ share a vertex, and $M'$ is a matching.
+
+#### 2. $M'$ has one additional edge
+
+The path contains:
+
+- $k$ edges belonging to $M$;
+- $k+1$ edges not belonging to $M$.
+
+The symmetric difference removes the $k$ matched edges and inserts the $k+1$ unmatched edges. Hence
+
+$$
+|M'|
+=|M|-k+(k+1)
+=|M|+1.
+$$
+
+Therefore $M'$ is a matching whose cardinality is one greater than that of $M$. $\square$
+
+```{mermaid}
+%%| fig-cap: "The proposition in bipartite form. Variables are on the left and values on the right. The augmenting path starts and ends at free vertices; toggling blue matched and orange unmatched edges produces a matching with one additional edge."
+flowchart LR
+    subgraph XL["Variables X"]
+      direction TB
+      X0((x0 free))
+      X1((x1))
+      X2((x2))
+      X3((x3))
+    end
+    subgraph YR["Values Y"]
+      direction TB
+      Y0((y0 free))
+      Y1((y1))
+      Y2((y2))
+      Y3((y3))
+    end
+
+    Y0 --- X1
+    X1 --- Y1
+    Y1 --- X2
+    X2 --- Y2
+    Y2 --- X3
+    X3 --- Y3
+    Y3 --- X0
+
+    linkStyle 0 stroke:#d95f02,stroke-width:4px,stroke-dasharray:7 5;
+    linkStyle 1 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 2 stroke:#d95f02,stroke-width:4px,stroke-dasharray:7 5;
+    linkStyle 3 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 4 stroke:#d95f02,stroke-width:4px,stroke-dasharray:7 5;
+    linkStyle 5 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 6 stroke:#d95f02,stroke-width:4px,stroke-dasharray:7 5;
+```
+
+The diagram contains three blue matching edges and four orange unmatched edges. After toggling the path, the four orange edges replace the three blue edges, so the matching gains exactly one edge.
+
+# Augmenting a matching
+
+For sets of edges $A$ and $B$, their symmetric difference is
+
+$$
+A\triangle B=(A\setminus B)\cup(B\setminus A).
+$$
+
+If $P$ is an augmenting path for matching $M$, define
+
+$$
+M'=M\triangle P.
+$$
+
+Along $P$, the operation removes the currently matched edges and inserts the currently unmatched edges. Because an augmenting path begins and ends with unmatched edges, the path contains one more unmatched edge than matched edge. Therefore,
+
+$$
+|M'|=|M|+1.
+$$
+
+The internal vertices remain incident to exactly one selected edge after the exchange. The two free endpoints become matched. Vertices outside the path are unchanged. Hence $M'$ is again a matching.
+
+| Before the exchange | After the exchange |
+|---|---|
+| matched edges of $P$ belong to $M$ | these edges are removed |
+| unmatched edges of $P$ do not belong to $M$ | these edges are inserted |
+| both endpoints are free | both endpoints become matched |
+| $|M|$ selected edges | $|M|+1$ selected edges |
+
+# Maximum bipartite matching
+
+A maximum matching has the greatest possible cardinality. Necessarily,
+
+$$
+|M|\le\min\{|X|,|Y|\}.
+$$
+
+## Berge's theorem
+
+::: {.callout-warning title="Berge's theorem"}
+Let $G$ be a graph and let $M$ be a matching of $G$. Then
+
+$$
+M\text{ is a maximum matching}
+\quad\Longleftrightarrow\quad
+\text{there is no augmenting path with respect to }M.
+$$
+:::
+
+The theorem gives an exact optimality criterion. It does not merely say that an augmenting path is useful: it says that augmenting paths are the **only obstruction** to maximum cardinality.
+
+- If an augmenting path exists, the current matching can be enlarged.
+- If no augmenting path exists, no larger matching exists anywhere in the graph.
+
+### Proof
+
+The equivalence has two directions.
+
+#### $(\Rightarrow)$ A maximum matching has no augmenting path
+
+Assume that $M$ is maximum. Suppose, for contradiction, that an augmenting path $P$ exists with respect to $M$.
+
+By the previous proposition,
+
+$$
+M'=M\triangle P
+$$
+
+is a matching and
+
+$$
+|M'|=|M|+1.
+$$
+
+Thus $M'$ is strictly larger than $M$, contradicting the assumption that $M$ is maximum. Therefore, a maximum matching cannot have an augmenting path.
+
+#### $(\Leftarrow)$ A matching with no augmenting path is maximum
+
+We prove the contrapositive. Assume that $M$ is **not** maximum. Then there exists a matching $M^*$ such that
+
+$$
+|M^*|>|M|.
+$$
+
+Consider the graph formed by the symmetric difference
+
+$$
+H=(V,M\triangle M^*).
+$$
+
+An edge belongs to $H$ exactly when it belongs to one of the two matchings but not to both.
+
+Because both $M$ and $M^*$ are matchings, every vertex of $H$ is incident to:
+
+- at most one edge from $M$;
+- at most one edge from $M^*$.
+
+Therefore every vertex in $H$ has degree at most two. Each connected component of $H$ is consequently one of the following:
+
+1. an isolated vertex;
+2. an alternating path;
+3. an alternating cycle.
+
+Along every nontrivial component, edges alternate between $M$ and $M^*$.
+
+```{mermaid}
+%%| fig-cap: "Structure of the symmetric difference M triangle M*. Every nontrivial component is an alternating path or an alternating even cycle because each vertex is incident to at most one edge from each matching."
+flowchart LR
+    subgraph XL["Left partition"]
+      direction TB
+      X0((x0))
+      X1((x1))
+      X2((x2))
+      X3((x3))
+    end
+    subgraph YR["Right partition"]
+      direction TB
+      Y0((y0))
+      Y1((y1))
+      Y2((y2))
+      Y3((y3))
+    end
+
+    Y0 --- X1
+    X1 --- Y1
+    Y1 --- X2
+    X2 --- Y2
+    Y2 --- X3
+    X3 --- Y3
+    Y3 --- X0
+
+    linkStyle 0 stroke:#d95f02,stroke-width:4px,stroke-dasharray:7 5;
+    linkStyle 1 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 2 stroke:#d95f02,stroke-width:4px,stroke-dasharray:7 5;
+    linkStyle 3 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 4 stroke:#d95f02,stroke-width:4px,stroke-dasharray:7 5;
+    linkStyle 5 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 6 stroke:#d95f02,stroke-width:4px,stroke-dasharray:7 5;
+```
+
+In the diagram, blue edges belong to $M$ and orange dashed edges belong to $M^*$. The displayed component contains one more edge from $M^*$ than from $M$.
+
+Now compare the number of edges contributed by the two matchings in each component.
+
+- In an alternating cycle, the numbers are equal because the cycle has even length.
+- In an even alternating path, the numbers are equal when the first and last edges belong to different matchings.
+- In an odd alternating path, one matching contributes exactly one more edge than the other.
+
+Since
+
+$$
+|M^*|>|M|,
+$$
+
+it is impossible for every component to contain at least as many edges from $M$ as from $M^*$. Therefore, at least one path component contains one more edge from $M^*$ than from $M$.
+
+Such a component must begin and end with edges of $M^*$. Let its endpoints be $u$ and $v$.
+
+Neither endpoint can be matched by $M$ outside the component. If, for example, $u$ were incident to an edge of $M$ outside the component, that edge would also belong to $M\triangle M^*$ and the component would not be maximal. Hence $u$ and $v$ are free with respect to $M$.
+
+The component is therefore:
+
+- alternating with respect to $M$;
+- acyclic, because it is a path;
+- starting and ending at free vertices of $M$.
+
+It is an augmenting path for $M$.
+
+Thus, whenever $M$ is not maximum, an augmenting path exists. Taking the contrapositive, if no augmenting path exists, $M$ is maximum. $\square$
+
+::: {.callout-note title="Why Berge's theorem is algorithmically decisive"}
+The theorem transforms maximum matching into a search problem with a certificate:
+
+- an augmenting path certifies that the current matching is not maximum;
+- the absence of any augmenting path certifies that the current matching is maximum.
+
+This is why the basic algorithm repeatedly searches for augmenting paths and stops exactly when none can be found.
+:::
+
+## Naïve maximum-matching algorithm
+
+Starting from the empty matching, repeatedly find and augment along an augmenting path:
+
+```text
+M := empty matching
+while an augmenting path P for M exists:
+    M := M symmetric-difference P
+return M
+```
+
+Let
+
+$$
+n=\min\{|X|,|Y|\},
+\qquad
+m=|E|.
+$$
+
+At most $n$ augmentations are possible. If each augmenting path is found in $O(m)$ time with a depth-first search, the total cost is
+
+$$
+O(nm).
+$$
+
+The lecture contrasts this with the Hopcroft-Karp bound
+
+$$
+O(m\sqrt n),
+$$
+
+which finds several shortest augmenting paths per phase rather than increasing the matching only once per full scan.
+
+| Method | Augmentation strategy | Complexity stated in the lecture |
+|---|---|---:|
+| naïve algorithm | one augmenting path at a time | $O(nm)$ |
+| Hopcroft-Karp | batches of shortest augmenting paths | $O(m\sqrt n)$ |
+
+# The value graph of `all_different`
+
+For
+
+$$
+C=\operatorname{all\_different}(X_1,\ldots,X_k)
+$$
+
+with domains $D_1,\ldots,D_k$, define its **value graph**
+
+$$
+G_V(C)=\langle X_C,Y_C,E_C\rangle
+$$
+
+by
+
+$$
+X_C=\{X_1,\ldots,X_k\},
+$$
+
+$$
+Y_C=\bigcup_{i=1}^k D_i,
+$$
+
+and
+
+$$
+E_C=\{(X_i,a):a\in D_i\}.
+$$
+
+An edge represents one currently available variable-value assignment. A matching covering all $k$ variable vertices corresponds exactly to an injective assignment satisfying `all_different`.
+
+## Example from the lecture
+
+The domains are
+
+$$
+\begin{aligned}
+X_1&\in1..2, & X_2&\in2..3, & X_3&\in\{1,3\},\\
+X_4&\in\{2,4\}, & X_5&\in3..6, & X_6&\in6..7,\\
+X_7&\in\{8\}. &&
+\end{aligned}
+$$
+
+| Variable | Domain | Edges in $G_V(C)$ |
+|---|---|---|
+| $X_1$ | $\{1,2\}$ | $(X_1,1),(X_1,2)$ |
+| $X_2$ | $\{2,3\}$ | $(X_2,2),(X_2,3)$ |
+| $X_3$ | $\{1,3\}$ | $(X_3,1),(X_3,3)$ |
+| $X_4$ | $\{2,4\}$ | $(X_4,2),(X_4,4)$ |
+| $X_5$ | $\{3,4,5,6\}$ | four edges to $3,4,5,6$ |
+| $X_6$ | $\{6,7\}$ | $(X_6,6),(X_6,7)$ |
+| $X_7$ | $\{8\}$ | $(X_7,8)$ |
+
+The corresponding graph preserves the exact domains:
+
+```{mermaid}
+%%| fig-cap: "Value graph for the seven-variable all-different example."
+flowchart LR
+    X1((X1)) --- V1((1))
+    X1 --- V2((2))
+    X2((X2)) --- V2
+    X2 --- V3((3))
+    X3((X3)) --- V1
+    X3 --- V3
+    X4((X4)) --- V2
+    X4 --- V4((4))
+    X5((X5)) --- V3
+    X5 --- V4
+    X5 --- V5((5))
+    X5 --- V6((6))
+    X6((X6)) --- V6
+    X6 --- V7((7))
+    X7((X7)) --- V8((8))
+```
+
+# Régin's matching characterization
+
+The value graph $G_V(C)$ converts the propagation of `all_different` into a matching problem. The left partition contains the variables of the constraint, the right partition contains the values appearing in their current domains, and an edge represents one currently possible assignment.
+
+For
+
+$$
+C=\operatorname{all\_different}(X_1,\ldots,X_k),
+$$
+
+the graph is
+
+$$
+G_V(C)=\langle X_C,Y_C,E_C\rangle,
+$$
+
+with
+
+$$
+X_C=\{X_1,\ldots,X_k\},
+\qquad
+Y_C=\bigcup_{i=1}^{k}D_i,
+\qquad
+E_C=\{(X_i,a):a\in D_i\}.
+$$
+
+A matching of size $k$ covers every variable in $X_C$. Since a matching cannot use one value vertex twice, such a matching is exactly a complete injective assignment satisfying $C$.
+
+::: {.callout-warning title="Régin's matching characterization"}
+Let
+
+$$
+P=\langle\mathcal C,D\rangle
+$$
+
+be a CSP. Then $P$ is diff-arc consistent if and only if, for every constraint
+
+$$
+C=\operatorname{all\_different}(X_1,\ldots,X_k)
+\in\mathcal C,
+$$
+
+every edge of the value graph $G_V(C)$ belongs to at least one matching of size $k$, that is, a matching having the same size as the set of variables of $C$.
+:::
+
+The theorem characterizes support edge by edge. For an edge $(X_i,a_i)$:
+
+- the edge exists because $a_i\in D_i$;
+- the edge is supported exactly when some size-$k$ matching contains it;
+- if no size-$k$ matching contains it, the value $a_i$ cannot participate in any complete solution of this `all_different` constraint and must be removed from $D_i$.
+
+| Constraint concept | Value-graph concept |
+|---|---|
+| variable $X_i$ | vertex in the left partition $X_C$ |
+| value $a\in D_i$ | vertex in the right partition $Y_C$ |
+| possible assignment $X_i=a$ | edge $(X_i,a)$ |
+| complete solution of $C$ | matching of size $k$ |
+| support for $X_i=a$ | size-$k$ matching containing $(X_i,a)$ |
+| unsupported value | edge contained in no size-$k$ matching |
+
+## Proof
+
+We prove both directions.
+
+### $(\Rightarrow)$ Diff-arc consistency implies matching support for every edge
+
+Assume that $P$ is diff-arc consistent. Consider an arbitrary `all_different` constraint
+
+$$
+C=\operatorname{all\_different}(X_1,\ldots,X_k)
+$$
+
+and an arbitrary edge
+
+$$
+(X_i,a_i)\in E_C.
+$$
+
+By the definition of the value graph,
+
+$$
+a_i\in D_i.
+$$
+
+Because $P$ is diff-arc consistent, $C$ is hyper-arc consistent. Therefore the value $a_i$ has a complete support: there exist values
+
+$$
+a_j\in D_j
+\qquad\text{for every }j\ne i
+$$
+
+such that
+
+$$
+(X_1,\ldots,X_k)=(a_1,\ldots,a_k)
+$$
+
+satisfies $C$. Since $C$ is `all_different`, these values are pairwise distinct:
+
+$$
+a_r\ne a_s
+\qquad\text{whenever }r\ne s.
+$$
+
+Now consider the edge set
+
+$$
+M=\{(X_1,a_1),\ldots,(X_k,a_k)\}.
+$$
+
+Every edge belongs to $E_C$ because $a_j\in D_j$. Moreover:
+
+- every variable vertex $X_j$ occurs exactly once in $M$;
+- every value vertex $a_j$ occurs at most once because the values are pairwise distinct.
+
+Hence $M$ is a matching of size $k$. It contains the original edge $(X_i,a_i)$. Since the edge was arbitrary, every edge of $G_V(C)$ belongs to at least one matching of size $k$.
+
+```{mermaid}
+%%| fig-cap: "Forward direction of Régin's theorem. A complete support for Xi = ai supplies one distinct value for every variable, and the corresponding edges form a size-k matching containing the tested edge."
+flowchart LR
+    subgraph XL["Variables X_C"]
+      direction TB
+      X1((X1))
+      XI((Xi))
+      XK((Xk))
+    end
+    subgraph YR["Values Y_C"]
+      direction TB
+      A1((a1))
+      AI((ai))
+      AK((ak))
+    end
+
+    X1 --- A1
+    XI --- AI
+    XK --- AK
+
+    linkStyle 0 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 1 stroke:#b02a37,stroke-width:5px;
+    linkStyle 2 stroke:#2f6fb0,stroke-width:4px;
+```
+
+The red edge is the tested assignment $X_i=a_i$. Hyper-arc consistency provides all the other blue edges needed to complete it to a matching that covers every variable.
+
+### $(\Leftarrow)$ Matching support for every edge implies diff-arc consistency
+
+Assume now that every edge of $G_V(C)$ belongs to at least one matching of size $k$. We must prove that every value in every variable domain has a complete support.
+
+Take an arbitrary variable $X_i$ and an arbitrary value
+
+$$
+a_i\in D_i.
+$$
+
+By the definition of $E_C$, the edge
+
+$$
+(X_i,a_i)
+$$
+
+belongs to the value graph. By hypothesis, there exists a matching $M$ of size $k$ containing this edge.
+
+There are exactly $k$ variable vertices in $X_C$. A matching of size $k$ can use each variable vertex at most once, so it must cover all variables. Thus, for every $X_j$, the matching contains exactly one edge
+
+$$
+(X_j,a_j).
+$$
+
+Because $M$ is a matching, no two selected edges share a value endpoint. Therefore
+
+$$
+a_r\ne a_s
+\qquad\text{for every }r\ne s.
+$$
+
+The assignment
+
+$$
+X_1=a_1,
+\ldots,
+X_i=a_i,
+\ldots,
+X_k=a_k
+$$
+
+is consequently a solution of the `all_different` constraint $C$. In particular, it is a support for the arbitrarily chosen value $a_i$.
+
+Since both $X_i$ and $a_i\in D_i$ were arbitrary, every value in every domain has a support. Hence $C$ is hyper-arc consistent. Repeating the argument for every `all_different` constraint in $\mathcal C$ gives that $P$ is diff-arc consistent. $\square$
+
+```{mermaid}
+%%| fig-cap: "Backward direction of Régin's theorem. A size-k matching containing the tested edge covers all k variable vertices and therefore directly defines a complete all-distinct support."
+flowchart LR
+    subgraph XL["Variables X_C"]
+      direction TB
+      X1((X1))
+      X2((X2))
+      X3((X3))
+      X4((X4))
+    end
+    subgraph YR["Values Y_C"]
+      direction TB
+      V1((a1))
+      V2((a2))
+      V3((ai))
+      V4((a4))
+      V5((unused))
+    end
+
+    X1 --- V1
+    X2 --- V2
+    X3 --- V3
+    X4 --- V4
+
+    linkStyle 0 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 1 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 2 stroke:#b02a37,stroke-width:5px;
+    linkStyle 3 stroke:#2f6fb0,stroke-width:4px;
+```
+
+A value vertex may remain unused. What matters is that all $k$ variable vertices are matched and that the matching contains the tested red edge.
+
+::: {.callout-important title="Meaning for propagation"}
+Régin's theorem changes the support test for `all_different` from tuple enumeration into graph analysis:
+
+$$
+\text{retain }a\in D_i
+\quad\Longleftrightarrow\quad
+(X_i,a)\text{ belongs to at least one size-}k\text{ matching}.
+$$
+
+Therefore, enforcing diff-arc consistency means deleting exactly the edges that belong to no matching covering all variables.
+:::
+
+## Why one maximum matching is not yet sufficient
+
+Let
+
+$$
+d_i=|D_i|,
+\qquad
+d=\max_i d_i,
+\qquad
+e=\sum_{i=1}^{k}d_i\le kd.
+$$
+
+The value graph contains $k$ variable vertices, $\left|\bigcup_iD_i\right|$ value vertices, and $e$ edges. A maximum matching can be found within the complexity bound used in the lecture:
+
+$$
+O(\sqrt{k}\,e)=O(k^{3/2}d).
+$$
+
+If the maximum matching has size smaller than $k$, the constraint is inconsistent. If its size is $k$, it proves that at least one solution exists. However, that single matching supports only the edges that it uses directly. Other unmatched edges may still belong to different size-$k$ matchings.
+
+Consequently, filtering requires one additional question:
+
+> Which edges belong to at least one maximum matching, even if they do not belong to the particular maximum matching currently stored?
+
+The next sections answer this question through even alternating paths from free value vertices and alternating cycles.
+
+# Edges that occur in maximum matchings
+
+Fix one maximum matching $M$. Every edge now belongs to one of three semantic classes:
+
+| Edge class | Meaning for `all_different` | Filtering action |
+|---|---|---|
+| matched edge | used by the current complete support | always retain |
+| unmatched but exchangeable edge | belongs to another maximum matching | retain |
+| unsupported edge | belongs to no maximum matching | remove from the corresponding domain |
+
+An unmatched edge is exchangeable precisely when it lies on:
+
+1. an acyclic even-length alternating path starting at a free value vertex; or
+2. an alternating cycle, necessarily of even length.
+
+## Even alternating path from a free value
+
+The left partition contains variables and the right partition contains values. Blue edges belong to $M$; orange dashed edges do not. Value $4$ is free. Following the alternating path from free value $4$ allows the matching to be rearranged without changing its size.
+
+```{mermaid}
+%%| fig-cap: "Even alternating path starting at free value 4. Toggling the path replaces blue matched edges with orange unmatched edges while preserving the number of matched variables."
+flowchart LR
+    subgraph XL["Variables X"]
+      direction TB
+      X1((X1))
+      X2((X2))
+      X3((X3))
+    end
+    subgraph YR["Values Y"]
+      direction TB
+      V1((1))
+      V2((2))
+      V3((3))
+      V4((4 free))
+    end
+
+    X1 --- V1
+    X1 --- V2
+    X2 --- V2
+    X2 --- V3
+    X3 --- V3
+    X3 --- V4
+
+    linkStyle 0 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 2 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 4 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 1 stroke:#d95f02,stroke-width:4px,stroke-dasharray:7 5;
+    linkStyle 3 stroke:#d95f02,stroke-width:4px,stroke-dasharray:7 5;
+    linkStyle 5 stroke:#d95f02,stroke-width:4px,stroke-dasharray:7 5;
+```
+
+Toggling the path yields another matching of the same size:
+
+$$
+\{X_1\!\!\! -\!1,
+  X_2\!\!\! -\!2,
+  X_3\!\!\! -\!3\}
+\quad\longrightarrow\quad
+\{X_1\!\!\! -\!2,
+  X_2\!\!\! -\!3,
+  X_3\!\!\! -\!4\}.
+$$
+
+Therefore all orange edges on this path belong to some maximum matching and must remain in the domains.
+
+## Alternating cycle
+
+An alternating cycle also permits a size-preserving exchange. Every variable on the cycle remains matched; only the selected value for each variable changes.
+
+```{mermaid}
+%%| fig-cap: "Alternating cycle. Swapping blue and orange edges produces another maximum matching with the same cardinality."
+flowchart LR
+    subgraph XL["Variables X"]
+      direction TB
+      X1((X1))
+      X2((X2))
+      X3((X3))
+    end
+    subgraph YR["Values Y"]
+      direction TB
+      V1((1))
+      V2((2))
+      V3((3))
+    end
+
+    X1 --- V1
+    X1 --- V2
+    X2 --- V2
+    X2 --- V3
+    X3 --- V3
+    X3 --- V1
+
+    linkStyle 0 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 2 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 4 stroke:#2f6fb0,stroke-width:4px;
+    linkStyle 1 stroke:#d95f02,stroke-width:4px,stroke-dasharray:7 5;
+    linkStyle 3 stroke:#d95f02,stroke-width:4px,stroke-dasharray:7 5;
+    linkStyle 5 stroke:#d95f02,stroke-width:4px,stroke-dasharray:7 5;
+```
+
+The blue matching
+
+$$
+\{X_1-1,X_2-2,X_3-3\}
+$$
+
+can be replaced by the orange matching
+
+$$
+\{X_1-2,X_2-3,X_3-1\}.
+$$
+
+Hence every edge on the cycle is supported.
+
+## Why every optional edge has this form
+
+Suppose edge $e$ belongs to maximum matching $M$ but not to another maximum matching $M'$. In
+
+$$
+M\triangle M',
+$$
+
+every vertex has degree at most two. Starting from $e$, the connected component is therefore an alternating path or an alternating cycle.
+
+- If the component closes, $e$ lies on an alternating cycle.
+- If it does not close, maximality rules out an odd augmenting component; the component is an even alternating path with a free endpoint.
+
+Thus paths and cycles are not merely convenient sufficient conditions. They characterize all changes that transform one maximum matching into another without decreasing its cardinality.
+
+# Efficient filtering of `all_different`
+
+The filtering process can now be read as a sequence of concrete graph operations.
+
+## Step 1: check feasibility
+
+Find a maximum matching $M$ in the value graph.
+
+- If $|M|<k$, at least one variable cannot be matched, so no all-distinct assignment exists and the constraint fails.
+- If $|M|=k$, the matching is one complete support, but unmatched edges still need classification.
+
+## Step 2: find exchangeable edges
+
+Starting from every free value vertex in the right partition, retain edges reachable through even alternating paths. Then detect alternating cycles using strongly connected components in the directed alternating graph.
+
+## Step 3: prune domains
+
+Retain:
+
+- every edge of the current maximum matching;
+- every edge on a retained even alternating path;
+- every edge on an alternating cycle.
+
+Delete every other edge. Deleting edge $(X_i,a)$ means
+
+$$
+D_i:=D_i\setminus\{a\}.
+$$
+
+```{mermaid}
+%%| fig-cap: "Complete matching-based filtering workflow. The partitions remain explicit: variables are on the left, values on the right, and deleting an unsupported edge removes one value from one variable domain."
+flowchart LR
+    subgraph G["Value graph"]
+      direction TB
+      X["Variables X on the left"]
+      Y["Values Y on the right"]
+      X --> E["Edges are current domain memberships"]
+      Y --> E
+    end
+
+    E --> M["Find maximum matching M"]
+    M --> K{"|M| = number of variables?"}
+    K -->|"no"| F["Fail: no injective assignment"]
+    K -->|"yes"| P["Mark even alternating paths from free values"]
+    P --> C["Mark alternating cycles using SCCs"]
+    C --> R["Retain matched and exchangeable edges"]
+    R --> D["Delete every unsupported edge"]
+    D --> U["Update variable domains"]
+```
+
+The cost stated in the lecture is
+
+$$
+O(k^{3/2}d).
+$$
+
+The internal matching and graph data structures can be retained between propagator invocations. After labeling removes values or fixes a variable, the propagator can repair and update the previous matching instead of rebuilding all information from scratch.
+
+::: {.callout-important title="How to read the filtering result"}
+After filtering, every remaining edge from a variable in $X$ to a value in $Y$ belongs to at least one complete matching of size $k$. Therefore every remaining domain value has a complete support for this `all_different` constraint.
+:::
+
+# Other global constraints
+
+The lecture points to the Global Constraint Catalog and the MiniZinc standard library. Global constraints may have highly specialised propagation algorithms. For some constraints, enforcing full generalized arc consistency is NP-hard, so implementations use sound but incomplete filtering.
+
+The MiniZinc constraints listed in the deck include:
+
+| Family | Examples from the slide |
+|---|---|
+| equality and distinctness | `alldifferent`, `alldifferent_except_0`, `all_equal`, `all_disjoint` |
+| counting | `at_least`, `at_most`, `global_cardinality` |
+| packing and scheduling | `bin_packing`, `cumulative` |
+| graph and permutation structure | `circuit`, `inverse` |
+| ordering | `lex_greater`, `lex_less`, `sort` |
+| aggregation and access | `maximum`, `minimum`, `element` |
+| extensional relations | `table` |
+
+Some global constraints accept propagation annotations. The example recalled in the lecture is `:: domain` for `all_different`.
+
+# The `circuit` constraint and the Traveling Salesman Problem
+
+The Traveling Salesman Problem receives a complete directed graph with a cost on every edge and asks for a minimum-cost Hamiltonian circuit.
+
+Use an array $x$ such that
+
+$$
+x_i=j
+$$
+
+means that vertex $j$ is the successor of vertex $i$. The global constraint
+
+```minizinc
+constraint circuit(x);
+```
+
+requires the successor relation to form exactly one directed circuit through all vertices. Without the global constraint, merely requiring all successors to be distinct could permit several disjoint cycles.
+
+The objective is
+
+$$
+\min\sum_i c_{i,x_i},
+$$
+
+where $c_{i,j}$ is the cost of arc $(i,j)$.
+
+```{mermaid}
+%%| fig-cap: "The circuit representation: every vertex has one successor and all successor arcs form one Hamiltonian cycle, not several subtours."
+flowchart LR
+    A((1)) --> B((3))
+    B --> C((4))
+    C --> D((2))
+    D --> A
+```
+
+If the original graph is not complete, forbidden arcs must be excluded explicitly or assigned a representation that prevents the solver from selecting them. A very large artificial cost is not equivalent when feasibility itself matters, because the solver could still use such an arc if no feasible Hamiltonian circuit exists.
+
+# Cumulative scheduling
+
+There are $k$ tasks. Task $i$ has:
+
+- start time $s_i$;
+- fixed duration $d_i$;
+- fixed resource consumption $r_i$.
+
+A renewable resource has capacity $b$. At every time $t$, the total resource consumption of active tasks must satisfy
+
+$$
+\sum_{i:\ s_i\le t<s_i+d_i}r_i\le b.
+$$
+
+The completion time, or makespan, is
+
+$$
+C_{\max}=\max_i(s_i+d_i),
+$$
+
+and the stated objective is to minimise $C_{\max}$.
+
+## Concrete instance
+
+The lecture gives seven tasks and resource capacity $13$.
+
+| Task | Duration | Resource |
+|---:|---:|---:|
+| 1 | 16 | 2 |
+| 2 | 6 | 9 |
+| 3 | 13 | 3 |
+| 4 | 7 | 7 |
+| 5 | 5 | 10 |
+| 6 | 18 | 1 |
+| 7 | 4 | 11 |
+
+A useful way to read a cumulative schedule is as rectangles: horizontal extent is duration and vertical extent is resource consumption. Rectangles may overlap in time only while their combined height does not exceed $13$.
+
+The MiniZinc signature shown in the lecture is:
+
+```minizinc
+cumulative(
+  array[int] of var int: s,
+  array[int] of var int: d,
+  array[int] of var int: r,
+  var int: b
+)
+```
+
+The arguments must use identical index sets. Durations and resource requirements must be non-negative. The constraint reasons simultaneously about all tasks rather than expanding every time point manually.
+
+```{mermaid}
+%%| fig-cap: "How a cumulative schedule combines task intervals and resource consumption. The values are the durations and resource requirements from the lecture; the diagram does not claim a particular optimal placement."
+flowchart LR
+    C["Capacity: 13"] --> T1["Task 1: duration 16, resource 2"]
+    C --> T2["Task 2: duration 6, resource 9"]
+    C --> T3["Task 3: duration 13, resource 3"]
+    C --> T4["Task 4: duration 7, resource 7"]
+    C --> T5["Task 5: duration 5, resource 10"]
+    C --> T6["Task 6: duration 18, resource 1"]
+    C --> T7["Task 7: duration 4, resource 11"]
+    T1 --> R["Choose start times"]
+    T2 --> R
+    T3 --> R
+    T4 --> R
+    T5 --> R
+    T6 --> R
+    T7 --> R
+    R --> B["At every time: total active resource <= 13"]
+    B --> M["Minimise makespan"]
+```
+
+The Gantt chart is only a structural illustration of durations, not a claimed optimal solution to the supplied instance. The resource-capacity condition must still be checked by the `cumulative` constraint, and precedence constraints may be added when the application requires them.
+
+# Exercise: triomino placement
+
+The slide calls the pieces “domino tiles,” but every piece contains **three** contiguous cells. In standard terminology these are triomino-like pieces. To preserve the lecture while avoiding ambiguity, this chapter refers to them as three-cell tiles.
+
+The input contains:
+
+- an $n\times n$ board;
+- $t$ tiles;
+- a $t\times3$ matrix describing the three values on every tile;
+- values from $1..k$.
+
+The supplied instance is:
+
+```minizinc
+par int: k = 3;
+par int: n = 5;
+par int: t = 7;
+array[1..t, 1..3] of 1..k: tile;
+
+tile =
+ [| 1, 2, 3
+  | 2, 2, 2
+  | 3, 1, 3
+  | 1, 1, 2
+  | 3, 3, 3
+  | 2, 3, 1
+  | 3, 2, 2
+  |];
+```
+
+Each selected tile must occupy three contiguous board cells and remain inside the board. The visual rules allow horizontal and vertical straight placements and bent three-cell placements, with rotations reflected by the illustrated shapes.
+
+When cells belonging to distinct tiles are orthogonally adjacent, the touching values must be equal. The objective is to maximise the number of placed tiles.
+
+## Modelling decisions
+
+A complete model must represent:
+
+1. whether each tile is used;
+2. the anchor cell of each used tile;
+3. its orientation or shape;
+4. the three occupied board coordinates;
+5. non-overlap between selected tiles;
+6. board boundaries;
+7. equality of values across contacts between different tiles;
+8. the objective
+   $$
+   \max\sum_{p=1}^{t}\operatorname{used}_p.
+   $$
+
+| Constraint family | Purpose |
+|---|---|
+| placement table | maps anchor and orientation to three occupied cells |
+| boundary constraints | prevent cells from leaving the $n\times n$ board |
+| non-overlap | prevent two used tiles from occupying one cell |
+| contact compatibility | require equal labels on orthogonally adjacent cells of different tiles |
+| usage reification | activates placement constraints only when a tile is selected |
+| objective | maximises the number of selected tiles |
+
+::: {.callout-warning title="Terminology in the source slide"}
+The source says “domino,” but the data and drawings use pieces with three cells. The discrepancy is reported rather than silently changing the source problem.
+:::
+
+# Invited-talk interlude
+
+The deck contains an invited-talk announcement between the two portions of the `all_different` lecture. The announcement reports a thesis on automated algorithm design through code evolution and lists two related publications. It does not introduce additional formal material used by the matching-based propagator, so it remains an interlude rather than a new technical section.
+
+# Sources
+
+- Original lecture slide deck: `09 - 28-10-2026.pdf`, 44 exported pages corresponding to 37 numbered slides plus progressive animation frames. Used for the complete lecture order, definitions, proofs, graph examples, algorithms, MiniZinc constraint lists, cumulative-scheduling instance, and the three-cell tile exercise.

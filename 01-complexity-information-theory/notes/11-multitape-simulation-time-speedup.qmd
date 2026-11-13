@@ -1,0 +1,438 @@
+---
+title: "Multitape Simulation, Time Complexity, and Linear Speed-Up"
+subtitle: "Lecture 11 - 5 November 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+```{=html}
+<style>
+.theorem-box {
+  border: 2px solid #b02a37;
+  border-left: 0.55rem solid #b02a37;
+  border-radius: 0.45rem;
+  padding: 1rem 1.15rem 0.85rem;
+  margin: 1.25rem 0;
+  background: rgba(176, 42, 55, 0.07);
+}
+.theorem-box > :first-child { margin-top: 0; }
+.theorem-box > :last-child { margin-bottom: 0; }
+.theorem-title {
+  color: #b02a37;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+@media (prefers-color-scheme: dark) {
+  .theorem-box {
+    background: rgba(255, 107, 122, 0.10);
+    border-color: #ff6b7a;
+  }
+  .theorem-title { color: #ff8a96; }
+}
+.tape-figure {
+  margin: 1.2rem 0 1.5rem;
+  padding: 1rem;
+  border: 1px solid rgba(108,117,125,.45);
+  border-radius: .55rem;
+  overflow-x: auto;
+}
+.tape-row, .packed-row {
+  display: flex;
+  align-items: stretch;
+  width: max-content;
+  min-width: 100%;
+  margin: .55rem 0;
+}
+.tape-label {
+  width: 5.5rem;
+  flex: 0 0 5.5rem;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+}
+.tape-cell {
+  position: relative;
+  min-width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #495057;
+  border-right: 0;
+  background: rgba(13,110,253,.08);
+  font-family: var(--bs-font-monospace, monospace);
+  font-size: 1.05rem;
+}
+.tape-cell:last-child { border-right: 1.5px solid #495057; }
+.tape-cell.head { background: rgba(176,42,55,.13); }
+.tape-cell.head::after {
+  content: "▲";
+  position: absolute;
+  left: 50%;
+  bottom: -1.5rem;
+  transform: translateX(-50%);
+  color: #b02a37;
+  font-size: 1.05rem;
+}
+.tape-gap { min-width: 1.5rem; border: 0; background: transparent; }
+.macro-cell {
+  min-width: 7.5rem;
+  min-height: 3.4rem;
+  padding: .35rem .6rem;
+  border: 2px solid #6f42c1;
+  border-right: 0;
+  background: rgba(111,66,193,.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--bs-font-monospace, monospace);
+}
+.macro-cell:last-child { border-right: 2px solid #6f42c1; }
+.figure-caption-local { margin-top: 1.6rem; color: #6c757d; font-size: .92rem; }
+@media (prefers-color-scheme: dark) {
+  .tape-cell { border-color: #adb5bd; background: rgba(77,171,247,.12); }
+  .tape-cell:last-child { border-right-color: #adb5bd; }
+  .tape-cell.head { background: rgba(255,107,122,.16); }
+  .tape-cell.head::after { color: #ff8a96; }
+  .macro-cell { border-color: #b197fc; background: rgba(177,151,252,.14); }
+  .macro-cell:last-child { border-right-color: #b197fc; }
+}
+</style>
+```
+
+# Simulating a multitape Turing machine with one tape
+
+The lecture begins by comparing the running time of a $k$-tape Turing machine with that of a standard single-tape Turing machine. The purpose is not merely to show that the two models decide the same languages: it is to quantify the time overhead introduced by the simulation.
+
+Let $M$ be a $k$-tape Turing machine deciding a language $L \subseteq \Sigma^*$. On an input $x$ of length $n=|x|$, assume that $M$ halts after at most $f(n)$ steps, with
+
+$$
+f(n) \ge n.
+$$
+
+The lower bound $f(n)\ge n$ is used later to simplify $O(n+kf(n))$ to $O(f(n))$, because the number $k$ of tapes is fixed for the machine.
+
+::: {.theorem-box}
+<div class="theorem-title">Multitape-to-single-tape simulation</div>
+
+If a $k$-tape Turing machine $M$ decides $L \subseteq \Sigma^*$ in at most $f(n)$ steps, where $f(n)\ge n$, then there exists a single-tape Turing machine $M'$ deciding the same language in at most $\widehat f(n)$ steps, with
+
+$$
+\widehat f(n) \in O\!\left((f(n))^2\right).
+$$
+
+Equivalently, for every input $x$,
+
+$$
+M'(x)=\mathrm{yes}
+\quad\Longleftrightarrow\quad
+M(x)=\mathrm{yes}
+\quad\Longleftrightarrow\quad
+x\in L.
+$$
+:::
+
+## Encoding the $k$ tapes on one tape
+
+The tape alphabet of $M'$ must represent both the symbols written by $M$ and the positions of the $k$ tape heads. If $\Gamma$ is the tape alphabet of $M$, the simulator uses an enriched alphabet containing unmarked and marked versions of its symbols. A marked symbol records that the simulated head is currently scanning that tape cell.
+
+The contents of the $k$ tapes are stored consecutively on the single tape of $M'$, separated by delimiters. Thus, one tape contains a complete instantaneous representation of all the tapes of $M$.
+
+```{=html}
+<figure class="tape-figure" aria-labelledby="multitape-caption">
+  <div class="tape-row" aria-label="First tape containing the input">
+    <div class="tape-label">Tape 1</div>
+    <div class="tape-cell">▷</div><div class="tape-cell head">x₁</div><div class="tape-cell">…</div><div class="tape-cell">xₙ</div><div class="tape-cell">□</div><div class="tape-cell">□</div><div class="tape-cell">…</div>
+  </div>
+  <div class="tape-row" aria-label="Second tape initially blank">
+    <div class="tape-label">Tape 2</div>
+    <div class="tape-cell">▷</div><div class="tape-cell head">□</div><div class="tape-cell">□</div><div class="tape-cell">□</div><div class="tape-cell">□</div><div class="tape-cell">□</div><div class="tape-cell">…</div>
+  </div>
+  <div class="tape-row" aria-label="Intermediate blank tapes">
+    <div class="tape-label">⋮</div>
+  </div>
+  <div class="tape-row" aria-label="Kth tape initially blank">
+    <div class="tape-label">Tape k</div>
+    <div class="tape-cell">▷</div><div class="tape-cell head">□</div><div class="tape-cell">□</div><div class="tape-cell">□</div><div class="tape-cell">□</div><div class="tape-cell">□</div><div class="tape-cell">…</div>
+  </div>
+  <figcaption id="multitape-caption" class="figure-caption-local">Initial configuration of M: tape 1 contains the input x, while tapes 2 through k contain only blank symbols. Every head starts on the first data cell.</figcaption>
+</figure>
+
+<figure class="tape-figure" aria-labelledby="single-tape-caption">
+  <div class="tape-row" aria-label="Single-tape encoding of all tapes">
+    <div class="tape-label">Tape of M′</div>
+    <div class="tape-cell">⊢</div><div class="tape-cell">x₁</div><div class="tape-cell head">x₂</div><div class="tape-cell">…</div><div class="tape-cell">xₙ</div>
+    <div class="tape-cell">#</div><div class="tape-cell">a₁</div><div class="tape-cell">a₂</div><div class="tape-cell head">a₃</div><div class="tape-cell">…</div>
+    <div class="tape-cell">#</div><div class="tape-cell">…</div><div class="tape-cell">#</div><div class="tape-cell head">b₁</div><div class="tape-cell">b₂</div><div class="tape-cell">…</div><div class="tape-cell">bᵣ</div><div class="tape-cell">□</div>
+  </div>
+  <figcaption id="single-tape-caption" class="figure-caption-local">The simulator stores the k tape contents one after another. Delimiters separate tape blocks, and the red markers encode the k simulated head positions.</figcaption>
+</figure>
+```
+
+The logical content of the handwritten tape drawing is captured by the following compact representation:
+
+The construction in the notes compares the original machine and its simulator as follows.
+
+| Component | Original machine $M$ | Simulating machine $M'$ |
+|---|---|---|
+| Number of tapes | $k$ tapes | One tape |
+| Initial tape contents | Tape 1 contains $x=x_1\cdots x_n$; tapes $2,\ldots,k$ contain only blanks | The input is initially $x=x_1\cdots x_n$; during the simulation, one tape stores the $k$ tape contents of $M$ consecutively |
+| Language decided | $M(x)=\mathrm{yes}\Longleftrightarrow x\in L$ | $M'(x)=\mathrm{yes}\Longleftrightarrow x\in L$ |
+| Running time | At most $f(|x|)$ | $O((f(|x|))^2)$ |
+| Tape alphabet | $\Gamma$ | An extended alphabet $\Gamma'$ containing the symbols of $\Gamma$, marked copies used to record head positions, and dedicated separator/blank markers |
+
+The marked copy of a symbol is not new simulated data. It records that the corresponding head of $M$ is scanning that cell. The separator symbols identify where one simulated tape block ends and the next begins.
+
+## Simulating one transition of $M$
+
+To simulate one step of $M$, the single-tape machine $M'$ performs two conceptual passes.
+
+1. **Read pass.** It scans the encoded tape, finds the $k$ marked symbols currently read by the heads of $M$, and stores those $k$ symbols in its finite control.
+2. **Update pass.** It returns across the encoding and performs the writes, head movements and state change prescribed by the transition function of $M$.
+
+```{mermaid}
+%%| fig-cap: "One simulated transition requires a scan to collect the read symbols and a second pass to apply the transition."
+flowchart LR
+  C[Encoded configuration] --> R[Scan all tape blocks]
+  R --> S[Store k scanned symbols in the state]
+  S --> B[Return across the encoding]
+  B --> U[Write symbols and move head markers]
+  U --> N[Next encoded configuration]
+  classDef data fill:#0d6efd,color:#fff,stroke:#084298;
+  classDef action fill:#198754,color:#fff,stroke:#0f5132;
+  class C,N data;
+  class R,S,B,U action;
+```
+
+The expensive case occurs when a simulated head moves beyond the represented end of one of its tapes. The corresponding tape block must grow, so $M'$ may need to shift the remainder of its physical tape one cell to the right. Therefore, the cost of one simulated transition is proportional to the total length of the current encoding.
+
+## Maximum length of the encoding
+
+Initially, the input contributes $n$ cells. During one transition, each of the $k$ simulated heads can extend its tape content by at most one cell. Hence, after $t$ steps of $M$, the sum of the represented tape lengths is at most
+
+$$
+O(n+kt).
+$$
+
+Since $t\le f(n)$,
+
+$$
+O(n+kt)
+\subseteq O(n+kf(n))
+=O(f(n)),
+$$
+
+where the last equality uses the facts that $k$ is constant and $f(n)\ge n$.
+
+```{mermaid}
+%%| fig-cap: "The represented tape content grows by at most k cells per simulated step."
+flowchart LR
+  I["Initial length: n"] --> G["Growth per step: at most k cells"]
+  G --> T["After t steps: order n plus kt"]
+  T --> F["At most f(n) simulated steps"]
+  F --> Q["Final encoded length: order f(n)"]
+  classDef start fill:#0d6efd,color:#fff,stroke:#084298
+  classDef bound fill:#6f42c1,color:#fff,stroke:#432874
+  class I start
+  class G,T,F,Q bound
+```
+
+## Total simulation time
+
+In the worst case, $M'$ scans or shifts an encoding of length $O(f(n))$ in order to simulate one step of $M$. The constant number of passes and the fixed number $k$ of tapes are absorbed into the asymptotic notation:
+
+$$
+\text{cost of one simulated step}=k\cdot O(f(n))=O(f(n)).
+$$
+
+Machine $M'$ must simulate at most $f(n)$ steps. Therefore,
+
+$$
+\underbrace{f(n)}_{\text{simulated steps}}
+\cdot
+\underbrace{O(f(n))}_{\text{cost per step}}
+=
+O\!\left((f(n))^2\right).
+$$
+
+| Quantity | Upper bound |
+|---|---:|
+| Length of the complete one-tape encoding | $O(f(n))$ |
+| Cost of simulating one step of $M$ | $O(f(n))$ |
+| Number of steps simulated | $f(n)$ |
+| Total running time of $M'$ | $O((f(n))^2)$ |
+
+The quadratic bound is a worst-case upper bound. It reflects repeated full scans and possible shifts of the encoded tapes, not a claim that every simulated step necessarily takes the maximum time.
+
+# The deterministic time class $\operatorname{TIME}(f(n))$
+
+The simulation result motivates a formal definition of deterministic time complexity that allows any fixed number of tapes.
+
+Let $f:\mathbb{N}\to\mathbb{N}$ be a function satisfying $f(n)\ge n$.
+
+$$
+\operatorname{TIME}(f(n))
+=
+\left\{
+L \subseteq \Sigma^*
+\ \middle|\
+\begin{array}{l}
+L \text{ can be decided by a }k\text{-tape Turing machine}\\
+\text{working in at most }f(n)\text{ steps}
+\end{array}
+\right\}.
+$$
+
+Here:
+
+- $n$ is the length of the input;
+- $f(n)$ is the allowed worst-case number of computation steps;
+- $k$ is a fixed finite number of tapes belonging to the chosen machine;
+- "decided" means that the machine halts on every input and answers correctly.
+
+The preceding simulation theorem shows why the choice between a fixed multitape model and a single-tape model does not destroy the ability to compare running times, although changing the model can introduce a polynomial overhead.
+
+# Linear speed-up
+
+The final part of the lecture studies whether the constant multiplying a time bound is essential. The result is that a multitape Turing machine can be redesigned so that it performs several transitions of the original machine in one larger **macro-step**.
+
+::: {.theorem-box}
+<div class="theorem-title">Time speed-up theorem</div>
+
+If
+
+$$
+L\in\operatorname{TIME}(f(n)),
+$$
+
+then, for every $\varepsilon>0$,
+
+$$
+L\in\operatorname{TIME}(f'(n)),
+\qquad
+f'(n)=\varepsilon f(n)+n+2.
+$$
+:::
+
+The additive term $n+2$ is the cost of reading the input and converting it into the grouped alphabet used by the faster machine. The multiplicative part $\varepsilon f(n)$ is obtained by choosing sufficiently large macro-symbols.
+
+## Example
+
+Suppose that
+
+$$
+L\in\operatorname{TIME}(100n^2).
+$$
+
+Choose $\varepsilon=\frac{1}{100}$. The theorem gives
+
+$$
+f'(n)
+=
+\frac{1}{100}(100n^2)+n+2
+=
+n^2+n+2,
+$$
+
+and consequently
+
+$$
+L\in\operatorname{TIME}(n^2+n+2).
+$$
+
+This does not change the quadratic order of growth. It shows that the leading constant can be reduced, at the cost of a linear input-conversion term.
+
+## Proof idea: grouping cells into macro-symbols
+
+Let $M$ decide $L$ in at most $f(n)$ steps. Denote its components schematically by
+
+$$
+M=(K,\Sigma,\delta,s),
+$$
+
+where $K$ is its finite set of states, $\Sigma$ is its tape alphabet, $\delta$ is its transition function and $s$ is its initial state.
+
+Construct a machine $M'$ whose larger tape alphabet groups blocks of $m$ symbols of $M$ into one macro-symbol. Thus a symbol of the new alphabet represents an element of $\Sigma^m$. The block size $m$ will be chosen as a function of the desired constant $\varepsilon$.
+
+```{=html}
+<figure class="tape-figure" aria-labelledby="packing-caption">
+  <div class="tape-row" aria-label="Original cells before packing">
+    <div class="tape-label">Tape of M</div>
+    <div class="tape-cell">aᵢ</div><div class="tape-cell">aᵢ₊₁</div><div class="tape-cell">…</div><div class="tape-cell">aᵢ₊ₘ₋₁</div>
+    <div class="tape-gap"></div>
+    <div class="tape-cell">aᵢ₊ₘ</div><div class="tape-cell">…</div><div class="tape-cell">aᵢ₊₂ₘ₋₁</div>
+  </div>
+  <div class="packed-row" aria-label="Packed macro-symbols">
+    <div class="tape-label">Tape of M′</div>
+    <div class="macro-cell">[aᵢ … aᵢ₊ₘ₋₁]</div><div class="macro-cell">[aᵢ₊ₘ … aᵢ₊₂ₘ₋₁]</div>
+  </div>
+  <figcaption id="packing-caption" class="figure-caption-local">Each cell of the faster machine stores a block of m consecutive symbols of the original tape. Two adjacent macro-cells expose at most 2m original cells.</figcaption>
+</figure>
+```
+
+During one macro-step, $M'$ reads and modifies at most two adjacent macro-symbols, corresponding to at most $2m$ cells of the original tape. This local information is enough to reproduce $m$ consecutive steps of $M$: in $m$ steps, the original head cannot move farther than $m$ cells from its starting position.
+
+The lecture's construction assigns at most six elementary steps of $M'$ to one macro-step. Therefore, $m$ steps of $M$ are simulated in at most six steps of $M'$.
+
+| Machine action | Amount handled | Cost in the construction |
+|---|---:|---:|
+| Read/modify local macro-region | At most $2$ macro-symbols of size $m$ | At most $6$ steps of $M'$ |
+| Simulate original computation | $m$ steps of $M$ | At most $6$ steps of $M'$ |
+| Simulate $f(n)$ steps of $M$ | $f(n)/m$ macro-steps | At most $6f(n)/m$ steps of $M'$ |
+
+Hence the simulation phase takes at most
+
+$$
+\frac{6}{m}f(n)
+$$
+
+steps. To make this coefficient no larger than the prescribed $\varepsilon$, choose $m$ so that
+
+$$
+\frac{6}{m}\le\varepsilon,
+\qquad\text{for example}\qquad
+m\ge\left\lceil\frac{6}{\varepsilon}\right\rceil.
+$$
+
+The computation then has two phases.
+
+```{mermaid}
+%%| fig-cap: "The total running time consists of input conversion followed by accelerated simulation."
+flowchart LR
+  X["Input of length n"] --> C["Convert the input"]
+  C --> E["Grouped tape encoding"]
+  E --> S["Simulate blocks of m steps"]
+  S --> H["Accept or reject"]
+  C -. "cost: n plus 2" .-> E
+  S -. "cost: at most epsilon times f(n)" .-> H
+  classDef input fill:#0d6efd,color:#ffffff,stroke:#084298
+  classDef preprocess fill:#6f42c1,color:#ffffff,stroke:#432874
+  classDef simulate fill:#198754,color:#ffffff,stroke:#0f5132
+  class X input
+  class C,E preprocess
+  class S,H simulate
+```
+
+1. **Input conversion.** Read the input and encode it using the grouped alphabet $\Sigma^m$. According to the lecture construction, this needs $n+2$ steps and uses a second tape.
+2. **Accelerated simulation.** Simulate groups of $m$ transitions of $M$, using at most
+   $$
+   \frac{6}{m}f(n)\le\varepsilon f(n)
+   $$
+   steps.
+
+Adding the two costs yields
+
+$$
+f'(n)
+=
+\varepsilon f(n)+n+2.
+$$
+
+The result concerns constant-factor speed-up. The extra $n+2$ term remains because the input must still be read and reorganised before the grouped simulation begins.
+
+# Sources
+
+- Goodnotes lecture PDF: *11 - 05-11-2026.pdf*, Lecture 11, 5 November 2026.

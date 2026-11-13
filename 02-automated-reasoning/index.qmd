@@ -1,0 +1,538 @@
+﻿---
+title: "Automated Reasoning"
+subtitle: "Course notes and materials"
+---
+
+# Course workspace
+
+This section contains the processed notes, original slide decks,
+annotated slide decks, exercises and MiniZinc material for Automated
+Reasoning.
+
+## Organisation
+
+- `notes`: processed Quarto notes
+- `source-material/slides`: original slide decks
+- `source-material/annotated-slides`: the same slides annotated during lectures
+- `source-material/minizinc`: original MiniZinc programs and data files
+- `exercises`: theoretical and programming exercises
+
+# Reusable prompt for generating a note from a slide deck
+
+Copy and use the following prompt whenever a slide deck must be
+converted into a detailed course note.
+
+~~~text
+You are creating one English Quarto chapter for the course
+"Automated Reasoning" in the MSc Artificial Intelligence &
+Cybersecurity at the University of Udine.
+
+MATERIAL I WILL PROVIDE
+
+I will provide some or all of the following:
+
+1. one original PDF slide deck supplied by the lecturer;
+2. a corresponding PDF produced by importing the slides into Goodnotes
+   and writing annotations directly on them;
+3. one or more MiniZinc .mzn files, possibly accompanied by .dzn data
+   files;
+4. exercises or supplementary course files;
+5. relevant references explicitly associated with the deck.
+
+SOURCE PRIORITY
+
+Use the sources in this order:
+
+1. The original slide deck determines the lecture's structure, order,
+   terminology and formal content.
+2. The annotated slide deck provides the lecturer's oral explanations,
+   clarifications, examples, corrections and my additional annotations.
+3. Associated MiniZinc files provide the exact executable models used
+   in the course.
+4. Exercises and official supplementary files clarify the intended
+   practical use.
+5. Academic references may be used only to clarify or verify material
+   already present in the deck.
+
+SLIDE-BY-SLIDE ANALYSIS
+
+Inspect the complete original deck and the complete annotated deck
+before writing.
+
+Match every annotated page to the corresponding original slide, taking
+into account that PDF exports may contain:
+
+- repeated slides created by progressive animations;
+- incremental bullet reveals;
+- duplicate diagrams with one new element;
+- handwritten additions extending beyond the original slide;
+- annotations referring to an earlier or later slide.
+
+Recover:
+
+- every substantive bullet and definition;
+- formulas, inference rules and formal notation;
+- diagrams and relationships;
+- lecturer examples;
+- handwritten explanations and corrections;
+- implementation remarks;
+- references to solver behaviour;
+- exercise instructions;
+- connections to associated MiniZinc code.
+
+Do not describe repeated animation frames as separate concepts. Merge
+incremental versions into the final logical explanation while
+preserving the order in which the concept was introduced.
+
+LECTURE BOUNDARY
+
+The resulting chapter must cover exactly the supplied deck and its
+annotations.
+
+Do not introduce material from later decks, even if the broader course
+programme shows that it will eventually cover SAT, Constraint
+Programming, Logic Programming, Answer Set Programming or planning.
+
+Do not reorganise the deck into a generic Automated Reasoning textbook.
+
+FIDELITY AND EXPLANATION
+
+Include all substantive information from the slides and annotations.
+
+Rewrite slide fragments as readable academic prose, but preserve:
+
+- the progression used by the lecturer;
+- definitions and notation;
+- examples and benchmark problems;
+- algorithmic steps;
+- distinctions between related concepts;
+- practical observations about solvers.
+
+For each important concept already present, explain:
+
+- why it is introduced;
+- which problem it solves;
+- the meaning of each component;
+- how the formal definition connects to the example;
+- why a particular propagation, search or modelling step occurs;
+- what assumptions the statement uses;
+- what the learner should notice in a solver result.
+
+Do not add unrelated theory merely to make the chapter appear complete.
+
+MINIZINC CODE
+
+When MiniZinc files are supplied:
+
+1. Treat the original .mzn and .dzn files as authoritative source code.
+2. Never silently modify the lecturer's code.
+3. Analyse declarations, parameters, decision variables, domains,
+   constraints, solve items, output blocks and annotations.
+4. Explain how each relevant code fragment corresponds to the theory in
+   the slides.
+5. Explain propagation or search behaviour step by step when the
+   material discusses it.
+6. Quote only the code necessary for the explanation.
+7. Use fenced code blocks marked as `minizinc`.
+8. Refer to the original filename.
+9. Distinguish clearly between code supplied by the lecturer and any
+   optional corrected or simplified version.
+10. Do not claim that code was executed unless it was actually executed
+    and its output was observed.
+
+If a potential bug or inconsistency is found, report it explicitly
+rather than silently repairing it.
+
+USE OF EXTERNAL REFERENCES
+
+References may clarify:
+
+- formal definitions;
+- proof steps;
+- solver terminology;
+- semantics;
+- algorithmic intuition;
+- a code construct already used in the lesson.
+
+References must not introduce new paradigms or later course material
+that does not occur in the current deck.
+
+STRUCTURE OF THE QMD CHAPTER
+
+Follow the deck's logical sequence.
+
+Use:
+
+- major H1 sections for major portions of the deck;
+- H2/H3 sections for real conceptual subdivisions;
+- concise prose instead of copied slide fragments;
+- bullet lists where the slide presents alternatives or properties;
+- numbered steps for algorithms and search procedures;
+- equations for formal material;
+- `minizinc` code blocks for relevant source excerpts;
+- callouts only for important modelling warnings or distinctions.
+
+Do not create a section for every slide. Several slides forming one
+logical explanation should become one coherent section.
+
+Do not impose generic sections such as "Learning objectives",
+"Prerequisites", "Applications" or "Self-test" unless justified by this
+specific deck.
+
+FRONT MATTER
+
+Use:
+
+    ---
+    title: "Descriptive title based on the deck"
+    subtitle: "Lecture or slide-deck identifier"
+    format:
+      html:
+        toc: true
+        toc-depth: 3
+        number-sections: true
+    ---
+
+Do not add author or date metadata unless the user explicitly requests
+it.
+
+VISUAL MATERIALS
+
+The chapter should use visuals when they improve understanding, preserve
+an important diagram from the deck, or make an example easier to study.
+
+Before creating or retrieving any visual, classify it into one of the
+following categories:
+
+1. source-faithful images;
+2. external reference images;
+3. generated explanatory diagrams;
+4. data-driven plots or computational figures;
+5. tables.
+
+SOURCE-FAITHFUL IMAGES
+
+When the original or annotated deck contains a photograph, historical
+image, screenshot, interface, document excerpt or other visual whose
+appearance is relevant:
+
+- first determine whether a clean original version is available online
+  from a reliable and legally reusable source;
+- prefer the clean original image over a crop taken from the slide;
+- use a slide crop only when the slide-specific composition or lecturer
+  annotation is itself important;
+- do not use poorly framed crops containing slide titles, page numbers,
+  unrelated text, borders or large empty areas;
+- do not extract an image from a rendered PDF page unless the crop can be
+  made cleanly and at sufficient resolution;
+- preserve the visual only when it contributes to the explanation;
+- do not add decorative images merely to make the page longer.
+
+When an image is downloaded from the internet:
+
+- prefer Wikimedia Commons, official institutional repositories,
+  university archives, public-domain collections or the image owner's
+  official page;
+- verify the licence or reuse status;
+- use a stable filename written in lowercase with hyphens;
+- cite the image source and licence in the caption or Sources section;
+- do not hotlink the image from the QMD;
+- download it into the local project assets directory.
+
+EXTERNAL REFERENCE IMAGES
+
+External images may be used only when they clarify something already
+present in the supplied lecture material.
+
+Do not use an external image to introduce:
+
+- a person not mentioned in the lecture;
+- a later topic;
+- an unrelated historical detail;
+- a different example that changes the lecture's scope.
+
+For images of people, use a small number of relevant portraits. A
+portrait should normally appear close to the paragraph where that person
+or contribution is discussed.
+
+GENERATED EXPLANATORY DIAGRAMS
+
+Use Mermaid for conceptual diagrams that can be expressed clearly as:
+
+- trees;
+- directed or undirected graphs;
+- workflows;
+- dependency diagrams;
+- search procedures;
+- reduction diagrams;
+- relationships between concepts;
+- solver pipelines.
+
+A Mermaid diagram must represent the actual structure in the lecture.
+Do not create a generic placeholder diagram when the deck contains a
+specific graph, tree, state or assignment.
+
+For each Mermaid diagram:
+
+- use a fenced Quarto `{mermaid}` cell;
+- put the `%%| fig-cap:` option immediately after the opening fence;
+- use short ASCII node identifiers;
+- keep node labels concise;
+- quote labels that contain punctuation;
+- use standard ASCII arrows such as `-->`;
+- avoid unsupported HTML inside labels;
+- use colours only when they encode a distinction explained in the text;
+- include a short paragraph before or after the diagram explaining how
+  it should be read;
+- merge progressive animation frames into the final meaningful diagram;
+- preserve the order in which the deck introduced the elements;
+- use `LR` when a vertical diagram would become excessively tall;
+- use `TD` when the hierarchy or search depth is the important feature.
+
+Do not use Mermaid for:
+
+- chessboards or spatial grids;
+- quantitative charts;
+- plots derived from numerical data;
+- diagrams that require exact geometric placement;
+- images whose faithful appearance matters;
+- large graphs that become unreadable in the page width.
+
+DATA-DRIVEN PLOTS AND COMPUTATIONAL FIGURES
+
+Use an executable R or Python chunk for visuals whose geometry or values
+must be computed, including:
+
+- chessboards and board configurations;
+- numerical plots;
+- probability distributions;
+- search-size comparisons;
+- runtime or complexity plots;
+- diagrams based on arrays, matrices or coordinates.
+
+The generated figure must be reproducible from the code in the QMD.
+
+For every executable figure:
+
+- use a named Quarto chunk;
+- set `echo: false`;
+- provide a meaningful `fig-cap`;
+- use the notation and exact values from the lecture;
+- do not invent data;
+- define all data directly from the supplied sources;
+- keep labels in English;
+- ensure that the figure remains readable in both light and dark site
+  themes where practical;
+- avoid unnecessary styling;
+- explain what the learner should notice.
+
+Before adding an executable chunk, verify that the current Quarto project
+already supports the required engine.
+
+Do not introduce a new dependency only for one simple figure when the
+same result can be produced with an engine already used successfully by
+the project.
+
+Do not claim that a script or code chunk was executed unless its output
+was actually observed.
+
+TABLES
+
+Use tables for exact comparisons such as:
+
+- CSP versus COP;
+- alternative modelling choices;
+- variable, domain and constraint summaries;
+- algorithm-step comparisons;
+- supplied probability or codeword data;
+- solver results.
+
+Do not use a table when a short paragraph or bullet list is clearer.
+
+A table must:
+
+- have a clear purpose;
+- use concise headers;
+- preserve the lecturer's terminology;
+- avoid duplicating the surrounding prose;
+- contain only values supported by the supplied material.
+
+ASSET ORGANISATION
+
+Store persistent images for this chapter in:
+
+    02-automated-reasoning/assets/<chapter-filename-without-extension>/
+
+For example:
+
+    02-automated-reasoning/
+    ├── notes/
+    │   └── 01-introduction-to-automated-reasoning-and-constraint-programming.qmd
+    └── assets/
+        └── 01-introduction-to-automated-reasoning-and-constraint-programming/
+            ├── alan-turing-1951.jpg
+            ├── john-mccarthy-stanford.jpg
+            └── daniel-kahneman.jpg
+
+From a QMD file inside `notes/`, reference these assets with:
+
+    ../assets/<chapter-filename-without-extension>/<image-name>
+
+Do not place downloaded images beside the QMD.
+
+Do not create a permanent `scripts` directory for one-time operations.
+
+TEMPORARY DOWNLOAD OR TRANSFORMATION SCRIPTS
+
+When a temporary script is necessary to download or transform assets:
+
+- generate it for placement in the root of the Quarto project;
+- assume the project root is:
+
+      C:\Users\ricca\Desktop\UNIUD MAGISTRALE 2026-2027\uniud-ai-cybersecurity\
+
+- make all paths relative to that root;
+- prefer PowerShell on Windows unless another runtime is already known
+  to be installed and available;
+- do not assume that `Rscript`, Python or another executable is in the
+  system PATH;
+- create the final assets in the correct course assets directory;
+- make the script safe to run more than once;
+- skip valid files that have already been downloaded;
+- verify that every produced file exists and is non-empty;
+- provide the exact command to run the script from the project root;
+- provide the exact command to delete the temporary script afterward.
+
+The temporary script must not be included as a permanent course asset
+unless it is genuinely useful for reproducible future builds.
+
+IMAGE DOWNLOAD WORKFLOW
+
+When external images are required:
+
+1. identify the exact images and verify their relevance;
+2. verify their source and licence;
+3. choose local filenames;
+4. create one temporary PowerShell downloader in the project root;
+5. download the images into the final assets directory;
+6. verify file existence and non-zero size;
+7. reference the local files from the QMD;
+8. list the used images and licences in Sources;
+9. delete the temporary downloader after successful completion.
+
+Do not require the user to download each image manually when the process
+can be automated safely.
+
+VISUAL FIDELITY
+
+When the deck contains a concrete example, reproduce the same example.
+
+For example:
+
+- a 4-Queens figure must use the exact assignments discussed in the
+  lecture;
+- a graph-colouring diagram must preserve the same vertices and edges;
+- a search tree must show the same branching logic and rejected states;
+- a solver workflow must reflect the actual steps described in the deck;
+- a MiniZinc result table must use observed solver output rather than
+  invented values.
+
+If part of a visual is unreadable, explicitly report the uncertainty.
+Do not silently reconstruct missing nodes, values, labels or edges.
+
+VISUAL DENSITY
+
+Use visuals selectively.
+
+A chapter should normally include a visual when:
+
+- the original deck relies on a diagram;
+- the concept is spatial or graph-based;
+- the example is difficult to understand from prose alone;
+- a comparison becomes clearer visually;
+- the visual supports oral explanation.
+
+Do not add a visual after every paragraph. Avoid repeating the same
+information in prose, table and diagram unless each representation adds
+a distinct benefit.
+
+SOURCES SECTION
+
+End with a short "Sources" section listing only sources actually used.
+
+Distinguish:
+
+- the original slide deck;
+- the annotated slide deck;
+- MiniZinc and data files actually analysed;
+- exercises or supplementary files actually consulted;
+- academic references actually consulted;
+- external images actually included.
+
+For every external image, record:
+
+- the image title or filename;
+- the hosting repository or institution;
+- the reuse licence or public-domain status;
+- whether the local file was downloaded or modified.
+
+Do not list:
+
+- a reference that was not consulted;
+- an image that does not appear in the final chapter;
+- a general website homepage when a specific image page was used;
+- temporary scripts used only to download assets.
+
+QUALITY CHECK BEFORE DELIVERY
+
+Verify that:
+
+1. every substantive slide has been incorporated;
+2. handwritten annotations have been recovered correctly;
+3. animation duplicates have been merged correctly;
+4. no later deck content has been anticipated;
+5. all MiniZinc explanations match the supplied code;
+6. code provenance is explicit;
+7. important concepts include the relevant "why";
+8. the structure remains lightweight and suitable for study;
+9. every included visual has a clear explanatory purpose;
+10. diagrams reproduce the actual examples and relationships from the lecture;
+11. external images are clean, locally stored and correctly attributed;
+12. no poor-quality slide crops are used when a clean source is available;
+13. generated figures use exact values from the supplied material;
+14. no synthetic or invented numerical data have been introduced;
+15. Mermaid cells are balanced and syntactically valid;
+16. executable R or Python figures use an engine already supported by the project;
+17. image paths are valid relative to the QMD;
+18. all persistent assets are inside the chapter-specific assets folder;
+19. no unnecessary temporary scripts or intermediate files are included;
+20. the QMD uses UTF-8 without BOM and LF line endings;
+21. the complete Quarto project renders without errors or warnings;
+22. the result is one complete, ready-to-save QMD chapter with any necessary local assets.
+
+DELIVERABLE
+
+Return:
+
+1. one complete QMD file ready for:
+
+       02-automated-reasoning/notes/
+
+2. any persistent images required by the chapter, organised under:
+
+       02-automated-reasoning/assets/<chapter-filename-without-extension>/
+
+3. when external assets must be downloaded, one temporary PowerShell
+   script intended to be saved and executed from the Quarto project
+   root, followed by instructions for deleting it;
+
+4. when several files are required, one ZIP whose internal structure
+   matches the intended `02-automated-reasoning/` directory.
+
+Use a two-digit chronological filename for the QMD.
+
+The QMD must use UTF-8 without BOM and LF line endings.
+
+Do not include temporary render files, PDF page renders, montages,
+debugging images, backup files or obsolete scripts in the final package.
+~~~

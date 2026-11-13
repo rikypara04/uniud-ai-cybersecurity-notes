@@ -1,0 +1,464 @@
+---
+title: "MiniZinc Search Annotations and Constraint Modelling"
+subtitle: "Lecture 5 - 14 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# From the propagation-labeling tree to search heuristics
+
+Constraint solving combines two complementary mechanisms:
+
+- **propagation**, which reasons about the constraints and removes values that cannot participate in a solution;
+- **labeling**, which makes a choice that propagation alone cannot justify, thereby creating branches in the search tree.
+
+If a choice later leads to failure, the solver backtracks and explores another branch. The resulting structure is the **propagation-labeling tree**.
+
+```{mermaid}
+%%| fig-cap: "Schematic propagation-labeling tree: propagation reduces domains at each node, while labeling creates alternative branches."
+flowchart TD
+    R["Initial CSP"] --> P0["Propagate"]
+    P0 --> C{"Choose a variable and a value"}
+    C --> L["Left branch"]
+    C --> R1["Right branch"]
+    L --> PL["Propagate"]
+    R1 --> PR["Propagate"]
+    PL --> S1["Solution or further branching"]
+    PR --> S2["Solution, failure, or further branching"]
+
+    classDef propagation fill:#e2f0d9,stroke:#548235,stroke-width:2px;
+    classDef choice fill:#fff2cc,stroke:#b38600,stroke-width:2px;
+    classDef result fill:#e8f1ff,stroke:#2f6fb0,stroke-width:2px;
+    class P0,PL,PR propagation;
+    class C choice;
+    class S1,S2 result;
+```
+
+The lecture makes an important distinction between the **solutions of the problem** and the **cost of finding them**. Changing the first variable selected or the first value attempted does not change the number of successful leaves: the solution set of the CSP remains the same. However, these choices can change:
+
+- the shape of the search tree;
+- the order in which solutions are encountered;
+- the number of internal nodes visited before a solution or proof of failure is obtained;
+- the amount of time spent exploring unproductive branches.
+
+This is the motivation for **search heuristics**. A heuristic does not change what counts as a solution; it changes how the solver explores the search space.
+
+## Invoking search
+
+The construction and traversal of the propagation-labeling tree are requested through a built-in operation:
+
+- `labeling` in Constraint Logic Programming over Finite Domains (CLP(FD));
+- `solve` in MiniZinc.
+
+The handwritten annotation recalls that CLP(FD) was the first Constraint Programming language discussed in the course. The model describes the problem, whereas the search strategy controls how the solver explores the choices left after propagation.
+
+A solver may expose parameters for:
+
+- choosing a variable, such as the leftmost variable or a first-fail choice;
+- choosing or excluding a value from the selected domain;
+- approximate search;
+- Large Neighbourhood Search (LNS);
+- time limits and other stopping conditions.
+
+# MiniZinc solve items
+
+MiniZinc distinguishes satisfaction from optimisation through the solve item.
+
+```minizinc
+solve satisfy;
+```
+
+This asks for an assignment satisfying all constraints, without an objective function.
+
+```minizinc
+solve maximize(arithmetic_expression);
+```
+
+```minizinc
+solve minimize(arithmetic_expression);
+```
+
+The objective may be a single variable or a more complex arithmetic expression. Maximising $f(x)$ is mathematically equivalent to minimising $-f(x)$, but MiniZinc provides both forms directly so that the model can state the intended objective clearly.
+
+| Solve item | Meaning |
+|---|---|
+| `solve satisfy;` | find a feasible assignment |
+| `solve maximize(e);` | find a feasible assignment with maximum value of `e` |
+| `solve minimize(e);` | find a feasible assignment with minimum value of `e` |
+
+# Search annotations
+
+The lecture introduces integer search through the schematic annotation
+
+```minizinc
+int_search(variables, varchoice, constrainchoice)
+```
+
+where:
+
+- `variables` is a one-dimensional array of integer decision variables;
+- `varchoice` specifies which variable should be considered next;
+- `constrainchoice` specifies how the selected variable should be constrained.
+
+The annotation controls search rather than changing the declarative constraints. In particular, the same model can be tested with several annotations without changing its set of solutions.
+
+## Variable-choice annotations
+
+A variable-choice heuristic attempts to select the variable whose assignment is expected to expose useful propagation or failure early.
+
+| Annotation | Choice made |
+|---|---|
+| `input_order` | select variables in the order supplied to `int_search` |
+| `occurrence` | select the variable participating in the largest number of constraints |
+| `first_fail` | select a variable with the smallest current domain |
+| `anti_first_fail` | select a variable with the largest current domain |
+| `most_constrained` | select a smallest-domain variable, breaking ties by the number of attached constraints |
+| `dom_w_deg` | use a domain-size to weighted-degree criterion, where failures increase constraint weights |
+| `impact` | select the variable with the largest measured impact on the remaining search space |
+| `max_regret` | select the variable with the largest difference between the two smallest values in its domain |
+| `smallest` | select the variable whose domain currently contains the smallest value |
+| `largest` | select the variable whose domain currently contains the largest value |
+
+The **first-fail principle** tries to branch on the variable most likely to become impossible. If the current partial assignment is inconsistent, discovering that inconsistency near the top of the tree avoids constructing a much larger doomed subtree. `most_constrained` refines this idea by using constraint participation as a tie-breaker.
+
+`anti_first_fail` makes the opposite choice. It is therefore not a generally interchangeable spelling of `first_fail`; it deliberately favours the variable with the largest domain.
+
+## Domain-choice annotations
+
+After selecting a variable, a domain-choice annotation determines the next branch. Some annotations assign a value; others split the domain or remove one value.
+
+| Annotation | Effect on the selected domain |
+|---|---|
+| `indomain` | try values in ascending order |
+| `indomain_interval` | if the domain has several contiguous intervals, keep the first interval; otherwise bisect it |
+| `indomain_max` | assign the largest value |
+| `indomain_median` | assign a middle value of the domain |
+| `indomain_middle` | assign the domain value closest to the mean of the current lower and upper bounds |
+| `indomain_min` | assign the smallest value |
+| `indomain_random` | assign a randomly selected value |
+| `indomain_reverse_split` | bisect the domain and exclude the lower half first |
+| `indomain_split` | bisect the domain and exclude the upper half first |
+| `indomain_split_random` | bisect the domain and randomly decide which half to exclude first |
+| `outdomain_max` | exclude the largest value |
+| `outdomain_median` | exclude a middle value |
+| `outdomain_min` | exclude the smallest value |
+| `outdomain_random` | exclude a randomly selected value |
+
+The distinction between `indomain_median` and `indomain_middle` matters. The former is based on the ordered values actually present in the domain. The latter uses the mean of the current bounds and then chooses the available value closest to that mean. The results can differ when the domain has holes.
+
+# Constraint Programming in practice
+
+The lecture returns from the abstract solving process to language support. A CSP or COP contains variables, domains, and constraints; a solver combines propagation with choices and backtracking. To use this process in practice, a modelling language is needed.
+
+Constraint Logic Programming was introduced as a parametric extension of Prolog. Later systems adopted other languages and interfaces. The annual solver challenge encouraged the emergence of MiniZinc as a common high-level modelling language through which the same model can be connected to different back-end solvers.
+
+## MiniZinc and FlatZinc
+
+A MiniZinc model is translated into an equivalent FlatZinc model, either implicitly by the toolchain or explicitly. The command shown in the lecture is:
+
+```text
+minizinc --solver gecode prova.mzn --fzn out.fzn
+```
+
+FlatZinc is an unfolded, solver-oriented representation consisting mainly of simple, flat constraints. High-level MiniZinc notation is therefore separated from the lower-level format consumed by a solver.
+
+```{mermaid}
+%%| fig-cap: "Translation pipeline presented in the lecture: a high-level MiniZinc model is flattened before being passed to a solver."
+flowchart LR
+    P["Problem"] --> M["MiniZinc model"]
+    M --> F["FlatZinc model"]
+    F --> S["Constraint solver"]
+    S --> O["Solution or search result"]
+
+    classDef model fill:#fff2cc,stroke:#b38600,stroke-width:2px;
+    classDef solver fill:#e2f0d9,stroke:#548235,stroke-width:2px;
+    class M,F model;
+    class S solver;
+```
+
+Flattening preserves the meaning of the model while replacing convenient high-level constructs with a representation closer to the primitive constraints supported by the selected solver.
+
+# MiniZinc declarations
+
+## Parameters and decision variables
+
+Every MiniZinc declaration has a type. The lecture distinguishes parameters from decision variables:
+
+```minizinc
+par int: a = 3;
+var int: b;
+```
+
+A parameter is fixed for one model instance and should be assigned as soon as possible. `par` is the default qualification. A `var` declaration introduces a value that the solver must determine and should therefore be written explicitly.
+
+The principal types introduced in the deck are:
+
+- `int`, for integer values and finite-domain decision variables;
+- `bool`, for Boolean values, which are a special finite-domain case;
+- `float`, for floating-point variables in hybrid models;
+- `string`, additionally available for textual values.
+
+A decision variable should normally have a specified domain:
+
+```minizinc
+var 0..100: v;
+var {0, 2, 4, 6}: w;
+```
+
+The first declaration uses an integer interval, written with two dots. The second explicitly lists the allowed values.
+
+::: {.callout-important title="Parameters are fixed; decision variables are searched"}
+A parameter such as `a` receives one value for the model instance. A decision variable such as `b`, `v`, or `w` represents an unknown whose value must be restricted by constraints and eventually determined by solving.
+:::
+
+## Arrays
+
+MiniZinc supports arrays with one or more index sets:
+
+```minizinc
+array[indexset1, indexset2] of var type: varname;
+```
+
+The examples from the lecture are:
+
+```minizinc
+array[0..2] of var 1..5: v;
+array[1..5, 1..5] of var 0..2: M;
+```
+
+The first declaration creates a one-dimensional array indexed by $0,1,2$. The second creates a $5\times5$ array. Elements are accessed as `v[i]` and `M[i,j]`.
+
+## Set variables and set expressions
+
+A declaration such as
+
+```minizinc
+set of 1..8: s;
+```
+
+allows `s` to denote a subset of $\{1,\ldots,8\}$. The deck lists operations for constructing set expressions:
+
+- membership: `in`;
+- inclusion: `subset`, `superset`;
+- union: `union`;
+- intersection: `inter`;
+- difference: `diff`;
+- symmetric difference: `symdiff`;
+- cardinality: `card`.
+
+# Writing constraints
+
+Constraints are introduced explicitly with the `constraint` keyword. They may be written directly or generated compactly.
+
+```minizinc
+constraint a + b < 100;
+constraint a \/ b;
+```
+
+For Boolean expressions, `a \/ b` is disjunction. The deck also introduces a global constraint:
+
+```minizinc
+constraint alldifferent(v);
+```
+
+Here `v` is an array of variables. The lecture notes that an appropriate global-constraint library may need to be imported; details are postponed to later lessons.
+
+## Universal constraints and comprehensions
+
+A family of pairwise constraints can be generated through `forall`. The list-comprehension form shown in the deck is:
+
+```minizinc
+constraint forall([
+  v[i] != v[j] |
+  i, j in 1..3 where i < j
+]);
+```
+
+A more readable generator form is:
+
+```minizinc
+constraint forall(i, j in 1..3 where i < j)(
+  v[i] != v[j]
+);
+```
+
+The indices range over `1..3`, while `where i < j` removes duplicate and reflexive pairs. The body then requires every selected pair of variables to have different values.
+
+# Aggregates as propagating constraints
+
+MiniZinc provides aggregates such as `min` and `sum`. For example:
+
+```minizinc
+constraint s = min(i in 1..n)(vec[i]);
+```
+
+For the complete vector, the lecture gives the equivalent compact expression:
+
+```minizinc
+constraint s = min(vec);
+```
+
+Generators may filter multidimensional arrays:
+
+```minizinc
+constraint s = sum(
+  i in 1..n,
+  j in 1..n where i + j <= n
+)(mat[i, i + j]);
+```
+
+The `where` condition selects only index pairs satisfying $i+j\le n$. The aggregate then sums the corresponding matrix entries.
+
+These constructs are not merely one-way programming-language functions. They establish constraints and therefore support propagation in multiple directions.
+
+## Propagation through a minimum constraint
+
+Consider
+
+$$
+X=\min(A,B,C,D)
+$$
+
+with domains
+
+$$
+D_X=2..10,
+\quad
+D_A=4..20,
+\quad
+D_B=4..5,
+\quad
+D_C=5..23,
+\quad
+D_D=7..20.
+$$
+
+The minimum cannot be below $4$, because every argument is at least $4$. It cannot exceed $5$, because $B$ is guaranteed to be at most $5$. Therefore propagation infers
+
+$$
+D_X=4..5.
+$$
+
+Furthermore, $D$ cannot be the variable attaining the minimum, since its lower bound is $7$, whereas the minimum is at most $5$. The example illustrates why an aggregate is a genuine constraint: information flows from the argument domains to $X$ and can also rule out roles for individual arguments.
+
+| Variable | Initial domain | Consequence |
+|---|---:|---|
+| $X$ | $2..10$ | reduced to $4..5$ |
+| $A$ | $4..20$ | may attain the minimum |
+| $B$ | $4..5$ | forces the minimum not to exceed $5$ |
+| $C$ | $5..23$ | may attain the minimum only at $5$ |
+| $D$ | $7..20$ | cannot attain the minimum |
+
+# Sequencing search annotations
+
+MiniZinc can combine search strategies through `seq_search`:
+
+```minizinc
+seq_search([
+  <search-ann>,
+  ...,
+  <search-ann>
+])
+```
+
+Each component may use different search parameters and act on a different group of decision variables. This is useful when a model contains distinct classes of decisions. A modeller can specify which class is assigned first and choose a suitable variable and domain heuristic for each class.
+
+```{mermaid}
+%%| fig-cap: "A sequential search applies specialised annotations to different groups of decision variables in a chosen order."
+flowchart LR
+    A["Decision variables"] --> G1["Variable group 1"]
+    A --> G2["Variable group 2"]
+    G1 --> S1["Search annotation 1"]
+    S1 --> G2
+    G2 --> S2["Search annotation 2"]
+    S2 --> R["Remaining search"]
+```
+
+# Restart strategies
+
+A search tree may be too large to traverse within the available time. A poor decision close to the root can direct a deterministic search into a large unproductive region. A **restart** interrupts the current exploration and starts again from the root.
+
+A restart is useful only if the new run can follow a different trajectory. Randomised value selection or another changed heuristic prevents the solver from repeating exactly the same deterministic path.
+
+The example in the lecture combines random value selection with a geometric restart schedule:
+
+```minizinc
+solve
+  :: int_search(x ++ y, most_constrained, indomain_random)
+  :: restart_geometric(1.5, 500);
+```
+
+The expression `x ++ y` concatenates the two arrays of variables searched by the annotation.
+
+## Restart schedules
+
+| Annotation | Node budget before the next restart |
+|---|---|
+| `restart_constant(n)` | always $n$ nodes |
+| `restart_linear(n)` | $nk$ nodes for run $k$ |
+| `restart_geometric(\omega,n)` | $n\omega^k$ nodes for run $k$ |
+| `restart_luby(n)` | $nL[k]$ nodes, where $L$ is the Luby sequence |
+| `restart_none` | no restart |
+
+The schedules express different trade-offs. A constant schedule repeatedly gives the same budget. A linear schedule increases it steadily. A geometric schedule increases it multiplicatively. The Luby schedule repeatedly returns to short runs while also allocating runs of increasing length.
+
+## The Luby sequence
+
+The sequence shown in the lecture begins
+
+$$
+1,1,2,1,1,2,4,1,1,2,1,1,2,4,8,\ldots
+$$
+
+All run lengths are powers of two. After two runs of a given length have been completed in the recursive pattern, a run of twice that length appears.
+
+One recursive definition is
+
+$$
+t_i=
+\begin{cases}
+2^{k-1}, & \text{if } i=2^k-1,\\[4pt]
+t_{i-2^{k-1}+1}, & \text{if }2^{k-1}\le i<2^k-1.
+\end{cases}
+$$
+
+For example, $i=14$ lies in the block associated with $k=4$, so
+
+$$
+t_{14}=t_{14-8+1}=t_7=4.
+$$
+
+The purpose is not to predict the ideal restart length in advance. The schedule systematically tries short and progressively longer runs.
+
+# Modelling workflow
+
+The final part of the deck summarises Constraint Programming as a modelling process. Starting from a real problem:
+
+1. identify the decision variables;
+2. define each variable's domain;
+3. express the relationships among the variables as constraints;
+4. select satisfaction or an optimisation objective;
+5. test whether the model correctly represents the problem;
+6. only then investigate search annotations and restart strategies that may accelerate solving.
+
+```{mermaid}
+%%| fig-cap: "Constraint-modelling workflow presented at the end of the lecture."
+flowchart LR
+    P["Real problem"] --> V["Variables"]
+    V --> D["Domains"]
+    D --> C["Constraints"]
+    C --> M["Validated model"]
+    M --> H["Search heuristics"]
+    H --> S["Solver"]
+```
+
+::: {.callout-important title="There is almost never a unique encoding"}
+Different choices of variables, domains, and constraints can represent the same real problem. These encodings can behave very differently under propagation and search. Modelling is therefore a creative activity that improves with experience; search tuning should not substitute for checking the quality and correctness of the model itself.
+:::
+
+# Sources
+
+- Annotated lecture slide deck: `05 - 14-10-2026.pdf`, 23 slides. The supplied PDF was used for the slide order, formal material, diagrams, examples, and handwritten annotations.

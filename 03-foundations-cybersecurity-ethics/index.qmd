@@ -1,0 +1,165 @@
+﻿---
+title: "Foundations of Cybersecurity and Ethics"
+subtitle: "Course notes and materials"
+---
+
+# Course organisation
+
+The course is divided into three modules and concludes with a
+comprehensive oral examination.
+
+- **Module 1:** currently available
+- **Module 2:** structure not yet available
+- **Module 3:** structure not yet available
+
+The note-generation instructions below apply specifically to Module 1.
+Modules 2 and 3 will receive separate instructions after their actual
+materials and organisation become available.
+
+# Module 1 workspace
+
+## Organisation
+
+- `module-1/notes`: processed Quarto notes
+- `module-1/source-material/slides`: original lecture slides
+- `module-1/source-material/books`: books provided for the module
+
+# Reusable prompt for Module 1 notes
+
+Copy and use the following prompt whenever a Module 1 slide deck must be
+converted into a detailed note.
+
+~~~text
+You are creating one English Quarto chapter for Module 1 of the course "Foundations of Cybersecurity and Ethics" in the MSc Artificial Intelligence & Cybersecurity at the University of Udine.
+
+SCOPE AND AUTHORITY
+These instructions apply only to Module 1. Do not assume that Modules 2 and 3 use the same materials, teaching method, or note structure. The original lecturer slide deck is the primary and authoritative source for scope, sequence, terminology, notation, definitions, examples, diagrams, and formal content.
+
+MATERIALS
+The user may provide:
+1. one original PDF slide deck;
+2. one or more supporting books for Module 1;
+3. another official file directly associated with the deck;
+4. an outline, used only to understand course organisation.
+
+SOURCE PRIORITY
+1. The slide deck determines what belongs in the chapter and in what order.
+2. Supporting books may clarify, verify, or improve explanations of material already present in the deck.
+3. Associated official files may clarify the deck.
+4. Other sources may be consulted only when the supplied materials are insufficient to verify a specific point.
+Never use the course title or outline as permission to add generic cybersecurity, ethics, cryptography, AI, or later-lecture material.
+
+COMPLETE DECK ANALYSIS
+Inspect every page before writing. Recover all substantive definitions, terminology, syntax, semantics, notation, formulas, inference rules, automata, games, models, verification concepts, diagrams, examples, counterexamples, tools, references, and citations. Detect repeated pages, incremental bullet reveals, and progressive diagrams. Merge animation frames into one coherent explanation while preserving the lecturer's conceptual order. Do not create one section per slide.
+
+FIDELITY AND EXPLANATION
+Rewrite fragments as precise connected academic English, but preserve the lecturer's terminology, notation, distinctions, examples, and depth. For each important concept, explain where relevant:
+- why it is introduced;
+- what problem it addresses;
+- the role of each formal component;
+- how notation is read;
+- why the definition has its stated form;
+- how the deck's example satisfies or violates it;
+- how a diagram should be read;
+- what assumptions are needed;
+- how it connects to the preceding concept;
+- what must be explainable in an oral examination.
+Do not expand a brief introduction into complete textbook theory.
+
+FORMULAS AND RESPONSIVE LAYOUT
+Use display mathematics for formal definitions and results. Preserve the symbols used in the deck, but ensure that they render correctly in Quarto/MathJax.
+- Do not use undefined commands such as `\cent`. Write cent amounts as `$5\,\text{¢}$` and `$10\,\text{¢}$`.
+- Check balanced delimiters and operators.
+- Put every formula likely to exceed the page width inside a horizontally scrollable fenced Div with a visible scrollbar.
+- Add this local CSS once after the YAML front matter:
+
+<style>
+.formula-scroll {
+  max-width: 100%; overflow-x: auto; overflow-y: hidden;
+  padding: 0.75rem 1rem; margin: 1rem 0;
+  border: 1px solid #d0d7de; border-radius: 0.5rem;
+  background: rgba(127,127,127,0.06); -webkit-overflow-scrolling: touch;
+}
+.formula-scroll .MathJax_Display { min-width: max-content; margin: 0; }
+</style>
+
+Use:
+::: {.formula-scroll}
+$$
+...formula...
+$$
+:::
+
+VISUAL MATERIALS
+Use visuals when they preserve an important diagram from the deck, clarify a graph-based or spatial example, or materially improve oral understanding. Classify each candidate as:
+1. source-faithful image;
+2. external reference image;
+3. generated explanatory diagram;
+4. data-driven figure;
+5. table.
+Do not add decorative visuals.
+
+SOURCE-FAITHFUL VISUALS
+If the deck contains a concrete graph, automaton, transition system, tree, screenshot, plot, or historical image whose appearance or structure matters, reproduce that same example. Prefer a clean extraction or faithful reconstruction. Do not invent missing states, labels, edges, values, or assignments. If a detail is unreadable, state the uncertainty.
+
+MERMAID
+Use Mermaid for conceptual workflows, reduction diagrams, dependency graphs, and graph structures that can be represented faithfully without exact geometric placement. Use a Quarto `{mermaid}` cell, place `%%| fig-cap:` immediately after the opening fence, use short ASCII node identifiers, concise quoted labels, and standard ASCII arrows. Explain how to read each diagram. Do not use Mermaid when exact geometry or source appearance matters.
+
+TABLES
+Use tables for exact comparisons, such as validity versus satisfiability, alternative definitions, decision-problem inputs and outputs, or terminology contrasts. A table must have a clear purpose, concise headers, slide-supported content, and must not merely duplicate prose.
+
+STRUCTURE
+Follow the deck's progression. Use H1 for major phases, H2/H3 only for genuine subdivisions, prose for explanation, lists for properties or alternatives, numbered steps for procedures, equations for formal material, tables for direct comparisons, and callouts sparingly for critical distinctions or oral-exam warnings. Do not automatically add Learning Objectives, Prerequisites, Applications, Common Mistakes, Self-test, or Summary sections.
+
+FRONT MATTER
+Use exactly:
+---
+title: "Descriptive title based on the slide deck"
+subtitle: "Module 1 - Lecture or deck identifier"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+Do not add author or date unless requested.
+
+ASSET ORGANISATION
+Store persistent chapter assets under:
+03-foundations-cybersecurity-ethics/module-1/assets/<chapter-filename-without-extension>/
+From a QMD inside `module-1/notes/`, reference them as:
+../assets/<chapter-filename-without-extension>/<asset-name>
+Use lowercase hyphenated filenames. Do not place assets beside the QMD.
+
+TEMPORARY SCRIPTS
+If a one-time download or transformation script is required, make it a temporary PowerShell script for the project root:
+C:\Users\ricca\Desktop\UNIUD MAGISTRALE 2026-2027\uniud-ai-cybersecurity\
+Use paths relative to the root, make the script idempotent, verify non-empty outputs, provide the exact run command and deletion command, and do not create a permanent `scripts` directory.
+
+SOURCES
+End with a short Sources section listing only the primary deck, books genuinely consulted, associated official files actually used, and external visuals actually included. For each external visual, record its title or filename, hosting institution or repository, licence, and whether the local copy was downloaded or modified. An outline used only for organisation may be listed explicitly as such.
+
+QUALITY CHECK
+Before delivery verify that:
+1. every substantive slide is represented;
+2. the order follows the deck;
+3. progressive frames are merged correctly;
+4. no later deck or module content was added;
+5. definitions, notation, and examples are consistent;
+6. `\cent` does not occur and cent symbols render correctly;
+7. long equations are horizontally scrollable and do not widen the page;
+8. useful deck diagrams are retained or faithfully reconstructed;
+9. at least one graph or table is included when the deck materially relies on relationships or comparisons;
+10. every visual has an explanatory purpose and exact source-supported content;
+11. Mermaid syntax, fences, and captions are valid;
+12. image paths are valid relative to the QMD;
+13. the file is UTF-8 without BOM with LF endings;
+14. the chapter supports precise oral explanation;
+15. the result is a complete ready-to-save QMD.
+
+DELIVERABLE
+Return one complete `.qmd` file ready for:
+03-foundations-cybersecurity-ethics/module-1/notes/
+Use a two-digit chronological filename. If persistent assets are necessary, return them in the chapter-specific assets directory and package multiple files with the intended directory structure.
+
+~~~

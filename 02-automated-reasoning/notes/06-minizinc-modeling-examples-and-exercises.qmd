@@ -1,0 +1,695 @@
+---
+title: "MiniZinc Modelling through Classical Constraint Problems"
+subtitle: "Lecture 6 - 16 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# From a real problem to a constraint model
+
+This lecture moves from MiniZinc syntax and search annotations to the modelling of complete problems. The central workflow is:
+
+1. start from a real problem;
+2. identify the unknown quantities;
+3. represent those quantities with decision variables;
+4. assign a domain to every decision variable;
+5. express the relationships among the variables as constraints;
+6. choose satisfaction or optimisation;
+7. leave the solving stage to MiniZinc and its back-end solver, initially using built-in search heuristics.
+
+```{mermaid}
+%%| fig-cap: "The modelling workflow used throughout the lecture."
+flowchart LR
+    P["Real problem"] --> V["Decision variables"]
+    V --> D["Domains"]
+    D --> C["Constraints"]
+    C --> G["Solve goal"]
+    G --> S["MiniZinc solver"]
+    S --> O["Solution or infeasibility"]
+```
+
+The modelling stage and the solving stage are intentionally separated. The model states **what** a solution must satisfy. The solver decides **how** to obtain one through propagation, search, and heuristics.
+
+::: {.callout-important title="Model before tuning search"}
+A search annotation cannot repair an incorrect model. Variables, domains, and constraints must first encode the intended problem faithfully. Search choices become relevant only after the model is logically correct.
+:::
+
+# A propagation warm-up
+
+The combined code supplied with the lecture begins with a small model that isolates propagation:
+
+```minizinc
+par int: n = 10000;
+array[1..n] of var 1..n: x;
+
+constraint
+  forall(i in 1..n-1)(x[i] < x[i+1]);
+
+solve satisfy;
+
+output [
+  show(x[1]) ++ " - " ++ show(x[2]) ++
+  " ... " ++ " - " ++ show(x[n])
+];
+```
+
+There are $n$ variables, each initially having domain $1..n$, and the constraints require
+
+$$
+x_1<x_2<\cdots<x_n.
+$$
+
+Because the sequence contains exactly $n$ strictly increasing integers selected from a set of exactly $n$ values, the only possible assignment is
+
+$$
+x_i=i
+\qquad\text{for every }i\in\{1,\ldots,n\}.
+$$
+
+The comments describe how propagation reaches this conclusion:
+
+- from $x_1<x_2$, value $n$ cannot belong to $D(x_1)$ and value $1$ cannot belong to $D(x_2)$;
+- from $x_2<x_3$, the lower bound of $x_3$ rises further;
+- information continues along the chain;
+- the tightened domains propagate back, eventually fixing every variable.
+
+The commented cyclic constraint
+
+```minizinc
+% constraint x[n] < x[1];
+```
+
+would make the model inconsistent. Together with the increasing chain, the cycle would require $x_1<x_1$ indirectly.
+
+# Modelling the $n$-Queens problem
+
+The first complete benchmark is $n$-Queens. The model uses one decision variable per column:
+
+$$
+q_i=r
+$$
+
+means that the queen in column $i$ is placed in row $r$. This representation places exactly one queen in every column without requiring an explicit column constraint.
+
+## Pairwise formulation
+
+The professor's first formulation is:
+
+```minizinc
+par int: n = 100;
+array[1..n] of var 1..n: q;
+
+constraint
+  forall(i, j in 1..n where i < j)(
+    q[i] != q[j] /\
+    q[i] + i != q[j] + j /\
+    q[i] - i != q[j] - j
+  );
+
+solve satisfy;
+```
+
+For every pair of columns $i<j$:
+
+- `q[i] != q[j]` prevents the queens from sharing a row;
+- `q[i] + i != q[j] + j` prevents one diagonal direction;
+- `q[i] - i != q[j] - j` prevents the other diagonal direction.
+
+The diagonal conditions are equivalent to
+
+$$
+|q_i-q_j|\ne j-i,
+$$
+
+but the two linear expressions avoid `abs` and separate the two diagonal families explicitly.
+
+The output block reconstructs the board:
+
+```minizinc
+output [
+  if fix(q[j]) == i then " Q " else " . " endif ++
+  if j == n then "\n" endif
+  | i, j in 1..n
+];
+```
+
+`fix(q[j])` reads the solved value of the decision variable. A `Q` is printed exactly when row `i` equals the solved row of the queen in column `j`.
+
+## Global-constraint formulation
+
+The second formulation uses `all_different`:
+
+```minizinc
+include "globals.mzn";
+
+int: n = 50;
+array[1..n] of var 1..n: q;
+
+constraint all_different(q);
+constraint all_different(i in 1..n)(q[i] + i);
+constraint all_different(i in 1..n)(q[i] - i);
+
+solve satisfy;
+output [show(q)];
+```
+
+The three global constraints correspond exactly to rows and the two diagonal directions.
+
+| Expression | Objects required to be distinct | Attack prevented |
+|---|---|---|
+| `q[i]` | row numbers | horizontal attack |
+| `q[i] + i` | one diagonal identifier | first diagonal direction |
+| `q[i] - i` | the other diagonal identifier | second diagonal direction |
+
+The global formulation is shorter and communicates the combinatorial structure directly to the solver. The combined file also retains commented alternatives using `alldifferent(... ) :: domain` and an optional `int_search` annotation. Because those lines are commented, they are alternatives for experimentation rather than part of the active model.
+
+::: {.callout-note title="Two faithful encodings of the same condition"}
+The pairwise and global formulations have the same intended solutions, but they need not propagate identically or have the same performance. This is one of the lecture's recurring modelling lessons: equivalent declarative encodings can lead to substantially different solver behaviour.
+:::
+
+# Alphametic models
+
+An alphametic associates decimal digits with letters. Equal letters denote equal digits, distinct letters must receive distinct digits, and the leading letter of a number cannot be zero.
+
+## SEND + MORE = MONEY: direct pairwise inequalities
+
+The first supplied model declares one variable per letter:
+
+```minizinc
+var 0..9: S;
+var 0..9: E;
+var 0..9: N;
+var 0..9: D;
+var 0..9: M;
+var 0..9: O;
+var 0..9: R;
+var 0..9: Y;
+```
+
+The word equation is translated by positional notation:
+
+```minizinc
+constraint
+      1000*S + 100*E + 10*N + D
+    + 1000*M + 100*O + 10*R + E
+    = 10000*M + 1000*O + 100*N + 10*E + Y
+    /\ S > 0
+    /\ M > 0;
+```
+
+For example, `SEND` is not a string inside the arithmetic model. It is the number
+
+$$
+1000S+100E+10N+D.
+$$
+
+The leading conditions $S>0$ and $M>0$ ensure that `SEND`, `MORE`, and `MONEY` keep their intended number of digits.
+
+The first version writes every pairwise disequality explicitly. With eight letters, this requires
+
+$$
+\binom{8}{2}=28
+$$
+
+inequalities. This is correct but verbose and easy to maintain incorrectly.
+
+## Compact array and `all_different`
+
+The compact version groups all letter variables:
+
+```minizinc
+include "globals.mzn";
+
+array[1..8] of var int: fd = [S, E, N, D, M, O, R, Y];
+
+constraint
+  all_different(fd) /\
+      1000*S + 100*E + 10*N + D
+    + 1000*M + 100*O + 10*R + E
+    = 10000*M + 1000*O + 100*N + 10*E + Y
+  /\ S > 0
+  /\ M > 0;
+
+solve satisfy;
+```
+
+`all_different(fd)` replaces all 28 pairwise disequalities. The commented `forall` version in the file shows the intermediate compact encoding:
+
+```minizinc
+% constraint
+%   forall(i, j in 1..8 where i < j)(fd[i] != fd[j]);
+```
+
+The array therefore improves the source code in two ways: it allows the global constraint to be applied once, and it makes it possible to pass all digit variables to other constructs as a single object.
+
+## Output formatting
+
+The professor's output block prints both named assignments and the reconstructed arithmetic:
+
+```minizinc
+output [
+  "S:", show(S), " E:", show(E), " N:", show(N), " D:", show(D),
+  " M:", show(M), " O:", show(O), " R:", show(R), " Y:", show(Y),
+  "\n\n",
+  "    ", show(S), show(E), show(N), show(D), "\n",
+  "+   ", show(M), show(O), show(R), show(E), "\n",
+  " = ", show(M), show(O), show(N), show(E), show(Y), "\n"
+];
+```
+
+The output does not constrain the model. It only controls how an already found solution is displayed.
+
+# Named domains: WRONG + WRONG = RIGHT
+
+The next alphametic demonstrates a named domain:
+
+```minizinc
+include "globals.mzn";
+
+set of int: digits = 0..9;
+
+var int: W;
+var digits: R;
+var digits: O;
+var digits: N;
+var digits: G;
+var digits: I;
+var digits: H;
+var digits: T;
+
+array[1..8] of var digits: LD = [W, R, O, N, G, I, H, T];
+```
+
+`digits` names the set $0..9$, so the domain can be reused in declarations. The source declares `W` as `var int`, while the other letters are explicitly `var digits`. However, `W` is included in `LD`, whose element type is `var digits`; this use constrains the effective value of `W` to the digit domain.
+
+The arithmetic model is:
+
+```minizinc
+constraint
+  all_different(LD) /\
+      10000*W + 1000*R + 100*O + 10*N + G
+    + 10000*W + 1000*R + 100*O + 10*N + G
+    = 10000*R + 1000*I + 100*G + 10*H + T
+  /\ W > 0 /\ R > 0
+  /\ O = 0;
+```
+
+The final condition `O = 0` is not a general alphametic rule. It is an additional restriction of this instance. The source comments report 21 solutions without this restriction and 2 solutions when `O` is fixed to zero. These counts are comments supplied with the code; the code was not executed here.
+
+::: {.callout-warning title="Provenance inside the combined source"}
+The comments attribute the WRONG + WRONG = RIGHT model to Hakan Kjellerstrand. It appears in the professor's combined course material, but the embedded attribution should be preserved if the model is reused.
+:::
+
+## A second alphametic: TWO × TWO = THREE
+
+The combined file also contains:
+
+```minizinc
+include "globals.mzn";
+set of int: digits = 0..9;
+
+var digits: T;
+var digits: W;
+var digits: O;
+var digits: H;
+var digits: R;
+var digits: E;
+
+array[1..6] of var int: LD = [T, W, O, H, R, E];
+
+constraint
+  all_different(LD) /\
+  (100*T + 10*W + O) * (100*T + 10*W + O)
+    = 10000*T + 1000*H + 100*R + 10*E + E
+  /\ T > 0;
+
+solve satisfy;
+```
+
+This example reinforces the same modelling pattern with multiplication: construct the numeric value represented by each word, impose the equation, require distinct digits, and exclude zero from the leading letter.
+
+# Latin squares
+
+An order-$n$ Latin square is an $n\times n$ matrix filled with values $1..n$ such that every value occurs exactly once in each row and exactly once in each column.
+
+The supplied model declares:
+
+```minizinc
+include "globals.mzn";
+
+int: n = 20;
+array[1..n, 1..n] of var 1..n: x;
+```
+
+Each matrix cell is a decision variable. The active solve item explicitly flattens the matrix into a one-dimensional search array:
+
+```minizinc
+solve :: int_search(
+  [x[i, j] | i, j in 1..n],
+  first_fail,
+  indomain_min,
+  complete
+) satisfy;
+```
+
+The list comprehension enumerates every matrix entry. `first_fail` selects a variable with a smallest domain, `indomain_min` tries the smallest value, and `complete` requests complete search.
+
+## Pairwise versus global row and column constraints
+
+The source retains commented pairwise formulations, but the active model uses global constraints:
+
+```minizinc
+constraint
+  forall(i in 1..n)(
+    all_different([x[i, j] | j in 1..n]) :: domain /\
+    all_different([x[j, i] | j in 1..n]) :: domain
+  );
+```
+
+For each index `i`:
+
+- `[x[i,j] | j in 1..n]` constructs row $i$;
+- `[x[j,i] | j in 1..n]` constructs column $i$;
+- each constructed array is constrained by `all_different`.
+
+Because each row contains $n$ variables, each with domain $1..n$, pairwise distinctness forces the row to be a permutation of $1..n$. The same reasoning applies to every column.
+
+The annotation `:: domain` is attached to the global constraints in the supplied code. It asks for a domain-consistency variant when supported by the solver.
+
+## Symmetry breaking
+
+The active code contains:
+
+```minizinc
+constraint x[1,1] = 1;
+constraint forall(i in 1..n)(x[1,i] = i);
+```
+
+The second constraint already implies `x[1,1] = 1`, so the first is redundant. Redundant does not mean incorrect: the extra constraint does not change the solution set after the first-row condition is imposed.
+
+A stronger, commented option fixes both the first row and the first column:
+
+```minizinc
+% constraint
+%   forall(i in 1..n)(
+%     x[1,i] = i /\
+%     x[i,1] = i
+%   );
+```
+
+These constraints remove symmetric Latin squares obtained by renaming symbols and permuting rows or columns. The aim is not to alter the essential combinatorial structure but to choose a canonical representative from each symmetric family.
+
+# Magic squares
+
+A normal magic square of order $n$ places the integers $1,\ldots,n^2$ in an $n\times n$ matrix so that every row, every column, and the two main diagonals have the same sum.
+
+The combined material provides two versions, exactly matching the lecture's distinction between leaving the magic number unknown and computing it.
+
+## Version 1: unknown magic sum
+
+```minizinc
+include "globals.mzn";
+
+int: n = 5;
+int: m = n*n;
+array[1..n, 1..n] of var 1..n*n: x;
+var 1..n*n*n: s;
+
+constraint
+  alldifferent(x) /\
+  forall(i in 1..n)(
+    s = sum(j in 1..n)(x[i,j])
+  ) /\
+  forall(i in 1..n)(
+    s = sum(j in 1..n)(x[j,i])
+  ) /\
+  sum(i in 1..n)(x[i,i]) = s /\
+  sum(i in 1..n)(x[i,n-i+1]) = s;
+
+solve satisfy;
+```
+
+The variable `s` is shared by every row, column, and diagonal equation. `alldifferent(x)` and the domains $1..n^2$ force the $n^2$ cells to contain every number in that range exactly once.
+
+The declared upper bound $n^3$ for `s` is valid because a row consists of $n$ values, each at most $n^2$. It is deliberately broad.
+
+## Version 2: computed magic sum
+
+The total of the numbers $1,\ldots,n^2$ is
+
+$$
+\sum_{i=1}^{n^2}i=\frac{n^2(n^2+1)}{2}.
+$$
+
+Every row has the same sum and there are $n$ rows, so the magic sum must be
+
+$$
+s=\frac{1}{n}\sum_{i=1}^{n^2}i
+ =\frac{n(n^2+1)}{2}.
+$$
+
+The second model computes it:
+
+```minizinc
+var int: s;
+s = (sum(i in 1..n*n)(i)) div n;
+```
+
+Since `s` is defined by an expression containing only the parameter `n`, `s` is effectively fixed before search even though the source declares it as `var int`.
+
+The model also adds symmetry breaking:
+
+```minizinc
+constraint
+  x[1,1] < x[1,n] /\
+  x[1,1] < x[n,1] /\
+  x[1,1] < x[n,n];
+```
+
+Rotations and reflections map a magic square to other magic squares. Requiring the upper-left corner to be smaller than the other three corners chooses an orientation and removes several symmetric alternatives.
+
+| Version | Treatment of $s$ | Search consequence |
+|---|---|---|
+| unknown-sum version | `s` is a decision variable constrained by all lines | propagation must also determine `s` |
+| computed-sum version | `s` is fixed from $n$ | the known invariant is exposed before search |
+
+# Schur-number encoding
+
+The Schur model partitions the integers $1,\ldots,n$ into `c` boxes. The decision variable
+
+```minizinc
+array[1..n] of var 1..c: box;
+```
+
+uses `box[i]` to denote the box containing integer $i$.
+
+The required property is: if $i$ and $j$ are placed in the same box, then $i+j$ must not be placed in that box. Repetition is allowed, so $i=j$ is included whenever $2i\le n$.
+
+```minizinc
+constraint
+  forall(i in 1..n-1, j in i..n-i)(
+    box[i] = box[j] -> box[i+j] != box[i]
+  );
+```
+
+The generator bounds have precise roles:
+
+- `j in i..n-i` includes repetitions and avoids considering both $(i,j)$ and $(j,i)$;
+- `j <= n-i` guarantees that `i+j` is a valid index;
+- the implication activates the conclusion only when `i` and `j` share a box.
+
+The source shows an equivalent disjunctive form:
+
+```minizinc
+% box[i] != box[j] \/ box[i] != box[i+j]
+```
+
+This is the logical equivalence
+
+$$
+A\rightarrow B\equiv \neg A\lor B.
+$$
+
+The active symmetry-breaking constraints are:
+
+```minizinc
+constraint box[1] = 1 /\ box[2] = 2;
+```
+
+Box labels are interchangeable. Fixing the first integers removes equivalent solutions obtained only by renaming boxes.
+
+The supplied instance uses `n = 45` and `c = 4`, followed by:
+
+```minizinc
+solve :: int_search(
+  box,
+  first_fail,
+  indomain_min,
+  complete
+) satisfy;
+```
+
+The comments also record the sequence `4,2 - 13,3 - 44,4 - 160? - 5`. The question mark is preserved: the source itself expresses uncertainty about the next value rather than stating it as a verified result.
+
+# Sudoku and reusable predicates
+
+The Sudoku model demonstrates how repeated constraints can be named as predicates.
+
+```minizinc
+include "globals.mzn";
+array[1..9, 1..9] of var 1..9: sq;
+```
+
+Three predicates express the structural rules:
+
+```minizinc
+predicate row_diff(int: r) =
+  all_different(c in 1..9)(sq[r,c]) :: domain;
+
+predicate col_diff(int: c) =
+  all_different(r in 1..9)(sq[r,c]) :: domain;
+
+predicate subgrid_diff(int: r, int: c) =
+  all_different(i, j in 0..2)(sq[r+i,c+j]) :: domain;
+```
+
+- `row_diff(r)` constrains row `r`;
+- `col_diff(c)` constrains column `c`;
+- `subgrid_diff(r,c)` constrains the $3\times3$ block whose upper-left corner is `(r,c)`.
+
+They are applied with:
+
+```minizinc
+constraint forall(r in 1..9)(row_diff(r));
+constraint forall(c in 1..9)(col_diff(c));
+constraint forall(r, c in {1,4,7})(subgrid_diff(r,c));
+```
+
+The set `{1,4,7}` identifies exactly the starting rows and columns of the nine subgrids.
+
+## Representing clues with partial arrays
+
+The active puzzle is assigned directly to `sq`:
+
+```minizinc
+sq =
+ [| _, _, 6, _, _, _, _, 9, _
+  | _, _, _, 5, _, 1, 7, _, _
+  | 2, _, _, 9, _, _, 3, _, _
+  | _, 7, _, _, 3, _, _, 5, _
+  | _, 2, _, _, 9, _, _, 6, _
+  | _, 4, _, _, 8, _, _, 2, _
+  | _, _, 1, _, _, 3, _, _, 4
+  | _, _, 5, 2, _, 7, _, _, _
+  | _, 3, _, _, _, _, 8, _, _
+  |];
+```
+
+A numeral fixes a clue. An underscore leaves that cell unspecified and therefore available for solving. Several alternative puzzles are retained as comments, but only the uncommented matrix is active.
+
+The output traverses the matrix row by row:
+
+```minizinc
+output [
+  if j = 1 then "\n" else " " endif ++
+  show(sq[i,j])
+  | i, j in 1..9
+];
+```
+
+Predicates do not create an imperative subroutine call. They name reusable constraint expressions. Applying `row_diff`, `col_diff`, and `subgrid_diff` expands the corresponding logical conditions in the model.
+
+# What the examples collectively demonstrate
+
+The examples are not merely a catalogue of puzzles. Each highlights a modelling device.
+
+| Model | Main modelling idea |
+|---|---|
+| increasing sequence | observe propagation without explicit search tuning |
+| $n$-Queens | choose a compact representation and compare pairwise with global constraints |
+| SEND + MORE = MONEY | collect decision variables in an array to use `all_different` |
+| WRONG + WRONG = RIGHT | give a domain a reusable name with `set of int` |
+| Latin square | use comprehensions, global constraints, search annotations, and symmetry breaking |
+| magic square | compare an unknown derived quantity with one computed from an invariant |
+| Schur partition | express the same condition by implication or disjunction |
+| Sudoku | factor repeated constraints into predicates |
+
+A recurring pattern is to expose known mathematical structure as early as possible. A global constraint, a computed invariant, or a symmetry-breaking condition can reduce the work left to search while preserving the intended solutions.
+
+# Exercises from the lecture
+
+The final slides assign modelling exercises. The lecture states the problems but does not supply authoritative MiniZinc solutions, so this chapter records the required model components without inventing completed code.
+
+## Mixed non-attacking chess pieces
+
+Given an $n\times n$ chessboard and input numbers $q$, $r$, and $b$, place that many queens, rooks, and bishops so that no two pieces attack each other.
+
+A model must decide:
+
+- how positions are represented;
+- how exact counts of each piece type are enforced;
+- how row, column, and diagonal attacks are excluded;
+- whether one cell can contain more than one piece.
+
+The difficult modelling choice is whether to use one variable per piece, one variable per cell, or separate occupancy matrices for piece types.
+
+## Weighted queen placement
+
+Given an $n\times n$ non-negative matrix $M$ and an input number $k$, place $k$ queens such that:
+
+1. the queens do not attack one another;
+2. every cell whose value is zero remains unattacked;
+3. the sum of the values of all attacked cells, including queen cells, is maximised.
+
+The objective counts **cells**, not attack rays with multiplicity. If two queens attack the same positive cell, the cell's value should therefore be included once. A model needs an auxiliary attacked-cell representation to connect placement, coverage, zero-valued exclusions, and the objective.
+
+## Knight's tour
+
+Given an $n\times n$ board and a knight starting on a border cell such as $(1,1)$, find a path visiting every cell exactly once. A knight move changes one coordinate by $1$ and the other by $2$.
+
+The model must represent:
+
+- the visit order or the cell occupied at every step;
+- uniqueness of visited cells;
+- legal movement between consecutive steps;
+- the fixed start position.
+
+## White and black pieces with blocking
+
+Place given white and black queens, rooks, and knights so that pieces of opposite colours do not attack one another. Pieces of the same colour may block rook and queen lines of sight.
+
+The blocking condition is the hard part. It is not enough to forbid two opposite-colour pieces from sharing a row, column, or diagonal: the model must determine whether another piece lies strictly between them on that line.
+
+## Balanced bins with incompatibilities
+
+There are $n$ weighted objects and $k$ bins. Each object must be assigned to exactly one bin. For each pair of bins, the difference between their total weights must be less than input threshold $t$. A Boolean matrix $c$ additionally requires objects $i$ and $j$ to be in different bins when $c[i,j]=1$.
+
+The model requires assignment variables, bin-weight aggregates, pairwise balance constraints, and incompatibility implications.
+
+## Workers and repeated tasks
+
+There are $t$ task types with durations given by vector $d$, and $n\ge t$ workers. Each worker can perform only a supplied subset of task types. Workers are assigned so that the required work is completed and total time is minimised. A worker performs one task and then stops, while another worker may later perform the same task type.
+
+The repeated occurrence of a task is the difficult part: task **types** must be distinguished from individual task **occurrences** or from the amount of repeated work allocated over time.
+
+## Permutation objective
+
+Given vectors $u$ and $v$ of length $n$ with values in $1..m$, find a permutation $\pi$ maximising
+
+$$
+\sum_{i=1}^{n}u_i v_{\pi(i)}.
+$$
+
+The exercise explicitly asks for a declarative model rather than a specialised algorithm. A permutation may be represented by an array of indices constrained by `all_different`, after which the objective uses indexed access into $v$.
+
+## Personal modelling problem
+
+Choose a problem or game connected to personal experience, formalise it, and encode it in MiniZinc. The assessment is therefore not only whether MiniZinc accepts the syntax, but whether the variables, domains, constraints, and objective accurately capture the informal rules.
+
+# Sources
+
+- Original lecture slide deck: `06 - 16-10-2026.pdf`, six logical slides plus one progressive duplicate of the modelling slide. Used for lecture order, the list of MiniZinc examples, and the eight exercises.
+- Combined MiniZinc source collection: `output.txt`. Used as the authoritative source for the professor-supplied models and comments discussed in this chapter. Because the individual files were concatenated without filename separators, the chapter refers to models by their internal problem names rather than inventing original filenames.

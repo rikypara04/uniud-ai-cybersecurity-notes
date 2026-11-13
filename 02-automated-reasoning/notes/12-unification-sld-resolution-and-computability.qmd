@@ -1,0 +1,961 @@
+---
+title: "Unification, SLD Resolution, and the Limits of Computation"
+subtitle: "Lecture 12 — slide deck 12, 13 November 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+# From logical consequence to the minimum Herbrand model
+
+## What does it mean for a program to imply an atom?
+
+A definite-clause program is a collection of facts and rules. A fact states that an atom holds; a rule states that its head holds whenever every atom in its body holds. Variables in a program clause are implicitly universally quantified.
+
+The notation
+
+$$
+P \models q(t_1,\ldots,t_n)
+$$
+
+means that the atom $q(t_1,\ldots,t_n)$ is a **logical consequence** of $P$: every interpretation that satisfies all clauses of $P$ also makes that atom true. In an interpretation $I$, the predicate symbol $q/n$ is assigned an $n$-ary relation $q^I$, and the atom is true precisely when
+
+$$
+\bigl(t_1^I,\ldots,t_n^I\bigr)\in q^I.
+$$
+
+The superscript matters: in an arbitrary interpretation, a term denotes an object, rather than necessarily denoting its own written syntax. Logical consequence concerns **all models**, not just one convenient interpretation or one execution of an interpreter.
+
+The lecture then specialises this semantic question to **ground atoms**, which contain no variables.
+
+## Why Herbrand models are enough here
+
+The **Herbrand universe** $H_P$ consists of the ground terms constructible from the program's constants and function symbols. The **Herbrand base** $B_P$ consists of all ground atoms formed using those terms and the program's predicate symbols. As usual, if the signature has no constant, a fresh constant is added so that the universe is nonempty.
+
+A Herbrand interpretation uses ground terms themselves as its objects. It can therefore be represented by a subset $I\subseteq B_P$: atoms in $I$ are true and atoms outside it are false.
+
+The first theorem recalled on slide 2 says that, for a conjunction $T$ of clauses and a ground atom $A\in B_T$,
+
+$$
+T\models A
+\quad\Longleftrightarrow\quad
+A\text{ is true in every Herbrand model of }T.
+$$
+
+Here the clauses are understood in the lecture's ordinary first-order, equality-free setting. The slide switches from $T$ to $P$ at the end of this statement; the same theory must be meant on both sides. The significance is that, for this consequence question, we can reason using ground syntactic objects instead of searching through arbitrary domains and interpretations.
+
+For a **definite-clause** program, the result becomes stronger. There is a unique **minimum Herbrand model**, denoted $M_P$, such that
+
+$$
+M_P\subseteq I
+\qquad\text{for every Herbrand model }I\text{ of }P.
+$$
+
+“Minimum” means contained in every other Herbrand model. It does not merely mean a model from which no atom can be removed. For definite programs, the intersection of all Herbrand models is again a model, which explains why this minimum exists and is unique.
+
+To see the key idea, consider a ground instance of a rule. If all its body atoms belong to the intersection, they belong to every model. Each model must then contain its head, so the intersection contains the head too. Facts likewise belong to every model.
+
+The minimum model records exactly the ground atoms that the program forces to be true, without adding unrelated truths. This gives the corollary
+
+$$
+\boxed{P\models A\quad\Longleftrightarrow\quad A\in M_P}
+\qquad(A\in B_P).
+$$
+
+The two directions are worth separating:
+
+- If $P\models A$, then $A$ is true in $M_P$, because $M_P$ is itself a model.
+- If $A\in M_P$, then $A$ belongs to every Herbrand model, because $M_P$ is contained in each one. The preceding theorem then gives $P\models A$.
+
+This is the bridge from **semantics** to **computation**: instead of asking whether every model satisfies $A$, we can ask whether $A$ belongs to one distinguished set, $M_P$.
+
+# Computing the minimum model: finite and infinite cases
+
+## When the universe is finite
+
+For a finite program with a finite signature and no function symbols of positive arity, there are only finitely many ground terms. Constants are function symbols of arity zero; it is positive-arity constructors that allow terms to keep growing.
+
+Under these assumptions, both $H_P$ and $B_P$ are finite. Consequently, $M_P$ can be constructed explicitly:
+
+1. Start with all ground instances of the program's facts.
+2. Find a ground instance of a rule whose body atoms have all been established.
+3. Add its head if it is not already present.
+4. Continue until a complete pass adds nothing.
+
+This is **bottom-up** reasoning: begin with what is known and derive its consequences. Termination follows because each productive step adds an atom from the finite set $B_P$. Once no new atom can be added, the accumulated set is the minimum model.
+
+Alternatively, we may reason **top-down**: start with a particular atom $A$ and ask which rule bodies would suffice to establish it. Top-down reasoning avoids deriving every unrelated consequence when we only need one answer.
+
+The distinction is the direction of the question:
+
+- Bottom-up: “What follows from the facts?”
+- Top-down: “What must be established to prove this goal?”
+
+Even in the finite case, however, an unrestricted recursive top-down execution can repeat the same goals forever. Finite semantics makes a terminating decision procedure possible; it does not make every Prolog search terminate.
+
+## What changes when terms can grow
+
+With a constant $0$ and a unary function symbol $s/1$, we can build
+
+$$
+0,\quad s(0),\quad s(s(0)),\quad s(s(s(0))),\quad\ldots
+$$
+
+These are distinct ground terms. The Herbrand universe is infinite; in the setting of the lecture, predicates taking such terms also make the Herbrand base infinite. An infinite universe does not force every individual program to have an infinite minimum model, but it removes the finite bound on possible atoms.
+
+We can no longer expect to finish constructing the whole model before answering a query. The lecture therefore turns to goal-driven reasoning:
+
+$$
+A\in M_P\;?
+$$
+
+::: {.callout-warning}
+## Infinite does not mean “bottom-up is impossible”
+
+Slide 3 says that in this case we can “only reason top-down”. The intended practical contrast is with explicitly constructing a complete finite model. Bottom-up enumeration is still possible for an effectively presented definite program, but it may continue forever. Likewise, top-down reasoning is not a general terminating test for both membership and non-membership. The Turing-machine example at the end of the lecture explains why no such general test exists.
+:::
+
+# The top-down step: replacing a goal by a rule body
+
+SLD resolution is the goal-reduction procedure underlying the definite-clause part of Prolog. SLD stands for **Selective Linear resolution for Definite clauses**. The current goal is an ordered sequence of atoms that still need to be proved:
+
+$$
+\leftarrow A_1,\ldots,A_m.
+$$
+
+The comma means conjunction: all the listed atoms must succeed under mutually consistent variable bindings. The mathematical notation $\leftarrow A$ corresponds to asking `?- A.` at a Prolog prompt. In source code, `H :- B1, ..., Bn.` writes a rule with head $H$ and body $B_1,\ldots,B_n$.
+
+Suppose we select $A_i$ and choose a fresh-variable copy of a program clause,
+
+$$
+H\leftarrow B_1,\ldots,B_n.
+$$
+
+If $\theta$ is a most general unifier of $A_i$ and $H$, one SLD step is
+
+$$
+\frac{
+\leftarrow A_1,\ldots,A_{i-1},A_i,A_{i+1},\ldots,A_m
+\qquad
+H\leftarrow B_1,\ldots,B_n
+}{
+\leftarrow
+\bigl(A_1,\ldots,A_{i-1},B_1,\ldots,B_n,A_{i+1},\ldots,A_m\bigr)\theta
+}.
+$$
+
+Read this rule as follows:
+
+1. **Select an obligation.** Choose the atom $A_i$ to establish next.
+2. **Find a potentially useful clause.** Its head $H$ must be unifiable with $A_i$.
+3. **Make their arguments agree.** Compute the most general unifier $\theta$.
+4. **Replace the selected atom by the body.** The clause says that proving those body atoms is sufficient to prove its head.
+5. **Apply $\theta$ to the entire new goal.** Any other atom sharing a variable must respect the same binding.
+
+If the chosen clause is a fact, its body is empty. The selected atom disappears without introducing new obligations.
+
+An **empty goal**, written $\Box$, is success: there is nothing left to establish. It is not a failure symbol. Failure occurs when a required atom has no applicable clause along the current branch.
+
+## Why clauses need fresh variables
+
+Before using a clause, rename its variables so that they are fresh with respect to the current goal and previous clause uses. This is often called **standardising apart**.
+
+A variable name inside a clause is local to that use of the clause. Using the same rule twice must not accidentally force the two uses to share a variable merely because the source text writes `X` both times. Fresh names such as $X_1,X_2,\ldots$ prevent this accidental coupling.
+
+## Where search enters
+
+There may be several clauses whose heads unify with the selected atom. These choices create different derivation branches. Prolog ordinarily selects the leftmost atom, corresponding to $i=1$ in the slide's rule, tries clauses in their textual order, and explores alternatives through depth-first backtracking.
+
+Backtracking restores the earlier goal and bindings before trying another clause. Bindings from a failed branch must not leak into the next branch.
+
+A single derivation is one sequence of choices. Searching for a successful derivation involves exploring alternatives. A branch can:
+
+- reach the empty goal and succeed;
+- reach an atom with no applicable clause and fail;
+- continue indefinitely.
+
+The last possibility is crucial: an infinite branch is neither a successful proof nor an established negative answer. To understand the unifier used in each step, we next unpack substitutions.
+
+# Substitutions, instances, and variants
+
+## Applying a substitution
+
+A **substitution** maps variables to terms. Variables not explicitly mentioned remain unchanged. The slide's notation
+
+$$
+\theta=[X/a,\;Y/Z]
+$$
+
+means “replace $X$ by $a$ and $Y$ by $Z$”. It does not mean division.
+
+For a term, atom, literal, or clause $r$, the expression $r\theta$ denotes the result of applying the substitution. The slide's example is
+
+$$
+r=f(X,g(Y,X)),
+\qquad
+r\theta=f(a,g(Z,a)).
+$$
+
+Both occurrences of $X$ are replaced by the same term. This consistency is essential: a variable represents one unknown, not a separate unknown at each occurrence.
+
+A substitution is applied simultaneously to the original variable occurrences. Its replacement terms are not repeatedly rewritten by that same application. Applying a second substitution afterwards is a separate operation; this distinction matters in the variant example below.
+
+## Instances and the direction of subsumption
+
+A term or atom $s$ is an **instance** of $t$ when some substitution makes $t$ become $s$:
+
+$$
+s=t\theta.
+$$
+
+The slide calls this “$s$ is subsumed by $t$”. Thus $t$ is the more general pattern and $s$ is the specialised result.
+
+The supplied example is
+
+$$
+f(g(a))=f(X)[X/g(a)].
+$$
+
+Here $f(X)$ leaves its argument unspecified, whereas $f(g(a))$ fixes the argument to $g(a)$. This is a one-directional relationship: obtaining an instance means instantiating the more general expression. It does not require changing both expressions as unification will do.
+
+## Variants: the same structure with different variable names
+
+Two terms or atoms are **variants** when each is an instance of the other. For finite first-order terms, this means that their structure and variable-sharing pattern are identical up to consistent variable renaming.
+
+The slide gives
+
+$$
+f(X,Y)=f(Y,Z)[Y/X,\;Z/Y]
+$$
+
+and
+
+$$
+f(Y,Z)=f(X,Y)[X/Y,\;Y/Z].
+$$
+
+The apparent overlap among the variable names is harmless because each displayed substitution is simultaneous. In the first equation, the original first argument $Y$ becomes $X$, and the original second argument $Z$ becomes $Y$; that newly inserted $Y$ is not then replaced again in the same application.
+
+Renaming does not change which positions share a variable. Consequently, the repeated occurrence of `X` in the lecture's later fact `p(X,X).` is substantive: both arguments must be the same term. It cannot be renamed into a fact with two independent argument variables.
+
+Variants explain why fresh copies of a rule preserve its logical shape while preventing accidental variable sharing between distinct uses.
+
+# Unifiers and most general unifiers
+
+## Unification is syntactic agreement
+
+A substitution $\theta$ is a **unifier** of terms or atoms $s,t$ if
+
+$$
+s\theta=t\theta.
+$$
+
+The two expressions must become syntactically identical: the same outer symbols, the same arities, and recursively the same arguments. Unification is not numerical evaluation or a test that two different expressions have the same mathematical value.
+
+For the lecture's example,
+
+$$
+s=f(a,g(Y)),
+\qquad
+t=f(X,Z),
+$$
+
+one unifier is
+
+$$
+\theta=[X/a,\;Z/g(b),\;Y/b].
+$$
+
+Indeed,
+
+$$
+s\theta=f(a,g(b))=t\theta.
+$$
+
+But setting $Y=b$ was an extra choice. The expressions can already agree if we leave $Y$ open and require only
+
+$$
+\sigma=[X/a,\;Z/g(Y)].
+$$
+
+Then
+
+$$
+s\sigma=f(a,g(Y))=t\sigma.
+$$
+
+This is why resolution uses a **most general** unifier: a proof step should impose the equalities required by the chosen clause, not arbitrarily discard other possible solutions.
+
+## What “more general” means
+
+A substitution $\sigma$ is more general than $\theta$ when there is a substitution $\gamma$ such that, for every term $u$,
+
+$$
+(u\sigma)\gamma=u\theta.
+$$
+
+In words, $\theta$ can be obtained by first applying $\sigma$ and then making further choices. For the example,
+
+$$
+\gamma=[Y/b]
+$$
+
+specialises $\sigma$ into the more restrictive unifier $\theta$.
+
+A **most general unifier**, abbreviated **mgu**, is a unifier from which every other unifier can be obtained by further substitution. It need not produce ground terms. Leaving variables unresolved is correct when the equations do not determine them.
+
+The theorem recalled in the slide says that if two finite first-order terms or atoms are unifiable, then they have an mgu. The mgu is unique up to variable renaming, under the usual comparison on the variables relevant to the unification problem. Equivalent answers may therefore be printed with different fresh variable names without expressing different solutions.
+
+# Computing a unifier by rewriting equations
+
+*Slides 7–8.*
+
+Start with an equation between the expressions to unify. More generally, let $E$ be a conjunction of equations that must all be satisfied by one substitution. The algorithm repeatedly simplifies this system while preserving its possible solutions, or detects that no solution exists.
+
+The slide gives six rules. Below, $E[X/t]$ means applying $[X/t]$ to all equations in $E$.
+
+## The six rewriting rules
+
+### 1. Delete a trivial variable equality
+
+$$
+X=X\;\land E\quad\longmapsto\quad E.
+$$
+
+An unknown is always equal to itself, so this equation adds no restriction.
+
+### 2. Orient a variable binding
+
+$$
+t=X\;\land E\quad\longmapsto\quad X=t\;\land E
+\qquad\text{if }t\text{ is not a variable}.
+$$
+
+This does not change the equation's meaning. It puts the variable on the left so that the elimination rule can process it. The condition prevents endlessly swapping two variables back and forth.
+
+### 3. Reject a term containing itself
+
+$$
+X=f(t_1,\ldots,t_n)\;\land E\quad\longmapsto\quad\mathrm{fail}
+$$
+
+if $X$ occurs in one of $t_1,\ldots,t_n$.
+
+This is the **occurs check**. In the finite-term setting of the lecture, a finite term cannot contain itself as a proper subterm. Substituting a finite term for $X$ would make the right-hand side strictly larger than that very same term, so equality is impossible.
+
+The restriction is semantic, not just an implementation detail: it specifies that we are unifying finite first-order terms. A Prolog system that omits this check can accept cyclic term structures; that behaviour must not be mistaken for the algorithm stated here. When checking these rules in an interpreter, distinguish ordinary `=/2` from occurs-check unification, such as `unify_with_occurs_check/2` where provided.
+
+### 4. Propagate a variable binding
+
+$$
+X=t\;\land E
+\quad\longmapsto\quad
+E[X/t]\;\land X=t
+$$
+
+if $X$ does not occur in $t$ and does occur in $E$.
+
+Once $X=t$ is required, every other occurrence of $X$ must mean $t$. The binding is retained so that the final answer still records the value of $X$; propagation makes the remaining equations consistent with it.
+
+The second condition avoids rewriting a binding indefinitely when there is nothing left to propagate.
+
+### 5. Reject incompatible outer symbols
+
+$$
+f(s_1,\ldots,s_m)=g(t_1,\ldots,t_n)\;\land E
+\quad\longmapsto\quad\mathrm{fail}
+\qquad\text{if }f\ne g.
+$$
+
+Substitutions change variables, not function or predicate symbols. Different outer symbols therefore cannot be repaired by a substitution. A difference of arity is likewise a clash: symbols are understood together with their arities. Distinct constants are a zero-arity case of this test.
+
+### 6. Decompose matching outer symbols
+
+$$
+f(s_1,\ldots,s_n)=f(t_1,\ldots,t_n)\;\land E
+\quad\longmapsto\quad
+s_1=t_1\land\cdots\land s_n=t_n\land E.
+$$
+
+The outer symbols already agree. Their corresponding arguments must now agree independently, but under the same substitution. If $n=0$, matching constants leave no argument equations.
+
+A successful final system consists of compatible solved variable bindings. Reading these bindings as a substitution gives an mgu. If either failure rule applies, the original system has no unifier. Thus “the algorithm returns the mgu” on slide 7 means **it returns an mgu on success**, not that every input is unifiable.
+
+## Worked rewrite of the lecture's example
+
+Return to
+
+$$
+f(a,g(Y))=f(X,Z).
+$$
+
+Decomposing the outer $f$ gives
+
+$$
+a=X\land g(Y)=Z.
+$$
+
+Orienting the equations gives
+
+$$
+X=a\land Z=g(Y).
+$$
+
+There are no conflicting symbols, neither variable occurs in its own right-hand side, and neither binding needs further propagation into the other. The solved substitution is
+
+$$
+\sigma=[X/a,\;Z/g(Y)].
+$$
+
+Notice what did **not** happen: no rule chose a value for $Y$. The algorithm retains precisely the freedom that the original equations allow.
+
+Propagation becomes visible in the slide's later exercise `p(s(A),s(s(0)))` against a fresh copy `p(U,U)`. Decomposition gives
+
+$$
+s(A)=U\land s(s(0))=U.
+$$
+
+Orient one equation and propagate its binding:
+
+$$
+U=s(A)\land s(s(0))=U
+\quad\longmapsto\quad
+s(s(0))=s(A)\land U=s(A).
+$$
+
+Decomposition and orientation then give $A=s(0)$. Propagating this into the retained binding gives
+
+$$
+A=s(0)\land U=s(s(0)).
+$$
+
+This example also shows why binding propagation must eventually update retained bindings, not just the next atom being selected.
+
+## Exercise: why does rewriting terminate?
+
+Slide 8 asks for a termination proof. Merely saying “each rule simplifies something” is insufficient, because substitution can make the written equations larger.
+
+One rigorous way to organise the argument is to implement the slide's rules with **active equations** and **stored solved bindings**. A binding $X=t$, with $X$ absent from $t$, is propagated through all other equations and stored bindings and then stored as solved. The left-hand variable $X$ is removed from the active problem. A binding that needs no propagation can be stored immediately; this is bookkeeping, not an additional logical inference rule.
+
+For the active problem, consider the lexicographic measure
+
+$$
+(v,N,o),
+$$
+
+where:
+
+- $v$ is the number of distinct variables occurring in active equations;
+- $N$ is the total number of term-symbol occurrences in those equations;
+- $o$ is the number of active equations with a non-variable on the left and a variable on the right.
+
+Order these triples lexicographically over the nonnegative integers: the first component that changes must decrease.
+
+1. Eliminating and storing a variable binding strictly decreases $v$. Substitution may increase $N$, but it introduces no new variable, and the decrease in the earlier component takes priority.
+2. Decomposition introduces no new variable and removes the two matching outer symbols. Thus $v$ does not increase and $N$ decreases.
+3. Deleting $X=X$ decreases $N$, or already decreases $v$ if that was the variable's last active occurrence.
+4. Orientation preserves $v$ and $N$ and decreases $o$.
+5. Either failure rule terminates immediately.
+
+There is no infinite descending sequence of such triples. Hence this active-equation realisation terminates. Updating the finite stored bindings after each elimination also terminates, and only finitely many variables can be eliminated.
+
+This explains how to make the slide's claim precise without incorrectly claiming that raw text size always decreases. For a proof written directly against the six displayed rules, the same idea can be formulated by treating already isolated bindings as the solved part of the system.
+
+## Exercise: what determines complexity?
+
+The second exercise asks us to reason about complexity. Termination alone does not give a useful time bound.
+
+The main cost issues in these particular rules are:
+
+- traversing terms to find an occurrence of a variable;
+- performing the occurs check;
+- propagating a binding through other equations;
+- representing and copying terms introduced by substitution;
+- producing the final substitution in the required output representation.
+
+With literal tree copying, a term substituted into several occurrences is duplicated. Repeated propagation can therefore make the expanded representation exponentially larger than the compact input, even though only finitely many rewrites occur. Writing out a fully expanded answer can itself be expensive.
+
+With shared term structures, identical subterms need not be copied repeatedly. The size of a shared representation can be much smaller than the size of the corresponding fully expanded tree. Consequently, a complexity discussion must state whether it measures expanded terms or shared structures, and which operations are taken as primitive.
+
+The six rules alone do not specify enough implementation detail to justify one exact running-time bound. The exercise's central lesson is to separate **termination**, **number of rewrites**, **cost per rewrite**, and **size of the represented answer**.
+
+# Returning to SLD resolution: a complete successful proof
+
+*Slides 9–10.*
+
+We can now read the resolution rule with all its components explained. The lecture uses this program:
+
+```prolog
+r(a).
+r(b).
+p(a).
+q(X) :- r(X),p(X).
+```
+
+**Provenance:** transcribed from slide 10 of `12 - 13-11-2026.pdf`; no separate Prolog file was supplied.
+
+The rule says that `q(X)` holds when both `r(X)` and `p(X)` hold for the **same** value of `X`. The fact `r(b)` alone cannot establish `q(b)` because the second requirement would still be missing.
+
+For the ground query
+
+```prolog
+?- q(a).
+```
+
+the successful derivation is:
+
+1. Rename the rule to `q(X1) :- r(X1),p(X1).` and unify `q(a)` with `q(X1)`. The mgu is $\theta_1=[X_1/a]$. Replacing the selected atom by the instantiated body gives $\leftarrow r(a),p(a)$.
+2. Resolve the leftmost atom `r(a)` with the fact `r(a).`. No new binding is necessary. The remaining goal is $\leftarrow p(a)$.
+3. Resolve `p(a)` with the fact `p(a).`. The goal becomes empty, $\Box$.
+
+This generated explanatory diagram reproduces the specific successful derivation on slide 10; it is not a screenshot or an additional execution trace. Each arrow identifies the clause use that removes or replaces the selected atom.
+
+```{mermaid}
+%%| fig-cap: "The lecture's successful SLD derivation for q(a). The final node is the empty goal."
+flowchart TD
+  G0["Goal: q(a)"] -->|"q(X1): bind X1 to a"| G1["Goal: r(a), p(a)"]
+  G1 -->|"fact r(a)"| G2["Goal: p(a)"]
+  G2 -->|"fact p(a)"| G3["Empty goal: success"]
+```
+
+The computation establishes $P\models q(a)$, hence $q(a)\in M_P$. For this program,
+
+$$
+M_P=\{r(a),r(b),p(a),q(a)\}.
+$$
+
+This small model also makes the bottom-up/top-down contrast concrete. Bottom-up reasoning starts from the three facts and adds `q(a)`. Top-down reasoning starts from `q(a)` and asks for exactly the supporting facts.
+
+For `q(b)`, the rule instead creates the goal `r(b),p(b)`. The first atom succeeds and the second has no matching fact or rule. This is finite failure for this program. The ground query `q(a)` itself needs no answer binding: the local binding $X_1=a$ belongs to a fresh clause variable, not to a variable in the original query.
+
+# Worked SLD exercises
+
+
+The slide asks for derivations and instructs students to verify them with a Prolog interpreter. The following are worked mathematical solutions. The source programs are kept unchanged apart from spacing and conversion of the slide's mathematical rule arrow into Prolog `:-` syntax. They have not been executed here.
+
+## Exercise 1: two recursive number goals
+
+The supplied program is
+
+```prolog
+num(0).
+num(s(X)) :- num(X).
+```
+
+The goal is
+
+```prolog
+?- num(s(0)), num(s(s(0))).
+```
+
+The first clause is the base case; the second removes one outer `s` from the selected atom. Use fresh variables at each rule application.
+
+| Step | Current goal | Clause use and mgu |
+|---|---|---|
+| 0 | $\leftarrow num(s(0)),num(s(s(0)))$ | Recursive clause with fresh $X_1$; $[X_1/0]$ |
+| 1 | $\leftarrow num(0),num(s(s(0)))$ | Fact `num(0).`; identity substitution |
+| 2 | $\leftarrow num(s(s(0)))$ | Recursive clause with fresh $X_2$; $[X_2/s(0)]$ |
+| 3 | $\leftarrow num(s(0))$ | Recursive clause with fresh $X_3$; $[X_3/0]$ |
+| 4 | $\leftarrow num(0)$ | Fact `num(0).`; identity substitution |
+| 5 | $\Box$ | Success |
+
+There are two separate obligations in the initial conjunction. Finishing the first does not finish the query: the second still has to be proved. In each recursive step, matching the same outer symbol `s` reduces unification to the arguments inside it.
+
+This query is ground, so success is a yes/no result rather than a binding for a query variable. The displayed bindings explain the internal clause uses.
+
+## Exercise 2: alternatives, failed branches, and answer substitutions
+
+The supplied program is
+
+```prolog
+p(a).
+p(b).
+p(c).
+q(s(X)) :- p(X),r(X).
+r(s(X)) :- p(X).
+r(X) :- p(X).
+```
+
+The query is
+
+```prolog
+?- q(X).
+```
+
+Rename the variable inside the `q` clause to $U$. Unifying the query with `q(s(U))` gives
+
+$$
+\theta_1=[X/s(U)],
+$$
+
+and the new goal is
+
+$$
+\leftarrow p(U),r(U).
+$$
+
+The query variable has already acquired a structure, $s(U)$, but $U$ is not yet fixed. Because the same $U$ occurs in both body atoms, proving `p(U)` restricts the following `r(U)`.
+
+### First alternative: use p(a)
+
+Resolving `p(U)` with `p(a).` gives $[U/a]$. The goal becomes $\leftarrow r(a)$, and the accumulated query binding is $X=s(a)$.
+
+Try the first `r` clause, freshly renamed to
+
+```prolog
+r(s(V)) :- p(V).
+```
+
+Its head cannot unify with `r(a)`: decomposition would require $a=s(V)$, a constant/constructor clash. **This clause is rejected during unification.** No body goal `p(V)` is created by this failed attempt.
+
+The second clause, renamed to
+
+```prolog
+r(W) :- p(W).
+```
+
+unifies using $[W/a]$, giving $\leftarrow p(a)$. The fact `p(a).` then leaves the empty goal. The first computed answer is
+
+$$
+X=s(a).
+$$
+
+### Backtracking: use p(b), then p(c)
+
+If another solution is requested, backtracking restores the earlier unresolved choice `p(U)` and removes the branch-specific binding $U=a$.
+
+- With `p(b).`, we obtain `r(b)`. The head `r(s(V))` again clashes; `r(W) :- p(W)` gives `p(b)`, which succeeds. The answer is $X=s(b)$.
+- With `p(c).`, the same reasoning gives $X=s(c)$.
+
+All successful derivations use the second `r` rule. The first `r` rule does derive atoms of the form `r(s(a))`, `r(s(b))`, and `r(s(c))` from the facts, but the preceding goal `p(U)` fixes $U$ to a bare constant. These derived atoms therefore do not help this query. Both goals in the conjunction must use the same argument.
+
+The diagram below merges the common prefix of the three successful branches. The label on each `r` node records the rejected first clause; the arrow below it uses the second `r` clause. The branches are a structural presentation of the program, not measured interpreter output.
+
+```{mermaid}
+%%| fig-cap: "The three successful alternatives for q(X). In each branch, r(s(V)) fails to unify with the selected ground r atom."
+flowchart TD
+  Q["q(X)"] -->|"X = s(U)"| B["p(U), r(U)"]
+  B -->|"p(a): U = a"| RA["r(a): first r head clashes"]
+  B -->|"p(b): U = b"| RB["r(b): first r head clashes"]
+  B -->|"p(c): U = c"| RC["r(c): first r head clashes"]
+  RA -->|"second r clause"| PA["p(a)"]
+  RB -->|"second r clause"| PB["p(b)"]
+  RC -->|"second r clause"| PC["p(c)"]
+  PA -->|"fact"| SA["Success: X = s(a)"]
+  PB -->|"fact"| SB["Success: X = s(b)"]
+  PC -->|"fact"| SC["Success: X = s(c)"]
+```
+
+Under the displayed clause order and ordinary leftmost selection, the predicted answers are `X = s(a)`, `X = s(b)`, and `X = s(c)`, in that order. Requesting further answers should eventually exhaust the alternatives. These are predictions from the derivations, not a captured interpreter transcript.
+
+The computed answer is obtained by composing the step substitutions and restricting the result to the original query variable $X$. The fresh variables $U,V,W$ are implementation-local names, not additional user-facing answers.
+
+## Exercise 3: a fact with a repeated variable
+
+The supplied program is
+
+```prolog
+p(X,X).
+```
+
+The goal is
+
+```prolog
+?- p(s(A),s(s(0))).
+```
+
+Take a fresh copy `p(U,U).`. Unification requires
+
+$$
+s(A)=U
+\qquad\text{and}\qquad
+s(s(0))=U.
+$$
+
+Since both are equal to $U$, their outer `s` symbols match and their arguments must agree:
+
+$$
+A=s(0).
+$$
+
+A full mgu on the involved variables is
+
+$$
+\theta=[A/s(0),\;U/s(s(0))].
+$$
+
+The selected clause is a fact, so there is no body to prove. The complete derivation is a single resolution step:
+
+$$
+\leftarrow p(s(A),s(s(0)))
+\quad\xRightarrow{\theta}\quad
+\Box.
+$$
+
+Restricting $\theta$ to the query variable gives the answer $A=s(0)$. The fact does not assert that every pair satisfies `p`; it asserts that every pair of **identical** terms does. The repeated variable enforces equality through unification.
+
+## How to verify the exercises yourself
+
+Load each exercise as a separate program, then issue its query. Keeping them separate avoids accidentally combining predicates named `p` from different exercises. Ask for further answers in Exercise 2 to observe backtracking.
+
+When comparing an interpreter result with the derivations, check:
+
+- whether the query succeeds or fails;
+- the bindings of the original query variables;
+- whether more answers exist;
+- whether a trace rejects a clause head or enters its body and later fails;
+- whether differences are merely fresh variable names.
+
+For Exercise 1, expect success with no query-variable bindings. For Exercise 2, expect the three bindings just derived. For Exercise 3, expect `A = s(0)`. Exact prompt formatting and the names of internal variables depend on the interpreter.
+
+# Encoding a Turing machine in a definite program
+
+The lecture now returns to the question raised by infinite Herbrand universes: can a goal-directed procedure always decide whether a ground atom belongs to $M_P$? A Turing-machine encoding connects that question to the halting problem.
+
+## Transition facts and tape representation
+
+The transition relation is represented by facts for `delta/5`, with argument order
+
+```prolog
+delta(CurrentState, ReadSymbol, NextState, WrittenSymbol, Direction).
+```
+
+The slide gives these illustrative transition facts, separated there by an ellipsis:
+
+```prolog
+delta(q0,0,qi,1,left).
+delta(qn,1,qj,0,right).
+```
+
+They are examples of transition syntax, **not a complete machine definition**. In executable Prolog, `q0`, `qi`, `qn`, and `qj` are distinct lowercase atoms. Their suggestive names do not make them variables.
+
+A tape configuration is represented by four components,
+
+$$
+(Left,Q,S,Right),
+$$
+
+where:
+
+- `Q` is the current state;
+- `S` is the symbol currently under the head;
+- `Left` lists the cells to the left, with the **nearest cell first**;
+- `Right` lists the cells to the right, again with the **nearest cell first**.
+
+The currently scanned cell belongs to neither list. This separation makes a head move a list operation rather than an array shift. The list notation `[H|T]` separates a list's first element `H` from its remaining list `T`; `[]` is the empty list.
+
+The predicate
+
+```prolog
+turing(L_i,Q,S,R_i,L_o,Q_o,S_o,R_o)
+```
+
+relates an input configuration, represented by its first four arguments, to a final configuration, represented by its last four. The slide uses `halt` for the halting state and `0` for an implicit blank tape cell.
+
+## The five clauses exactly as printed
+
+The following is a transcription of slide 12, with indentation normalised. In particular, the last two clauses deliberately retain the repeated `Q` from the slide.
+
+```prolog
+turing(Left,halt,S,Right,Left,halt,S,Right).
+
+turing([L|L_i],Q,S,R_i,L_o,Q_o,S_o,R_o) :-
+    delta(Q,S,Q1,S1,left),
+    turing(L_i,Q1,L,[S1|R_i],L_o,Q_o,S_o,R_o).
+
+turing(L_i,Q,S,[R|R_i],L_o,Q_o,S_o,R_o) :-
+    delta(Q,S,Q1,S1,right),
+    turing([S1|L_i],Q1,R,R_i,L_o,Q_o,S_o,R_o).
+
+turing([],Q,S,R_i,L_o,Q,S_o,R_o) :-
+    turing([0],Q,S,R_i,L_o,Q,S_o,R_o).
+
+turing(L_i,Q,S,[],L_o,Q,S_o,R_o) :-
+    turing(L_i,Q,S,[0],L_o,Q,S_o,R_o).
+```
+
+**Provenance:** supplied slide code, not a supplied `.pl` file. No complete `delta/5` relation or sample run was supplied, and this program has not been executed here.
+
+## Clause 1: a halting configuration is already final
+
+```prolog
+turing(Left,halt,S,Right,Left,halt,S,Right).
+```
+
+The repeated variables make the output configuration identical to the input one. No tape move or write is performed. Because it is a fact, a goal that unifies with it can immediately succeed.
+
+The atom `halt` appears in both state positions. For a query that asks specifically for a halting final configuration, this is the base case that ends the recursive proof.
+
+## Clause 2: write and move left
+
+The left-move clause requires a nonempty left list `[L|L_i]`. Its transition fact establishes that in state `Q`, reading `S`, the machine should enter `Q1`, write `S1`, and move left.
+
+After writing and moving:
+
+1. The nearest left symbol `L` becomes the newly scanned symbol.
+2. The remaining left list is `L_i`.
+3. The symbol just written, `S1`, becomes the nearest right cell, so the new right list is `[S1|R_i]`.
+4. The new state is `Q1`.
+
+The recursive call therefore receives exactly
+
+$$
+(L_i,Q1,L,[S1\mid R_i]).
+$$
+
+The final-output arguments `L_o,Q_o,S_o,R_o` pass through unchanged: the recursive computation must determine the final configuration reached after the remaining moves.
+
+## Clause 3: write and move right
+
+The right-move clause is symmetric and requires a nonempty right list `[R|R_i]`.
+
+1. Read the applicable transition and write `S1` in the current cell.
+2. Push `S1` onto the left list, giving `[S1|L_i]`.
+3. Take `R` as the newly scanned symbol.
+4. Keep `R_i` as the remaining right list and enter `Q1`.
+
+The recursive input configuration is
+
+$$
+([S1\mid L_i],Q1,R,R_i).
+$$
+
+Notice why the left list is stored nearest-first: moving right adds the old scanned cell to the front of that list. Moving left removes its front. Both operations use the same representation consistently.
+
+## Clauses 4–5: extending the represented blank tape
+
+A Turing machine has an unbounded tape, but each list represents only a finite portion. An empty list on a side means that no more cells on that side are explicitly stored; it does not mean that the physical tape ends there.
+
+The intended role of the last two clauses is to replace an empty side by `[0]`, exposing one blank cell before trying the recursive simulation again. This is a representation extension, not a transition of the simulated machine: it should not change its state or scanned symbol.
+
+::: {.callout-warning}
+## Apparent state-variable error in the printed padding clauses
+
+The printed clauses use the same variable `Q` for the **current state** and the **final output state**. Thus they enforce that those states are equal. With the lecture's query requesting final state `halt`, either padding clause can be used only when the current state already unifies with `halt`.
+
+For example, the initial left list in slide 13 is `[]` and the current state is `q0`. If the machine's first transition needs to move left, the ordinary left-move clause requires a nonempty left list. The intended padding clause cannot supply it: its repeated `Q` would require `q0 = halt`, which fails.
+
+Consequently, the five clauses as printed do not establish the claimed general simulation. This is a code-level inconsistency in the supplied deck, not a missing student step.
+:::
+
+An **optional correction**, not the lecturer's original code, is to give the output state its own variable in both padding clauses:
+
+```prolog
+% Optional correction: replace only the last two printed clauses.
+turing([],Q,S,R_i,L_o,Q_o,S_o,R_o) :-
+    turing([0],Q,S,R_i,L_o,Q_o,S_o,R_o).
+
+turing(L_i,Q,S,[],L_o,Q_o,S_o,R_o) :-
+    turing(L_i,Q,S,[0],L_o,Q_o,S_o,R_o).
+```
+
+This repairs the unwanted equality between current and final state. It is not a claim that the resulting program is an operationally robust deterministic simulator under unrestricted backtracking. The padding rules remain overlapping alternatives, so failed or exhausted searches can explore administrative tape extensions in addition to genuine transitions. In particular, backtracking after an answer need not terminate.
+
+The correspondence needed for the theoretical argument is between a halting machine computation and the **existence of a finite successful derivation**, using a faithful encoding. It should not be strengthened into a promise about every search path of the literal printed program.
+
+# What the encoding tells us about computability
+
+*Slides 13–14.*
+
+## The input query and what it asks
+
+Slide 13 considers the goal schematically written as
+
+$$
+\operatorname{turing}\bigl([],q_0,0,
+\underbrace{[1,\ldots,1]}_{x+1\text{ copies}},
+Left,halt,S,Right\bigr).
+$$
+
+The corresponding Prolog query has the shape
+
+```prolog
+?- turing([],q0,0,Input,Left,halt,S,Right).
+```
+
+Here `Input` must first be instantiated to the ground list containing exactly $x+1$ copies of `1`. The displayed query is schematic, not a complete test case with a chosen numerical input. Calling it with an unrestricted `Input` variable would ask a different question.
+
+The first configuration has:
+
+- no explicitly stored cells to the left;
+- initial state `q0`;
+- scanned symbol `0`;
+- the unary input to the right of the scanned cell.
+
+The output state is fixed to `halt`, whereas the final left list, scanned symbol, and right list are left to be discovered. The question is therefore whether the initial configuration can reach **some** halting configuration.
+
+For a faithful encoding of the chosen machine $M$, the intended equivalence is
+
+$$
+M(x)\text{ halts}
+\quad\Longleftrightarrow\quad
+\text{the associated goal has a finite successful SLD derivation}.
+$$
+
+A halting computation supplies finitely many transitions followed by the halting clause. Conversely, a successful simulation derivation ending in that clause represents a finite sequence reaching a halting state; blank-padding steps only expose implicit blank cells.
+
+The slide says the goal “terminates iff $M(x)$ terminates”. Read that as the intended successful-simulation correspondence, subject to the printed-code issue above. Successful derivability, termination of one chosen branch, and termination of Prolog's entire search for all answers are different properties.
+
+## Semi-decidability: success can be witnessed finitely
+
+A problem is **semi-decidable**, or **recursively enumerable** (r.e.), when there is an effective procedure that accepts every positive instance after finitely many steps, but need not terminate on negative instances.
+
+For definite programs, a ground atom $A\in M_P$ has a finite proof. Such proofs can be searched for effectively. One way to ensure that no finite proof is postponed forever is to explore the finitely branching SLD tree fairly, for example by increasing depth, using complete finite-term unification.
+
+If a successful derivation exists, a fair search eventually finds it. If none exists, the search may continue indefinitely. This is why a positive answer has a finite witness while a negative answer does not always have a terminating procedure.
+
+The distinction matters operationally. Ordinary depth-first Prolog search can become trapped on an infinite branch before trying a different branch that contains a proof. Thus:
+
+- existence of an SLD refutation characterises a provable goal in this setting;
+- fair proof search gives the semi-decision procedure;
+- Prolog's particular depth-first traversal need not discover every existing proof.
+
+No contradiction is involved. The semantic fact concerns whether a proof exists; the execution behaviour concerns how we search for it.
+
+## Why there is no general decision procedure
+
+A **decision procedure** must terminate on every input and answer correctly both when $A\in M_P$ and when $A\notin M_P$.
+
+Assume such a procedure existed for arbitrary finite definite programs with function symbols. Encode a Turing machine and its input as a logic-programming consequence question. By the halting correspondence, a correct yes/no consequence answer would tell us whether that machine halts. This would decide the halting problem, which is impossible.
+
+Therefore, ground logical consequence for this general class is semi-decidable but not decidable. This does not mean that every query diverges, or that negative answers are never possible. The finite failure of `q(b)` in the earlier finite program is a perfectly valid negative result. What fails is a uniform guarantee of termination for **all** programs and goals.
+
+## Interpreting the r.e.-completeness exercise
+
+Slide 13 proposes proving that $M_P$ is r.e.-complete. The qualification is important: **not every particular program has an r.e.-complete minimum model**. A program consisting of finitely many ground facts has a finite, decidable model.
+
+The general ground-consequence problem is r.e.-complete, and a suitable fixed universal-machine encoding can have an r.e.-complete set of encoded consequences. The intended proof has two parts:
+
+1. **Recursively enumerable membership.** Enumerate finite proofs fairly. Every ground consequence eventually appears, or its proof is eventually found.
+2. **Hardness.** Effectively map a machine-and-input halting instance to the corresponding consequence question for a faithful simulator. Halting holds exactly when that consequence holds. For a single fixed program, use a universal machine and encode the machine/input pair as its data.
+
+There is one further detail in the slide's query: its output tape arguments are variables. It asks for a halting output to **exist**, whereas membership in $M_P$ is a question about a **ground atom**. To express the reduction directly as ground membership, add a wrapper whose input is ground and whose local output variables are existentially witnessed by a successful derivation. Schematically:
+
+```prolog
+% Explanatory wrapper, not supplied slide code.
+% Use with a faithful simulator and a ground input list.
+halts(Input) :-
+    turing([],q0,0,Input,Left,halt,S,Right).
+```
+
+For a fixed machine and a ground input list, the ground atom `halts(Input)` is a consequence exactly when some halting output configuration exists. The body-only variables express that witness; their particular names are immaterial. A universal-machine version must also encode the machine description in the input. No new reasoning paradigm is needed: this is still a definite-clause rule of the form used throughout the lecture.
+
+## The lecture's closing semantic message
+
+Slide 14 summarises $M_P$ as the semantics of definite-clause logic programming and the set of logical consequences. More precisely, it is the set of **ground atomic** logical consequences in the Herbrand base:
+
+$$
+M_P=\{A\in B_P\mid P\models A\}.
+$$
+
+The same slide describes it as “computable, i.e. recursively enumerable”. In standard computability terminology, **recursively enumerable is weaker than decidable**: we can enumerate consequences or search for positive proofs, but cannot in general compute a terminating membership test for both answers.
+
+The lecture's progression can now be read as a single argument. The minimum model defines what is true; unification lets a rule apply without prematurely fixing every variable; SLD resolution assembles those rule applications into proofs; and the Turing-machine encoding explains why finding proofs cannot be upgraded into a general always-terminating truth test.
+
+# Sources {.unnumbered}
+
+- **Original slide deck:** Agostino Dovier, *Automated Reasoning*, CLPLAB, Università di Udine, `12 - 13-11-2026.pdf`, 14 pages. All pages were inspected. Slide 2 supplies the semantic recap; slide 3 the finite/infinite distinction; slides 4 and 9 the repeated SLD rule; slides 5–8 substitutions, unification, and its exercises; slides 10–11 the worked program and SLD exercises; slides 12–13 the Turing-machine encoding and computability argument; slide 14 the closing summary and reading suggestions.
+- **Code and exercises actually analysed:** the Prolog programs, goals, transition examples, and five-clause simulator printed inside that PDF. No separate MiniZinc, data, Prolog, exercise, or supplementary file was supplied. Optional padding corrections and the explanatory wrapper are explicitly labelled as additions rather than original source code.
+
+No separate annotated deck, external academic reference, or external image was used. Slide 14 recommends J. W. Lloyd's *Foundations of Logic Programming* and A. Dovier and A. Formisano's *Programmazione Dichiarativa con Prolog, CLP, ASP, e CCP*; these are recommendations reported from the deck, not books consulted for this chapter. The two Mermaid diagrams are generated explanations of the supplied program and exercise, not external assets. The small illustrative machine cartoon and QR code are omitted because their appearance is not needed to follow the formal material.

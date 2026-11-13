@@ -1,0 +1,430 @@
+---
+title: "Constraint Optimization, Large Neighbourhood Search, and Bioinformatics Models"
+subtitle: "Lecture 8 - 23 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Constraint Optimization Problems
+
+A Constraint Optimization Problem (COP) extends a Constraint Satisfaction Problem with an objective function. It is a tuple
+
+$$
+\langle V,D,C,f\rangle,
+$$
+
+where:
+
+- $V=\{V_1,\ldots,V_n\}$ is the set of variables;
+- $D=\{D_1,\ldots,D_n\}$ contains their domains;
+- $C$ is the set of constraints;
+- $f:D_1\times\cdots\times D_n\to A$ maps complete assignments to an ordered set $A$.
+
+A constraint on variables $V_{i_1},\ldots,V_{i_m}$ is a relation
+
+$$
+c\subseteq D_{i_1}\times\cdots\times D_{i_m}.
+$$
+
+An assignment $\omega$ is admissible when $\omega(V_i)\in D_i$ for every variable and every constraint contains the tuple of assigned values. A COP asks for an admissible assignment minimising $f$, or equivalently maximising an objective after an appropriate sign change.
+
+# Solving COPs with Constraint Programming
+
+Constraint Programming explores a propagation-labeling tree. For satisfaction, finding one admissible leaf may be enough. For complete optimisation, however, the solver must also establish that no unexplored branch contains a better solution.
+
+When a feasible solution with value $b$ is found in a minimisation problem, $b$ becomes the **incumbent**. The solver can add the improvement requirement
+
+$$
+f<b.
+$$
+
+Propagation may then remove branches whose best possible value cannot beat $b$. Each improved solution tightens the bound again.
+
+```{mermaid}
+%%| fig-cap: "Branch-and-bound search repeatedly improves the incumbent and uses the new objective bound to prune the remaining tree."
+flowchart TD
+    R["Root COP"] --> S["Search with propagation"]
+    S --> F["Feasible solution with value b"]
+    F --> B["Add objective bound f < b"]
+    B --> P["Propagate and prune"]
+    P --> I{"Better solution?"}
+    I -->|"yes"| F
+    I -->|"no, tree exhausted"| O["Prove b optimal"]
+```
+
+The lecture emphasises four practical consequences:
+
+- complete optimisation may require exploring the whole remaining tree;
+- objective bounds learned from incumbents can substantially prune it;
+- search may restart after an improved bound, possibly with another strategy;
+- when a good solution is sufficient, a timeout can return the best incumbent found without proving optimality.
+
+# Branch and bound on knapsack
+
+The worked example uses a knapsack of capacity $50$ and three goods:
+
+| Good | Weight | Profit |
+|---|---:|---:|
+| grappa | $17$ | $10$ |
+| whisky | $10$ | $6$ |
+| chocolate | $4$ | $2$ |
+
+Let $G$, $W$, and $C$ be the selected quantities. The model shown on the slide uses positive domains and the capacity constraint
+
+$$
+17G+10W+4C\le50,
+$$
+
+with objective
+
+$$
+f(G,W,C)=10G+6W+2C.
+$$
+
+Propagation first tightens the quantity domains using the capacity. Search then branches on quantities. Once the assignment
+
+$$
+G=1,\qquad W=2,\qquad C=3
+$$
+
+is found, its value is
+
+$$
+10+12+6=28.
+$$
+
+The incumbent becomes $28$. A node whose objective upper bound is only $26$ cannot improve the incumbent and fails immediately. The slide shows the same value $28$ reached in another branch, illustrating that a second feasible solution may tie the incumbent without improving it.
+
+The symbol $k$ in the tree denotes an objective bound available at a node. The key distinction is between the value of a complete solution and an optimistic bound for a partial assignment.
+
+# Why complete search may be impractical
+
+A huge propagation-labeling tree can require more time than is available. Exact branch and bound moves through the interior of the tree and seeks a proof of optimality. Local search starts from a complete candidate and moves along the frontier of complete assignments.
+
+The deck lists several local-search metaheuristics:
+
+- Monte Carlo methods;
+- simulated annealing;
+- particle swarm methods;
+- ant-colony methods;
+- genetic methods.
+
+They use randomised choices to seek improvement. Unlike complete search, they generally do not prove that the best visited solution is globally optimal.
+
+# Neighbourhoods and moves
+
+Given a feasible assignment $\omega$, a neighbourhood function $N$ returns a set $N(\omega)$ of feasible assignments considered easily reachable from $\omega$. A **move** is the operation used to generate neighbours, such as swapping two variable values.
+
+A local-search design must specify:
+
+1. how to construct an initial solution;
+2. the neighbourhood or allowed moves;
+3. how to choose a move;
+4. how much of the neighbourhood to inspect;
+5. how to avoid loops or other undesirable behaviour;
+6. when to stop, often after a fixed number of non-improving steps.
+
+For minimisation, hill climbing chooses
+
+$$
+\omega'\in N(\omega)
+$$
+
+such that
+
+$$
+f(\omega')=\min\{f(\mu):\mu\in N(\omega)\}.
+$$
+
+A local minimum is a solution that is no worse than every neighbour, but it need not be globally optimal.
+
+# Four queens as a local-search example
+
+The lecture uses four queens and defines cost as the number of attacks. A move swaps two selected positions. Some swaps reduce the cost strongly, whereas another choice can return to a configuration with 12 attacks.
+
+The sequence of illustrated costs includes
+
+$$
+12\to4\to0
+$$
+
+for a favourable route, but also a route from cost $4$ back to cost $12$. The lesson is not that every move improves the solution. The algorithm must decide whether to accept only improving moves, permit temporary worsening, or enlarge the neighbourhood.
+
+A small neighbourhood based on one swap may miss a better configuration that requires coordinated changes. The next idea is therefore to free several variables and let Constraint Programming optimise the resulting subproblem.
+
+# Large Neighbourhood Search
+
+Large Neighbourhood Search (LNS) is presented as a hybrid of local search and Constraint Programming. It was introduced by Shaw in 1998 and used in the Comet language.
+
+Given a current solution $s$ of COP $\langle X,D,C,f\rangle$:
+
+1. choose a subset $N\subseteq X$ of variables, often randomly or by a destruction heuristic;
+2. keep the values of $X\setminus N$ fixed as in $s$;
+3. unassign the variables in $N$;
+4. use a CP solver to optimise the induced subproblem;
+5. accept an improving solution if one is found;
+6. otherwise choose another neighbourhood;
+7. stop after $k$ consecutive non-improving rounds or after a global timeout.
+
+```{mermaid}
+%%| fig-cap: "Large Neighbourhood Search destroys part of the incumbent and uses Constraint Programming to repair and optimise that neighbourhood."
+flowchart LR
+    S["Incumbent solution"] --> D["Unassign selected variables"]
+    D --> C["Fix all remaining variables"]
+    C --> P["CP optimisation in neighbourhood"]
+    P --> I{"Improvement?"}
+    I -->|"yes"| S
+    I -->|"no"| D
+    I -->|"stopping rule"| O["Return best incumbent"]
+```
+
+The neighbourhood includes the incumbent itself because restoring the removed values is always an admissible repair. A larger destruction rate produces a larger neighbourhood: it offers more opportunities for improvement but makes each CP subproblem harder.
+
+## Old MiniZinc support
+
+The slides document an old MiniZinc LNS interface:
+
+```minizinc
+int: iterations = 100;
+float: destructionRate = 0.3;
+int: time_ms = 5 * 1000;
+
+solve search
+  lns_min(obj, x, iterations, destructionRate, time_ms);
+```
+
+Here `x` is the decision-variable list and `obj` stores the objective. The lecture explicitly states that this library is no longer maintained. The syntax is historical course material, not a recommendation that the interface remains available.
+
+The slides also mention solver-independent LNS work, a constraint-based local-search backend, CLP implementations, and an ad-hoc GPU solver used for protein-structure prediction.
+
+## Warm starts and a hand-made LNS
+
+MiniZinc can compose searches using `seq_search` and can use restart schedules. The manual's warm-start annotation is presented as a component for constructing LNS manually:
+
+```minizinc
+warm_start(<vars>, <vals>)
+```
+
+`<vars>` is a one-dimensional array of integer variables and `<vals>` is an equally long array of suggested starting values. The values may describe a partial or even invalid starting point; support depends on the solver.
+
+A restart improves robustness by leaving an unproductive region. A warm start provides information about the incumbent around which the new search should begin. These mechanisms are related but not identical: restarting controls when search starts again, while a warm start suggests values for the new run.
+
+# Bioinformatics applications
+
+The second part of the lecture presents two applications from computational biology:
+
+1. haplotype inference;
+2. protein-structure prediction.
+
+The purpose is to show how discrete modelling and optimisation arise outside traditional scheduling and puzzle examples.
+
+# Haplotype inference
+
+Chromosomes are DNA regions organised in pairs in diploid organisms. One chromosome of each pair is inherited from each parent. A **haplotype** records the sequence inherited from one parent, while a **genotype** combines the corresponding pair.
+
+At selected genomic positions, Single Nucleotide Polymorphisms (SNPs) are observed. The slides focus on common substitutions such as $C\leftrightarrow T$ and $A\leftrightarrow G$.
+
+## Binary SNP encoding
+
+At each biallelic SNP site, one allele is encoded as $0$ and the other as $1$. Thus a haplotype is a word over $\{0,1\}$.
+
+A genotype position records:
+
+- `0` when both haplotypes contain `0`;
+- `1` when both contain `1`;
+- `2` when the two haplotypes disagree.
+
+Define the combination operator $\oplus$ by
+
+$$
+0\oplus0=0,
+\qquad
+1\oplus1=1,
+\qquad
+0\oplus1=1\oplus0=2.
+$$
+
+Applied positionwise, two haplotypes generate one genotype. The lecture example is
+
+$$
+0010\oplus0101=0222.
+$$
+
+The inverse is not unique. The same genotype `0222` can also be explained by `0110` and `0001`. Every `2` permits two orientations, so a genotype with many heterogeneous positions can admit exponentially many haplotype pairs.
+
+## Formal explanation relation
+
+Let
+
+$$
+H\subseteq\{0,1\}^n,
+\qquad
+G\subseteq\{0,1,2\}^n.
+$$
+
+A pair $\{h_1,h_2\}$ explains genotype $g$ exactly when, for each position $i$:
+
+$$
+g_i\ne2
+\implies
+h_{1,i}=h_{2,i}=g_i,
+$$
+
+and
+
+$$
+g_i=2
+\implies
+h_{1,i}\ne h_{2,i}.
+$$
+
+A haplotype set $H$ explains genotype set $G$ when every $g\in G$ has at least one explaining pair in $H$.
+
+The pure-parsimony problem seeks the smallest explanatory set. The decision form asks whether an explanatory set of size $k$ exists. The slide states that this decision problem is NP-complete.
+
+```{mermaid}
+%%| fig-cap: "Several haplotype pairs may explain one observed genotype; pure parsimony seeks a small shared haplotype set explaining all observations."
+flowchart TD
+    H1["haplotype h1"] --> G["observed genotype g"]
+    H2["haplotype h2"] --> G
+    H3["alternative haplotype"] --> G
+    H4["alternative haplotype"] --> G
+    G --> P["choose a minimum explaining set"]
+```
+
+Biological experiments make genotypes easier and cheaper to obtain than the two underlying haplotypes. Computation is therefore used to infer a parsimonious explanation of population data.
+
+# From DNA to proteins
+
+The lecture next recalls the central dogma:
+
+$$
+\text{DNA}\longrightarrow\text{mRNA}\longrightarrow\text{protein},
+$$
+
+through transcription and translation. Translation reads mRNA three bases at a time. The universal genetic code maps each triplet, or codon, to an amino acid or stop signal. Several codons may encode the same amino acid.
+
+Proteins are linear chains of amino acids joined by peptide bonds. Twenty common amino-acid types are represented by letters
+
+$$
+\{A,\ldots,Z\}\setminus\{B,J,O,U,X,Z\}.
+$$
+
+The backbone has two relevant rotational degrees of freedom per amino acid in the explanation given by the slides. Therefore, a chain of $n$ amino acids has approximately $2n$ degrees of freedom. Typical proteins in the lecture range from about 50 to 500 amino acids, leading to a very large conformational search space.
+
+# Protein-structure prediction
+
+The input is the **primary structure**, the amino-acid sequence. The output is the position of each amino acid in space, producing a candidate **tertiary structure**.
+
+Proteins fold spontaneously in their natural environment, do so consistently, and typically fold quickly. The resulting shape is influenced by non-covalent interactions, including electrostatic effects, excluded volume, hydrogen bonding, van der Waals interactions, and bridges, together with the rigidity of the backbone and interactions with water, ions, and ligands.
+
+A cost function approximating these physical effects can score candidate conformations. Searching for the globally optimal score is computationally difficult, even in strongly simplified models.
+
+# The HP lattice model
+
+The lecture makes two simplifications:
+
+1. represent each amino acid by one point and classify it only as hydrophobic (`h`) or polar (`p`);
+2. place amino acids on a two-dimensional square lattice.
+
+The input is
+
+$$
+S=(s_1,\ldots,s_n),
+\qquad
+s_i\in\{h,p\}.
+$$
+
+A folding is a function
+
+$$
+\varphi:\{1,\ldots,n\}\to\mathbb N^2.
+$$
+
+## Chain-adjacency constraint
+
+Consecutive amino acids remain adjacent on the lattice:
+
+$$
+\operatorname{next}(\varphi(i),\varphi(i+1))
+$$
+
+for every $i<n$.
+
+For coordinates $(X_1,Y_1)$ and $(X_2,Y_2)$,
+
+$$
+\operatorname{next}((X_1,Y_1),(X_2,Y_2))
+\iff
+|X_1-X_2|+|Y_1-Y_2|=1.
+$$
+
+This is Manhattan distance one.
+
+## Self-avoidance constraint
+
+Two distinct amino acids cannot occupy the same lattice point:
+
+$$
+i\ne j\implies\varphi(i)\ne\varphi(j).
+$$
+
+## Energy
+
+Non-consecutive amino acids can become spatial neighbours after folding. The energy is
+
+$$
+E(S,\varphi)=
+\sum_{1\le i\le n-2}
+\sum_{i+2\le j\le n}
+\operatorname{Pot}(s_i,s_j)
+\,[\operatorname{next}(\varphi(i),\varphi(j))].
+$$
+
+The potential used in the slide is
+
+$$
+\operatorname{Pot}(p,p)
+=
+\operatorname{Pot}(h,p)
+=
+\operatorname{Pot}(p,h)=0,
+$$
+
+and
+
+$$
+\operatorname{Pot}(h,h)=-1.
+$$
+
+The restriction $j\ge i+2$ excludes adjacent amino acids already joined along the chain. Each non-consecutive hydrophobic contact contributes $-1$, so minimising energy maximises favourable hydrophobic contacts.
+
+```{mermaid}
+%%| fig-cap: "Logical structure of the HP lattice optimisation model."
+flowchart LR
+    S["HP sequence"] --> P["Lattice positions"]
+    P --> A["Consecutive positions adjacent"]
+    P --> U["All positions distinct"]
+    A --> C["Count non-consecutive H-H contacts"]
+    U --> C
+    C --> E["Minimise energy"]
+```
+
+The slide cites the result that deciding whether an HP sequence on the two-dimensional square lattice has a folding with energy below a threshold is NP-complete. This explains why complete exploration is difficult and connects the application back to the lecture's optimisation and neighbourhood-search techniques.
+
+# Relationship between the two biological models
+
+| Application | Observed input | Hidden structure | Objective or decision |
+|---|---|---|---|
+| haplotype inference | genotypes over $\{0,1,2\}$ | explaining binary haplotypes | minimise the number of distinct haplotypes, or decide whether $k$ suffice |
+| protein folding | HP amino-acid sequence | self-avoiding lattice conformation | minimise contact energy |
+
+Both problems require selecting a discrete hidden explanation from a combinatorially large set. Both also contain strong constraints that eliminate most naïve assignments before optimisation.
+
+# Sources
+
+- Original lecture slide deck: `08 - 23-10-2026.pdf`. Progressive animation pages were merged into their final logical explanations. Used for the COP definition, branch-and-bound example, local and Large Neighbourhood Search, historical MiniZinc interfaces, haplotype inference, and the HP protein-folding model.
+- References explicitly listed in the slide deck: Shaw's 1998 LNS work; Van Hentenryck and Michel on constraint-based local search; the cited work on solver-independent LNS and constraint-based local-search backends; Crescenzi et al. on protein-folding complexity; and the bioinformatics references on the closing slide. These are reported only where the deck invokes them; no additional theory from those works was introduced.

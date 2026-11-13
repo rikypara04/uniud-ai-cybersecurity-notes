@@ -1,0 +1,431 @@
+---
+title: "Computational Complexity, Machine Models, and Cost Criteria"
+subtitle: "Lecture 9 - 29 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+```{=html}
+<style>
+.theorem-box { border:2px solid #b02a37; border-left:.55rem solid #b02a37; border-radius:.45rem; padding:1rem 1.15rem .85rem; margin:1.25rem 0; background:rgba(176,42,55,.07); }
+.theorem-box > :first-child { margin-top:0; } .theorem-box > :last-child { margin-bottom:0; }
+.theorem-title { color:#b02a37; font-weight:700; margin-bottom:.45rem; }
+@media (prefers-color-scheme: dark) { .theorem-box { background:rgba(255,107,122,.10); border-color:#ff6b7a; } .theorem-title { color:#ff8a96; } }
+</style>
+```
+
+# From algorithm analysis to computational complexity
+
+In an algorithms course, the usual starting point is an algorithm, whose use of resources is then analysed. Computational complexity changes the focus: the central object is the **problem** itself.
+
+A problem can be viewed abstractly as a mapping
+
+$$
+D : \text{inputs} \longrightarrow \text{outputs}.
+$$
+
+The goal is not merely to determine the cost of one chosen algorithm, but to classify the intrinsic difficulty of the problem. This requires considering the best possible algorithm under a specified resource measure and, when possible, proving lower bounds showing that no algorithm can solve the problem with fewer resources.
+
+In the first part of the course, the principal resources are:
+
+- **time**, measured through the number or cost of executed operations;
+- **space**, measured through the amount of memory used during the computation.
+
+The optimal algorithm for time need not be the optimal algorithm for space. An algorithm can save memory by reusing storage while performing additional computation, so reducing one resource may increase the other. Consequently, time and space complexity must be analysed separately.
+
+## Decision, functional, and optimization problems
+
+Three broad forms of computational problem are useful.
+
+| Problem form | Required output | Graph-colouring version |
+|---|---|---|
+| **Decision** | a yes-or-no answer | decide whether $G$ is colourable with at most three colours |
+| **Functional** | a concrete output object | produce a valid colouring of $G$ |
+| **Optimization** | an optimal feasible solution | minimize the number of colours used |
+
+This course concentrates mainly on decision problems, which provide the basic framework for complexity classes.
+
+## Graph colouring as the running example
+
+Let
+
+$$
+G=(V,E)
+$$
+
+be a finite undirected graph, where $V$ is the set of vertices and $E$ is the set of edges. A colouring assigns a colour to every vertex. Formally, a colouring can be represented by a function
+
+$$
+c:V\longrightarrow \{1,2,\ldots,|V|\}.
+$$
+
+It is **valid** when adjacent vertices receive different colours:
+
+$$
+\{u,v\}\in E \implies c(u)\neq c(v).
+$$
+
+The same underlying graph-colouring task can be formulated in different ways.
+
+- **Functional version:** given $G$, produce a valid colouring.
+- **Decision version:** given $G$ and a fixed number of colours, decide whether a valid colouring exists using at most that many colours.
+- **Optimization version:** given $G$, find the minimum number of colours needed for a valid colouring.
+
+The lecture used the decision problem **3-COLOURING**:
+
+> Given a graph $G$, decide whether there exists a valid colouring of $G$ using at most three colours.
+
+A positive instance requires only the answer *yes*. The algorithm is not required to return the colouring itself. In a complete graph, every pair of distinct vertices is adjacent, so each vertex needs a different colour; in the worst case, as many as $|V|$ colours may therefore be necessary.
+
+# Decision problems as languages
+
+The set of all instances of a decision problem is partitioned into:
+
+- **yes-instances**, for which the correct answer is yes;
+- **no-instances**, for which the correct answer is no.
+
+To express this formally, every input is encoded as a finite string over an alphabet $\Sigma$. Graphs, for example, can be encoded as binary strings. The language associated with a decision problem is the set of encoded yes-instances:
+
+$$
+L\subseteq \Sigma^*.
+$$
+
+For 3-COLOURING, the corresponding language is
+
+Define the language
+
+$$
+\mathcal{L}_{3\text{-COL}}
+=
+\left\{
+\langle G\rangle\in\{0,1\}^*
+\;\middle|\;
+G\text{ has a valid colouring with at most three colours}
+\right\}.
+$$
+
+Here $\langle G\rangle$ denotes a chosen binary encoding of the graph $G$.
+
+::: {.theorem-box}
+<div class="theorem-title">Decision problems as languages</div>
+
+Once an encoding is fixed, solving the decision problem is equivalent to deciding membership in its language:
+
+$$
+\langle G\rangle\in\mathcal{L}_{3\text{-COL}}
+\quad\Longleftrightarrow\quad
+G\text{ is 3-colourable}.
+$$
+
+Thus, in complexity theory, **decision problems and languages are two views of the same object**.
+:::
+
+```{mermaid}
+%%| fig-cap: "Encoding turns 3-COLOURING into a language-membership question."
+flowchart LR
+ G["graph G"] -->|"encode"| E["binary string <G>"]
+ E --> Q{"<G> in L_3-COL?"}
+ Q -->|"yes"| Y["G is 3-colourable"]
+ Q -->|"no"| N["G is not 3-colourable"]
+ classDef input fill:#e8f1ff,stroke:#2f6fb0,stroke-width:2px;
+ classDef test fill:#fff2cc,stroke:#b38600,stroke-width:2px;
+ classDef yes fill:#e2f0d9,stroke:#548235,stroke-width:2px;
+ classDef no fill:#f8d7da,stroke:#b02a37,stroke-width:2px;
+ class G,E input; class Q test; class Y yes; class N no;
+```
+
+# What must be fixed before measuring complexity
+
+A complexity statement is meaningful only after several conventions have been fixed.
+
+1. **Model of computation.** This specifies the primitive, or native, instructions available to an algorithm. Examples mentioned in the lecture are Turing machines, Unlimited Register Machines, and Random Access Machines.
+2. **Input size.** A quantity such as $n$ must be tied to a precise measure of the length or dimension of the encoded input.
+3. **Resource.** One must state whether the cost concerns time, space, or another resource.
+
+Further choices, such as deterministic versus nondeterministic computation, will matter later. In this lecture, the emphasis is on the first two points and on how the cost assigned to primitive instructions affects time complexity.
+
+# Unlimited Register Machines
+
+An **Unlimited Register Machine**, abbreviated **URM**, has an unbounded sequence of registers
+
+$$
+R_0,R_1,R_2,\ldots
+$$
+
+and each register can store a non-negative integer of unbounded magnitude. Let $r_i$ denote the current content of register $R_i$.
+
+The model is intentionally idealized in two ways:
+
+- there is no bound on the number of registers;
+- there is no fixed word size limiting the integers stored in them.
+
+Real machines have finite memory and fixed-size words, commonly 64 bits. The abstraction removes architecture-specific bounds so that results can be stated independently of a particular computer.
+
+## Primitive instructions
+
+The basic URM instructions introduced in the lecture are:
+
+- **Successor** $S(i)$:
+
+  $$
+  r_i\gets r_i+1.
+  $$
+
+- **Zero** $Z(i)$:
+
+  $$
+  r_i\gets 0.
+  $$
+
+- **Transfer** $T(i,j)$:
+
+  $$
+  r_j\gets r_i.
+  $$
+
+- **Conditional jump** $J(i,j,q)$: if $r_i=r_j$, continue from instruction $q$; otherwise continue with the next instruction.
+
+A program is a finite sequence of labelled instructions. A program counter identifies the instruction currently being executed. The input is initially stored in $R_0$, while the other registers initially contain $0$. At termination, the output is read from $R_0$. If several integer inputs are required, they may be placed in consecutive registers.
+
+The jump instruction supplies both comparison and control flow. An unconditional jump can be implemented as
+
+$$
+J(i,i,q),
+$$
+
+because every register is equal to itself.
+
+| Instruction | Effect | Role |
+|---|---|---|
+| $S(i)$ | $r_i\gets r_i+1$ | increment |
+| $Z(i)$ | $r_i\gets 0$ | reset |
+| $T(i,j)$ | $r_j\gets r_i$ | copy |
+| $J(i,j,q)$ | jump to $q$ if $r_i=r_j$ | comparison and control flow |
+
+# A URM program for parity
+
+The first example decides whether an input integer $x$ is even or odd. Initially,
+
+$$
+r_0=x,
+\qquad
+r_1=r_2=0.
+$$
+
+The intended output is
+
+$$
+r_0=
+\begin{cases}
+0, & \text{if }x\text{ is even},\\
+1, & \text{if }x\text{ is odd}.
+\end{cases}
+$$
+
+The program written during the lecture is:
+
+```text
+1.  J(0,1,6)       # if r0 = r1, x is even
+2.  S(1)
+3.  J(0,1,8)       # if r0 = r1, x is odd
+4.  S(1)
+5.  J(2,2,1)       # unconditional jump to instruction 1
+6.  Z(0)           # even output: 0
+7.  J(2,2,100)     # jump beyond the program and halt
+8.  Z(0)
+9.  S(0)           # odd output: 1
+10. J(2,2,100)     # jump beyond the program and halt
+```
+
+Register $R_1$ acts as a counter. At the beginning of each loop iteration it has an even value. Instruction 1 detects equality at an even counter value, while instruction 3 checks again after one increment and therefore detects an odd input. If neither comparison succeeds, instruction 4 performs the second increment and the loop repeats.
+
+```{mermaid}
+%%| fig-cap: "Control flow of the URM parity program. Register R1 advances by two in each complete loop."
+flowchart TD
+ A["start: r0=x, r1=0"] --> B{"r0 = r1?"}
+ B -->|"yes"| E["output 0: even"]
+ B -->|"no"| C["r1 <- r1+1"]
+ C --> D{"r0 = r1?"}
+ D -->|"yes"| O["output 1: odd"]
+ D -->|"no"| F["r1 <- r1+1"]
+ F --> B
+ classDef test fill:#fff2cc,stroke:#b38600,stroke-width:2px;
+ classDef result fill:#e2f0d9,stroke:#548235,stroke-width:2px;
+ class B,D test; class E,O result;
+```
+
+For $x=0$, instruction 1 immediately takes the even branch. For a positive input, $R_1$ advances from $0$ toward $x$ one unit at a time. The number of executed instructions is therefore linear in the **numeric value** $x$:
+
+$$
+T_{\mathrm{URM}}(x)=\Theta(x)
+$$
+
+under the cost convention introduced next.
+
+# The uniform cost criterion
+
+Under the **uniform cost criterion**, every primitive machine instruction has constant cost:
+
+$$
+\operatorname{cost}(I)=1
+$$
+
+for every executed instruction $I$, independently of the magnitude of the integers stored in the registers. Time is therefore the number of executed instructions.
+
+This convention is simple, but it raises an important question. If a register contains a very large integer, is incrementing, copying, comparing, or otherwise manipulating that integer genuinely a constant-time operation? The answer depends on the power of the available primitive instructions.
+
+A separate issue is the distinction between the value of an integer and the length of its representation. A non-negative integer $x$ requires
+
+$$
+\ell(x)=\lfloor\log_2 x\rfloor+1
+$$
+
+bits when $x\ge 1$. Hence a running time of $\Theta(x)$ is exponential in the binary input length $\ell(x)$, because $x$ is of order $2^{\ell(x)}$. This distinction becomes essential when comparing register machines with Turing machines.
+
+# The Extended Church--Turing Thesis
+
+The ordinary Church--Turing thesis concerns **computability**: every effectively realizable model of computation can compute no more than a Turing machine. It is a thesis rather than a proved mathematical theorem because the phrase “effectively realizable” is not itself a formal mathematical notion.
+
+The **Extended Church--Turing Thesis** concerns efficiency rather than expressiveness:
+
+::: {.theorem-box}
+<div class="theorem-title">Extended Church--Turing Thesis</div>
+
+All reasonable models of computation are polynomially related with respect to time complexity.
+:::
+
+Informally, if model $M_1$ performs a computation in time $t(n)$, then a reasonable model $M_2$ should simulate it in time at most
+
+$$
+p(t(n))
+$$
+
+for some polynomial $p$. The relation is intended to hold in both directions between reasonable models.
+
+Polynomial simulation preserves the broad distinction between polynomial and exponential time. If a problem truly requires exponential time on one reasonable model, it cannot become polynomial-time solvable on another reasonable model that is polynomially related to it. Otherwise, composing the polynomial-time algorithm with a polynomial simulation would yield a polynomial-time solution on the first model as well.
+
+The lecture emphasized that this is a thesis supported by the agreement among accepted machine models, not a theorem proved for every imaginable model.
+
+# Why powerful arithmetic instructions create a problem
+
+With the basic URM instruction set, the uniform criterion may still lead to a polynomial relation with Turing-machine cost. The situation changes if the URM is extended with a very powerful arithmetic primitive. The lecture adds the instruction
+
+$$
+P(i):\qquad r_i\gets r_i\cdot r_i=r_i^2.
+$$
+
+Under uniform cost, this squaring operation costs one step regardless of the size of $r_i$.
+
+## Repeated squaring in linear URM time
+
+Suppose the input is $x$ in $R_0$. Copy $x$ to $R_1$, use $R_2$ as a loop counter, and repeat the following actions until $R_2$ reaches the saved value $x$:
+
+1. square the content of $R_0$;
+2. increment $R_2$;
+3. jump back to the comparison.
+
+A schematic version is:
+
+```text
+1. T(0,1)          # preserve the input x
+2. J(1,2,6)        # stop when the counter reaches x
+3. P(0)            # r0 <- r0^2
+4. S(2)
+5. J(3,3,2)        # unconditional jump
+6. ...             # termination
+```
+
+After $k$ squarings,
+
+$$
+r_0=x^{2^k}.
+$$
+
+Therefore, after a number of iterations linear in $x$, the output has magnitude on the order of
+
+$$
+x^{2^x}.
+$$
+
+The exact exponent can vary by one squaring depending on whether the loop test is placed before or after the body; this does not affect the complexity argument.
+
+The growth caused by repeated squaring is visible immediately:
+
+| Squarings $k$ | Content of $R_0$ |
+|---:|---:|
+| $0$ | $x$ |
+| $1$ | $x^2$ |
+| $2$ | $x^4$ |
+| $3$ | $x^8$ |
+| $k$ | $x^{2^k}$ |
+
+```{mermaid}
+%%| fig-cap: "Repeated squaring: the number of machine instructions grows linearly, but the represented value grows extremely rapidly."
+flowchart LR
+ X0["x"] -->|"square"| X1["x^2"] -->|"square"| X2["x^4"] -->|"square"| X3["x^8"] -->|"continue"| XK["x^(2^k)"]
+ classDef value fill:#e8f1ff,stroke:#2f6fb0,stroke-width:2px; class X0,X1,X2,X3,XK value;
+```
+
+Under uniform cost, the extended URM performs only $\Theta(x)$ instructions. A Turing machine, however, must explicitly write the output on its tape. The binary length of the output is
+
+$$
+\begin{aligned}
+\ell\!\left(x^{2^x}\right)
+&= \left\lfloor\log_2\!\left(x^{2^x}\right)\right\rfloor+1\\
+&= \left\lfloor 2^x\log_2 x\right\rfloor+1\\
+&= \Theta\!\left(2^x\log x\right).
+\end{aligned}
+$$
+
+Writing that many bits already requires
+
+$$
+\Omega\!\left(2^x\log x\right)
+$$
+
+Turing-machine steps, regardless of how efficiently the arithmetic is organized. Thus the uniform-cost extended URM appears to finish in linear time, while a Turing machine requires exponential time merely to materialize the output. The two cost measures are not polynomially related.
+
+This does **not** refute the Extended Church--Turing Thesis. It shows instead that uniform cost is not a reasonable accounting method for a machine whose primitive instructions can manipulate exponentially growing integers in one step.
+
+# Logarithmic cost and bit complexity
+
+When register contents can grow without bound, the cost of an operation should reflect the sizes of its operands. This is the **logarithmic cost criterion**, also called **bit complexity**.
+
+An integer $m$ occupies $\Theta(\log m)$ bits. Consequently, an operation on $m$ should not automatically be charged unit cost. For example, if $r_i$ has
+
+$$
+b=\Theta(\log r_i)
+$$
+
+bits, the elementary school multiplication algorithm for computing $r_i^2$ performs on the order of
+
+$$
+\Theta(b^2)=\Theta\!\left((\log r_i)^2\right)
+$$
+
+bit operations. The cost grows as the intermediate value grows.
+
+Charging operations according to the number of manipulated bits removes the artificial advantage of the unit-cost multiplication instruction and restores the intended polynomial relation with a Turing-machine computation.
+
+::: {.callout-warning}
+A large integer operation may look like one arithmetic instruction in high-level pseudocode while hiding many bit operations. Counting it as one step can produce a false complexity bound when intermediate integers grow rapidly.
+:::
+
+| Criterion | Cost of an operation | Appropriate viewpoint |
+|---|---|---|
+| **Uniform cost** | one unit, independently of operand size | primitives acting on constant-size units |
+| **Logarithmic cost / bit complexity** | depends on bits manipulated | unbounded integers and powerful arithmetic primitives |
+
+The practical conclusion of the lecture is:
+
+- the uniform cost criterion is acceptable when the model has no primitive instruction powerful enough to create and manipulate rapidly growing representations at constant cost;
+- a constant number of ordinary arithmetic operations generally does not create the repeated-growth phenomenon used in the counterexample;
+- when an input-dependent number of products produces exponentially growing intermediate values, logarithmic cost or bit complexity must be used;
+- on a Turing machine, each primitive transition reads and modifies only a constant number of tape symbols, so uniform cost already operates at bit level and coincides with bit-cost accounting.
+
+# Sources
+
+- **Goodnotes lecture PDF:** `09 - 29-10-2026.pdf`.
+- **Supporting lecture transcript:** `2026-10-29 complexity and information theory.txt`.

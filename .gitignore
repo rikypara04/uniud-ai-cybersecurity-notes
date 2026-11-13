@@ -1,0 +1,37 @@
+# Quarto generated files
+/.quarto/
+/_site/
+/_book/
+
+# Rendered document temporary files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Visual Studio Code local settings
+.vscode/
+
+# Temporary and backup files
+*.tmp
+*.bak
+*~
+
+**/*.quarto_ipynb
+
+# University source materials - keep local only
+**/source-material/
+
+# PDF documents
+*.pdf

@@ -1,0 +1,886 @@
+---
+title: "Shannon Codes, Huffman Codes, and Asymptotic Optimality"
+subtitle: "Lecture 6 - 20 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Expected codeword length
+
+Let
+
+$$
+\mathcal A=\{a_1,\ldots,a_k\}
+$$
+
+be a source alphabet with probability mass function
+
+$$
+p_i=P(X=a_i),
+\qquad
+\sum_{i=1}^{k}p_i=1,
+$$
+
+and let
+
+$$
+\mathcal B=\{b_1,\ldots,b_D\}
+$$
+
+be an output alphabet of size $D$.
+
+A code
+
+$$
+\varphi:\mathcal A\to\mathcal B^*
+$$
+
+assigns a codeword to each source symbol. If
+
+$$
+l_i=|\varphi(a_i)|
+$$
+
+is the length of the codeword assigned to $a_i$, the **expected codeword length** is
+
+$$
+EL(\varphi)
+=
+\sum_{i=1}^{k}p_i l_i.
+$$
+
+This is the average number of output symbols used to encode one source symbol. A codeword with length $l_i$ contributes proportionally to how often the corresponding source symbol occurs.
+
+For a binary output alphabet, the unit is **bits per source symbol**. For a $D$-ary output alphabet, the unit is **$D$-ary digits per source symbol**.
+
+## Extension to source messages
+
+For a source message
+
+$$
+m=m_1m_2\cdots m_n\in\mathcal A^*,
+$$
+
+the extended code concatenates the individual codewords:
+
+$$
+\varphi(m)
+=
+\varphi(m_1)\varphi(m_2)\cdots\varphi(m_n).
+$$
+
+Consequently, encoded lengths add:
+
+$$
+|\varphi(m)|
+=
+|\varphi(m_1)|+
+|\varphi(m_2)|+
+\cdots+
+|\varphi(m_n)|.
+$$
+
+The lecture assumes a **stationary memoryless source**. Stationarity means that the probability distribution does not change from one source position to another. The absence of memory means that successive source symbols are independent. Therefore,
+
+$$
+p(m)
+=
+p(m_1)p(m_2)\cdots p(m_n).
+$$
+
+# Shannon's lower bound for lossless coding
+
+Entropy must be measured using the same base as the output alphabet. Define the base-$D$ entropy by
+
+$$
+H_D(p)
+=
+-\sum_{i=1}^{k}p_i\log_Dp_i
+=
+\sum_{i=1}^{k}p_i\log_D\frac1{p_i}.
+$$
+
+::: {.callout-important title="Shannon's source-coding lower bound"}
+If $\varphi$ is a uniquely decodable $D$-ary code, then
+
+$$
+\boxed{
+EL(\varphi)\geq H_D(p)
+}.
+$$
+:::
+
+The theorem says that no uniquely decodable code can have an average length below the source entropy. Entropy is therefore a fundamental lower bound on lossless compression.
+
+This is a bound on the **average**, not on every individual codeword. Some high-probability symbols may receive lengths smaller than their self-information, while other symbols receive longer codewords. The probability-weighted average cannot fall below $H_D(p)$.
+
+## Proof from Kraft-McMillan and relative entropy
+
+Let
+
+$$
+K=\sum_{i=1}^{k}D^{-l_i}.
+$$
+
+Because $\varphi$ is uniquely decodable, the inverse Kraft-McMillan theorem gives
+
+$$
+K\leq1.
+$$
+
+Normalise the Kraft terms to obtain a probability distribution
+
+$$
+q_i=\frac{D^{-l_i}}{K}.
+$$
+
+Indeed,
+
+$$
+\sum_{i=1}^{k}q_i
+=
+\frac{1}{K}\sum_{i=1}^{k}D^{-l_i}
+=1.
+$$
+
+From the definition of $q_i$,
+
+$$
+D^{-l_i}=Kq_i.
+$$
+
+Taking logarithms in base $D$ gives
+
+$$
+l_i
+=-\log_D(Kq_i)
+=-\log_DK-\log_Dq_i.
+$$
+
+Substitute this expression into the expected length:
+
+$$
+\begin{aligned}
+EL(\varphi)
+&=\sum_{i=1}^{k}p_i l_i\\
+&=-\log_DK-\sum_{i=1}^{k}p_i\log_Dq_i.
+\end{aligned}
+$$
+
+The second term is the cross-entropy between $p$ and $q$. Using
+
+$$
+-\sum_ip_i\log_Dq_i
+=
+H_D(p)+D_{\mathrm{KL},D}(p\Vert q),
+$$
+
+we obtain
+
+$$
+EL(\varphi)
+=
+H_D(p)
++D_{\mathrm{KL},D}(p\Vert q)
+-\log_DK.
+$$
+
+Both additional terms are non-negative:
+
+- relative entropy satisfies
+  $D_{\mathrm{KL},D}(p\Vert q)\geq0$;
+- since $K\leq1$, we have $-\log_DK\geq0$.
+
+Therefore,
+
+$$
+EL(\varphi)\geq H_D(p).
+$$
+
+This proof also explains why the lower bound is natural. Any difference between the true distribution $p$ and the distribution represented by the code lengths creates a KL-divergence penalty, while any unused Kraft capacity creates the additional penalty $-\log_DK$.
+
+# Code efficiency
+
+The lecture defines the **code efficiency** as
+
+$$
+\eta(\varphi)
+=
+\frac{H_D(p)}{EL(\varphi)}.
+$$
+
+Since Shannon's lower bound gives
+
+$$
+H_D(p)\leq EL(\varphi),
+$$
+
+we have
+
+$$
+0\leq\eta(\varphi)\leq1.
+$$
+
+An efficiency close to $1$ means that the average codeword length is close to the entropy lower bound. Efficiency equal to $1$ means
+
+$$
+EL(\varphi)=H_D(p).
+$$
+
+This exact equality is possible only for particular source distributions, because codeword lengths must be integers.
+
+# Optimal codes
+
+A uniquely decodable code $\varphi$ is **optimal** if its expected length is no larger than the expected length of any other uniquely decodable code for the same source distribution:
+
+$$
+EL(\varphi)
+\leq
+EL(\varphi')
+$$
+
+for every uniquely decodable code $\varphi'$.
+
+Optimality does **not** automatically mean
+
+$$
+EL(\varphi)=H_D(p).
+$$
+
+The entropy may be non-integer, while symbol-code lengths must be integers. The optimal code is the best code among the permitted integer-length uniquely decodable codes, even when a positive gap from entropy remains.
+
+## Binary example
+
+Let
+
+$$
+\mathcal A=\{a,b\},
+\qquad
+p(a)=\frac14,
+\qquad
+p(b)=\frac34.
+$$
+
+The binary entropy satisfies
+
+$$
+H_2(p)<1.
+$$
+
+However, a binary uniquely decodable symbol code must assign at least one bit to each of the two symbols. The code
+
+$$
+\varphi(a)=0,
+\qquad
+\varphi(b)=1
+$$
+
+has
+
+$$
+EL(\varphi)=1.
+$$
+
+No binary symbol code can achieve a smaller average length, so this code is optimal even though
+
+$$
+H_2(p)<EL(\varphi).
+$$
+
+This example separates two concepts:
+
+- **optimality** means no admissible code has a smaller expected length;
+- **perfect entropy matching** means the expected length equals entropy.
+
+The first does not imply the second.
+
+# Shannon codes
+
+Shannon coding starts from the ideal real-valued length suggested by the self-information of a source symbol. For a source symbol $a_i$ with probability $p_i$, this ideal length is
+
+$$
+-\log_D p_i
+=
+\log_D\frac{1}{p_i}.
+$$
+
+The value measures the ideal number of $D$-ary output symbols needed to represent an outcome of probability $p_i$. However, an actual codeword must contain an integer number of output symbols. Shannon's construction therefore chooses
+
+$$
+\boxed{
+l_i
+=
+\left\lceil-\log_D p_i\right\rceil
+=
+\left\lceil\log_D\frac{1}{p_i}\right\rceil
+}.
+$$
+
+Here, $\lceil x\rceil$ is the smallest integer greater than or equal to $x$.
+
+Because $l_i$ is obtained by rounding upward, there exists a value $\beta_i\in[0,1)$ such that
+
+$$
+l_i
+=-\log_Dp_i+\beta_i.
+$$
+
+The rounding error $\beta_i$ is always smaller than one output symbol.
+
+## Why the Shannon lengths define a prefix code
+
+Since
+
+$$
+l_i\geq-\log_Dp_i,
+$$
+
+and the function $D^{-x}$ is decreasing, we obtain
+
+$$
+D^{-l_i}
+\leq
+D^{\log_Dp_i}
+=
+p_i.
+$$
+
+Summing over all source symbols gives
+
+$$
+\sum_{i=1}^{k}D^{-l_i}
+\leq
+\sum_{i=1}^{k}p_i
+=1.
+$$
+
+The lengths therefore satisfy the Kraft-McMillan inequality. By the **direct Kraft-McMillan theorem**, there exists a $D$-ary prefix code whose codeword lengths are exactly $l_1,\ldots,l_k$.
+
+This argument establishes the existence of a prefix code with the Shannon lengths. A separate constructive procedure may then assign actual codewords of those lengths.
+
+## Expected-length guarantee
+
+Because
+
+$$
+l_i
+=
+\left\lceil-\log_Dp_i\right\rceil
+<
+-\log_Dp_i+1,
+$$
+
+we have
+
+$$
+\begin{aligned}
+EL(\varphi_S)
+&=\sum_{i=1}^{k}p_i l_i\\
+&<\sum_{i=1}^{k}p_i
+  \left(-\log_Dp_i+1\right)\\
+&=-\sum_{i=1}^{k}p_i\log_Dp_i
+  +\sum_{i=1}^{k}p_i\\
+&=H_D(p)+1.
+\end{aligned}
+$$
+
+Combining this upper bound with Shannon's lower bound for uniquely decodable codes gives
+
+$$
+\boxed{
+H_D(p)
+\leq
+EL(\varphi_S)
+<
+H_D(p)+1
+}.
+$$
+
+Therefore, a Shannon code uses, on average, less than one additional output symbol per source symbol relative to the entropy lower bound.
+
+## Example with two source symbols
+
+Let
+
+$$
+\mathcal A=\{a,b\},
+\qquad
+p(a)=\frac{31}{32},
+\qquad
+p(b)=\frac{1}{32},
+$$
+
+and let the output alphabet be binary:
+
+$$
+\mathcal B=\{0,1\}.
+$$
+
+The Shannon lengths are
+
+$$
+\begin{aligned}
+l_a
+&=\left\lceil-\log_2\frac{31}{32}\right\rceil
+=1,\\
+l_b
+&=\left\lceil-\log_2\frac{1}{32}\right\rceil
+=5.
+\end{aligned}
+$$
+
+Their Kraft sum is
+
+$$
+2^{-1}+2^{-5}
+=
+\frac12+\frac1{32}
+=
+\frac{17}{32}
+<1.
+$$
+
+Hence a binary prefix code with lengths $1$ and $5$ exists. One possible assignment is
+
+$$
+\varphi(a)=0,
+\qquad
+\varphi(b)=10000.
+$$
+
+The corresponding prefix tree is:
+
+```{mermaid}
+%%| fig-cap: "Binary prefix tree for the Shannon lengths 1 and 5."
+flowchart LR
+    R((root))
+    A["a: 0"]
+    N1(("1"))
+    N10(("10"))
+    N100(("100"))
+    N1000(("1000"))
+    B["b: 10000"]
+
+    R -->|0| A
+    R -->|1| N1
+    N1 -->|0| N10
+    N10 -->|0| N100
+    N100 -->|0| N1000
+    N1000 -->|0| B
+
+    classDef codeword fill:#dff3e4,stroke:#27864a,stroke-width:2px;
+    classDef internal fill:#eef3f8,stroke:#5b6b7a;
+    class A,B codeword;
+    class R,N1,N10,N100,N1000 internal;
+```
+
+The path labelled \(0\) immediately reaches the codeword for \(a\). The
+path labelled \(10000\) reaches the codeword for \(b\). Neither codeword
+is a prefix of the other, so the code is prefix-free.
+
+The expected length is
+
+$$
+\begin{aligned}
+EL(\varphi_S)
+&=\frac{31}{32}\cdot1
+ +\frac1{32}\cdot5\\
+&=\frac{36}{32}\\
+&=1.125\text{ bits per source symbol}.
+\end{aligned}
+$$
+
+The highly probable symbol receives the shortest possible non-empty binary codeword, while the rare symbol receives a much longer codeword.
+
+# Shannon-Fano codes
+
+Shannon-Fano coding constructs a binary prefix tree **from the root toward the leaves**. The construction repeatedly partitions an ordered probability list.
+
+The procedure is:
+
+1. order the source symbols by non-increasing probability;
+2. split the ordered list into two consecutive groups whose total probabilities are as close as possible;
+3. assign output symbol $0$ to one group and output symbol $1$ to the other;
+4. recursively repeat the split inside each group;
+5. stop when each group contains one source symbol.
+
+The codeword of a symbol is the sequence of branch labels along the path from the root to that symbol.
+
+## Concrete Shannon-Fano tree from the lecture probabilities
+
+The probability values used in the coding example are
+
+$$
+\begin{array}{c|cccccc}
+\text{symbol} & a & c & b & d & e & f\\
+\hline
+p & 40/100 & 18/100 & 15/100 & 13/100 & 10/100 & 4/100
+\end{array}
+$$
+
+and are already shown in non-increasing order.
+
+A Shannon-Fano partitioning consistent with the lecture tree is:
+
+- first split:
+
+  $$
+  \{a\}\;(40/100)
+  \quad\text{and}\quad
+  \{c,b,d,e,f\}\;(60/100);
+  $$
+
+- split the right group into
+
+  $$
+  \{c,b\}\;(33/100)
+  \quad\text{and}\quad
+  \{d,e,f\}\;(27/100);
+  $$
+
+- split $\{c,b\}$ into the individual symbols $c$ and $b$;
+- split $\{d,e,f\}$ into
+
+  $$
+  \{d\}\;(13/100)
+  \quad\text{and}\quad
+  \{e,f\}\;(14/100);
+  $$
+
+- finally split $\{e,f\}$ into $e$ and $f$.
+
+This gives the following tree:
+
+```{mermaid}
+%%| fig-cap: "Shannon-Fano tree obtained by recursively splitting ordered symbols into groups of similar total probability."
+flowchart TD
+    R["1.00"]
+    A["a: 0, p=0.40"]
+    G60["Group c,b,d,e,f, p=0.60"]
+    G33["Group c,b, p=0.33"]
+    G27["Group d,e,f, p=0.27"]
+    C["c: 100, p=0.18"]
+    B["b: 101, p=0.15"]
+    D["d: 110, p=0.13"]
+    G14["Group e,f, p=0.14"]
+    E["e: 1110, p=0.10"]
+    F["f: 1111, p=0.04"]
+
+    R -->|0| A
+    R -->|1| G60
+    G60 -->|0| G33
+    G60 -->|1| G27
+    G33 -->|0| C
+    G33 -->|1| B
+    G27 -->|0| D
+    G27 -->|1| G14
+    G14 -->|0| E
+    G14 -->|1| F
+
+    classDef symbol fill:#dff3e4,stroke:#27864a,stroke-width:2px;
+    classDef group fill:#eef3f8,stroke:#5b6b7a;
+    class A,B,C,D,E,F symbol;
+    class R,G60,G33,G27,G14 group;
+```
+
+The resulting codewords are
+
+$$
+\begin{array}{c|c|c}
+\text{symbol} & \text{probability} & \text{codeword}\\
+\hline
+a & 40/100 & 0\\
+c & 18/100 & 100\\
+b & 15/100 & 101\\
+d & 13/100 & 110\\
+e & 10/100 & 1110\\
+f & 4/100 & 1111
+\end{array}
+$$
+
+Every source symbol is placed at a leaf. Therefore, no codeword is a prefix of another, and the Shannon-Fano code is a prefix code.
+
+Its expected length is
+
+$$
+\begin{aligned}
+EL(\varphi_{SF})
+&=\frac{40}{100}\cdot1
+ +\frac{18}{100}\cdot3
+ +\frac{15}{100}\cdot3\\
+&\quad
+ +\frac{13}{100}\cdot3
+ +\frac{10}{100}\cdot4
+ +\frac{4}{100}\cdot4\\
+&=2.34\text{ bits per source symbol}.
+\end{aligned}
+$$
+
+The important structural idea is that Shannon-Fano coding is **top-down**: probabilities guide recursive partitions beginning at the root.
+
+# Huffman codes
+
+Huffman coding builds a prefix tree in the opposite direction: **from the leaves toward the root**.
+
+At each step:
+
+1. select the two nodes having the smallest probabilities;
+2. merge the two selected nodes under a new phantom node;
+3. assign the phantom node the sum of the selected probabilities;
+4. return the phantom node to the list of available nodes;
+5. repeat until a single root of probability $1$ remains;
+6. label the two branches of each merge with $0$ and $1$.
+
+The codeword of a symbol is read from the root to the corresponding leaf.
+
+## Concrete Huffman construction from the lecture
+
+Start with
+
+$$
+\begin{array}{c|cccccc}
+\text{symbol} & a & b & c & d & e & f\\
+\hline
+p & 40/100 & 15/100 & 18/100 & 13/100 & 10/100 & 4/100.
+\end{array}
+$$
+
+The bottom-up merges are:
+
+1. merge the two smallest probabilities:
+
+   $$
+   f\;(4/100)+e\;(10/100)=14/100;
+   $$
+
+2. merge $d$ with the new phantom node:
+
+   $$
+   d\;(13/100)+14/100=27/100;
+   $$
+
+3. merge $b$ and $c$:
+
+   $$
+   b\;(15/100)+c\;(18/100)=33/100;
+   $$
+
+4. merge the two compound nodes:
+
+   $$
+   27/100+33/100=60/100;
+   $$
+
+5. merge the remaining symbol $a$ with the compound node:
+
+   $$
+   a\;(40/100)+60/100=100/100=1.
+   $$
+
+The resulting tree is:
+
+```{mermaid}
+%%| fig-cap: "Huffman tree from the lecture example. Phantom nodes carry the sum of their children."
+flowchart TD
+    R["root: 100/100"]
+    A["a: 40/100"]
+    N60["phantom: 60/100"]
+    N33["phantom: 33/100"]
+    N27["phantom: 27/100"]
+    B["b: 15/100"]
+    C["c: 18/100"]
+    D["d: 13/100"]
+    N14["phantom: 14/100"]
+    E["e: 10/100"]
+    F["f: 4/100"]
+
+    R -->|0| A
+    R -->|1| N60
+    N60 -->|0| N33
+    N60 -->|1| N27
+    N33 -->|0| B
+    N33 -->|1| C
+    N27 -->|0| D
+    N27 -->|1| N14
+    N14 -->|0| E
+    N14 -->|1| F
+
+    classDef symbol fill:#dff3e4,stroke:#27864a,stroke-width:2px;
+    classDef phantom fill:#eef3f8,stroke:#5b6b7a;
+    class A,B,C,D,E,F symbol;
+    class R,N60,N33,N27,N14 phantom;
+```
+
+One possible code assignment obtained from this tree is
+
+$$
+\begin{array}{c|c|c}
+\text{symbol} & \text{probability} & \text{codeword}\\
+\hline
+a & 40/100 & 0\\
+b & 15/100 & 100\\
+c & 18/100 & 101\\
+d & 13/100 & 110\\
+e & 10/100 & 1110\\
+f & 4/100 & 1111.
+\end{array}
+$$
+
+Swapping the labels $0$ and $1$ at any internal node changes the individual codewords but not their lengths or the expected length.
+
+The expected length is
+
+$$
+\begin{aligned}
+EL(\varphi_H)
+&=\frac{40}{100}\cdot1
+ +\frac{15}{100}\cdot3
+ +\frac{18}{100}\cdot3\\
+&\quad
+ +\frac{13}{100}\cdot3
+ +\frac{10}{100}\cdot4
+ +\frac{4}{100}\cdot4\\
+&=2.34\text{ bits per source symbol}.
+\end{aligned}
+$$
+
+The Huffman algorithm is bottom-up, whereas Shannon-Fano is top-down. Huffman's repeated least-probability merge guarantees an optimal binary prefix code for the given symbol probabilities.
+
+# Block Shannon coding
+
+For a single-symbol Shannon code,
+
+$$
+H_D(p)
+\leq
+EL(\varphi_S)
+<
+H_D(p)+1.
+$$
+
+The additive redundancy is less than one output symbol **for each encoded source symbol**. Block coding reduces this overhead per source symbol.
+
+## Product source
+
+Let
+
+$$
+X_1,\ldots,X_m
+$$
+
+be independent and identically distributed source variables with pmf $p$. The block
+
+$$
+X^m=(X_1,\ldots,X_m)
+$$
+
+has product distribution
+
+$$
+p^m(x_1,\ldots,x_m)
+=
+\prod_{j=1}^{m}p(x_j).
+$$
+
+Independence makes entropy additive:
+
+$$
+\begin{aligned}
+H_D(p^m)
+&=H_D(X_1,\ldots,X_m)\\
+&=\sum_{j=1}^{m}H_D(X_j)\\
+&=mH_D(p).
+\end{aligned}
+$$
+
+Apply the Shannon construction to the block alphabet $\mathcal A^m$. Let
+
+$$
+\varphi_S^{(m)}:\mathcal A^m\to\mathcal B^*
+$$
+
+be the resulting block code. The ordinary Shannon bound, now applied to one whole block, is
+
+$$
+H_D(p^m)
+\leq
+EL(\varphi_S^{(m)})
+<
+H_D(p^m)+1.
+$$
+
+Since $H_D(p^m)=mH_D(p)$,
+
+$$
+mH_D(p)
+\leq
+EL(\varphi_S^{(m)})
+<
+mH_D(p)+1.
+$$
+
+The quantity $EL(\varphi_S^{(m)})$ is the expected length of one encoded block containing $m$ original source symbols. To obtain the expected output length per original source symbol, divide by $m$:
+
+$$
+\boxed{
+H_D(p)
+\leq
+\frac{EL(\varphi_S^{(m)})}{m}
+<
+H_D(p)+\frac1m
+}.
+$$
+
+## Why block coding approaches entropy
+
+The rounding overhead remains less than one output symbol **per block**, not per original source symbol. Since a block contains $m$ source symbols, the overhead per source symbol is less than
+
+$$
+\frac1m.
+$$
+
+As the block size grows,
+
+$$
+\frac1m\longrightarrow0.
+$$
+
+Therefore,
+
+$$
+\frac{EL(\varphi_S^{(m)})}{m}
+\longrightarrow
+H_D(p).
+$$
+
+Shannon block coding is consequently **asymptotically optimal**. For every $\varepsilon>0$, a sufficiently large block size $m$ can be chosen so that
+
+$$
+H_D(p)
+\leq
+\frac{EL(\varphi_S^{(m)})}{m}
+<
+H_D(p)+\varepsilon.
+$$
+
+The result does not claim that a finite block necessarily reaches entropy exactly. It states that the average rate per source symbol can be made arbitrarily close to entropy by increasing the block length.
+
+# Sources
+
+- Goodnotes lecture notes: *06 - 20-10-2026.pdf*.
+- Thomas M. Cover and Joy A. Thomas, *Elements of Information Theory*, used to verify the expected-length lower bound, Shannon-code construction, Huffman-code interpretation, and block-coding bound already developed in the lecture.
+
+
+
+
+
+
+
+
+
+
+
+

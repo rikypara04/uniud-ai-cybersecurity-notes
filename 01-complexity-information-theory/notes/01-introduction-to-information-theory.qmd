@@ -1,0 +1,254 @@
+---
+title: "Introduction to Information Theory"
+subtitle: "Lecture 1 - 1 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Course organisation and references
+
+The course carries **6 CFU** and consists of **48 hours**. The lecture introduces separate references for the two main parts of the course.
+
+For **Information Theory**, the indicated references are:
+
+- Thomas M. Cover and Joy A. Thomas, *Elements of Information Theory*;
+- David J. C. MacKay, *Information Theory, Inference, and Learning Algorithms*.
+
+For **Complexity Theory**, the indicated reference is:
+
+- Christos H. Papadimitriou, *Computational Complexity*.
+
+The first lecture begins the Information Theory part and refers to Claude Shannon's 1948 paper *A Mathematical Theory of Communication*.
+
+# The information carried by a message
+
+Consider the message
+
+> It is raining outside.
+
+The sentence alone does not determine a fixed quantity of information. The quantity depends on the **context** in which the message is received and on how probable the receiver considered the message before hearing it.
+
+For example, hearing that it is raining may provide little new information when rain was already expected. The same message may provide much more information when the weather made rain seem very unlikely.
+
+This leads to the first intuition of the lecture:
+
+> The information carried by a message is related to the surprise produced when that message is received.
+
+The relevant quantity is therefore not merely the content of the sentence, but the probability assigned to the message in the current context.
+
+# Probability and surprise
+
+Let $m$ be a possible message and let
+
+$$
+p(m) \in (0,1]
+$$
+
+be its probability before the message is observed.
+
+The relationship required by the lecture is inverse:
+
+- when $p(m)$ is **low**, receiving $m$ is highly surprising, so the quantity of information should be **high**;
+- when $p(m)$ is **high**, receiving $m$ is not very surprising, so the quantity of information should be **low**.
+
+Thus a measure of information must decrease as the probability of the message increases.
+
+## Limiting cases
+
+The two extreme cases make this relationship clear.
+
+### A certain message
+
+If
+
+$$
+p(m)=1,
+$$
+
+then the message was already certain. Receiving the message removes no uncertainty and therefore provides no new information:
+
+$$
+I(m)=0.
+$$
+
+### An increasingly unlikely message
+
+As
+
+$$
+p(m)\to 0^+,
+$$
+
+the occurrence of $m$ becomes increasingly surprising. The corresponding information should grow without bound:
+
+$$
+I(m)\to +\infty.
+$$
+
+The limit is written as $p(m)\to0^+$ because the lecture defines the information of messages with positive probability. A message assigned probability zero is treated as impossible by the model, so observing it would reveal a problem in that model rather than merely an extremely large but ordinary surprise.
+
+# A logarithmic measure of information
+
+The lecture associates the quantity of information of message $m$ with
+
+$$
+I(m)=-\log_2 p(m)
+$$
+
+or, equivalently,
+
+$$
+I(m)=\log_2\left(\frac{1}{p(m)}\right).
+$$
+
+This formula has exactly the behaviour required above:
+
+- $I(m)=0$ when $p(m)=1$;
+- $I(m)$ increases when $p(m)$ decreases;
+- $I(m)\to+\infty$ when $p(m)\to0^+$.
+
+## Why use a logarithm?
+
+The logarithm is used because separate independent pieces of information should combine **additively**.
+
+Suppose that two independent messages $m_1$ and $m_2$ occur. Independence means that their joint probability is
+
+$$
+p(m_1,m_2)=p(m_1)p(m_2).
+$$
+
+If the two observations are independent, the information obtained from observing both should be the information from the first plus the information from the second:
+
+$$
+I(m_1,m_2)=I(m_1)+I(m_2).
+$$
+
+Therefore, an information measure $f$ based on probability should satisfy
+
+$$
+f(pq)=f(p)+f(q).
+$$
+
+The logarithm has precisely this property:
+
+$$
+\log(pq)=\log p+\log q.
+$$
+
+Consequently,
+
+$$
+\begin{aligned}
+I(m_1,m_2)
+&=-\log_2\bigl(p(m_1)p(m_2)\bigr)\\
+&=-\log_2p(m_1)-\log_2p(m_2)\\
+&=I(m_1)+I(m_2).
+\end{aligned}
+$$
+
+Under the natural requirements that the measure varies continuously with probability and that independent information adds, the logarithmic form is not an arbitrary choice: it is the form that fulfils those requirements, up to a positive multiplicative constant.
+
+## Why is there a minus sign?
+
+For every probability $p\in(0,1]$,
+
+$$
+\log_2p\leq0.
+$$
+
+The minus sign makes the information non-negative:
+
+$$
+-\log_2p\geq0.
+$$
+
+It also ensures that smaller probabilities correspond to larger information values.
+
+## Why use base 2?
+
+The base determines the unit of measurement. Base $2$ measures information in **bits**.
+
+For example,
+
+$$
+I(m)=-\log_2\left(\frac12\right)=1\text{ bit}.
+$$
+
+An event with probability $1/2$ therefore carries one bit of self-information. Similarly,
+
+$$
+I(m)=-\log_2\left(\frac14\right)=2\text{ bits},
+$$
+
+and
+
+$$
+I(m)=-\log_2\left(\frac18\right)=3\text{ bits}.
+$$
+
+Every halving of probability adds one bit of information. This gives the logarithmic measure a direct interpretation in terms of binary distinctions.
+
+# Shannon's communication model
+
+Claude Shannon's *A Mathematical Theory of Communication* studies the technical problem of communicating a selected message through a channel.
+
+The basic structure noted in the lecture is
+
+$$
+\text{message}
+\longrightarrow
+\text{channel}
+\longrightarrow
+\text{receiver}.
+$$
+
+A message must be represented in a form that can pass through the channel. The receiver observes what arrives through the channel and attempts to recover the intended message.
+
+The abstraction focuses on the alternatives available to the source and on the reliable identification of the selected message. The semantic meaning of the message is not needed to define its mathematical quantity of information.
+
+# Two fundamental communication tasks
+
+The lecture identifies two central tasks associated with communication.
+
+## Compressing messages
+
+Compression seeks a more compact representation of a message while preserving the information required for its recovery.
+
+Compression is possible when the original representation contains redundancy. If some messages or patterns are more predictable than others, a coding method can exploit that predictability instead of representing every possibility in the same way.
+
+The lecture associates **entropy** with the fundamental limit on message compression. At this point, entropy is introduced only through this role: it expresses how far a source can be compressed on average without losing the information needed to recover its messages. The mathematical definition of entropy is left to a later lecture.
+
+The statement written in the lecture notes as “entropy is the maximum message compression” should therefore be read as follows:
+
+> Entropy determines the theoretical limit of lossless compression for a source.
+
+It is the achievable compactness that is limited; entropy is not itself a compression algorithm.
+
+## Correcting transmission errors
+
+A transmitted representation may be altered while passing through the channel. Error-correcting methods add carefully designed structure that enables the receiver to detect or correct some transmission errors.
+
+Compression and error correction address different problems:
+
+- compression removes redundancy that is unnecessary for representing the source efficiently;
+- error correction introduces useful redundancy to protect the encoded message during transmission.
+
+# Shannon's fundamental result
+
+The notes refer to the **Shannon theorem** in connection with compression and the correction of transmission errors.
+
+The importance of Shannon's result is that communication has mathematical limits:
+
+- a source cannot be compressed losslessly beyond the limit determined by its statistical uncertainty;
+- a noisy channel cannot transmit information reliably at an arbitrarily high rate.
+
+The first lecture introduces these limits conceptually. Their precise mathematical formulations and the quantities used to express them are not developed here, because those belong to later parts of the course.
+
+# Sources
+
+- Goodnotes lecture notes: *01 - 01-10-2026.pdf*.
+- Claude E. Shannon, “A Mathematical Theory of Communication,” 1948.
+- Thomas M. Cover and Joy A. Thomas, *Elements of Information Theory*, used only to clarify the logarithmic information measure and the introductory interpretation of compression limits.

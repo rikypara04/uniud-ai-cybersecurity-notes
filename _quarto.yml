@@ -1,0 +1,131 @@
+﻿project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "MSc Artificial Intelligence & Cybersecurity"
+  description: "University notes"
+  search: true
+
+  navbar:
+    background: primary
+    left:
+      - href: index.qmd
+        text: Home
+
+  sidebar:
+    style: docked
+    search: true
+    collapse-level: 1
+    contents:
+      - section: "Complexity and Information Theory"
+        href: 01-complexity-information-theory/index.qmd
+        contents:
+          - href: 01-complexity-information-theory/notes/01-introduction-to-information-theory.qmd
+            text: "Introduction to Information Theory"
+
+          - href: 01-complexity-information-theory/notes/02-information-probability-and-random-variables.qmd
+            text: "Information, Probability, and Random Variables"
+
+          - href: 01-complexity-information-theory/notes/03-properties-of-entropy-and-conditional-entropy.qmd
+            text: "Properties of Entropy and Conditional Entropy"
+
+          - href: 01-complexity-information-theory/notes/04-mutual-information-relative-entropy-and-source-coding.qmd
+            text: "Mutual Information, Relative Entropy, and Source Coding"
+
+          - href: 01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.qmd
+            text: "Prefix Codes and the Kraft-McMillan Inequality"
+
+          - href: 01-complexity-information-theory/notes/06-shannon-codes-huffman-codes-and-asymptotic-optimality.qmd
+            text: "Shannon Codes, Huffman Codes, and Asymptotic Optimality"
+
+          - href: 01-complexity-information-theory/notes/07-lz77-and-kolmogorov-complexity.qmd
+            text: "LZ77 Compression and Kolmogorov Complexity"
+
+          - href: 01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.qmd
+            text: "Kolmogorov Complexity and Its Relation to Entropy"
+          
+          - href: 01-complexity-information-theory/notes/09-computational-complexity-models-and-cost-criteria.qmd
+            text: "Computational Complexity"
+
+          - href: 01-complexity-information-theory/notes/10-operational-semantics-time-complexity.qmd
+            text: "Operational Semantics and Time Complexity of Turing Machines"
+
+          - href: 01-complexity-information-theory/notes/11-multitape-simulation-time-speedup.qmd
+            text: "Multitape Simulation, Time Complexity, and Linear Speed-Up"
+
+          - href: 01-complexity-information-theory/notes/12-time-and-space-complexity-classes.qmd
+            text: "Time and Space Complexity Classes"
+
+      - href: 02-automated-reasoning/index.qmd
+        text: "Automated Reasoning"
+        contents:
+          - href: 02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.qmd
+            text: "Introduction to Automated Reasoning and Constraint Programming"
+
+          - href: 02-automated-reasoning/notes/02-sat-encodings-and-dpll.qmd
+            text: "SAT Encodings and DPLL"
+
+          - href: 02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.qmd
+            text: "Constraint Propagation and Local Consistency"
+
+          - href: 02-automated-reasoning/notes/04-bounds-hyper-arc-and-path-consistency.qmd
+            text: "Bounds, Hyper-Arc, and Path Consistency"
+          
+          - href: 02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.qmd
+            text: "MiniZinc Search Annotations and Constraint Modelling"
+
+          - href: 02-automated-reasoning/notes/06-minizinc-modeling-examples-and-exercises.qmd
+            text: "MiniZinc Modelling through Classical Constraint Problems"
+
+          - href: 02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.qmd
+            text: "Scheduling Models, Hamming Codes, and Timetabling"
+          
+          - href: 02-automated-reasoning/notes/08-constraint-optimization-local-search-and-bioinformatics.qmd
+            text: "Constraint Optimization, Large Neighbourhood Search, and Bioinformatics Models"
+
+          - href: 02-automated-reasoning/notes/09-global-constraints-matching-and-cumulative-scheduling.qmd
+            text: "Global Constraints, Matching-Based Filtering, and Cumulative Scheduling"
+
+          - href: 02-automated-reasoning/notes/10-syntax-and-definite-clause-programs.qmd
+            text: "Syntax of Logic Programming and Definite-Clause Programs"
+
+          - href: 02-automated-reasoning/notes/11-semantics-of-logic-programs.qmd
+            text: "Semantics of Logic Programs"
+
+          - href: 02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.qmd
+            text: "Unification, SLD Resolution, and the Limits of Computation"
+
+      - href: 03-foundations-cybersecurity-ethics/index.qmd
+        text: "Foundations of Cybersecurity and Ethics"
+        contents:
+          - href: 03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.qmd
+            text: "Introduction to Formal Verification and Logic"
+
+          - href: 03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.qmd
+            text: "Classical Logics: Propositional Logic, QBF, and First-Order Logic"
+
+          - href: 03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.qmd
+            text: "Games in Logic and First-Order Definability"
+
+          - href: 03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.qmd
+            text: "Learning Automata and Sequential Transducers"
+
+          - href: 03-foundations-cybersecurity-ethics/module-1/notes/05-uppaal.qmd
+            text: "Modelling and Verification in UPPAAL"
+
+          - href: 03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.qmd
+            text: "Symbolic Verification of Security Protocols with Tamarin"
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darklyAnalizza. C'è scri
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    smooth-scroll: true
+    code-copy: true
+    code-overflow: wrap
+    link-external-newwindow: true

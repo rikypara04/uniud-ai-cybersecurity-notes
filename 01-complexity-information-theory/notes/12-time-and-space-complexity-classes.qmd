@@ -1,0 +1,490 @@
+---
+title: "Time and Space Complexity Classes"
+subtitle: "Lecture 12 - 10 November 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+```{=html}
+<style>
+.theorem-box {
+  border: 2px solid #b02a37;
+  border-left: 0.55rem solid #b02a37;
+  border-radius: 0.45rem;
+  padding: 1rem 1.15rem 0.85rem;
+  margin: 1.25rem 0;
+  background: rgba(176, 42, 55, 0.07);
+}
+.theorem-box > :first-child { margin-top: 0; }
+.theorem-box > :last-child { margin-bottom: 0; }
+.theorem-title {
+  color: #b02a37;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+.tape-figure {
+  margin: 1.25rem 0;
+  padding: 1rem;
+  border: 1px solid rgba(108, 117, 125, 0.45);
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+.tape-row {
+  display: flex;
+  align-items: stretch;
+  width: max-content;
+  min-width: 100%;
+  margin: 0.55rem 0;
+}
+.tape-label {
+  width: 8rem;
+  flex: 0 0 8rem;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+}
+.tape-cell {
+  min-width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #495057;
+  border-right: 0;
+  background: rgba(13, 110, 253, 0.08);
+  font-family: var(--bs-font-monospace, monospace);
+}
+.tape-cell:last-child { border-right: 1.5px solid #495057; }
+.tape-cell.readonly { background: rgba(13, 110, 253, 0.12); }
+.tape-cell.work { background: rgba(111, 66, 193, 0.10); }
+.tape-cell.writeonly { background: rgba(25, 135, 84, 0.10); }
+.figure-caption-local {
+  margin-top: 0.9rem;
+  color: #6c757d;
+  font-size: 0.92rem;
+}
+@media (prefers-color-scheme: dark) {
+  .theorem-box {
+    background: rgba(255, 107, 122, 0.10);
+    border-color: #ff6b7a;
+  }
+  .theorem-title { color: #ff8a96; }
+  .tape-cell { border-color: #adb5bd; }
+  .tape-cell:last-child { border-right-color: #adb5bd; }
+  .tape-cell.readonly { background: rgba(77, 171, 247, 0.14); }
+  .tape-cell.work { background: rgba(177, 151, 252, 0.14); }
+  .tape-cell.writeonly { background: rgba(81, 207, 102, 0.14); }
+}
+</style>
+```
+
+# From linear speed-up to time-complexity classes
+
+The lecture begins by completing the interpretation of the linear speed-up theorem from the preceding lesson. If
+
+$$
+L\in\operatorname{TIME}(f(n)),
+$$
+
+then, for every constant $\varepsilon>0$,
+
+$$
+L\in\operatorname{TIME}(\varepsilon f(n)+n+2).
+$$
+
+The additive term $n+2$ accounts for the initial processing of the input and is linear in the input length. Therefore, when $f(n)\ge n$, constant multiplicative factors do not change the asymptotic time class: a language in $\operatorname{TIME}(f(n))$ can be decided in $O(f(n))$ steps.
+
+This motivates grouping running-time bounds by their order of growth rather than by their exact leading constant.
+
+## Polynomial time
+
+For each fixed $k\in\mathbb{N}$, $\operatorname{TIME}(n^k)$ contains the languages decidable within a polynomial bound of degree $k$. The class of all polynomial-time languages is
+
+$$
+\mathrm{P}
+=
+\mathrm{PTIME}
+=
+\bigcup_{k\in\mathbb{N}}\operatorname{TIME}(n^k).
+$$
+
+The union means that a language belongs to $\mathrm{P}$ when **some fixed polynomial** bounds its worst-case running time. The exponent $k$ may depend on the machine or language, but it is not allowed to grow with the input length.
+
+## Exponential, double-exponential and elementary time
+
+The notes next introduce increasingly larger deterministic time classes:
+
+$$
+\mathrm{EXP}
+=
+\mathrm{EXPTIME}
+=
+\bigcup_{k\in\mathbb{N}}
+\operatorname{TIME}\!\left(2^{n^k}\right),
+$$
+
+and
+
+$$
+\mathrm{DEXP}
+=
+\bigcup_{k\in\mathbb{N}}
+\operatorname{TIME}\!\left(2^{2^{n^k}}\right).
+$$
+
+The elementary-time class permits any fixed finite tower of exponentials. For $h\ge 1$, define the tower functions recursively by
+
+$$
+\operatorname{tower}_1(t)=2^t,
+\qquad
+\operatorname{tower}_{h+1}(t)=2^{\operatorname{tower}_h(t)}.
+$$
+
+Then the class written in the notes as **ELEMENTARY** can be expressed robustly as
+
+$$
+\mathrm{ELEMENTARY}
+=
+\bigcup_{h\in\mathbb{N},\,h\ge 1}
+\bigcup_{k\in\mathbb{N}}
+\operatorname{TIME}\!\left(\operatorname{tower}_h(n^k)\right).
+$$
+
+The important restriction is that the tower height $h$ is fixed. A bound whose tower height itself grows with $n$ is not included merely by this definition.
+
+```{mermaid}
+%%| fig-cap: "The lecture places polynomial, exponential and fixed-height exponential-tower bounds in an increasing hierarchy."
+flowchart LR
+  P["P"] --> E["EXP"]
+  E --> D["DEXP"]
+  D --> X["Higher fixed towers"]
+  X --> EL["ELEMENTARY"]
+  classDef small fill:#0d6efd,color:#ffffff,stroke:#084298
+  classDef large fill:#6f42c1,color:#ffffff,stroke:#432874
+  class P small
+  class E,D,X,EL large
+```
+
+The diagram must be read as containment:
+
+$$
+\mathrm{P}
+\subseteq
+\mathrm{EXP}
+\subseteq
+\mathrm{DEXP}
+\subseteq
+\cdots
+\subseteq
+\mathrm{ELEMENTARY}.
+$$
+
+| Class | Representative bound allowed by the definition |
+|---|---|
+| $\mathrm{P}$ | $n^k$ for a fixed $k$ |
+| $\mathrm{EXP}$ | $2^{n^k}$ for a fixed $k$ |
+| $\mathrm{DEXP}$ | $2^{2^{n^k}}$ for a fixed $k$ |
+| $\mathrm{ELEMENTARY}$ | A fixed-height tower whose top exponent is polynomial |
+
+# Space complexity of a computation
+
+Time counts transitions. Space instead measures how much tape is needed to carry out the computation. Consider a deterministic $k$-tape Turing machine $M$ computing a function
+
+$$
+f(x)=y,
+$$
+
+where $x=x_1\cdots x_n$ is the input and $y$ is the produced output.
+
+A computation is a sequence of configurations. In the notation used in the notes, a typical configuration records the contents relevant to every tape together with the current state. Schematically,
+
+$$
+C_0\to C_1\to\cdots\to C_t,
+$$
+
+where $C_0$ is the initial configuration and $C_t$ is a halting configuration with state in
+
+$$
+\{\mathrm{yes},\mathrm{no},\mathrm{halt}\}.
+$$
+
+If the $i$-th tape content around its head is represented by two finite words $u_i$ and $v_i$, the length of a configuration is measured by
+
+$$
+|C|=
+\sum_{i=1}^{k}
+\left(|u_i|+|v_i|\right).
+$$
+
+The space used by $M$ on input $x$ is the maximum length of any configuration reached during that computation:
+
+$$
+\operatorname{space}_M(x)
+=
+\max_{0\le j\le t}|C_j|.
+$$
+
+The maximum is necessary because space usage can rise and fall during a computation. Measuring only the final configuration could miss a much larger intermediate configuration.
+
+::: {.theorem-box}
+<div class="theorem-title">Space complexity on an input</div>
+
+For a halting computation
+
+$$
+C_0\to C_1\to\cdots\to C_t,
+$$
+
+the space complexity of $M$ on $x$ is the maximum configuration length encountered during the entire computation:
+
+$$
+\operatorname{space}_M(x)
+=
+\max_{0\le j\le t}|C_j|.
+$$
+:::
+
+With the ordinary multitape model, this quantity is automatically at least the input length and may also include the output length. That is inconvenient when the aim is to study algorithms using much less working memory than the size of the read-only input. The lecture therefore introduces a new machine model.
+
+# The input/output Turing-machine model
+
+A $k$-tape **input/output Turing machine**, abbreviated I/O Turing machine, separates the tapes by purpose:
+
+1. one input tape;
+2. $k-2$ working tapes;
+3. one output tape.
+
+```{=html}
+<figure class="tape-figure" aria-labelledby="io-tm-caption">
+  <div class="tape-row" aria-label="Read-only input tape">
+    <div class="tape-label">Input tape</div>
+    <div class="tape-cell readonly">▷</div><div class="tape-cell readonly">x₁</div><div class="tape-cell readonly">…</div><div class="tape-cell readonly">xₙ</div><div class="tape-cell readonly">□</div><div class="tape-cell readonly">…</div>
+  </div>
+  <div class="tape-row" aria-label="Working tape one">
+    <div class="tape-label">Working tape 1</div>
+    <div class="tape-cell work">▷</div><div class="tape-cell work">□</div><div class="tape-cell work">□</div><div class="tape-cell work">…</div>
+  </div>
+  <div class="tape-row" aria-label="Additional working tapes">
+    <div class="tape-label">⋮</div>
+  </div>
+  <div class="tape-row" aria-label="Write-only output tape">
+    <div class="tape-label">Output tape</div>
+    <div class="tape-cell writeonly">▷</div><div class="tape-cell writeonly">y₁</div><div class="tape-cell writeonly">…</div><div class="tape-cell writeonly">yᵣ</div><div class="tape-cell writeonly">□</div><div class="tape-cell writeonly">…</div>
+  </div>
+  <figcaption id="io-tm-caption" class="figure-caption-local">An I/O Turing machine keeps the read-only input and write-only output separate from the working tapes whose occupied cells determine space usage.</figcaption>
+</figure>
+```
+
+## Read-only input
+
+The input tape can be read but not modified. If the scanned symbols are $\sigma_1,\ldots,\sigma_k$, an ordinary transition may change the symbols on the non-input tapes, but it must preserve the symbol $\sigma_1$ on the first tape.
+
+When the input head scans the left-end marker, the marker is likewise preserved and the head cannot cross the left boundary. Thus the input remains available throughout the computation without being counted as writable workspace.
+
+## Write-only output
+
+The output tape can only be written, and its head moves in the output direction prescribed by the model. The notes express this by restricting the output-head movement to
+
+$$
+M_k\in\{\rightarrow,-\}.
+$$
+
+In other words, the output head may move to the right or remain stationary, but it does not move left to reread or reuse previously written output as working memory.
+
+## What is counted as space
+
+For an I/O Turing machine, the input tape and output tape are excluded from the space measure. Only the $k-2$ working tapes contribute. If their finite contents are represented by $u_i$ and $v_i$, then
+
+$$
+\operatorname{space}_M(x)
+=
+\max_{C\text{ reached on }x}
+\sum_{i=2}^{k-1}
+\left(|u_i|+|v_i|\right).
+$$
+
+This definition permits meaningful sublinear bounds. A machine may inspect an input of length $n$ while using only logarithmic or even constant working space, because the $n$ input cells are not counted.
+
+| Tape | Permitted role | Included in space measure? |
+|---|---|---:|
+| Input tape | Read the original input; do not modify it | No |
+| Working tapes | Read, write and revisit temporary data | Yes |
+| Output tape | Write the result without using it as reusable memory | No |
+
+::: {.theorem-box}
+<div class="theorem-title">Worst-case space bound</div>
+
+A language $L$ is decided in space $f(n)$ if there exists an I/O Turing machine $M$ such that, for every $x\in\Sigma^*$,
+
+$$
+M(x)=\mathrm{yes}
+\Longleftrightarrow
+x\in L,
+$$
+
+and
+
+$$
+\operatorname{space}_M(x)
+\le
+f(|x|).
+$$
+
+The bound is a worst-case bound over all inputs of each length.
+:::
+
+# Deterministic space-complexity classes
+
+The deterministic space class associated with a function $f$ is
+
+$$
+\operatorname{SPACE}(f(n))
+=
+\left\{
+L
+\ \middle|\
+\begin{array}{l}
+\text{there exists a }k\text{-tape I/O Turing machine that decides }L\\
+\text{and uses at most }f(n)\text{ working-tape cells}
+\end{array}
+\right\}.
+$$
+
+The lecture introduces two standard aggregate classes:
+
+$$
+\mathrm{L}
+=
+\operatorname{SPACE}(\log n)
+=
+\operatorname{SPACE}(O(\log n)),
+$$
+
+and
+
+$$
+\mathrm{PSPACE}
+=
+\bigcup_{k\in\mathbb{N}}
+\operatorname{SPACE}(n^k).
+$$
+
+Here $\mathrm{L}$ is deterministic logarithmic space, while $\mathrm{PSPACE}$ contains the languages decidable with a polynomial amount of working space.
+
+## Time classes and the I/O model
+
+The notes state that time-complexity classes defined using I/O Turing machines agree with the corresponding classes defined using the previous Turing-machine model, under the standing assumption $f(n)\ge n$. Separating input and output is therefore essential for expressing small space bounds, but it does not change the time classes being studied at this level.
+
+## From time to space
+
+A machine running for $t(n)$ steps cannot use more than $O(t(n))$ working cells, because every transition can visit only a constant number of new cells. Therefore,
+
+$$
+\mathrm{L}
+\subseteq
+\mathrm{PTIME}
+\subseteq
+\mathrm{PSPACE}.
+$$
+
+The first containment is justified in the notes by the fact that a logarithmic-space machine has only polynomially many relevant configurations. Because the machine is a decider, it cannot repeat a nonhalting configuration indefinitely; hence its running time is polynomial. The second containment follows directly from the observation that polynomial time allows at most polynomially many visited cells.
+
+```{mermaid}
+%%| fig-cap: "The space and time classes introduced in the lecture satisfy these containment relations."
+flowchart LR
+  L["L"] --> P["PTIME"]
+  P --> PS["PSPACE"]
+  classDef space fill:#6f42c1,color:#ffffff,stroke:#432874
+  classDef time fill:#0d6efd,color:#ffffff,stroke:#084298
+  class L,PS space
+  class P time
+```
+
+::: {.theorem-box}
+<div class="theorem-title">Containment of the introductory classes</div>
+
+The classes defined in the lecture satisfy
+
+$$
+\mathrm{L}
+\subseteq
+\mathrm{PTIME}
+\subseteq
+\mathrm{PSPACE}.
+$$
+:::
+
+# Regular languages as a time-space example
+
+The first example concerns the languages decidable by finite automata. A finite automaton stores only its current state; the number of states is fixed independently of the input length. A Turing machine can simulate this computation by scanning the input once and storing the current automaton state in its finite control.
+
+Consequently, the simulation:
+
+- takes linear time, because each input symbol is processed once;
+- uses no working tapes, or equivalently only constant working space.
+
+The notes also state the converse under the combined hypotheses shown there: if a language is decided by an I/O Turing machine in linear time and constant space, then the language is regular.
+
+::: {.theorem-box}
+<div class="theorem-title">Regular languages and constant working space</div>
+
+A regular language can be decided by an I/O Turing machine in linear time using no working tapes. Conversely, as stated in the lecture, a language decided by an I/O Turing machine in linear time and constant space is regular.
+:::
+
+The constant-space restriction leaves only finitely many possible working-memory configurations. Together with the one-pass linear-time behaviour used in the example, this yields finite-state computational power.
+
+# Reachability as a polynomial-time example
+
+The final example is directed graph reachability. Given a directed graph
+
+$$
+G=(V,E)
+$$
+
+and two vertices $u,v\in V$, the decision problem asks whether $u$ reaches $v$, that is, whether a directed path from $u$ to $v$ exists.
+
+Breadth-first search starting from $u$ explores all vertices reachable from $u$. Using the usual colour convention, a vertex becomes black after it has been completely processed. After running BFS, reachability can be decided by checking whether $v$ has been discovered, or equivalently whether $v$ is black at termination.
+
+The running time is
+
+$$
+O(|V|+|E|).
+$$
+
+If the graph encoding has length $n$, then both $|V|$ and $|E|$ are bounded by a polynomial in $n$. Therefore the reachability problem belongs to polynomial time:
+
+$$
+\mathrm{Reachability}
+\in
+\operatorname{TIME}(n^k)
+$$
+
+for some fixed $k$, and hence
+
+$$
+\mathrm{Reachability}\in\mathrm{P}.
+$$
+
+```{mermaid}
+%%| fig-cap: "BFS decides whether v is reachable from u by exploring the directed graph and then inspecting v."
+flowchart LR
+  G["Directed graph G"] --> B["Run BFS from u"]
+  B --> C["Inspect vertex v"]
+  C --> Y["Reached"]
+  C --> N["Not reached"]
+  classDef input fill:#0d6efd,color:#ffffff,stroke:#084298
+  classDef process fill:#6f42c1,color:#ffffff,stroke:#432874
+  classDef result fill:#198754,color:#ffffff,stroke:#0f5132
+  class G input
+  class B,C process
+  class Y,N result
+```
+
+The example illustrates the meaning of membership in $\mathrm{P}$: the algorithm's $O(|V|+|E|)$ cost is polynomial in the size of the chosen graph representation.
+
+# Sources
+
+- Goodnotes lecture PDF: *12 - 10-11-2026.pdf*, Lecture 12, 10 November 2026.

@@ -1,0 +1,389 @@
+---
+title: "Games in Logic and First-Order Definability"
+subtitle: "Module 1 - Deck 3: Games"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+<style>
+.formula-scroll {
+  max-width: 100%; overflow-x: auto; overflow-y: hidden;
+  padding: 0.75rem 1rem; margin: 1rem 0;
+  border: 1px solid #d0d7de; border-radius: 0.5rem;
+  background: rgba(127,127,127,0.06); -webkit-overflow-scrolling: touch;
+}
+.formula-scroll .MathJax_Display { min-width: max-content; margin: 0; }
+</style>
+
+# From first-order logic to games
+
+The deck begins by recalling the role of first-order logic (FO). FO is expressive, model checking over a supplied finite universe is decidable and can be performed in polynomial space, while satisfiability, validity, and equivalence over finite structures are undecidable through reductions from the domino problem. For a fixed infinite structure one can instead study its FO theory; some such theories are decidable and others are not. Logical interpretations can transfer questions from one FO theory to another.
+
+The new question is not whether a given formula is true, but **which properties are expressible by some FO formula**. The slides use three guiding examples:
+
+- Is “the universe has even cardinality” definable in FO?
+- Is strong connectivity of a directed graph definable in FO using only the edge relation?
+- Is the word language $(AA)^*$ definable in FO using the order relation on positions?
+
+A direct search through all formulas is not a workable method for proving non-definability. Games provide a semantic technique: instead of attempting to enumerate formulas, one compares structures and asks whether a player can expose a difference visible to formulas of bounded quantifier rank.
+
+# The evaluation game
+
+## Positions and players
+
+The evaluation game is a warm-up that turns the recursive semantics of FO into a two-player game. Its purpose is to determine whether
+
+$$
+S\models\varphi.
+$$
+
+Assume that $\varphi$ is in **negation normal form**, so negation occurs only in front of atomic formulas. The players are:
+
+- **Eve**, who tries to establish that the formula is true;
+- **Adam**, who tries to establish that it is false.
+
+A position is a pair $(\alpha,\lambda)$, where $\alpha$ is a subformula of $\varphi$ and
+
+$$
+\lambda:\operatorname{FreeVars}(\alpha)\longrightarrow U^S
+$$
+
+assigns elements of the universe to the free variables of $\alpha$. The initial position consists of the complete formula and the binding of its free variables. For a sentence, the initial binding is empty.
+
+## Moves and terminal positions
+
+The game follows the outermost connective or quantifier of the current subformula.
+
+| Current subformula | Player who chooses | Next position |
+|---|---|---|
+| $\alpha_1\lor\alpha_2$ | Eve | $(\alpha_i,\lambda)$ for a chosen disjunct |
+| $\alpha_1\land\alpha_2$ | Adam | $(\alpha_i,\lambda)$ for a chosen conjunct |
+| $\exists x\,\alpha'(x)$ | Eve | $(\alpha',\lambda[x:=u])$ for a chosen $u\in U^S$ |
+| $\forall x\,\alpha'(x)$ | Adam | $(\alpha',\lambda[x:=u])$ for a chosen $u\in U^S$ |
+
+At an atom $R(x_1,\ldots,x_k)$, play ends. Eve wins exactly when
+
+$$
+(\lambda(x_1),\ldots,\lambda(x_k))\in R^S.
+$$
+
+At a negated atom $\neg R(x_1,\ldots,x_k)$, the winner is reversed: Eve wins exactly when the tuple is not in $R^S$.
+
+```{mermaid}
+%%| fig-cap: "Recursive structure of the first-order evaluation game."
+flowchart TD
+  P["Position (α, λ)"] --> K{"Outermost form of α"}
+  K -->|"α1 ∨ α2"| E1["Eve chooses a disjunct"]
+  K -->|"α1 ∧ α2"| A1["Adam chooses a conjunct"]
+  K -->|"∃x α'"| E2["Eve chooses u in the universe"]
+  K -->|"∀x α'"| A2["Adam chooses u in the universe"]
+  K -->|"atom or negated atom"| T["Truth in S determines the winner"]
+  E1 --> P2["Continue with a smaller subformula"]
+  A1 --> P2
+  E2 --> P2
+  A2 --> P2
+```
+
+Every move descends to a proper subformula, so the game is finite. The central lemma is
+
+$$
+S\models\varphi
+\quad\Longleftrightarrow\quad
+\text{Eve has a winning strategy in }G_{S,\varphi}.
+$$
+
+The correspondence mirrors semantics exactly. At disjunction and existential quantification, truth requires one successful choice, so Eve chooses. At conjunction and universal quantification, truth must survive every choice, so Adam selects the challenge. The evaluation game therefore does not change the semantics; it reorganises it as strategic interaction.
+
+# Definability and bounded logical power
+
+## Definability and elementary equivalence
+
+A property $P$, understood as a class of structures, is **defined** by an FO sentence $\varphi$ when
+
+$$
+\forall S\qquad S\in P\iff S\models\varphi.
+$$
+
+Two structures $S$ and $S'$ are **elementarily equivalent** when they agree on every FO sentence:
+
+$$
+S\equiv S'
+\quad\Longleftrightarrow\quad
+\forall\varphi\in\mathrm{FO}\qquad
+S\models\varphi\iff S'\models\varphi.
+$$
+
+Thus no FO sentence can distinguish elementarily equivalent structures. Consequently, if $S\in P$, $S'\notin P$, and $S\equiv S'$, then $P$ is not FO-definable. For finite structures, however, non-isomorphic structures can eventually be distinguished by an FO sentence. To prove non-definability over finite structures, the deck therefore introduces a bounded notion.
+
+## Quantifier rank and n-equivalence
+
+The **quantifier rank** $\operatorname{qr}(\varphi)$ is the maximum number of nested quantifiers in $\varphi$. It is not the total number of quantifiers. For example,
+
+::: {.formula-scroll}
+$$
+\forall x\,\forall y\,
+\bigl(\neg E(x,y)\lor(\exists z\,E(x,z))\lor(\exists t\,E(t,y))\bigr)
+$$
+:::
+
+has quantifier rank $3$: along a deepest branch, the two outer universal quantifiers are followed by one existential quantifier.
+
+Structures $S$ and $S'$ are **$n$-equivalent**, written $S\equiv_n S'$, when they agree on all FO sentences of quantifier rank at most $n$:
+
+$$
+S\equiv_n S'
+\quad\Longleftrightarrow\quad
+\forall\varphi\,
+\bigl(\operatorname{qr}(\varphi)\le n
+\Rightarrow
+(S\models\varphi\iff S'\models\varphi)\bigr).
+$$
+
+Elementary equivalence means $n$-equivalence for every $n$. The useful non-definability criterion is weaker and better suited to finite structures:
+
+::: {.formula-scroll}
+$$
+\left[
+\forall n\in\mathbb N\ \exists S_n,S'_n:
+S_n\in P,
+S'_n\notin P,
+S_n\equiv_n S'_n
+\right]
+\Longrightarrow
+P\text{ is not FO-definable}.
+$$
+:::
+
+If a sentence $\varphi$ defined $P$, choose $n=\operatorname{qr}(\varphi)$. The corresponding $S_n$ and $S'_n$ would have to agree on $\varphi$, even though exactly one belongs to $P$, a contradiction.
+
+# Ehrenfeucht-Fraïssé games
+
+## Rules of the game
+
+The $n$-round Ehrenfeucht-Fraïssé game $G^n_{S,S'}$ is played by **Spoiler** and **Duplicator** on two structures with the same vocabulary.
+
+At round $i$:
+
+1. Spoiler chooses an element from either $U^S$ or $U^{S'}$.
+2. Duplicator responds with an element from the other structure.
+3. The chosen elements form paired tuples
+   $(u_1,\ldots,u_i)$ and $(v_1,\ldots,v_i)$.
+
+Duplicator survives the current round when the correspondence $u_j\mapsto v_j$ is a **partial isomorphism**. This means that equality, constants, and every relation in the vocabulary agree on the selected elements. For a graph vocabulary with edge relation $E$, for example,
+
+$$
+u_j=u_k\iff v_j=v_k
+$$
+
+and
+
+$$
+E^S(u_j,u_k)\iff E^{S'}(v_j,v_k)
+$$
+
+must hold for every selected pair of indices. Duplicator wins the $n$-round game if the partial isomorphism is preserved after all $n$ rounds; Spoiler wins as soon as it fails.
+
+```{mermaid}
+%%| fig-cap: "One round of an Ehrenfeucht-Fraïssé game."
+flowchart LR
+  H["Current paired tuples"] --> S["Spoiler selects in either structure"]
+  S --> D["Duplicator answers in the other structure"]
+  D --> C{"Selected correspondence is a partial isomorphism?"}
+  C -->|"yes"| N["Proceed to the next round"]
+  C -->|"no"| W["Spoiler wins"]
+```
+
+Spoiler tries to reveal a structural distinction. Duplicator does not need to construct a global isomorphism; she needs only to preserve all atomic information about the finitely many selected elements.
+
+## The Fraïssé-Ehrenfeucht theorem
+
+The fundamental theorem is
+
+$$
+S\equiv_n S'
+\quad\Longleftrightarrow\quad
+\text{Duplicator can survive }n\text{ rounds in }G^n_{S,S'}.
+$$
+
+This is the soundness-and-completeness bridge between games and logic.
+
+- **Soundness:** if Duplicator survives $n$ rounds, no FO sentence of quantifier rank at most $n$ distinguishes the structures.
+- **Completeness:** if the structures agree on all formulas of quantifier rank at most $n$, Duplicator has a strategy for surviving $n$ rounds.
+
+The theorem converts a syntactic universal quantification over formulas into a strategic problem on structures.
+
+## Why soundness holds
+
+Suppose Duplicator has a strategy for $n$ rounds. The proof proceeds by induction on formulas of quantifier rank at most $n$, with already selected elements interpreting their free variables.
+
+- Atomic and negated atomic formulas agree because the selected correspondence is a partial isomorphism.
+- Boolean combinations agree by the induction hypothesis.
+- For $\exists x\,\psi$, a witness chosen in one structure can be viewed as Spoiler's next move. Duplicator's response supplies a matching element in the other structure, and the induction hypothesis applies to $\psi$.
+- Universal quantification follows dually, or through negation normal form and the evaluation-game interpretation.
+
+The connection with the evaluation game is direct: Duplicator uses her EF strategy to transfer a winning evaluation-game strategy from one structure to the other.
+
+## Why completeness holds
+
+For completeness, suppose Duplicator has no winning response at some stage. The possible responses in the other structure can then be separated by formulas of smaller quantifier rank. Combining these formulas under a quantifier produces a formula that distinguishes the current tuples. Repeating this argument backwards constructs a distinguishing sentence of quantifier rank at most $n$.
+
+The finite-vocabulary assumption ensures that, at the atomic level, only finitely many relevant atomic facts must be combined. The argument establishes that failure of a Duplicator strategy is not merely intuitive evidence: it yields an FO formula witnessing the difference.
+
+# Reading the examples
+
+## Finite linear orders and interval sizes
+
+Several progressive slides ask how many rounds Duplicator can survive on finite ordered structures. The key observation is that selected points divide each order into intervals. Duplicator preserves the relative order of selected points and answers so that corresponding intervals remain either equally small or both sufficiently large for the remaining number of rounds.
+
+This explains the exponential threshold used later in the deck: with $r$ rounds remaining, Spoiler can repeatedly choose near the middle of an interval, approximately halving the unresolved distance. Duplicator therefore maintains the invariant that corresponding intervals have equal length or both have length at least a power of two determined by the remaining rounds.
+
+The same “distance budget” appears in the comparison between
+
+$$
+S=(\mathbb Z,<)
+\qquad\text{and}\qquad
+S'=(\mathbb R,<).
+$$
+
+The orders are not isomorphic: one is discrete and the other dense. Spoiler can expose discreteness by creating a pair with no integer strictly between them while the corresponding real interval contains another point. The progressive moves illustrate how a local order difference becomes visible through selected witnesses.
+
+## Non-isomorphic structures with arbitrarily long finite survival
+
+The deck contrasts finite and infinite structures. On non-isomorphic finite structures, Spoiler eventually wins: after enough rounds, every element can be selected and the resulting total correspondence would have to be an isomorphism.
+
+For infinite structures, Duplicator may survive every prescribed finite number of rounds without there being one strategy that survives an actual infinite game. The example compares
+
+$$
+(\mathbb Z,<)
+\qquad\text{with}\qquad
+(\{1,2\}\times\mathbb Z,<_{\mathrm{lex}}).
+$$
+
+The second structure consists of two lexicographically ordered copies of the integers. They are not isomorphic, but for each fixed $n$, Duplicator can maintain the invariant stated in the slides: after round $i$, corresponding marked points are at equal distance or both at distance at least $2^{n-i}$. The threshold decreases as the game progresses. Any distinction beyond that threshold remains invisible in the remaining rounds.
+
+::: {.callout-important}
+“For every $n$, Duplicator has an $n$-round strategy” does not automatically mean that Duplicator has one strategy for an infinite game. The deck explicitly separates arbitrary finite survival from survival forever.
+:::
+
+# Non-definability proofs
+
+## A reusable method
+
+The deck distils EF games into a standard proof pattern for showing that a property $P$ is not FO-definable:
+
+1. Fix an arbitrary quantifier-rank bound $n$.
+2. Choose structures $S_n\in P$ and $S'_n\notin P$.
+3. Give Duplicator a strategy for surviving $n$ rounds in $G^n_{S_n,S'_n}$.
+4. Apply the Fraïssé-Ehrenfeucht theorem to obtain $S_n\equiv_n S'_n$.
+5. Since this works for every $n$, conclude that no FO sentence defines $P$.
+
+The structures are allowed, and usually required, to depend on $n$.
+
+## Connectivity of finite graphs
+
+To show that connectivity is not definable in FO, the slides choose highly symmetric graphs whose components are long cycles. For a given $n$, take:
+
+- $S_n$: one sufficiently long cycle, hence connected;
+- $S'_n$: two sufficiently long cycles of the same local form, hence disconnected.
+
+```{mermaid}
+%%| fig-cap: "EF-game comparison used for non-definability of graph connectivity."
+flowchart LR
+  C1["S_n: one long cycle\nconnected"]
+  C2["S'_n: two long cycles\ndisconnected"]
+  C1 <-->|"same bounded local view"| C2
+```
+
+Duplicator responds in the corresponding local neighbourhood while maintaining distances between selected vertices up to the threshold visible in the remaining rounds. If the cycles are sufficiently long, Spoiler cannot traverse enough of them in $n$ rounds to establish globally that one structure has one component and the other has two. FO of bounded quantifier rank therefore sees the same local configurations while connectivity is different.
+
+The argument also applies to strong connectivity for directed variants when the chosen cycles and edge orientations match the vocabulary used in the property.
+
+## Even cardinality
+
+For the property “the universe has even cardinality,” the vocabulary may be empty, so only equality between selected elements matters. Given $n$, choose two finite sets with at least $n$ elements, one of even size and one of odd size. Duplicator answers a previously selected element with its paired partner and a new element with a fresh element.
+
+After at most $n$ rounds, the equality pattern is identical in both structures. Thus Duplicator survives $n$ rounds even though one universe is even and the other odd. Since this can be done for every $n$, parity of finite cardinality is not FO-definable in the empty vocabulary.
+
+# Variants of the game method
+
+The slide deck stresses that EF games can be adapted to other logics by changing what players may select and what must be preserved.
+
+| Logic or comparison | Typical game adaptation | Intuition |
+|---|---|---|
+| FO | one element per round | first-order variables denote elements |
+| Existential FO | restrict Spoiler's direction of play | preserve existential information rather than full equivalence |
+| FO with counting | use counting or bijective moves | formulas can compare multiplicities |
+| Monadic second-order logic | permit moves selecting sets as well as elements | second-order variables denote unary relations |
+| Bounded-variable fragments | use a fixed number of reusable pebbles | only finitely many variables are simultaneously available |
+
+The exact rules must match the expressive resource added or removed. The general principle remains the same: formula construction is represented by Spoiler's challenges, while Duplicator's survival expresses indistinguishability in the chosen logic.
+
+# Games and synthesis
+
+The deck then gives another use of games: **synthesis**, described as an evaluation game in disguise. Verification asks whether a completed system satisfies a requirement. Synthesis asks for a system or strategy that guarantees the requirement against every allowed environment behaviour.
+
+The slides return to a reachability problem encoded with Boolean states. In the plain reachability version, one asks whether there exists a finite sequence of states satisfying initial, step, and target constraints. In the synthesis version, choices are divided between an environment and a circuit or controller. Alternating quantifiers represent their successive choices:
+
+::: {.formula-scroll}
+$$
+\forall \bar e_0\,\exists \bar c_0\,
+\forall \bar e_1\,\exists \bar c_1\cdots
+\Phi(\bar e_0,\bar c_0,\bar e_1,\bar c_1,\ldots).
+$$
+:::
+
+The environment selects the universally quantified inputs; the circuit selects the existentially quantified outputs after observing the preceding environment choices. A winning strategy for the existential player is therefore not just a truth value. It is a collection of response functions describing how the circuit should act.
+
+```{mermaid}
+%%| fig-cap: "Synthesis as a game between an environment and a circuit."
+flowchart LR
+  E0["Environment chooses input e0"] --> C0["Circuit chooses output c0"]
+  C0 --> E1["Environment chooses input e1"]
+  E1 --> C1["Circuit chooses output c1"]
+  C1 --> R{"Reachability requirement met?"}
+  R -->|"yes"| W["Winning controller strategy"]
+  R -->|"no"| L["Environment defeats the controller"]
+```
+
+The formulation also explains the order of quantifiers. Moving an existential choice before a universal one would require the circuit to choose without seeing the corresponding environment input, changing the implementability requirement. This is the connection to Church's synthesis problem cited in the slides: derive a circuit satisfying a logical specification, rather than merely decide that such behaviour exists.
+
+# FO logic over finite words
+
+The final slides introduce the next setting without developing the later automata theory. Fix an alphabet
+
+$$
+\Sigma=\{A,B,C,\ldots\}
+$$
+
+and view a finite word as a structure
+
+$$
+S=(\{0,1,\ldots,n\},\le,A^S,B^S,C^S,\ldots),
+$$
+
+where the unary predicates partition the positions and indicate which letter occurs at each position. Every such structure corresponds to a word $w_S\in\Sigma^*$, and every FO sentence $\varphi$ over this signature defines a language
+
+$$
+L_\varphi=\{w_S\in\Sigma^*:S\models\varphi\}.
+$$
+
+For example, the slides give a formula expressing that there is a cut position $x$ such that all positions up to $x$ carry $A$ and all later positions carry $B$:
+
+::: {.formula-scroll}
+$$
+\exists x\,\forall y\,
+\bigl((y\le x\rightarrow A(y))\land(y>x\rightarrow B(y))\bigr).
+$$
+:::
+
+It defines $A^*B^*$, subject to the endpoint convention used for the represented word. A local adjacency condition defines the alternating language $(AB)^*$ by requiring each $A$ to be followed by $B$ and each $B$ to be preceded by $A$, together with the needed boundary conditions.
+
+The deck closes by asking whether FO can define $A^*BA^*$ and $(AA)^*$. The first means that exactly one position carries $B$ and all others carry $A$, and is FO-definable. The second requires even word length over the one-letter alphabet and returns to the parity obstruction: bounded-rank FO formulas cannot distinguish sufficiently long words whose lengths differ by one. This question prepares the transition from games to logics and automata over words without importing the later material into this chapter.
+
+# Sources
+
+- *3_Games.pdf*, primary slide deck.
+- *Lecture notes on Mathematical Logics by Alberto Marcone (LM INF).pdf*, consulted to confirm terminology concerning elementary equivalence, structures, satisfaction, and first-order semantics.

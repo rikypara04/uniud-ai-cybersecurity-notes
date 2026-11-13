@@ -1,0 +1,610 @@
+---
+title: "Semantics of Logic Programs"
+subtitle: "Lecture 11 - 11 November 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+```{=html}
+<style>
+.theorem-box {
+  border: 2px solid #b02a37;
+  border-left: 0.55rem solid #b02a37;
+  border-radius: 0.45rem;
+  padding: 1rem 1.15rem 0.85rem;
+  margin: 1.25rem 0;
+  background: rgba(176, 42, 55, 0.07);
+}
+.theorem-box > :first-child { margin-top: 0; }
+.theorem-box > :last-child { margin-bottom: 0; }
+.theorem-title {
+  color: #b02a37;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+@media (prefers-color-scheme: dark) {
+  .theorem-box {
+    background: rgba(255, 107, 122, 0.10);
+    border-color: #ff6b7a;
+  }
+  .theorem-title { color: #ff8a96; }
+}
+</style>
+```
+
+# Universes and interpretations
+
+A logic program, like a first-order theory, is initially only a collection of symbols and formulas. Semantics assigns meanings to those symbols over a chosen **universe** of objects.
+
+Consider the program
+
+```prolog
+q(a).
+q(b).
+```
+
+Its signature contains constants $a$ and $b$ and a unary predicate symbol $q$. An interpretation must choose:
+
+1. a nonempty universe $D$;
+2. an element $a^{\mathcal I}\in D$ for the constant $a$;
+3. an element $b^{\mathcal I}\in D$ for the constant $b$;
+4. a unary relation $q^{\mathcal I}\subseteq D$ for the predicate $q$.
+
+The notation $s^{\mathcal I}$ denotes the meaning assigned to a symbol $s$ by interpretation $\mathcal I$.
+
+## Constants and equality
+
+A constant symbol denotes one object of the universe, but distinct constant symbols need not denote distinct objects. Thus an interpretation may satisfy either
+
+$$
+a^{\mathcal I}\ne b^{\mathcal I}
+$$
+
+or
+
+$$
+a^{\mathcal I}=b^{\mathcal I}.
+$$
+
+This choice changes the truth of formulas involving equality. The three situations illustrated in the deck are:
+
+| Interpretation of the constants | Formula made true |
+|---|---|
+| $a^{\mathcal I}\ne b^{\mathcal I}$ | $a\ne b$ |
+| A third object exists besides the denotations of $a$ and $b$ | $\exists X\,(X\ne a\land X\ne b)$ |
+| $a^{\mathcal I}=b^{\mathcal I}$ | $a=b$ |
+
+These are semantic alternatives. The symbols by themselves do not decide which alternative holds.
+
+## Function symbols
+
+The next program uses a constant $a$, a unary function symbol $s/1$, a binary function symbol $g/2$, and predicates $r/1$ and $q/1$:
+
+```prolog
+r(a).
+r(s(X)) :- r(X).
+q(g(X,Y)) :- r(X), r(Y).
+```
+
+A function symbol must be interpreted as an actual total function over the universe. In an interpretation $\mathcal I$,
+
+$$
+s^{\mathcal I}:D\to D,
+\qquad
+g^{\mathcal I}:D^2\to D.
+$$
+
+Equivalently, the binary function $g^{\mathcal I}$ may be represented by its graph
+
+$$
+G=\left\{(x,y,z)\in D^3\mid g^{\mathcal I}(x,y)=z\right\}.
+$$
+
+Calling $g$ a function imposes functionality and totality: each pair $(x,y)$ must determine exactly one output $z$.
+
+The progressive slide animation uses the universe
+
+$$
+D=\{0,1,2,3,4,\ldots\}
+$$
+
+and first maps $a$ to $0$. It then illustrates one possible interpretation of the successor-like function:
+
+$$
+s^{\mathcal I}(0)=1,
+\quad
+s^{\mathcal I}(1)=2,
+\quad
+s^{\mathcal I}(2)=3,
+\quad\ldots
+$$
+
+Consequently,
+
+$$
+(s(a))^{\mathcal I}=1,
+\qquad
+(s(s(a)))^{\mathcal I}=2,
+$$
+
+and so on. A later animation frame illustrates a possible interpretation of $g$ as a binary function on the same universe. The precise set of triples is part of the interpretation, not part of the syntax of $g$.
+
+## Predicate symbols
+
+An $n$-ary predicate symbol is interpreted as an $n$-ary relation:
+
+$$
+p^{\mathcal I}\subseteq D^n.
+$$
+
+For a unary predicate $q$, there are two equivalent ways to present the same interpretation:
+
+1. by assigning a truth value to $q(d)$ for every $d\in D$;
+2. by listing the extension
+   $$
+   q^{\mathcal I}=\{d\in D\mid q(d)\text{ is true in }\mathcal I\}.
+   $$
+
+The handwritten annotation explicitly identifies these as “two ways of showing the same thing.” For a universe containing a triangle, a square, and a circle, for example,
+
+$$
+q^{\mathcal I}=\{\triangle,\square\}
+$$
+
+means that $q(\triangle)$ and $q(\square)$ are true while $q(\circ)$ is false.
+
+A unary predicate over a universe of three objects has
+
+$$
+2^3=8
+$$
+
+possible interpretations, because each object may independently belong or not belong to the predicate extension. The deck highlights several characteristic cases:
+
+| Extension of $q^{\mathcal I}$ | Formula true in the interpretation |
+|---|---|
+| $\varnothing$ | $\forall X\,\neg q(X)$ |
+| A nonempty proper subset | $\exists X\,q(X)$ and, when applicable, two distinct objects outside or inside the extension |
+| $D$ | $\forall X\,q(X)$ |
+
+The concrete formulas in the slide include
+
+$$
+\exists X\,q(X)
+\land
+\exists X\exists Y\,(X\ne Y\land\neg q(X)\land\neg q(Y)),
+$$
+
+and
+
+$$
+\exists X\,\neg q(X)
+\land
+\exists X\exists Y\,(X\ne Y\land q(X)\land q(Y)).
+$$
+
+# Models and logical consequences
+
+An interpretation becomes a **model** of a program when it satisfies the logical meaning of every formula in the program.
+
+Consider
+
+```prolog
+u(a).
+q(b).
+r(X) :- u(X).
+```
+
+Let $a^{\mathcal I}=\triangle$ and $b^{\mathcal I}=\square$. Write $U$, $Q$, and $R$ for the interpretations of $u$, $q$, and $r$.
+
+The interpretation
+
+$$
+U=\{\triangle\},
+\qquad
+Q=\{\square\},
+\qquad
+R=\{\triangle,\square\}
+$$
+
+is a model. Both facts hold, and whenever $u(X)$ holds, $r(X)$ also holds.
+
+By contrast,
+
+$$
+U=\{\triangle,\square\},
+\qquad
+Q=\{\square\},
+\qquad
+R=\{\triangle\}
+$$
+
+is not a model: $u(\square)$ is true while $r(\square)$ is false, violating the rule.
+
+## Logical consequence
+
+An atom $q(t_1,\ldots,t_n)$ is a **logical consequence** of a program or theory $P$ when it is true in every model of $P$. This is written
+
+$$
+P\models q(t_1,\ldots,t_n).
+$$
+
+If $Q$ is the relation interpreting $q$, this means
+
+$$
+\left(t_1^{\mathcal I},\ldots,t_n^{\mathcal I}\right)\in Q
+$$
+
+for every model $\mathcal I$ of $P$.
+
+The set of logical consequences is the semantic information that the program forces, independently of arbitrary choices made by individual models. The lecture therefore asks two questions:
+
+1. Does a suitable semantic object always exist?
+2. If it exists, how can it be computed?
+
+This lecture answers the existence and characterization questions for definite programs. Computation is left as the next step.
+
+# Herbrand interpretations
+
+General interpretations allow constants and compound terms to denote arbitrary universe elements. Herbrand interpretations remove this freedom by building a canonical universe directly from the syntax of the program.
+
+## Herbrand universe
+
+The **Herbrand universe** $H_P$ is the set of all ground terms that can be constructed using the constant and function symbols occurring in $P$. Ground terms are interpreted as themselves.
+
+Examples from the deck are:
+
+- with constants $a$ and $b$ and no function symbols,
+  $$
+  H_P=\{a,b\};
+  $$
+- with the constant $0$ and unary function $s$,
+  $$
+  H_P=\{0,s(0),s(s(0)),s(s(s(0))),\ldots\}.
+  $$
+
+Thus, in a Herbrand interpretation,
+
+$$
+a^{\mathcal I}=a,
+\qquad
+b^{\mathcal I}=b,
+\qquad
+s^{\mathcal I}(s(0))=s(s(0)).
+$$
+
+The syntactic terms themselves are the universe elements. This removes the earlier ambiguity in which $a$ and $b$ could denote the same external object.
+
+## Herbrand models as sets of atoms
+
+An interpretation over $H_P$ may or may not be a model. For the program
+
+```prolog
+u(a).
+q(b).
+r(X) :- u(X).
+```
+
+the Herbrand interpretation
+
+$$
+U=\{a\},
+\qquad
+Q=\{b\},
+\qquad
+R=\{a,b\}
+$$
+
+is a model, whereas
+
+$$
+U=\{a,b\},
+\qquad
+Q=\{b\},
+\qquad
+R=\{a\}
+$$
+
+is not.
+
+Because all ground terms have fixed meanings, a Herbrand interpretation can be represented uniquely by the ground atoms it makes true:
+
+| Interpretation | Set-of-atoms representation | Model? |
+|---|---|---:|
+| $U=\{a\}$, $Q=\{b\}$, $R=\{a,b\}$ | $\{u(a),q(b),r(a),r(b)\}$ | Yes |
+| $U=\{a,b\}$, $Q=\{b\}$, $R=\{a\}$ | $\{u(a),u(b),q(b),r(a)\}$ | No |
+
+# The lattice of Herbrand interpretations
+
+## Herbrand base
+
+The **Herbrand base** $B_P$ is the set of all ground atoms that can be formed from the predicate symbols of $P$ and the ground terms in $H_P$:
+
+$$
+B_P
+=
+\left\{
+q(t_1,\ldots,t_n)
+\ \middle|\
+\begin{array}{l}
+q/n\text{ is a predicate symbol in }P,\\
+t_1,\ldots,t_n\in H_P
+\end{array}
+\right\}.
+$$
+
+Every subset $I\subseteq B_P$ uniquely determines a Herbrand interpretation: precisely the atoms in $I$ are true. Therefore the collection of all Herbrand interpretations is the power set
+
+$$
+\mathcal P(B_P).
+$$
+
+The lecture uses two examples to show that the base may be finite or infinite. A program containing only $a$, $b$, and predicates has a finite Herbrand universe, while
+
+```prolog
+nat(0).
+nat(s(X)) :- nat(X).
+```
+
+generates the infinite universe $\{0,s(0),s(s(0)),\ldots\}$ and corresponding atoms $nat(0)$, $nat(s(0))$, and so forth.
+
+## Complete lattice structure
+
+Ordered by set inclusion, the interpretations form
+
+$$
+\left(\mathcal P(B_P),\subseteq\right).
+$$
+
+A complete lattice is a partially ordered set in which every collection of elements, finite or infinite, has both a supremum and an infimum. For a family $\{S_i\}_{i\in J}$ of subsets of $B_P$,
+
+$$
+\sup_{i\in J}S_i
+=
+\bigcup_{i\in J}S_i,
+$$
+
+and
+
+$$
+\inf_{i\in J}S_i
+=
+\bigcap_{i\in J}S_i.
+$$
+
+The least element is $\varnothing$, which makes no ground atom true. The greatest element is $B_P$, which makes every ground atom true.
+
+```{mermaid}
+%%| fig-cap: "Herbrand interpretations form a complete lattice ordered by inclusion, with intersection as meet and union as join."
+flowchart TD
+  TOP["B_P"] --> I1["Interpretation I_1"]
+  TOP --> I2["Interpretation I_2"]
+  I1 --> MEET["I_1 intersection I_2"]
+  I2 --> MEET
+  MEET --> BOT["Empty interpretation"]
+  classDef boundary fill:#6f42c1,color:#ffffff,stroke:#432874
+  classDef interp fill:#0d6efd,color:#ffffff,stroke:#084298
+  class TOP,BOT boundary
+  class I1,I2,MEET interp
+```
+
+This lattice structure matters because the semantics of a definite program will be obtained by taking the intersection of all its Herbrand models.
+
+# The fundamental theorem for clauses
+
+A clause is a universally quantified disjunction of literals:
+
+$$
+\forall\vec X\,(A_0\lor\cdots\lor A_n),
+$$
+
+where each $A_i$ is a positive or negative literal built from the variables $\vec X$.
+
+A rule
+
+$$
+A_0\leftarrow A_1\land\cdots\land A_n
+$$
+
+corresponds to the clause
+
+$$
+A_0\lor\neg A_1\lor\cdots\lor\neg A_n.
+$$
+
+For a conjunction $T$ of clauses, write $H_T$ for its Herbrand universe and $B_T$ for its Herbrand base.
+
+::: {.theorem-box}
+<div class="theorem-title">Existence of Herbrand models</div>
+
+Let $T$ be a conjunction of clauses. Then $T$ has a model if and only if $T$ has a Herbrand model.
+:::
+
+The theorem reduces satisfiability for clauses from arbitrary first-order interpretations to the canonical Herbrand setting.
+
+::: {.theorem-box}
+<div class="theorem-title">Ground consequences through Herbrand models</div>
+
+Let $T$ be a conjunction of clauses and let $A\in B_T$ be a ground atom. Then
+
+$$
+T\models A
+\quad\Longleftrightarrow\quad
+A\text{ is true in every Herbrand model of }T.
+$$
+:::
+
+Thus, for ground atoms, it is sufficient to examine Herbrand models rather than all possible interpretations.
+
+# Why arbitrary clauses do not have a minimum-model semantics
+
+The deck next uses non-Horn clauses to show why the desired semantic object does not exist for every theory.
+
+## A satisfiable theory with no positive ground consequence
+
+Let
+
+$$
+T=q(a)\lor q(b).
+$$
+
+Its Herbrand base is $B_T=\{q(a),q(b)\}$, so there are four Herbrand interpretations:
+
+$$
+\varnothing,
+\quad
+\{q(a)\},
+\quad
+\{q(b)\},
+\quad
+\{q(a),q(b)\}.
+$$
+
+Exactly three are models; only $\varnothing$ fails to satisfy the disjunction.
+
+| Herbrand interpretation | Model of $q(a)\lor q(b)$? |
+|---|---:|
+| $\varnothing$ | No |
+| $\{q(a)\}$ | Yes |
+| $\{q(b)\}$ | Yes |
+| $\{q(a),q(b)\}$ | Yes |
+
+There is no ground atom $A$ such that $T\models A$: one model makes only $q(a)$ true and another makes only $q(b)$ true. Moreover, the intersection of all three models is $\varnothing$, which is not itself a model. This failure of closure under intersection is exactly what prevents a minimum model.
+
+## An inconsistent theory
+
+The second example conjoins all four possible disjunctions over $q(a)$ and $q(b)$:
+
+$$
+\begin{aligned}
+T={}&(q(a)\lor q(b))
+\land(\neg q(a)\lor q(b))\\
+&\land(q(a)\lor\neg q(b))
+\land(\neg q(a)\lor\neg q(b)).
+\end{aligned}
+$$
+
+Each of the four Herbrand interpretations falsifies at least one conjunct. Therefore $T$ has no model.
+
+# Definite programs and intersection closure
+
+A definite clause has exactly one positive literal. The rule
+
+```prolog
+u(A) :- q(A,B), r(B).
+```
+
+is the clause
+
+$$
+\forall A\forall B\,
+\bigl(u(A)\lor\neg q(A,B)\lor\neg r(B)\bigr).
+$$
+
+A definite program is a conjunction of definite clauses.
+
+## Intersection of two models
+
+::: {.theorem-box}
+<div class="theorem-title">Binary intersection lemma</div>
+
+Let $P$ be a definite-clause program. If $I_1$ and $I_2$ are Herbrand models of $P$, then
+
+$$
+I_1\cap I_2
+$$
+
+is also a Herbrand model of $P$.
+:::
+
+To see why, take a ground instance
+
+$$
+a\leftarrow b_1,\ldots,b_n
+$$
+
+of a rule in $P$. Suppose that its body is true in $I_1\cap I_2$:
+
+$$
+\{b_1,\ldots,b_n\}\subseteq I_1\cap I_2.
+$$
+
+Then all body atoms belong to both $I_1$ and $I_2$. Since both interpretations are models, the head $a$ belongs to both of them. Hence
+
+$$
+a\in I_1\cap I_2,
+$$
+
+so the rule remains satisfied in the intersection.
+
+## Intersection of any family of models
+
+::: {.theorem-box}
+<div class="theorem-title">Arbitrary intersection lemma</div>
+
+Let $P$ be a definite-clause program and let $I_1,I_2,I_3,\ldots$ be Herbrand models of $P$. Then
+
+$$
+\bigcap_i I_i
+$$
+
+is a Herbrand model of $P$.
+:::
+
+The complete-lattice property guarantees that the intersection is still a subset of $B_P$, hence a Herbrand interpretation. If the body of a ground rule belongs to the intersection, it belongs to every $I_i$. Every model must then contain the head, so the head also belongs to the intersection.
+
+# The minimum Herbrand model
+
+Let
+
+$$
+M_P
+=
+\bigcap
+\left\{
+I\subseteq B_P
+\mid
+I\text{ is a Herbrand model of }P
+\right\}.
+$$
+
+By construction,
+
+$$
+M_P\subseteq I
+$$
+
+for every Herbrand model $I$ of $P$. By the arbitrary intersection lemma, $M_P$ is itself a Herbrand model.
+
+::: {.theorem-box}
+<div class="theorem-title">Minimum Herbrand model theorem</div>
+
+Every definite-clause program $P$ has a unique minimum Herbrand model $M_P$.
+:::
+
+The model is **minimum** with respect to inclusion, not merely minimal: it is contained in every Herbrand model. Uniqueness follows immediately. If two models were both minimum, each would be contained in the other, so they would be equal.
+
+The minimum model contains exactly the ground atoms forced by the program and is therefore the declarative semantics of $P$.
+
+::: {.theorem-box}
+<div class="theorem-title">Logical consequences of a definite program</div>
+
+Let $P$ be a definite-clause program and let $A\in B_P$ be a ground atom. Then
+
+$$
+P\models A
+\quad\Longleftrightarrow\quad
+A\in M_P.
+$$
+:::
+
+The forward direction holds because $M_P$ is a model of $P$. The reverse direction holds because $M_P$ is contained in every Herbrand model: any atom in $M_P$ is true in every Herbrand model and, by the fundamental theorem, is a logical consequence of $P$.
+
+The lecture ends at the next computational question: the semantics $M_P$ always exists and is unique for a definite program, but how can $M_P$ be computed?
+
+# Sources
+
+- Original and annotated lecture deck: *11 - 11-11-2026.pdf*, “Semantics of Logic Programs,” Automated Reasoning, University of Udine, 2026.

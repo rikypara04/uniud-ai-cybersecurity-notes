@@ -1,0 +1,920 @@
+---
+title: "Constraint Propagation and Local Consistency"
+subtitle: "Lecture 3 - 7 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Formal definition of a Constraint Satisfaction Problem
+
+A **Constraint Satisfaction Problem** (CSP) is a triple
+
+$$
+P=\langle V,D,C\rangle,
+$$
+
+where:
+
+- $V=\{V_1,\ldots,V_n\}$ is a finite set of variables;
+- $D=\{D_1,\ldots,D_n\}$ associates domain $D_i$ with variable $V_i$;
+- $C$ is a set of constraints.
+
+A constraint $c$ involving variables
+
+$$
+V_{i_1},\ldots,V_{i_m}
+$$
+
+is a relation over their domains:
+
+$$
+c\subseteq D_{i_1}\times\cdots\times D_{i_m}.
+$$
+
+Thus, a constraint is the set of tuples admitted for the variables in its scope. It normally contains only some tuples of the Cartesian product, not every possible tuple.
+
+An assignment is a mapping
+
+$$
+\sigma:V\to D_1\cup\cdots\cup D_n
+$$
+
+such that
+
+$$
+\sigma(V_i)\in D_i
+$$
+
+for every $i$. The assignment is a **solution** when, for every constraint $c$ on variables $V_{i_1},\ldots,V_{i_m}$,
+
+$$
+\bigl(\sigma(V_{i_1}),\ldots,\sigma(V_{i_m})\bigr)\in c.
+$$
+
+This definition is independent of the concrete syntax used to write constraints. When the context is clear, one can write a familiar expression such as
+
+$$
+X\neq Y
+$$
+
+instead of explicitly listing the corresponding relation.
+
+A Constraint Optimization Problem additionally contains an objective function to minimise or maximise. The feasible assignments are still the solutions of the underlying CSP; optimisation selects the best feasible solution according to the objective.
+
+## Solutions, consistency, and free variables
+
+The set of solutions of a CSP $P$ is denoted by
+
+$$
+\operatorname{Sol}(P).
+$$
+
+The problem is **consistent** or **satisfiable** if
+
+$$
+\operatorname{Sol}(P)\neq\varnothing.
+$$
+
+It is **inconsistent** or **unsatisfiable** if
+
+$$
+\operatorname{Sol}(P)=\varnothing.
+$$
+
+The same notation may be applied to a single constraint or a subset of constraints. For a constraint $c$, or a set of constraints $C$, the notation
+
+$$
+FV(C)
+$$
+
+denotes the variables occurring in $C$.
+
+# Relational interpretation of 4-Queens constraints
+
+For the 4-Queens problem, use variables
+
+$$
+V=\{X_1,X_2,X_3,X_4\}
+$$
+
+with identical domains
+
+$$
+D_1=D_2=D_3=D_4=\{1,2,3,4\}.
+$$
+
+The value $X_i=j$ means that the queen in column $i$ occupies row $j$.
+
+## Horizontal constraints as relations
+
+For two columns $i$ and $j$, the condition
+
+$$
+X_i\neq X_j
+$$
+
+stands for the binary relation
+
+$$
+\begin{aligned}
+\{&(1,2),(1,3),(1,4),
+(2,1),(2,3),(2,4),\\
+&(3,1),(3,2),(3,4),
+(4,1),(4,2),(4,3)\}.
+\end{aligned}
+$$
+
+Every tuple with distinct row values is admitted. The four tuples
+
+$$
+(1,1),(2,2),(3,3),(4,4)
+$$
+
+are excluded because they place two queens on the same row.
+
+## Diagonal constraints as relations
+
+For $i<j$, the diagonal condition is
+
+$$
+|X_j-X_i|\neq j-i.
+$$
+
+For example, if $i=2$ and $j=4$, the horizontal distance is $2$. Therefore, row pairs at distance $2$ are not admitted. In particular,
+
+$$
+(2,4)
+$$
+
+is excluded because
+
+$$
+|4-2|=4-2=2.
+$$
+
+The tuple $(2,2)$ is also not admitted in the full queens model because it violates the horizontal constraint.
+
+# Constraint solving
+
+Constraint solving follows the general structure already encountered in DPLL. It alternates:
+
+1. deterministic **constraint propagation**;
+2. selection of a variable or decision;
+3. a non-deterministic assignment or branch;
+4. further propagation;
+5. backtracking when a branch fails.
+
+```{mermaid}
+%%| fig-cap: "The propagation-and-search loop used in constraint solving."
+flowchart TD
+    P["Current CSP"] --> CP["Constraint propagation"]
+    CP --> Q{"Result?"}
+    Q -->|"solved"| S["Return solution"]
+    Q -->|"fail"| B["Backtrack"]
+    Q -->|"stable but unsolved"| V["Select variable and value"]
+    V --> L["Create a search branch"]
+    L --> P
+    B --> V
+```
+
+The situation is more general than SAT because domains need not be Boolean and constraints can have many different meanings and arities.
+
+# Constraint propagation
+
+Constraint propagation transforms a CSP $P$ into a simplified CSP $P'$ while preserving the solutions for the original variables.
+
+Its objectives include:
+
+- removing values that cannot belong to any solution;
+- simplifying or replacing constraints;
+- adding logically implied constraints that enable stronger reasoning;
+- detecting failure when a domain becomes empty.
+
+Propagation is applied repeatedly at search-tree nodes, so it must be fast. Since CSPs often encode NP-complete or harder problems, one cannot expect a polynomial propagation procedure to solve every instance completely. Propagation therefore reasons locally, usually over one constraint or a small group of constraints.
+
+## Proof rules
+
+A propagator is based on repeated applications of proof rules of the form
+
+$$
+\frac{\phi}{\psi},
+$$
+
+where $\phi$ and $\psi$ are CSPs. The lower CSP may contain new variables that do not occur in the upper CSP.
+
+A rule is **equivalence preserving** when
+
+$$
+\operatorname{Sol}(\phi)
+=
+\operatorname{Sol}(\psi)\big|_{FV(\phi)}.
+$$
+
+The restriction is essential because $\psi$ may introduce auxiliary variables. The transformed CSP can therefore have assignments over a larger variable set, while its projections onto the original variables must coincide with the original solutions.
+
+```{mermaid}
+%%| fig-cap: "Meaning of an equivalence-preserving propagation rule."
+flowchart LR
+    A["Solutions of phi"] --> O["Assignments on original variables"]
+    B["Solutions of psi"] --> R["Restrict to FV(phi)"]
+    R --> O
+```
+
+# Families of propagation rules
+
+The lecture classifies proof rules into three families:
+
+1. domain reduction rules;
+2. transformation rules;
+3. introduction rules.
+
+| Rule family | Main operation | Existing domains reduced? | New variables possible? | New constraints possible? |
+|---|---|---:|---:|---:|
+| Domain reduction | Remove unsupported values | Yes | No | Constraints are restricted or simplified |
+| Transformation | Replace constraints by an equivalent formulation | No, by this rule family | Yes | Yes |
+| Introduction | Add an implied constraint | No | Not required | Yes |
+
+# Domain reduction rules
+
+A domain reduction rule exploits the constraints to shrink variable domains. Write
+
+$$
+\phi=\langle C;D\rangle
+$$
+
+and
+
+$$
+\psi=\langle C';D'\rangle.
+$$
+
+If
+
+$$
+D=\{X_1\in D_1,\ldots,X_k\in D_k\}
+$$
+
+and
+
+$$
+D'=\{X_1\in D'_1,\ldots,X_k\in D'_k\},
+$$
+
+then
+
+$$
+D'_i\subseteq D_i
+$$
+
+for every $i$. The constraints in $C'$ are restrictions of the original constraints to the smaller domains.
+
+A constraint may become redundant after filtering and can then be removed. For example, after a domain has been restricted, a constraint may simplify to something that is always true on the remaining values. If every constraint becomes redundant, the domains alone represent all remaining solutions.
+
+If some domain becomes empty,
+
+$$
+D'_i=\varnothing,
+$$
+
+then the transformed CSP is
+
+$$
+\mathit{fail}.
+$$
+
+## Example: propagating $X<Y$
+
+Start with
+
+$$
+\langle X<Y;
+X\in5..15,
+Y\in0..10\rangle.
+$$
+
+For $X$ to have a supporting value in $Y$'s domain, $X$ cannot exceed $9$. For $Y$ to have a supporting value in $X$'s domain, $Y$ must be at least $6$. Propagation therefore yields
+
+$$
+\langle X<Y;
+X\in5..9,
+Y\in6..10\rangle.
+$$
+
+The relation represented by the remaining values is
+
+$$
+\begin{aligned}
+\{&(5,6),(5,7),(5,8),(5,9),(5,10),\\
+&(6,7),(6,8),(6,9),(6,10),\\
+&(7,8),(7,9),(7,10),\\
+&(8,9),(8,10),(9,10)\}.
+\end{aligned}
+$$
+
+Every retained value participates in at least one admitted pair.
+
+# Transformation rules
+
+Transformation rules replace or simplify constraints without reducing the domains of existing variables. They may introduce new variables with non-empty domains, and they may detect failure.
+
+A representative transformation is
+
+$$
+\langle e_1\neq e_2;D\rangle
+\quad\longrightarrow\quad
+\langle X=e_1,\ X\neq e_2;
+D,\ X\in\mathbb Z\rangle.
+$$
+
+The auxiliary variable $X$ names expression $e_1$. The new formulation has a larger variable set, so equivalence is stated after restricting solutions back to the original variables.
+
+::: {.callout-note title="Why equivalence preserving is the correct notion"}
+The transformed CSP need not be literally identical to the original CSP and may contain additional variables. What must remain unchanged is the set of solutions observed on the variables of the original problem.
+:::
+
+# Introduction rules
+
+An introduction rule adds a new constraint that is already logically implied by the current problem:
+
+$$
+\langle C;D\rangle
+\quad\longrightarrow\quad
+\langle C,c;D\rangle.
+$$
+
+The new constraint does not change the solution set, but a simpler implied constraint may make subsequent domain filtering more effective.
+
+## Example over the real numbers
+
+Consider
+
+$$
+X^2-2XY+Y^2<5,
+\qquad
+X>0,
+\qquad
+Y>0.
+$$
+
+Since
+
+$$
+X^2-2XY+Y^2=(X-Y)^2,
+$$
+
+we have
+
+$$
+(X-Y)^2<5.
+$$
+
+The lecture adds the weaker but simpler implied constraint
+
+$$
+X-Y<3.
+$$
+
+This does not add new semantic information, because it follows from the original inequality, but the simpler constraint can help later propagation.
+
+# Propagation derivations and outcomes
+
+Repeated application of domain reduction, transformation, and introduction rules is called **constraint propagation**.
+
+A **derivation** is a sequence of rule applications, with suitable renaming when rules introduce fresh variables.
+
+A finite derivation is:
+
+- **failing** if its final CSP is $\mathit{fail}$;
+- **stable** if it does not fail and no rule can further change the final CSP;
+- **successful** if it is stable and the final constraints are in solved form.
+
+As a meta-requirement, propagation must be computationally efficient, normally polynomial time with a low degree. Its role is to simplify the problem repeatedly, not to perform an unrestricted exponential search at every node.
+
+# Local consistency
+
+Local consistency properties describe limited forms of consistency that can be checked efficiently. Achieving a local consistency property can rule out many impossible values, but it does not necessarily decide whether the complete CSP has a solution.
+
+# Node consistency
+
+A CSP is **node consistent** if, for every variable $X$, every unary constraint on $X$ has already been incorporated into the domain of $X$.
+
+## Examples
+
+The CSP
+
+$$
+\langle X_1\geq0,
+X_2\geq0;
+X_1\in\mathbb N,
+X_2\in\mathbb N\rangle
+$$
+
+is node consistent because the natural-number domains already satisfy the unary lower bounds.
+
+The CSP
+
+$$
+\langle X_1\geq5,
+X_2\geq1;
+X_1\in\mathbb N,
+X_2\in\mathbb N\rangle
+$$
+
+is not node consistent, although it is consistent: it admits solutions, but the domains have not yet been restricted to the unary constraints.
+
+The CSP
+
+$$
+\langle X_1\neq X_2,
+X_1=0,
+X_2=0;
+X_1\in0..0,
+X_2\in0..0\rangle
+$$
+
+is node consistent because the unary equalities coincide with the singleton domains. Nevertheless, it is inconsistent because the binary disequality cannot be satisfied.
+
+::: {.callout-important title="Local consistency is not global consistency"}
+Node consistency considers unary constraints only. A node-consistent CSP may still be unsatisfiable because a binary or higher-arity constraint produces a contradiction.
+:::
+
+## Achieving node consistency
+
+To achieve node consistency, each unary constraint must be incorporated
+into the domain of the variable on which it is defined.
+
+Let \(u\) be a unary constraint on variable \(X\), and let \(D_X\) be
+the current domain of \(X\). The corresponding domain-reduction rule is
+
+$$
+\langle u; X\in D_X\rangle
+\quad\longrightarrow\quad
+\langle u; X\in D_X\cap u\rangle.
+$$
+
+Here, the unary constraint \(u\) can be viewed as the set of values that
+it permits. Therefore,
+
+$$
+D_X\cap u
+$$
+
+contains exactly the values that:
+
+1. already belong to the current domain \(D_X\); and
+2. satisfy the unary constraint \(u\).
+
+For example, consider
+
+$$
+X\in\{1,2,3,4,5\}
+$$
+
+and the unary constraint
+
+$$
+X\geq3.
+$$
+
+The constraint admits the values
+
+$$
+u=\{3,4,5,\ldots\}.
+$$
+
+After intersecting the domain with the constraint, we obtain
+
+$$
+D_X\cap u
+=
+\{1,2,3,4,5\}\cap\{3,4,5,\ldots\}
+=
+\{3,4,5\}.
+$$
+
+The values \(1\) and \(2\) are removed because they cannot satisfy the
+unary constraint.
+
+### Complexity of achieving node consistency
+
+Let
+
+$$
+c=|C|
+$$
+
+be the total number of constraints in the CSP, and let
+
+$$
+d=\max_i |D_i|
+$$
+
+be the size of the largest variable domain.
+
+The notation
+
+$$
+O(cd)
+$$
+
+is an asymptotic upper bound on the running time. It means that, in the
+worst case, the amount of work grows proportionally to the product of:
+
+- the number \(c\) of constraints that must be examined; and
+- the maximum number \(d\) of domain values that may need to be checked
+  for each constraint.
+
+For one unary constraint on a variable \(X\), the algorithm may need to
+inspect every value in \(D_X\) to determine whether that value satisfies
+the constraint. Since
+
+$$
+|D_X|\leq d,
+$$
+
+processing one unary constraint requires at most \(d\) value checks.
+Its worst-case cost is therefore
+
+$$
+O(d).
+$$
+
+If there are at most \(c\) constraints to examine, and each one may
+require up to \(d\) checks, the total number of checks is bounded by
+
+$$
+c\cdot d.
+$$
+
+Therefore, the overall worst-case running time is
+
+$$
+\boxed{O(cd)}.
+$$
+
+For example, if the CSP contains \(c=10\) unary constraints and every
+domain contains at most \(d=20\) values, a direct implementation performs
+at most approximately
+
+$$
+10\cdot20=200
+$$
+
+constraint-value checks, ignoring constant implementation costs.
+
+::: {.callout-note title="Meaning of big-O notation"}
+The expression \(O(cd)\) does not mean that the algorithm always performs
+exactly \(cd\) operations. It describes how the worst-case running time
+grows as the input becomes larger.
+
+Constant factors and lower-order terms are omitted. For example, running
+times such as
+
+$$
+2cd,\qquad 5cd+c,\qquad cd+3d
+$$
+
+are all represented asymptotically as
+
+$$
+O(cd),
+$$
+
+because the product \(cd\) determines the dominant growth when the
+numbers of constraints and domain values increase.
+:::
+
+### Why the process terminates
+
+Node-consistency rules only remove values from domains:
+
+$$
+D'_X\subseteq D_X.
+$$
+
+They never reintroduce a value that has already been removed. Domain
+reduction is therefore **monotone**.
+
+Since every domain is finite, only finitely many values can be removed.
+The process must eventually reach a state in which no unary constraint
+can remove any additional value. At that point, the CSP is node
+consistent.
+
+Because each unary constraint acts only on the domain of its own
+variable, the order in which the node-consistency rules are applied does
+not affect the final reduced domains.
+
+# Arc consistency
+
+Let $c$ be a binary constraint on variables $X$ and $Y$ with domains $D_X$ and $D_Y$. The constraint is **arc consistent** if both directions have support:
+
+1. for every $a\in D_X$, there exists $b\in D_Y$ such that $(a,b)\in c$;
+2. for every $b\in D_Y$, there exists $a\in D_X$ such that $(a,b)\in c$.
+
+A value that has such a matching value is said to have a **support** in the neighbouring domain. A CSP is arc consistent if all its binary constraints are arc consistent.
+
+The terminology comes from the constraint graph:
+
+- nodes represent variables;
+- an edge or pair of directed arcs represents a binary constraint.
+
+```{mermaid}
+%%| fig-cap: "A binary constraint gives two support directions in the constraint graph."
+flowchart LR
+    X["X with domain DX"] -->|"every a needs support b"| Y["Y with domain DY"]
+    Y -->|"every b needs support a"| X
+```
+
+## Example: a consistent but non-arc-consistent CSP
+
+Consider
+
+$$
+\langle X<Y;
+X\in5..10,
+Y\in3..7\rangle.
+$$
+
+The CSP is consistent because, for example, $(5,6)$ is a solution. It is not arc consistent:
+
+- $X=7,8,9,10$ have no larger supporting value in $D_Y$;
+- $Y=3,4,5$ have no smaller supporting value in $D_X$.
+
+Arc-consistency filtering reduces the domains to
+
+$$
+X\in5..6,
+\qquad
+Y\in6..7.
+$$
+
+## Arc consistency does not imply satisfiability
+
+Consider
+
+$$
+X\neq Y,
+\qquad
+Y\neq Z,
+\qquad
+X\neq Z
+$$
+
+with
+
+$$
+X,Y,Z\in\{0,1\}.
+$$
+
+Each binary disequality is arc consistent: every value has the opposite value as support in the neighbouring domain. However, three variables cannot be pairwise different using only two values. The complete CSP is therefore inconsistent.
+
+This example shows that arc consistency is local to individual binary constraints. It does not detect every global contradiction.
+
+# Arc-consistency filtering rules
+
+For a binary constraint $c$ on $X$ and $Y$, define
+
+$$
+D'_X
+=
+\{a\in D_X:\exists b\in D_Y\text{ such that }(a,b)\in c\}
+$$
+
+and
+
+$$
+D'_Y
+=
+\{b\in D_Y:\exists a\in D_X\text{ such that }(a,b)\in c\}.
+$$
+
+The two filtering rules are:
+
+$$
+\text{(AC1)}
+\qquad
+\langle c;X\in D_X,Y\in D_Y\rangle
+\longrightarrow
+\langle c;X\in D'_X,Y\in D_Y\rangle,
+$$
+
+and
+
+$$
+\text{(AC2)}
+\qquad
+\langle c;X\in D_X,Y\in D_Y\rangle
+\longrightarrow
+\langle c;X\in D_X,Y\in D'_Y\rangle.
+$$
+
+Without specialised semantic information about $c$, checking support for every value of one domain may require scanning the other domain. A single filtering operation for one binary constraint therefore costs
+
+$$
+O(d^2).
+$$
+
+# The arc-consistency fixpoint
+
+Filtering one domain can invalidate supports that were previously available elsewhere. Arc-consistency rules must therefore be repeated until no domain changes.
+
+```{mermaid}
+%%| fig-cap: "Fixpoint procedure for arc-consistency filtering."
+flowchart TD
+    P["Current CSP P"] --> F["Apply all AC filtering rules"]
+    F --> P2["Obtain P prime"]
+    P2 --> E{"Any domain changed?"}
+    E -->|"yes"| F
+    E -->|"no"| S["Arc-consistency fixpoint"]
+    F --> Q{"Empty domain?"}
+    Q -->|"yes"| FAIL["fail"]
+    Q -->|"no"| P2
+```
+
+The slides use:
+
+- $n$ variables;
+- $c$ constraints;
+- maximum domain size $d$.
+
+One full filtering pass costs on the order of
+
+$$
+O(cd^2).
+$$
+
+At most $nd$ individual domain values can be removed. Using this as an upper bound on the number of effective cycles gives the coarse bound
+
+$$
+O(nd\cdot cd^2)
+=
+O(cnd^3).
+$$
+
+The bound is deliberately conservative. Its purpose is to show that the fixpoint computation remains polynomial.
+
+Because arc-consistency rules only remove values, domain evolution is monotone. Independent of the order in which valid filtering rules are scheduled, the repeated process reaches the same fixpoint.
+
+# Arc consistency on 4-Queens
+
+The lecture applies arc consistency to the 4-Queens CSP:
+
+$$
+X_1,\ldots,X_4,
+\qquad
+D(X_i)=\{1,2,3,4\},
+$$
+
+with horizontal and diagonal constraints
+
+$$
+X_i\neq X_j,
+\qquad
+|X_i-X_j|\neq j-i
+\qquad(i<j).
+$$
+
+The repeated animation frames show domain changes during propagation and should be read as successive states of one reasoning process.
+
+## Branch $X_1=1$: propagation detects failure
+
+After choosing
+
+$$
+D(X_1)=\{1\},
+$$
+
+propagation first removes values attacked by the queen at column $1$, row $1$:
+
+$$
+D(X_2)=\{3,4\},
+\qquad
+D(X_3)=\{2,4\},
+\qquad
+D(X_4)=\{2,3\}.
+$$
+
+Further support checks force
+
+$$
+D(X_2)=\{4\}
+$$
+
+and then
+
+$$
+D(X_3)=\{2\}.
+$$
+
+At this point, the remaining constraints remove the last support for $X_3$, yielding
+
+$$
+D(X_3)=\varnothing.
+$$
+
+The branch becomes $\mathit{fail}$ before a complete assignment is generated.
+
+| Propagation stage | $D(X_1)$ | $D(X_2)$ | $D(X_3)$ | $D(X_4)$ |
+|---|---|---|---|---|
+| After decision | $\{1\}$ | $\{1,2,3,4\}$ | $\{1,2,3,4\}$ | $\{1,2,3,4\}$ |
+| Initial filtering | $\{1\}$ | $\{3,4\}$ | $\{2,4\}$ | $\{2,3\}$ |
+| Further propagation | $\{1\}$ | $\{4\}$ | $\{2,4\}$ | $\{2,3\}$ |
+| More propagation | $\{1\}$ | $\{4\}$ | $\{2\}$ | $\{2,3\}$ |
+| Failure | $\{1\}$ | $\{4\}$ | $\varnothing$ | $\{2,3\}$ |
+
+## Branch $X_1=2$: propagation reaches a solution
+
+Now choose
+
+$$
+D(X_1)=\{2\}.
+$$
+
+Arc-consistency filtering produces
+
+$$
+D(X_2)=\{4\},
+\qquad
+D(X_3)=\{1,3\},
+\qquad
+D(X_4)=\{1,3,4\}.
+$$
+
+Further propagation removes unsupported values:
+
+$$
+D(X_3)=\{1\},
+\qquad
+D(X_4)=\{3,4\},
+$$
+
+and finally
+
+$$
+D(X_4)=\{3\}.
+$$
+
+All domains are singleton, so the solved assignment is
+
+$$
+(X_1,X_2,X_3,X_4)=(2,4,1,3).
+$$
+
+| Propagation stage | $D(X_1)$ | $D(X_2)$ | $D(X_3)$ | $D(X_4)$ |
+|---|---|---|---|---|
+| After decision | $\{2\}$ | $\{1,2,3,4\}$ | $\{1,2,3,4\}$ | $\{1,2,3,4\}$ |
+| Initial filtering | $\{2\}$ | $\{4\}$ | $\{1,3\}$ | $\{1,3,4\}$ |
+| Further propagation | $\{2\}$ | $\{4\}$ | $\{1\}$ | $\{3,4\}$ |
+| Solved form | $\{2\}$ | $\{4\}$ | $\{1\}$ | $\{3\}$ |
+
+The two branches demonstrate why propagation is useful:
+
+- an impossible choice can be rejected without enumerating complete continuations;
+- a promising choice can cause a chain of deterministic reductions that constructs the solution.
+
+# Propagation stress example
+
+The lecture finally considers
+
+$$
+X_1<X_2<X_3<X_4<X_5<X_6<X_7
+$$
+
+with
+
+$$
+D(X_i)=1..7.
+$$
+
+Repeated local filtering gradually tightens lower and upper bounds. Information must travel through the chain one constraint at a time, so several passes are needed before reaching the fixpoint
+
+$$
+D(X_i)=\{i\}
+$$
+
+for every $i=1,\ldots,7$.
+
+The example stresses two points:
+
+1. even simple local rules may need repeated scheduling before information reaches distant variables;
+2. propagation can nonetheless solve the whole instance without branching when the constraints determine a unique assignment.
+
+The deck then proposes observing the same behaviour in MiniZinc. No MiniZinc source file was supplied with this lecture, so the chapter does not invent or claim execution of a model.
+
+# Complexity summary
+
+Using $n$ variables, $c$ constraints, and maximum domain size $d$, the lecture summarises:
+
+| Property | Stated complexity | Main effect |
+|---|---:|---|
+| Node consistency | $O(cd)$ | Incorporate unary constraints into domains |
+| Arc consistency | $O(cnd^3)$ | Repeatedly remove unsupported values from binary constraints |
+
+Arc-consistency rules only reduce domains. The order of rule application is therefore immaterial, and repeated application reaches a unique fixpoint.
+
+# Sources
+
+- Original and annotated slide deck: *03 - 07-10-2026.pdf*.

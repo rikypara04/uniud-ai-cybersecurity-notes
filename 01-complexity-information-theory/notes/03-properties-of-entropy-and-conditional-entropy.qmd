@@ -1,0 +1,839 @@
+---
+title: "Properties of Entropy and Conditional Entropy"
+subtitle: "Lecture 3 - 8 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Basic properties of entropy
+
+Let $X$ be a discrete random variable with finite alphabet $\mathcal{X}$ and probability mass function $p$. Its entropy is
+
+$$
+H(X)=H(p)=-\sum_{x\in\mathcal{X}}p(x)\log_2p(x).
+$$
+
+The lecture studies two fundamental properties of this quantity.
+
+## Non-negativity
+
+Entropy is always non-negative:
+
+$$
+H(p)\geq0.
+$$
+
+For every value $x$ with $p(x)>0$, we have $p(x)\leq1$, hence
+
+$$
+\log_2p(x)\leq0.
+$$
+
+Therefore,
+
+$$
+-p(x)\log_2p(x)\geq0,
+$$
+
+and the sum of these terms cannot be negative.
+
+Moreover,
+
+$$
+H(p)=0
+$$
+
+if and only if there exists a value $x_0\in\mathcal{X}$ such that
+
+$$
+p(x_0)=1.
+$$
+
+Indeed, a term $-p(x)\log_2p(x)$ is zero only when $p(x)=0$ or $p(x)=1$. For the whole sum to be zero, one value must therefore have probability $1$ and all the others probability $0$.
+
+This matches the interpretation of entropy as uncertainty: if $X$ is known in advance with certainty, observing it provides no new information.
+
+## Maximum entropy on a finite alphabet
+
+If the alphabet has size
+
+$$
+|\mathcal{X}|=k,
+$$
+
+then
+
+$$
+H(p)\leq\log_2k.
+$$
+
+Equality holds if and only if $X$ is uniformly distributed:
+
+$$
+p(x)=\frac1k
+\qquad
+\text{for every }x\in\mathcal{X}.
+$$
+
+For the uniform distribution $u=(1/k,\ldots,1/k)$,
+
+$$
+\begin{aligned}
+H(u)
+&=-\sum_{i=1}^{k}\frac1k\log_2\frac1k\\
+&=-k\frac1k\log_2\frac1k\\
+&=\log_2k.
+\end{aligned}
+$$
+
+The uniform distribution is the most uncertain distribution on a fixed alphabet because it gives no preference to any possible value. Any imbalance makes some outcomes more predictable and decreases entropy.
+
+# Why the uniform distribution maximises entropy
+
+The proof in the lecture uses **Jensen's inequality**.
+
+## Concave functions
+
+A function $f$ is concave when, for $a,b$ in its domain and $\lambda\in[0,1]$,
+
+$$
+f\bigl(\lambda a+(1-\lambda)b\bigr)
+\geq
+\lambda f(a)+(1-\lambda)f(b).
+$$
+
+Geometrically, the graph of a concave function lies above the chord joining any two points of the graph.
+
+For a twice differentiable function, the condition
+
+$$
+f''(x)\leq0
+$$
+
+implies concavity. The logarithm is strictly concave because
+
+$$
+\frac{d^2}{dx^2}\log_2x
+=-\frac{1}{x^2\ln2}<0
+\qquad (x>0).
+$$
+
+## Jensen's inequality
+
+For a concave function $f$, values $x_1,\ldots,x_n$, and non-negative weights $\lambda_i$ satisfying $\sum_i\lambda_i=1$, Jensen's inequality states that
+
+$$
+\sum_{i=1}^{n}\lambda_i f(x_i)
+\leq
+f\left(\sum_{i=1}^{n}\lambda_i x_i\right).
+$$
+
+In words:
+
+> The weighted average of the function values is no greater than the function evaluated at the weighted average.
+
+The direction is reversed for convex functions.
+
+## Application to entropy
+
+Let the positive probabilities of $p$ be $p_1,\ldots,p_m$, where $m\leq k$. Write entropy as
+
+$$
+H(p)=\sum_{i=1}^{m}p_i\log_2\frac1{p_i}.
+$$
+
+Apply Jensen's inequality to the concave function $\log_2$, using weights $p_i$ and values $1/p_i$:
+
+$$
+\begin{aligned}
+H(p)
+&=\sum_{i=1}^{m}p_i\log_2\frac1{p_i}\\
+&\leq
+\log_2\left(\sum_{i=1}^{m}p_i\frac1{p_i}\right)\\
+&=\log_2m\\
+&\leq\log_2k.
+\end{aligned}
+$$
+
+Because the logarithm is strictly concave, equality in Jensen's inequality requires all values $1/p_i$ to be equal. Thus all positive probabilities must be equal. Equality with $\log_2k$ additionally requires $m=k$, so
+
+$$
+p_i=\frac1k
+$$
+
+for every value in the alphabet.
+
+This proves both the upper bound and its equality condition.
+
+# Entropy of the animal distribution
+
+The running example uses the species random variable
+
+$$
+X\in\{c,d,f,w\},
+$$
+
+with probability mass function
+
+$$
+p_X=\left(\frac12,\frac14,\frac18,\frac18\right).
+$$
+
+The surprisals of cat, dog, fox and wolf are respectively
+
+$$
+1,\;2,\;3,\;3\text{ bits}.
+$$
+
+Therefore,
+
+$$
+\begin{aligned}
+H(X)
+&=\frac12\cdot1
+ +\frac14\cdot2
+ +\frac18\cdot3
+ +\frac18\cdot3\\
+&=\frac74\\
+&=1.75\text{ bits}.
+\end{aligned}
+$$
+
+Since $X$ has four possible values,
+
+$$
+H(X)\leq\log_2 4=2\text{ bits}.
+$$
+
+The inequality is strict because the species are not uniformly distributed:
+
+$$
+1.75<2.
+$$
+
+For comparison, if all four species had probability $1/4$, the entropy would be exactly $2$ bits.
+
+# Joint entropy
+
+The lecture then considers two discrete random variables:
+
+- $X$, the species of the animal, with alphabet
+  $\mathcal{X}=\{c,d,f,w\}$;
+- $Y$, the sensor output, with alphabet $\mathcal{Y}=\{0,1\}$, where
+  $Y=1$ means alert and $Y=0$ means no alert.
+
+Before defining joint entropy, it is important to distinguish three probability mass functions.
+
+## Joint and marginal probability mass functions
+
+The **joint probability mass function** is
+
+$$
+p_{X,Y}(x,y)=P(X=x,Y=y).
+$$
+
+For a particular pair $(x,y)$, this is the probability that both events occur simultaneously: the species is $x$ and the sensor output is $y$.
+
+The **marginal probability mass function of $X$** is
+
+$$
+p_X(x)=P(X=x)=\sum_{y\in\mathcal{Y}}p_{X,Y}(x,y).
+$$
+
+The variable $Y$ is summed out because only the probability of $X=x$ is required. Similarly, the marginal pmf of $Y$ is
+
+$$
+p_Y(y)=P(Y=y)=\sum_{x\in\mathcal{X}}p_{X,Y}(x,y).
+$$
+
+Thus:
+
+- $p_{X,Y}(x,y)$ refers to one cell of the joint table;
+- $p_X(x)$ refers to the total probability of column $x$;
+- $p_Y(y)$ refers to the total probability of row $y$.
+
+For the running example, the joint distribution is
+
+| $p_{X,Y}(x,y)$ | $X=c$ | $X=d$ | $X=f$ | $X=w$ | $p_Y(y)$ |
+|---|---:|---:|---:|---:|---:|
+| $Y=0$ | $3/8$ | $1/8$ | $0$ | $0$ | $1/2$ |
+| $Y=1$ | $1/8$ | $1/8$ | $1/8$ | $1/8$ | $1/2$ |
+| $p_X(x)$ | $1/2$ | $1/4$ | $1/8$ | $1/8$ | $1$ |
+
+For example,
+
+$$
+p_{X,Y}(c,0)=P(X=c,Y=0)=\frac38.
+$$
+
+The cat marginal is obtained by adding the two cells in the cat column:
+
+$$
+p_X(c)
+=p_{X,Y}(c,0)+p_{X,Y}(c,1)
+=\frac38+\frac18
+=\frac12.
+$$
+
+The no-alert marginal is obtained by adding the first row:
+
+$$
+p_Y(0)
+=\sum_{x\in\mathcal{X}}p_{X,Y}(x,0)
+=\frac38+\frac18+0+0
+=\frac12.
+$$
+
+Therefore, $p_X$ and $p_Y$ are not new unrelated distributions. They are derived from the joint distribution by summing over the variable that is not of interest.
+
+## Deriving the joint-entropy formula
+
+For one outcome $x$ of $X$, the self-information is
+
+$$
+I_X(x)=-\log_2p_X(x).
+$$
+
+The pair $(X,Y)$ is itself a discrete random variable whose possible outcomes are all pairs
+
+$$
+(x,y)\in\mathcal{X}\times\mathcal{Y}.
+$$
+
+The probability of the pair $(x,y)$ is
+
+$$
+p_{X,Y}(x,y)=P(X=x,Y=y).
+$$
+
+Therefore, the self-information obtained when the observed pair is $(x,y)$ is
+
+$$
+I_{X,Y}(x,y)=-\log_2p_{X,Y}(x,y).
+$$
+
+Entropy is the expected self-information. Taking the expectation over every possible pair gives
+
+$$
+\begin{aligned}
+H(X,Y)
+&=\mathbb{E}[I_{X,Y}(X,Y)]\\
+&=\sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}
+  p_{X,Y}(x,y)I_{X,Y}(x,y)\\
+&=-\sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}
+  p_{X,Y}(x,y)\log_2p_{X,Y}(x,y).
+\end{aligned}
+$$
+
+The compact notation
+
+$$
+H(X,Y)=-\sum_{x,y}p(x,y)\log_2p(x,y)
+$$
+
+means exactly the same thing. In that abbreviated expression, $p(x,y)$ stands for the joint pmf $p_{X,Y}(x,y)$, and the sum runs over all pairs $(x,y)$.
+
+The formula is therefore not a separate rule to memorise. It is the ordinary entropy formula applied to the single random object $(X,Y)$.
+
+For the running example, the table contains one non-zero cell of probability $3/8$ and five cells of probability $1/8$. Cells with probability zero contribute zero by the convention $0\log 0=0$. Hence
+
+$$
+\begin{aligned}
+H(X,Y)
+&=-\frac38\log_2\frac38
+  -5\cdot\frac18\log_2\frac18\\
+&=\frac38\log_2\frac83+\frac{15}{8}\\
+&\approx2.406\text{ bits}.
+\end{aligned}
+$$
+
+Joint entropy measures the average information needed to identify both the species and the sensor output.
+
+# Conditional entropy
+
+Suppose that the species value $X=x$ is known. The relevant uncertainty is no longer described by the marginal pmf $p_Y(y)$, but by the **conditional pmf**
+
+$$
+p_{Y\mid X}(y\mid x)
+=P(Y=y\mid X=x)
+=\frac{p_{X,Y}(x,y)}{p_X(x)},
+$$
+
+provided that $p_X(x)>0$.
+
+For this fixed value $x$, the entropy of the conditional distribution is
+
+$$
+H(Y\mid X=x)
+=-\sum_{y\in\mathcal{Y}}
+ p_{Y\mid X}(y\mid x)
+ \log_2p_{Y\mid X}(y\mid x).
+$$
+
+This number answers a specific question:
+
+> After learning that $X=x$, how uncertain is the value of $Y$?
+
+Different values of $x$ may leave different amounts of uncertainty about $Y$. For example, knowing that the animal is a fox may determine the alert completely, while knowing that the animal is a cat may still leave two possible alert values.
+
+## Deriving the average conditional-entropy formula
+
+Before observing $X$, the value $x$ that will occur is not known. Each possible value $x$ occurs with probability $p_X(x)$. Therefore, the overall remaining uncertainty about $Y$ after $X$ is revealed is the weighted average of the separate conditional entropies:
+
+$$
+H(Y\mid X)
+=\sum_{x\in\mathcal{X}}
+ p_X(x)H(Y\mid X=x).
+$$
+
+The weight $p_X(x)$ is necessary because some values of $X$ occur more frequently than others. Without these weights, rare and common cases would incorrectly contribute equally to the average.
+
+Substituting the definition of $H(Y\mid X=x)$ gives
+
+$$
+\begin{aligned}
+H(Y\mid X)
+&=\sum_x p_X(x)
+  \left[-\sum_y p_{Y\mid X}(y\mid x)
+  \log_2p_{Y\mid X}(y\mid x)\right]\\
+&=-\sum_x\sum_y
+  p_X(x)p_{Y\mid X}(y\mid x)
+  \log_2p_{Y\mid X}(y\mid x).
+\end{aligned}
+$$
+
+Using the product rule
+
+$$
+p_X(x)p_{Y\mid X}(y\mid x)=p_{X,Y}(x,y),
+$$
+
+we obtain the equivalent formula
+
+$$
+H(Y\mid X)
+=-\sum_{x\in\mathcal{X}}\sum_{y\in\mathcal{Y}}
+ p_{X,Y}(x,y)
+ \log_2p_{Y\mid X}(y\mid x).
+$$
+
+In compact notation,
+
+$$
+H(Y\mid X)
+=-\sum_{x,y}p(x,y)\log_2p(y\mid x).
+$$
+
+The two formulas express the same idea:
+
+- $\sum_x p_X(x)H(Y\mid X=x)$ emphasises the weighted average over the possible known values of $X$;
+- $-\sum_{x,y}p(x,y)\log_2p(y\mid x)$ expands that average over all joint outcomes.
+
+## Uncertainty of the alert given the species
+
+The conditional alert probabilities can be derived directly from the
+joint probability table shown above.
+
+For each species \(x\), the probability of receiving an alert after
+learning that the observed species is \(x\) is
+
+$$
+P(Y=1\mid X=x)
+=
+\frac{P(X=x,Y=1)}{P(X=x)}
+=
+\frac{p_{X,Y}(x,1)}{p_X(x)}.
+$$
+
+The numerator is the joint probability found in the \(Y=1\) row and in
+the column corresponding to species \(x\). The denominator is the
+marginal probability of that species, shown at the bottom of the same
+column.
+
+For a cat,
+
+$$
+P(Y=1\mid X=c)
+=
+\frac{p_{X,Y}(c,1)}{p_X(c)}
+=
+\frac{1/8}{1/2}
+=
+\frac14.
+$$
+
+For a dog,
+
+$$
+P(Y=1\mid X=d)
+=
+\frac{p_{X,Y}(d,1)}{p_X(d)}
+=
+\frac{1/8}{1/4}
+=
+\frac12.
+$$
+
+For a fox,
+
+$$
+P(Y=1\mid X=f)
+=
+\frac{p_{X,Y}(f,1)}{p_X(f)}
+=
+\frac{1/8}{1/8}
+=
+1.
+$$
+
+Similarly, for a wolf,
+
+$$
+P(Y=1\mid X=w)
+=
+\frac{p_{X,Y}(w,1)}{p_X(w)}
+=
+\frac{1/8}{1/8}
+=
+1.
+$$
+
+Therefore, the complete conditional distributions of \(Y\), written in
+the order \((Y=0,Y=1)\), are
+
+$$
+p_{Y\mid X}(\cdot\mid c)
+=
+\left(\frac34,\frac14\right),
+$$
+
+$$
+p_{Y\mid X}(\cdot\mid d)
+=
+\left(\frac12,\frac12\right),
+$$
+
+and
+
+$$
+p_{Y\mid X}(\cdot\mid f)
+=
+p_{Y\mid X}(\cdot\mid w)
+=
+(0,1).
+$$
+
+Using the binary entropy function
+
+$$
+h(t)
+=
+-t\log_2t-(1-t)\log_2(1-t),
+$$
+
+we obtain
+
+$$
+H(Y\mid X=c)
+=
+h\left(\frac14\right)
+\approx 0.811,
+$$
+
+$$
+H(Y\mid X=d)
+=
+h\left(\frac12\right)
+=
+1,
+$$
+
+and
+
+$$
+H(Y\mid X=f)
+=
+H(Y\mid X=w)
+=
+h(1)
+=
+0.
+$$
+
+The conditional entropy \(H(Y\mid X)\) is the weighted average of these
+four values. Each conditional entropy must be weighted by the marginal
+probability of the corresponding species:
+
+$$
+\begin{aligned}
+H(Y\mid X)
+&=
+p_X(c)H(Y\mid X=c)
++p_X(d)H(Y\mid X=d)\\
+&\quad
++p_X(f)H(Y\mid X=f)
++p_X(w)H(Y\mid X=w)\\
+&=
+\frac12h\left(\frac14\right)
++\frac14h\left(\frac12\right)
++\frac18\cdot0
++\frac18\cdot0\\
+&\approx0.656\text{ bits}.
+\end{aligned}
+$$
+
+Knowing that the animal is a fox or a wolf completely determines the
+sensor output, because the sensor always produces an alert in those
+cases. For cats and dogs, both alert values remain possible, so the
+conditional entropy is positive.
+The conditional alert probabilities are
+
+$$
+P(Y=1\mid X=c)=\frac14,
+\qquad
+P(Y=1\mid X=d)=\frac12,
+$$
+
+and
+
+$$
+P(Y=1\mid X=f)=P(Y=1\mid X=w)=1.
+$$
+
+Using the binary entropy function
+
+$$
+h(t)=-t\log_2t-(1-t)\log_2(1-t),
+$$
+
+we obtain
+
+$$
+H(Y\mid X=c)=h\left(\frac14\right)\approx0.811,
+$$
+
+$$
+H(Y\mid X=d)=h\left(\frac12\right)=1,
+$$
+
+and
+
+$$
+H(Y\mid X=f)=H(Y\mid X=w)=h(1)=0.
+$$
+
+The average conditional entropy is therefore
+
+$$
+\begin{aligned}
+H(Y\mid X)
+&=p_X(c)H(Y\mid X=c)
+ +p_X(d)H(Y\mid X=d)\\
+&\quad +p_X(f)H(Y\mid X=f)
+ +p_X(w)H(Y\mid X=w)\\
+&=\frac12h\left(\frac14\right)
+ +\frac14h\left(\frac12\right)
+ +\frac18\cdot0
+ +\frac18\cdot0\\
+&\approx0.656\text{ bits}.
+\end{aligned}
+$$
+
+Knowing the species does not always determine the alert. The alert remains uncertain for cats and dogs, but it is certain for foxes and wolves.
+
+## Uncertainty of the species given the alert
+
+The conditional distributions of $X$ are
+
+$$
+p_{X\mid Y}(\cdot\mid0)
+=\left(\frac34,\frac14,0,0\right)
+$$
+
+and
+
+$$
+p_{X\mid Y}(\cdot\mid1)
+=\left(\frac14,\frac14,\frac14,\frac14\right).
+$$
+
+Here $p_{X\mid Y}(\cdot\mid0)$ means the entire conditional distribution of $X$ after observing $Y=0$; the dot is a placeholder for all possible values of $X$.
+
+Thus
+
+$$
+H(X\mid Y=0)=h\left(\frac14\right)\approx0.811\text{ bits},
+$$
+
+while
+
+$$
+H(X\mid Y=1)=\log_2 4=2\text{ bits}.
+$$
+
+Since
+
+$$
+p_Y(0)=p_Y(1)=\frac12,
+$$
+
+the average is
+
+$$
+\begin{aligned}
+H(X\mid Y)
+&=\sum_{y\in\{0,1\}}p_Y(y)H(X\mid Y=y)\\
+&=\frac12H(X\mid Y=0)+\frac12H(X\mid Y=1)\\
+&=\frac12\cdot0.811+\frac12\cdot2\\
+&\approx1.406\text{ bits}.
+\end{aligned}
+$$
+
+The two conditional entropies are not equal:
+
+$$
+H(Y\mid X)\approx0.656
+\neq
+H(X\mid Y)\approx1.406.
+$$
+
+They answer different questions. $H(Y\mid X)$ asks how uncertain the alert remains after the species is known. $H(X\mid Y)$ asks how uncertain the species remains after the alert is known.
+
+# Chain rule for entropy
+
+The joint and conditional entropies satisfy
+
+$$
+H(X,Y)=H(X)+H(Y\mid X).
+$$
+
+To understand why, use the product rule
+
+$$
+p(x,y)=p(x)p(y\mid x).
+$$
+
+Taking logarithms turns this product into a sum:
+
+$$
+\log_2p(x,y)
+=\log_2p(x)+\log_2p(y\mid x).
+$$
+
+Multiplying by $-p(x,y)$ and summing over $x$ and $y$ gives
+
+$$
+H(X,Y)=H(X)+H(Y\mid X).
+$$
+
+The chain rule also holds in the other order:
+
+$$
+H(X,Y)=H(Y)+H(X\mid Y).
+$$
+
+For the running example,
+
+$$
+H(X)+H(Y\mid X)
+=1.75+0.656
+=2.406,
+$$
+
+and
+
+$$
+H(Y)+H(X\mid Y)
+=1+1.406
+=2.406.
+$$
+
+Both decompositions equal the directly computed joint entropy.
+
+Operationally, describing the pair $(X,Y)$ requires the same average information as describing $X$ first and then describing $Y$ with $X$ already known.
+
+# Reduction of uncertainty and mutual information
+
+From the chain rule,
+
+$$
+H(X,Y)=H(X)+H(Y\mid X)=H(Y)+H(X\mid Y).
+$$
+
+Rearranging gives
+
+$$
+H(X)-H(X\mid Y)
+=H(Y)-H(Y\mid X).
+$$
+
+In the running example,
+
+$$
+H(X)-H(X\mid Y)
+=1.75-1.406
+=0.344\text{ bits},
+$$
+
+and
+
+$$
+H(Y)-H(Y\mid X)
+=1-0.656
+=0.344\text{ bits}.
+$$
+
+The same reduction appears in both directions. This symmetric quantity is called the **mutual information**:
+
+$$
+I(X;Y)
+=H(X)-H(X\mid Y)
+=H(Y)-H(Y\mid X).
+$$
+
+It measures how much knowing one variable reduces, on average, the uncertainty about the other. Equivalently, it measures how dependent $X$ and $Y$ are: if knowing one variable does not change uncertainty about the other, the mutual information is zero.
+
+The lecture introduces this interpretation without yet developing the broader theory of mutual information.
+
+# A particular observation can increase uncertainty
+
+The average conditional entropy satisfies
+
+$$
+H(X\mid Y)\leq H(X),
+$$
+
+but this does not mean that every individual observation $Y=y$ decreases entropy.
+
+In the example,
+
+$$
+H(X)=1.75\text{ bits},
+$$
+
+whereas after observing an alert,
+
+$$
+H(X\mid Y=1)=2\text{ bits}.
+$$
+
+The alert makes all four species equally likely, so uncertainty increases for this particular observation.
+
+There is no contradiction because the inequality concerns the **average** over all observations:
+
+$$
+H(X\mid Y)
+=\sum_y p_Y(y)H(X\mid Y=y)
+\approx1.406<1.75.
+$$
+
+The no-alert observation reduces uncertainty enough to compensate for the increase caused by the alert observation.
+
+# Sources
+
+- Goodnotes lecture notes: *03 - 08-10-2026.pdf*.
+- Official Teams material: *CIT_Notes_Part2_Information_Measures (1).pdf*, used to verify the entropy properties, Jensen argument, joint and conditional entropy calculations, chain rule, and introductory mutual-information interpretation.
+- Thomas M. Cover and Joy A. Thomas, *Elements of Information Theory*, used only to verify the standard entropy identities and the interpretation of conditional entropy already present in the lecture.

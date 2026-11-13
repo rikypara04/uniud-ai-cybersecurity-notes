@@ -1,0 +1,364 @@
+---
+title: "Scheduling Models, Hamming Codes, and Timetabling"
+subtitle: "Lecture 7 - 21 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Choosing a representation for scheduling
+
+The lecture begins with a general modelling question. Suppose there are $n$ workers, $s$ slots, and constraints governing which assignments are admissible. Before writing constraints, the modeller must decide what the decision variables mean.
+
+Three representations are proposed.
+
+## One variable per worker
+
+Introduce a vector
+
+$$
+w=(w_1,\ldots,w_n),
+\qquad
+w_i\in 1..s,
+$$
+
+where $w_i=j$ means that worker $i$ is assigned to slot $j$.
+
+This uses $n$ integer variables. The assignment of every worker is represented directly. Constraints concerning one worker's admissible slots are usually easy to state, while constraints about the content or capacity of a slot require counting how many variables take a particular value.
+
+## Boolean assignment matrix
+
+Introduce a Boolean matrix
+
+$$
+A\in\{0,1\}^{n\times s},
+$$
+
+where
+
+$$
+A_{i,j}=1
+$$
+
+if and only if worker $i$ is assigned to slot $j$.
+
+Each worker must be assigned exactly once, so every row satisfies
+
+$$
+\sum_{j=1}^{s}A_{i,j}=1.
+$$
+
+The representation uses $ns$ Boolean variables, but worker-slot compatibility, slot loads, and cardinality constraints become explicit sums over rows or columns.
+
+## One variable per slot
+
+If every slot contains at most one worker, introduce
+
+$$
+v=(v_1,\ldots,v_s),
+$$
+
+where $v_j=i$ means that slot $j$ is assigned to worker $i$.
+
+This representation is valid only when a slot cannot contain several workers. The qualification in the slide is important: if workers are replaced by students and a time slot may contain many students, one variable per slot cannot directly store the whole group.
+
+| Representation | Variables | Directly represents | Main limitation |
+|---|---:|---|---|
+| worker vector $w$ | $n$ integers | each worker's slot | slot occupancy requires aggregation |
+| Boolean matrix $A$ | $ns$ Booleans | every worker-slot decision | larger model |
+| slot vector $v$ | $s$ integers | each slot's worker | requires at most one worker per slot |
+
+There is no universally best representation. The best choice depends on the cardinalities and on which constraints must be expressed most often or propagate most effectively.
+
+# Telethon runner assignment
+
+The Telethon example has $n$ runners and $n$ slots. Every runner must receive exactly one slot. For each runner, the slots are classified as:
+
+- **good**;
+- **acceptable if needed**;
+- **impossible**.
+
+The objective is to minimise the number of acceptable-but-not-good assignments, while impossible assignments are forbidden.
+
+A useful cost matrix is
+
+$$
+c_{i,j}=
+\begin{cases}
+0, & \text{slot $j$ is good for runner $i$},\\
+1, & \text{slot $j$ is acceptable for runner $i$},\\
+\text{forbidden}, & \text{slot $j$ is impossible for runner $i$}.
+\end{cases}
+$$
+
+The deck announces two alternative encodings. They correspond naturally to the general representations introduced above.
+
+## Runner-to-slot encoding
+
+Let $w_i$ be the slot assigned to runner $i$. Then:
+
+- $w_i$ is restricted to the non-impossible slots of runner $i$;
+- all runners must receive different slots, normally through `all_different(w)`;
+- the objective counts the runners whose selected slot is merely acceptable.
+
+Conceptually,
+
+$$
+\min \sum_{i=1}^{n}[c_{i,w_i}=1],
+$$
+
+where $[P]$ is $1$ when proposition $P$ is true and $0$ otherwise.
+
+## Boolean-matrix encoding
+
+Let $A_{i,j}=1$ mean that runner $i$ receives slot $j$. The constraints are
+
+$$
+\sum_{j=1}^{n}A_{i,j}=1
+\quad\text{for every runner }i,
+$$
+
+$$
+\sum_{i=1}^{n}A_{i,j}=1
+\quad\text{for every slot }j,
+$$
+
+and
+
+$$
+A_{i,j}=0
+$$
+
+for every impossible pair. The objective is
+
+$$
+\min\sum_{i=1}^{n}\sum_{j=1}^{n}c_{i,j}A_{i,j},
+$$
+
+with forbidden pairs already removed by constraints.
+
+The vector model is compact; the matrix model makes assignment and objective contributions explicit. Both encode the same matching problem.
+
+# Knapsack as a modelling comparison
+
+The slides refer to two MiniZinc versions of knapsack. The modelling distinction mirrors the scheduling discussion.
+
+Suppose object $i$ has weight $w_i$, profit $p_i$, and capacity is $C$.
+
+## Boolean selection
+
+For a 0-1 knapsack, let $x_i\in\{0,1\}$ indicate whether object $i$ is selected:
+
+$$
+\sum_i w_i x_i\le C,
+\qquad
+\max\sum_i p_i x_i.
+$$
+
+## Bounded quantities
+
+If several copies are allowed, let $x_i$ be the quantity selected, with a domain reflecting the available stock:
+
+$$
+x_i\in 0..u_i.
+$$
+
+The same capacity and profit expressions apply. The domain now changes the problem from selection to bounded allocation.
+
+The lecture only points to the MiniZinc code; no separate `.mzn` source was supplied with this deck, so this chapter preserves the mathematical structure without inventing lecturer code.
+
+# Why error-correcting codes are needed
+
+A binary encoding associates a bit word with every message symbol. If one transmitted bit changes, the received word may become another valid word and therefore represent incorrect information.
+
+For example, the ASCII word for `A` is shown as
+
+$$
+01000001.
+$$
+
+A single changed bit may produce another pattern. A naïve parity bit can detect an odd number of bit errors, including one error, but does not identify which bit must be corrected. Two errors may preserve parity and remain undetected.
+
+Error-correcting codes solve this problem by introducing deliberate redundancy. Valid codewords are placed sufficiently far apart that a corrupted word can still be associated unambiguously with the intended word.
+
+# Hamming distance
+
+For two binary words $x,y\in\{0,1\}^n$, their Hamming distance is
+
+$$
+d_H(x,y)=\sum_{r=1}^{n}[x_r\ne y_r].
+$$
+
+It is the number of positions at which the two words differ.
+
+The lecture illustrates four six-bit words:
+
+| Symbol | Codeword |
+|---|---|
+| A | `000000` |
+| C | `000111` |
+| T | `111000` |
+| G | `101101` |
+
+Every pair differs in at least three positions. Consequently, a received word containing one error remains closer to the original codeword than to every other valid codeword.
+
+## Detection and correction rule
+
+Let $d$ be the minimum Hamming distance between distinct codewords.
+
+- If $d=2t+1$, the code can always correct up to $t$ errors.
+- If $d=2t$, the code can correct up to $t-1$ errors and detect $t$ errors.
+
+The reason is geometric. Correcting $t$ errors requires the radius-$t$ Hamming balls around codewords to be disjoint. Two such balls are guaranteed not to overlap when the centres are at least $2t+1$ apart.
+
+# Hamming-code construction as a CSP
+
+The CSP stated in the lecture is:
+
+> Given integers $n$, $k$, and $d$, find, if possible, $k$ binary words of length $n$ whose pairwise Hamming distance is at least $d$.
+
+Introduce a Boolean matrix
+
+$$
+X\in\{0,1\}^{k\times n},
+$$
+
+where row $i$ is codeword $i$. For all rows $i<j$ impose
+
+$$
+\sum_{r=1}^{n}[X_{i,r}\ne X_{j,r}]\ge d.
+$$
+
+The example mentioned in the slides has
+
+$$
+n=25,
+\qquad
+k=29,
+$$
+
+while the target $d$ is to be determined. The slide associates the example with industrial signalling in steel plants.
+
+## Symmetry breaking
+
+The slide explicitly points to symmetry-breaking optimisations. Several transformations preserve all pairwise Hamming distances:
+
+- permuting the $k$ codewords;
+- permuting the $n$ bit positions;
+- complementing one bit position in every codeword.
+
+Therefore, without loss of generality, one may fix the first word to all zeroes:
+
+$$
+X_{1,r}=0
+\qquad\text{for every }r.
+$$
+
+This removes the global bit-complement symmetry. Ordering the binary values represented by the rows can also remove word-permutation symmetry. These constraints do not exclude essentially different codes; they select canonical representatives from symmetric families.
+
+::: {.callout-note title="What symmetry breaking changes"}
+Symmetry breaking reduces repeated search over equivalent codes. It does not increase the achievable minimum distance and does not change whether a code exists, provided the chosen symmetry-breaking conditions are valid representatives of the true symmetries.
+:::
+
+# Timetabling
+
+The timetabling problem contains:
+
+- a set of courses;
+- a set of weekly periods;
+- a set of rooms;
+- the exact number of periods required by each course;
+- a Boolean conflict matrix between pairs of courses;
+- a Boolean availability matrix that states whether a course, or its teacher, can be assigned to a period.
+
+A direct Boolean representation is
+
+$$
+X_{c,p,r}\in\{0,1\},
+$$
+
+where $X_{c,p,r}=1$ means that course $c$ is held in period $p$ and room $r$.
+
+The principal constraint families are:
+
+## Required periods
+
+If course $c$ requires $h_c$ periods,
+
+$$
+\sum_{p,r}X_{c,p,r}=h_c.
+$$
+
+## Room occupancy
+
+At most one course can use one room in one period:
+
+$$
+\sum_c X_{c,p,r}\le1
+\qquad\text{for every }p,r.
+$$
+
+## Course conflicts
+
+If `conflict[c,d] = 1`, the two courses cannot occur simultaneously:
+
+$$
+\sum_rX_{c,p,r}+\sum_rX_{d,p,r}\le1
+\qquad\text{for every }p.
+$$
+
+## Availability
+
+If course $c$ is unavailable in period $p$,
+
+$$
+X_{c,p,r}=0
+\qquad\text{for every room }r.
+$$
+
+The precise variable representation may be changed, but every correct model must preserve these four ideas. The deck refers to MiniZinc code, but no authoritative code file accompanies these slides, so no unverified implementation is reproduced.
+
+# Exercise: organising a sports tournament
+
+The final slide asks for a MiniZinc model of a tournament.
+
+The input contains:
+
+- a set of players;
+- a set of periods organised into days;
+- the distance in days between periods;
+- each player's available periods;
+- a minimum team size $k$.
+
+The model has two connected decisions:
+
+1. divide players into teams;
+2. schedule exactly one match between two teams in every used period.
+
+The schedule must satisfy:
+
+- every pair of teams plays exactly once;
+- every team has at least three free days between consecutive matches;
+- players assigned to the two teams in a period must be available then.
+
+A possible primary objective is to minimise the ending day of the tournament.
+
+The extension adds player roles, such as goalkeeper, defender, or forward. Some players may support several roles. The new objective minimises the number of players assigned outside their preferred role.
+
+```{mermaid}
+%%| fig-cap: "The exercise couples team formation with match scheduling; availability and rest constraints connect the two decisions."
+flowchart LR
+    P["Players and roles"] --> T["Form teams"]
+    A["Player availability"] --> S["Schedule matches"]
+    T --> S
+    S --> R["Round-robin and rest constraints"]
+    R --> O["Minimise ending day or role mismatches"]
+```
+
+The important modelling difficulty is that team formation and scheduling cannot be solved independently: changing a team's members changes that team's feasible periods.
+
+# Sources
+
+- Original lecture slide deck: `07 - 21-10-2026.pdf`. Used for the lecture sequence, three scheduling representations, Telethon specification, Hamming examples and rule, Hamming-code CSP, timetabling data, and tournament exercise.

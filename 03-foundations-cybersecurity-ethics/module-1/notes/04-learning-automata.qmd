@@ -1,0 +1,389 @@
+---
+title: "Learning Automata and Sequential Transducers"
+subtitle: "Module 1 - Deck 4: Learning Automata"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+<style>
+.formula-scroll {
+  max-width: 100%; overflow-x: auto; overflow-y: hidden;
+  padding: 0.75rem 1rem; margin: 1rem 0;
+  border: 1px solid #d0d7de; border-radius: 0.5rem;
+  background: rgba(127,127,127,0.06); -webkit-overflow-scrolling: touch;
+}
+.formula-scroll .MathJax_Display { min-width: max-content; margin: 0; }
+</style>
+
+# Learning structured behaviours
+
+## Automata as learnable models
+
+The deck introduces automata learning as a supervised-learning problem in which the examples are structured objects, typically words $w\in\Sigma^*$, and the target is a regular language. A regular language can be represented by its characteristic function
+
+$$
+f:\Sigma^*\longrightarrow\{0,1\}.
+$$
+
+The comparison with neural networks is conceptual. A neural network is presented as learning a complex function over comparatively simple numerical data while its architecture is fixed in advance. In automata learning, inputs such as words are structurally rich, the target function is regular, and the learner must infer the automaton's states and transitions. The learned result is therefore an explicit behavioural model rather than only a classifier.
+
+| Aspect | Neural-network example in the deck | Automata-learning example |
+|---|---|---|
+| Input | vector $\bar x\in\mathbb R^k$ | word $w\in\Sigma^*$ |
+| Target | complex classifier, such as recognising dogs | regular language $L\subseteq\Sigma^*$ |
+| Structure | architecture fixed before training | states and transitions inferred |
+
+## Passive and active learning
+
+In **passive learning**, the learner receives labelled examples chosen in advance. In **active learning**, the learner chooses queries and uses the answers to decide what information to request next. Active learning can be more efficient because each query can target a current uncertainty, but it can be less practical because it requires an entity capable of answering those queries.
+
+The historical path shown in the deck starts with Moore's 1956 thought experiments on sequential machines, continues with Gold's learning in the limit and Angluin's 1987 active query framework, and then branches into PAC learning and cryptographic hardness, regular $\omega$-languages, word and tree transformations, weighted automata, infinite alphabets, timed languages, and spectral techniques. These later entries establish the breadth of the area; the chapter follows the deck by concentrating on active learning of regular languages and its extension to sequential transducers.
+
+# Learning a regular language as a game
+
+## Teacher, learner, and query types
+
+The teacher has a secret regular language $L_0\subseteq\Sigma^*$, represented conceptually by a target DFA $A_0$. The learner initially knows only the alphabet $\Sigma$ and may ask two kinds of questions.
+
+| Query | Learner asks | Teacher returns |
+|---|---|---|
+| Membership | “Is $w\in L_0$?” | yes or no |
+| Equivalence | “Is $L(A)=L_0$?” | yes, or a counterexample in the symmetric difference |
+
+For an incorrect hypothesis $A$, the counterexample belongs to
+
+::: {.formula-scroll}
+$$
+(L_0\setminus L(A))\cup(L(A)\setminus L_0).
+$$
+:::
+
+It is therefore a word on which the target and the candidate disagree. The slides allow the teacher to return a shortest counterexample, which is particularly informative because it localises the earliest observable failure of the candidate.
+
+```{mermaid}
+%%| fig-cap: "Active automata learning as an interaction between learner and teacher."
+flowchart LR
+  L["Learner"] -->|"membership query w"| T["Teacher for L0"]
+  T -->|"yes or no"| L
+  L -->|"equivalence query A"| T
+  T -->|"yes"| D["Learning terminates"]
+  T -->|"counterexample w"| L
+```
+
+Membership queries alone cannot guarantee exact identification after finitely many questions: any finite set of observed words leaves infinitely many unqueried words on which another regular language might differ. Equivalence queries force global progress by returning a discrepancy whenever the hypothesis is wrong. Angluin's result states that the learner has a winning strategy whose number of query rounds is polynomial in the size of the target automaton $A_0$. The deck identifies this strategy with the $L^*$ algorithm.
+
+## Minimally adequate teachers and black-box learning
+
+The idealised interface is called a **minimally adequate teacher** (MAT). Exact equivalence queries can be unrealistic. If the teacher already possesses the complete target automaton, directly transferring it would be simpler than testing hypotheses. In black-box learning, equivalence is approximated through experiments, test suites, or repeated membership queries. The current hypothesis is retained while tested behaviours agree with the black box.
+
+This substitution is practical but weakens the guarantee. Passing a finite test suite establishes agreement only on that suite, not language equivalence. A missed behaviour can produce a later counterexample.
+
+The parking-machine illustration uses inputs such as $5\,\text{¢}$, $10\,\text{¢}$, and the production of a parking ticket. By submitting sequences of inputs and observing outputs or acceptance, the learner reconstructs a behavioural model without inspecting the implementation. The applications named in the deck are:
+
+- system identification and diagram inference in control theory;
+- model learning for verification, in contrast with checking an already supplied model;
+- grammar inference and regular extrapolation;
+- protocol-state fuzzing in security.
+
+# Myhill-Nerode equivalence as the basis of learning
+
+## The true equivalence
+
+For the target language $L_0$, define
+
+::: {.formula-scroll}
+$$
+u\sim_{L_0}v
+\quad\Longleftrightarrow\quad
+\forall t\in\Sigma^*\;
+(ut\in L_0\iff vt\in L_0).
+$$
+:::
+
+Two prefixes are equivalent when every continuation gives the same membership result. They therefore have the same future behaviour and may be represented by the same DFA state.
+
+The relation has three properties emphasised in the deck:
+
+1. it refines the coarse partition into words inside and outside $L_0$ because the empty continuation $\varepsilon$ is permitted;
+2. it is right-invariant:
+   $$u\sim_{L_0}v\Longrightarrow ua\sim_{L_0}va;$$
+3. it has finite index exactly when $L_0$ is regular.
+
+The states of the minimal DFA correspond to the equivalence classes $[u]_{\sim_{L_0}}$. Its transition on $a$ sends $[u]$ to $[ua]$, and right invariance makes this definition independent of the chosen representative.
+
+## Approximation by a finite test set
+
+The learner cannot quantify over all continuations. It maintains a finite test set $T\subseteq\Sigma^*$ and uses
+
+::: {.formula-scroll}
+$$
+u\approx_{L_0,T}v
+\quad\Longleftrightarrow\quad
+\forall t\in T\;
+(ut\in L_0\iff vt\in L_0).
+$$
+:::
+
+Because $T$ contains only some continuations, $\approx_{L_0,T}$ is coarser than $\sim_{L_0}$: distinct true states may initially appear equal. Adding tests can split an approximate class, but it cannot merge classes already distinguished.
+
+The learner also maintains a finite set $S\subseteq\Sigma^*$ of state representatives.
+
+- $S$ is **$T$-minimal** when different representatives have different rows over $T$:
+
+  $$
+  \forall s\ne s'\in S\qquad s\not\approx_{L_0,T}s'.
+  $$
+
+- $S$ is **$T$-complete** when every one-letter extension is represented:
+
+::: {.formula-scroll}
+$$
+\forall s\in S\;\forall a\in\Sigma\;\exists s'\in S
+\qquad s'\approx_{L_0,T}sa.
+$$
+:::
+
+Minimality guarantees uniqueness of the representative $s'$; completeness guarantees existence. Together, they make the candidate transition function well-defined.
+
+# Constructing and refining the candidate DFA
+
+## Candidate construction
+
+Start from
+
+$$
+S=T=\{\varepsilon\}.
+$$
+
+While $S$ is not $T$-complete, choose $s\in S$ and $a\in\Sigma$ whose extension $sa$ has no equivalent representative, and add $sa$ to $S$. Once the table is minimal and complete, construct the DFA $A$ as follows:
+
+- state set: $S$;
+- initial state: $\varepsilon$;
+- accepting states: those $s\in S$ for which the membership query on $s$ returns yes;
+- transition:
+  $$
+  \delta(s,a)=s',
+  $$
+  where $s'$ is the unique representative satisfying $s'\approx_{L_0,T}sa$.
+
+The candidate is then submitted in an equivalence query. If the answer is yes, learning terminates. If the teacher returns a counterexample $w$, the algorithm adds all suffixes of $w$ to $T$ and restores completeness.
+
+```text
+S := {ε}; T := {ε}
+repeat
+  while S is not T-complete do
+    choose s in S and a in Σ with no representative for sa
+    S := S ∪ {sa}
+  construct candidate DFA A from (S,T)
+  if Equivalence(A) then return A
+  else
+    obtain counterexample w
+    T := T ∪ {suffixes of w}
+```
+
+## Why a counterexample forces progress
+
+Let
+
+$$
+w=a_1\cdots a_n
+$$
+
+be a counterexample, let $t_i=a_{i+1}\cdots a_n$ be its suffixes, and let $s_i$ be the candidate state reached after reading the prefix $a_1\cdots a_i$. Assume, for contradiction, that adding all $t_i$ leaves $S$ complete. Using the definition of transitions and the new tests, one proves inductively that
+
+$$
+w\in L_0\iff s_i t_i\in L_0
+$$
+
+for each $i$, and ultimately that
+
+$$
+w\in L_0\iff w\in L(A).
+$$
+
+This contradicts the fact that $w$ is a counterexample. Hence the refined test set makes the current state set incomplete, so the next iteration adds a new representative. Since distinct representatives correspond to distinct true Myhill-Nerode classes, $S$ cannot grow beyond the index of $\sim_{L_0}$. When that index is reached, the target minimal DFA has been recovered.
+
+::: {.callout-important}
+The counterexample is not simply stored as another labelled sample. Its suffixes are added as experiments that reveal which previously merged prefixes have different futures.
+:::
+
+# The Hankel-matrix view
+
+## Rows as behaviours and columns as tests
+
+The language Hankel matrix is the infinite Boolean matrix
+
+$$
+H\in\{0,1\}^{\Sigma^*\times\Sigma^*}
+$$
+
+with
+
+$$
+H(s,t)=\operatorname{Membership}(st).
+$$
+
+Rows are indexed by prefixes and columns by continuation tests. Two complete rows are equal exactly when their prefixes are Myhill-Nerode equivalent. Restricting a row to the columns in $T$ yields the approximate equivalence $\approx_{L_0,T}$.
+
+| Matrix object | Learning interpretation |
+|---|---|
+| row indexed by $s$ | future behaviour after prefix $s$ |
+| column indexed by $t$ | continuation experiment $t$ |
+| equal full rows | same $\sim_{L_0}$ class |
+| equal subrows over $T$ | same $\approx_{L_0,T}$ class |
+| selected rows $S$ | candidate states |
+| selected columns $T$ | current distinguishing tests |
+
+The algorithm can therefore be read geometrically. It chooses enough rows to make the observed table closed under one-letter extensions, constructs a hypothesis from those rows, and uses counterexamples to add columns. New columns split rows that were falsely identified.
+
+The progressive example begins with $S=T=\{\varepsilon\}$, expands $S$ to obtain completeness, and builds an initial automaton. The counterexample $w=aba$ adds
+
+$$
+\{\varepsilon,a,ba,aba\}
+$$
+
+to the test set. These columns reveal another distinct row, so $S$ grows to include a new representative such as $ab$. The rebuilt automaton then reflects the finer behavioural partition.
+
+```{mermaid}
+%%| fig-cap: "Mutual refinement of representatives and experiments in the Hankel table."
+flowchart LR
+  ST["Finite table (S,T)"] --> C{"T-complete?"}
+  C -->|"no"| R["Add a representative to S"]
+  R --> ST
+  C -->|"yes"| A["Build candidate automaton"]
+  A --> E{"Equivalent to target?"}
+  E -->|"yes"| F["Return learned DFA"]
+  E -->|"no"| X["Add counterexample suffixes to T"]
+  X --> ST
+```
+
+# From languages to word functions
+
+## Sequential transducers
+
+Automata can also represent functions
+
+$$
+f:\Sigma^*\longrightarrow\Gamma^*.
+$$
+
+The deck uses a **sequential transducer**
+
+$$
+A=(\Sigma,\Gamma,Q,q_0,\delta)
+$$
+
+with
+
+$$
+\delta:Q\times\Sigma\longrightarrow Q\times\Gamma^*.
+$$
+
+A transition consumes one input letter, changes state, and appends a finite output word. Concatenating transition outputs along the unique run gives the value of the function.
+
+The functions considered are total and **monotone** with respect to the prefix order:
+
+$$
+w\preceq w'\Longrightarrow f(w)\preceq f(w').
+$$
+
+A sequential transducer cannot retract output already emitted. Extending the input therefore only extends the output.
+
+## The active-learning protocol for functions
+
+The teacher now has a secret monotone function $f_0:\Sigma^*\to\Gamma^*$ computed by a sequential transducer $A_0$. The learner may ask:
+
+- an **evaluation query**: “What is $f_0(w)$?”;
+- an **equivalence query**: “Does candidate transducer $A$ compute $f_0$?”
+
+An incorrect candidate produces a shortest word $w$ satisfying
+
+$$
+f_0(w)\ne A(w).
+$$
+
+The protocol is the functional analogue of membership and equivalence learning for languages.
+
+# Myhill-Nerode equivalence for monotone functions
+
+## Residual output
+
+If $x$ is a prefix of $y$, write $y-x$ for the unique suffix $z$ such that $y=xz$. Monotonicity guarantees that $f_0(u)$ is a prefix of $f_0(ut)$, so the residual
+
+$$
+f_0(ut)-f_0(u)
+$$
+
+is defined. It represents the additional output produced after continuation $t$ from the state reached by $u$.
+
+The functional Myhill-Nerode equivalence is
+
+::: {.formula-scroll}
+$$
+u\sim_{f_0}v
+\quad\Longleftrightarrow\quad
+\forall t\in\Sigma^*\;
+\bigl(f_0(ut)-f_0(u)=f_0(vt)-f_0(v)\bigr).
+$$
+:::
+
+Prefixes are equivalent when every future input produces the same future output, after removing output already produced. The relation is right-invariant, and its finite index characterises functions computable by the sequential transducers considered in the deck.
+
+## The separator-insertion example
+
+The example function inserts $c$ between successive input positions. The slides give values such as
+
+$$
+f_0(\varepsilon)=\varepsilon,
+\qquad f_0(a)=a,
+\qquad f_0(aa)=aac,
+\qquad f_0(aaa)=aaca.
+$$
+
+The apparent ordering reflects when the transducer can emit the separator while reading incrementally. The residual behaviour distinguishes the empty prefix from nonempty prefixes, but all nonempty prefixes have the same future mode. Hence the relation has two classes, represented by $[\varepsilon]_{\sim_{f_0}}$ and $[a]_{\sim_{f_0}}$.
+
+## Functional Hankel matrix and learning
+
+The Hankel matrix now has word-valued entries:
+
+$$
+H\in(\Gamma^*)^{\Sigma^*\times\Sigma^*},
+\qquad
+H(s,t)=f_0(st)-f_0(s).
+$$
+
+The finite-test approximation is
+
+::: {.formula-scroll}
+$$
+u\approx_{f_0,T}v
+\quad\Longleftrightarrow\quad
+\forall t\in T\;
+\bigl(f_0(ut)-f_0(u)=f_0(vt)-f_0(v)\bigr).
+$$
+:::
+
+As before, the learner maintains $T$-minimal and $T$-complete sets of representatives. For a transition from representative $s$ on input $a$, the successor is the representative equivalent to $sa$, while the transition output is the incremental output exposed by the corresponding table entries.
+
+In the progressive example, the learner starts from $S=T=\{\varepsilon\}$ and builds a one-state candidate. The counterexample $w=ab$ expands the tests to include $\varepsilon$, $b$, and $ab$. The new observations distinguish the empty and nonempty residual modes, so $S$ expands to $\{\varepsilon,a\}$ and the resulting two-state transducer implements the separator-insertion behaviour.
+
+# Generalisations and the final application
+
+The deck closes by listing domains in which the same Hankel-style learning principle has been applied:
+
+- weighted automata and, partially, probabilistic automata;
+- Büchi automata;
+- tree transducers, including learning transformations of XML documents;
+- timed and register automata for timestamped or data-carrying words.
+
+These are presented as generalisations of the central language and transducer constructions, not developed as complete theories in this deck.
+
+The final proposed application is to infer regular expressions automatically from positive and negative examples. Date-time strings such as `01/01/2000` and `18/10/1985` provide positive examples, while malformed strings such as `ab/01/2000` or `18/10/200x` provide negative examples. A learning procedure first infers a regular language consistent with the observations and then translates the learned automaton into a regular expression. The long regular expression displayed in the slide illustrates the kind of pattern that humans can write but that an automata learner could derive from systematic interaction.
+
+# Sources
+
+- *4_Learning automata.pdf*, primary slide deck.
+- *Introduction to Automata Theory, Languages, and Computations*, consulted to confirm standard DFA, Myhill-Nerode, and state-equivalence terminology.

@@ -1,0 +1,452 @@
+---
+title: "Classical Logics: Propositional Logic, QBF, and First-Order Logic"
+subtitle: "Module 1 - Deck 2: Classical Logics"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+<style>
+.formula-scroll {
+  max-width: 100%; overflow-x: auto; overflow-y: hidden;
+  padding: 0.75rem 1rem; margin: 1rem 0;
+  border: 1px solid #d0d7de; border-radius: 0.5rem;
+  background: rgba(127,127,127,0.06); -webkit-overflow-scrolling: touch;
+}
+.formula-scroll .MathJax_Display { min-width: max-content; margin: 0; }
+</style>
+
+# Propositional logic
+
+## Vocabulary, syntax, and semantics
+
+Propositional logic is the first classical logic considered in the deck. Its vocabulary contains a set
+
+$$
+\Sigma=\{p,q,r,\ldots\}
+$$
+
+of **Boolean variables**, also called **propositional letters**, together with the Boolean connectives
+
+$$
+\lor,\quad \land,\quad \neg,\quad \rightarrow,\quad \leftrightarrow.
+$$
+
+The syntax is defined inductively. Every propositional letter is a formula; if $\varphi$ and $\psi$ are formulas, then so are $\varphi\lor\psi$, $\varphi\land\psi$, $\neg\varphi$, $\varphi\rightarrow\psi$, and $\varphi\leftrightarrow\psi$. This inductive definition matters because algorithms can follow the same recursive structure.
+
+A structure, or valuation, is a function
+
+$$
+S:\Sigma\longrightarrow\{\mathit{true},\mathit{false}\}.
+$$
+
+The satisfaction relation $S\models\varphi$ says that $\varphi$ holds under $S$. It is defined recursively:
+
+$$
+\begin{aligned}
+S\models p &\iff S(p)=\mathit{true},\\
+S\models\varphi\lor\psi &\iff S\models\varphi\text{ or }S\models\psi,\\
+S\models\varphi\land\psi &\iff S\models\varphi\text{ and }S\models\psi,\\
+S\models\neg\varphi &\iff S\not\models\varphi.
+\end{aligned}
+$$
+
+Implication and equivalence have their usual Boolean meanings. Syntax determines which expressions are formulas; semantics determines whether a formula is true in a given valuation.
+
+## Model checking
+
+The propositional model-checking problem receives a formula $\varphi$ and a valuation $S$ and asks whether $S\models\varphi$. The algorithm evaluates the syntax tree recursively. At a leaf it reads $S(p)$; at a connective it recursively evaluates the immediate subformulas and combines their truth values.
+
+```text
+Model-check(φ, S):
+  if φ = p, return S(p)
+  if φ = φ₁ ∨ φ₂, return Model-check(φ₁,S) or Model-check(φ₂,S)
+  if φ = φ₁ ∧ φ₂, return Model-check(φ₁,S) and Model-check(φ₂,S)
+  if φ = ¬φ₁, return not Model-check(φ₁,S)
+  treat → and ↔ according to their Boolean semantics
+```
+
+The running time is polynomial, in fact linear in the size of the represented formula when each node is visited once. The deck records the sharper complexity statement that propositional model checking is **P-complete**.
+
+## Satisfiability
+
+A formula is satisfiable if some valuation makes it true:
+
+$$
+\varphi\text{ is satisfiable}\iff \exists S\;(S\models\varphi).
+$$
+
+A direct algorithm enumerates the $2^n$ valuations of the $n$ propositional letters occurring in $\varphi$ and invokes model checking on each one. The search is therefore exponential in the number of variables. The decision problem SAT is **NP-complete**.
+
+The following table separates the two algorithmic questions.
+
+| Problem | Input | Question | Complexity stated in the deck |
+|---|---|---|---|
+| Model checking | $S,\varphi$ | Does $S\models\varphi$? | P-complete |
+| Satisfiability | $\varphi$ | Is there an $S$ such that $S\models\varphi$? | NP-complete |
+
+The difference is the valuation. Model checking receives it; satisfiability must find one.
+
+# Economy of syntax and normal forms
+
+## Eliminating implication and equivalence
+
+The first economy-of-syntax result states that every formula is equivalent to one not using $\rightarrow$ or $\leftrightarrow$. The rewritings are
+
+$$
+\varphi\rightarrow\psi\equiv\neg\varphi\lor\psi
+$$
+
+and
+
+::: {.formula-scroll}
+$$
+\varphi\leftrightarrow\psi
+\equiv
+(\neg\varphi\lor\psi)\land(\neg\psi\lor\varphi).
+$$
+:::
+
+These identities show that the two connectives are convenient abbreviations rather than essential additions to expressive power.
+
+## Negation normal form
+
+A formula is in **negation normal form** (NNF) when it uses only $\land$, $\lor$, and negation applied directly to propositional letters. After removing implication and equivalence, negations are pushed inward with De Morgan's laws and double-negation elimination:
+
+$$
+\neg(\varphi\land\psi)\equiv\neg\varphi\lor\neg\psi,
+\qquad
+\neg(\varphi\lor\psi)\equiv\neg\varphi\land\neg\psi,
+\qquad
+\neg\neg\varphi\equiv\varphi.
+$$
+
+The transformation follows the syntax tree and preserves equivalence.
+
+## Conjunctive and disjunctive normal form
+
+A **literal** is a propositional letter $p$ or its negation $\neg p$. A formula is in **conjunctive normal form** (CNF) if it is a conjunction of clauses, where each clause is a disjunction of literals. It is in **disjunctive normal form** (DNF) if it is a disjunction of terms, where each term is a conjunction of literals.
+
+| Normal form | Outer operation | Inner components |
+|---|---|---|
+| CNF | conjunction | disjunctions of literals |
+| DNF | disjunction | conjunctions of literals |
+
+Distributivity converts NNF formulas to CNF or DNF, but a direct equivalence-preserving conversion can cause an exponential increase in formula size. The deck therefore introduces a more economical construction for satisfiability.
+
+## Tseitin transformation
+
+The **Tseitin transformation** introduces a fresh variable for selected subformulas and constrains that variable to represent the subformula's truth value. For example, if $x$ names $\alpha\land\beta$, the defining equivalence is
+
+$$
+x\leftrightarrow(\alpha\land\beta).
+$$
+
+It can be expressed in CNF as
+
+$$
+(\neg x\lor\alpha)\land(\neg x\lor\beta)\land(x\lor\neg\alpha\lor\neg\beta).
+$$
+
+Analogous local constraints are produced for disjunction and negation. A final unit clause requires the variable naming the whole formula to be true. The result is linear in the original syntax tree and is **equisatisfiable** with the original formula.
+
+::: {.callout-important}
+Equivalent formulas have the same truth value under every valuation of the same variables. Equisatisfiable formulas need only agree on whether some satisfying valuation exists. Tseitin variables make the latter relation sufficient for SAT solving.
+:::
+
+## Circuits and shared subformulas
+
+A formula is a tree: repeated subformulas are copied. A Boolean circuit is a directed acyclic graph: a subcomputation may feed several later gates. This sharing can represent the same Boolean function more succinctly.
+
+```{mermaid}
+%%| fig-cap: "A shared Boolean subexpression represented once in a circuit."
+flowchart LR
+  P["p"] --> A["p ∧ q"]
+  Q["q"] --> A
+  A --> O["(p ∧ q) ∨ r"]
+  R["r"] --> O
+  A --> N["¬(p ∧ q)"]
+```
+
+The shared node $p\land q$ is computed once and reused. Tseitin variables provide a logical encoding of such gate-by-gate structure.
+
+# A bounded reachability encoding
+
+The deck applies propositional formulas to a device whose state is encoded by a tuple of bits $\bar p$. Let
+
+- $\varphi_{\mathrm{init}}(\bar p)$ describe initial states;
+- $\varphi_{\mathrm{target}}(\bar p)$ describe target states;
+- $\varphi_{\mathrm{step}}(\bar p,\bar p')$ describe one legal transition.
+
+To ask whether a target is reachable in exactly $n-1$ steps, introduce a fresh copy $\bar p_i$ of the state variables for each position of the run:
+
+::: {.formula-scroll}
+$$
+\varphi_{\mathrm{reach}}(\bar p_1,\ldots,\bar p_n)
+=
+\varphi_{\mathrm{init}}(\bar p_1)
+\land
+\varphi_{\mathrm{target}}(\bar p_n)
+\land
+\bigwedge_{i=1}^{n-1}
+\varphi_{\mathrm{step}}(\bar p_i,\bar p_{i+1}).
+$$
+:::
+
+The device admits such a run exactly when $\varphi_{\mathrm{reach}}$ is satisfiable. A satisfying valuation explicitly identifies every bit of every intermediate state. The example shows why SAT can solve a behavioural question: the run itself becomes a finite collection of Boolean choices checked by constraints.
+
+# Quantified Boolean formulas
+
+## Syntax and semantics
+
+Quantified Boolean formulas (QBF) extend propositional logic with quantifiers $\exists p$ and $\forall p$. Their semantics modifies the value assigned to the quantified variable:
+
+$$
+S\models\exists p\,\varphi
+\iff
+S[p:=\mathit{true}]\models\varphi
+\text{ or }
+S[p:=\mathit{false}]\models\varphi,
+$$
+
+$$
+S\models\forall p\,\varphi
+\iff
+S[p:=\mathit{true}]\models\varphi
+\text{ and }
+S[p:=\mathit{false}]\models\varphi.
+$$
+
+An occurrence of $p$ under the scope of $\exists p$ or $\forall p$ is **bound**; otherwise it is **free**. A formula with no free variables is a sentence. Its truth no longer depends on an external valuation.
+
+The recursive model-checking algorithm branches existentially for $\exists p$ and universally for $\forall p$. Although the recursion explores exponentially many assignments in the worst case, it needs to keep only the current branch and valuation. QBF model checking is **PSPACE-complete**.
+
+## Satisfiability and quantifier structure
+
+A QBF with free variables $p_1,\ldots,p_k$ is satisfiable precisely when its existential closure is true:
+
+$$
+\varphi(p_1,\ldots,p_k)\text{ satisfiable}
+\iff
+\models\exists p_1\cdots\exists p_k\,\varphi.
+$$
+
+Quantifier order is semantically significant. In general,
+
+$$
+\forall p\,\exists q\,\varphi
+\not\equiv
+\exists q\,\forall p\,\varphi.
+$$
+
+In the first formula, the choice of $q$ may depend on $p$; in the second, one choice of $q$ must work for both values of $p$. This dependence explains the game-like character of alternating quantifiers and the increased complexity from SAT to QBF.
+
+# First-order logic
+
+## Vocabulary and structures
+
+First-order logic (FO) replaces Boolean variables with variables ranging over a domain and introduces relation, function, and constant symbols. A vocabulary records the arities of its symbols. A structure $S$ supplies:
+
+- a nonempty universe $U^S$;
+- a relation $R^S\subseteq(U^S)^k$ for every $k$-ary relation symbol $R$;
+- a function $f^S:(U^S)^k\to U^S$ for every $k$-ary function symbol $f$;
+- an element $c^S\in U^S$ for every constant symbol $c$.
+
+Terms are built from variables, constants, and function applications. Atomic formulas compare terms or apply relation symbols. Formulas are then constructed using Boolean connectives and the quantifiers $\exists x$ and $\forall x$.
+
+A variable assignment maps free variables to elements of $U^S$. The satisfaction relation for quantifiers is
+
+$$
+S,\eta\models\exists x\,\varphi
+\iff
+\text{for some }a\in U^S,
+\ S,\eta[x:=a]\models\varphi,
+$$
+
+$$
+S,\eta\models\forall x\,\varphi
+\iff
+\text{for every }a\in U^S,
+\ S,\eta[x:=a]\models\varphi.
+$$
+
+The deck illustrates how formulas acquire meaning only after the corresponding symbols are interpreted. A unary relation may express a property such as “drinks,” while a binary relation can express an association between two elements.
+
+## Translating statements
+
+The sentence “There is a man such that, when he drinks, everybody drinks” is represented by a formula of the form
+
+$$
+\exists x\bigl(R(x)\rightarrow\forall y\,R(y)\bigr),
+$$
+
+where $R$ is unary. Since the formula has no free variables, a structure either satisfies it or does not.
+
+Properties of a binary relation can also be stated internally. For example, that $R$ represents a total function can be written by requiring every $x$ to have exactly one $R$-successor:
+
+::: {.formula-scroll}
+$$
+\forall x\,\exists y\left(
+R(x,y)\land
+\forall z\,(R(x,z)\rightarrow z=y)
+\right).
+$$
+:::
+
+For a binary function symbol $+$, commutativity is
+
+$$
+\forall x\,\forall y\;(x+y=y+x).
+$$
+
+The existence of a neutral element and inverses requires quantifier order that reflects dependence: first choose a common neutral element, then allow each $x$ to have its own inverse.
+
+## Model checking and satisfiability
+
+FO model checking recursively evaluates atomic formulas, Boolean connectives, and quantifiers. For $\exists x\,\varphi$, it tries elements of the finite domain until one succeeds; for $\forall x\,\varphi$, every element must succeed. With a finite structure this is an effective algorithm, although its cost depends strongly on formula size, quantifier nesting, and domain size.
+
+The satisfiability question is fundamentally different:
+
+$$
+\text{Does there exist a structure }S\text{ such that }S\models\varphi?
+$$
+
+The deck states **Trakhtenbrot's theorem**: finite satisfiability of first-order logic is undecidable. The proof strategy is a reduction from an undecidable domino-tiling problem.
+
+| Logic | Model checking | Satisfiability |
+|---|---|---|
+| Propositional logic | P-complete | NP-complete |
+| QBF | PSPACE-complete | reducible to truth of an existential closure |
+| First-order logic over finite structures | decidable for a supplied finite structure | undecidable |
+
+# The domino reduction
+
+## The source problem
+
+The domino problem receives finitely many four-sided tile types and asks whether copies of them can form a finite rectangle with a prescribed white border and matching adjacent colours. The variant used in the deck is undecidable by reduction from the Halting Problem. A computation can be represented row by row: each row describes a machine configuration, while local colour constraints force the next row to represent a valid transition.
+
+## Encoding a rectangle in first-order logic
+
+Given a domino set, the reduction constructs an FO sentence $\varphi_D$ such that
+
+::: {.formula-scroll}
+$$
+\varphi_D\text{ is finitely satisfiable}
+\iff
+D\text{ tiles a white-bordered rectangle}.
+$$
+:::
+
+The encoding has three conceptual layers:
+
+1. **Grid structure.** Binary relations $H(x,y)$ and $V(x,y)$ describe the horizontal and vertical successor relations. They are constrained as partial functions or partial bijections and must commute where both paths exist, so moving right then up reaches the same cell as moving up then right.
+2. **Tile assignment.** Unary predicates identify which domino type labels each cell, with exactly one type assigned to each grid position.
+3. **Local compatibility and border.** FO formulas require matching colours across $H$- and $V$-adjacent cells and enforce the prescribed border condition.
+
+```{mermaid}
+%%| fig-cap: "Local square condition used in the first-order encoding of a rectangular grid."
+flowchart LR
+  X["x"] -->|"H"| Y["y"]
+  X -->|"V"| Z["z"]
+  Y -->|"V"| W["w"]
+  Z -->|"H"| W
+```
+
+The commuting-square requirement is expressed by a formula of the form
+
+::: {.formula-scroll}
+$$
+\forall x\,\forall y\,\forall z\,
+\bigl(H(x,y)\land V(x,z)
+\rightarrow
+\exists w\,(V(y,w)\land H(z,w))\bigr).
+$$
+:::
+
+Because all constraints are local, FO can state them even though the global rectangle may be arbitrarily large. If finite satisfiability were decidable, the domino problem would be decidable, contradicting its undecidability. This is the purpose of the construction.
+
+# First-order theories
+
+For a fixed structure $S$, its first-order theory is
+
+$$
+\operatorname{Th}_{\mathrm{FO}}(S)
+=
+\{\varphi:S\models\varphi\}.
+$$
+
+Fixing the structure changes the decision problem: instead of asking whether some structure satisfies $\varphi$, one asks whether $\varphi$ holds in one designated mathematical structure.
+
+## Ordered natural numbers
+
+The theory $\mathrm{FO}[\mathbb N,<]$ includes statements expressing that every natural number has a larger one, that no element is smaller than itself, and that the order is total. The point is that familiar order properties become sentences whose truth is evaluated in the single structure $(\mathbb N,<)$.
+
+## Presburger arithmetic
+
+**Presburger arithmetic** is the first-order theory of natural numbers with addition, written in the deck as $\mathrm{FO}[\mathbb N,+]$. It is decidable. The slides connect it with constraint solving, theorem provers such as Coq and Isabelle, and models of distributed systems such as Petri nets.
+
+Multiplication by a fixed natural number can be represented through repeated addition, but multiplication of two variables is not available as a primitive relation in this theory. This expressive restriction is central to decidability.
+
+## Peano arithmetic
+
+The deck contrasts Presburger arithmetic with the theory of natural numbers equipped with both addition and multiplication, written $\mathrm{FO}[\mathbb N,+,\times]$. This theory is undecidable. The stated proof route is a reduction from **Hilbert's tenth problem**, the problem of deciding whether a Diophantine equation has a solution in natural numbers.
+
+## Tarski arithmetic
+
+The first-order theory of real closed fields, represented in the deck by the real numbers with addition, multiplication, and order, is referred to as **Tarski arithmetic**. Unlike the corresponding natural-number theory, it is decidable through quantifier elimination. The applications listed in the slides include computer graphics, invariants and abstractions, kinematics and motion planning, combinatorics on words, grammar equivalence, coding theory, and cryptography.
+
+The contrast is worth keeping explicit:
+
+| Fixed structure | Common name in the deck | Status highlighted in the deck |
+|---|---|---|
+| $(\mathbb N,<)$ | ordered natural numbers | decidable theory |
+| $(\mathbb N,+)$ | Presburger arithmetic | decidable |
+| $(\mathbb N,+,\times)$ | Peano arithmetic | undecidable |
+| $(\mathbb R,+,\times,<)$ | Tarski arithmetic | decidable |
+
+## Random graphs and the zero-one law
+
+The deck also considers FO over finite random graphs. For a fixed FO sentence $\varphi$, examine the probability that a random graph with $n$ vertices satisfies it. The **zero-one law for FO** states that, as $n$ tends to infinity, this probability tends to either $0$ or $1$.
+
+This does not mean that every finite graph agrees on $\varphi$. It says that asymptotically almost all large finite graphs satisfy the sentence or asymptotically almost none do. The limiting theory is associated with the countable Rado graph, which explains its appearance beside the arithmetic theories.
+
+# Logical reductions and interpretations
+
+A reduction from a problem $P$ to a problem $Q$ transforms each input $x$ into an input $F(x)$ such that
+
+$$
+x\in P\iff F(x)\in Q.
+$$
+
+When the problems are theories, the inputs are formulas. The deck asks whether such reductions can be derived systematically from a logical description of one structure inside another.
+
+A **logical interpretation** maps each relation symbol $R$ of a source structure $S$ to a formula $\alpha_R$ over a target structure $T$. Tuples satisfying $\alpha_R$ in $T$ represent the tuples belonging to $R^S$. The translation extends recursively from atomic formulas to complete FO formulas, producing $F(\varphi)$ with the intended preservation property
+
+::: {.formula-scroll}
+$$
+S\models\varphi
+\iff
+T\models F(\varphi).
+$$
+:::
+
+The slides illustrate this idea by interpreting the infinite binary tree inside an arithmetic structure: formulas define left-child, right-child, and parent relationships in terms of arithmetic operations. Once the relations are definable, every source formula can be translated compositionally.
+
+```{mermaid}
+%%| fig-cap: "A logical interpretation induces a reduction between first-order theories."
+flowchart LR
+  A["FO sentence φ over S"] --> T["Syntactic translation F"]
+  D["Definitions of S-relations inside T"] --> T
+  T --> B["FO sentence F(φ) over T"]
+  S["S ⊨ φ"] <-->|"equivalent"| U["T ⊨ F(φ)"]
+```
+
+This final step connects the deck's earlier algorithmic notion of reduction with definability. A logical interpretation does not merely assert that a reduction exists; it explains how the vocabulary and relations of the source problem are represented in the target structure.
+
+# Sources
+
+- *2_Classical_logics.pdf*, primary slide deck.
+- *Introduction to Automata Theory, Languages, and Computations*, consulted only for background confirmation on finite-state representations and formal encodings.
+- *Handbook of Theoretical Computer Science, Volume B: Formal Models and Semantics*, consulted only for background confirmation on automata, formal structures, and logical decision problems.

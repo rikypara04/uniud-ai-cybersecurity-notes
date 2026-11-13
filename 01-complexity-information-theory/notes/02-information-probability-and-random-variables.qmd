@@ -1,0 +1,529 @@
+---
+title: "Information, Probability, and Random Variables"
+subtitle: "Lecture 2 - 6 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# From surprise to a quantitative measure of information
+
+The lecture begins from the **surprise effect**: observing an unlikely outcome is more informative than observing an outcome that was already expected.
+
+Let $m$ be a possible message and let $p(m)$ be its probability before it is observed. The information carried by the observation of $m$ is
+
+$$
+I(m)=-\log_2 p(m)
+     =\log_2\left(\frac{1}{p(m)}\right).
+$$
+
+The quantity $I(m)$ is also called the **self-information** or **surprisal** of $m$.
+
+## Why does information decrease with probability?
+
+If $p(m)$ is close to $1$, the message was almost certain and its observation changes very little. If $p(m)$ is small, the message rules out many alternatives that were considered more likely and therefore changes the receiver's knowledge much more.
+
+The formula has the required limiting behaviour:
+
+$$
+p(m)=1 \quad\Longrightarrow\quad I(m)=0,
+$$
+
+whereas
+
+$$
+p(m)\to0^+ \quad\Longrightarrow\quad I(m)\to+\infty.
+$$
+
+A certain message carries no new information. An increasingly improbable message has increasingly large surprisal.
+
+## Why is the logarithm used?
+
+Suppose two independent messages $m_1$ and $m_2$ are observed. Independence gives
+
+$$
+p(m_1,m_2)=p(m_1)p(m_2).
+$$
+
+The information obtained from the two independent observations should add:
+
+$$
+I(m_1,m_2)=I(m_1)+I(m_2).
+$$
+
+Therefore, a probability-based information measure $f$ should satisfy
+
+$$
+f(pq)=f(p)+f(q).
+$$
+
+The logarithm converts a product into a sum:
+
+$$
+\log(pq)=\log p+\log q.
+$$
+
+Under the natural additional requirement of continuity, this additive requirement leads to a logarithmic measure, up to a constant that fixes the unit. The minus sign is necessary because $\log p\leq0$ for $0<p\leq1$, whereas information should be non-negative.
+
+Base $2$ measures information in **bits**. For example,
+
+$$
+-\log_2\frac12=1,
+\qquad
+-\log_2\frac14=2,
+\qquad
+-\log_2\frac18=3.
+$$
+
+Each halving of the probability adds one bit of surprisal.
+
+::: {.callout-note title="Single-outcome information versus entropy contribution"}
+For one observed outcome, the surprisal is $-\log_2p$, not $-p\log_2p$. The quantity $-p\log_2p$ is the probability-weighted contribution of that outcome to the average entropy.
+:::
+
+# Entropy as average surprise
+
+A source may produce several possible messages. Let the output alphabet be
+
+$$
+\mathcal{M}=\{m_1,m_2,\ldots,m_s\},
+$$
+
+with probabilities $p(m_i)$. The entropy of the source is the expected surprisal:
+
+$$
+H(M)
+=\mathbb{E}[I(M)]
+=-\sum_{i=1}^{s}p(m_i)\log_2p(m_i).
+$$
+
+Entropy is therefore an **average**. A rare outcome has large surprisal but contributes to the average only with its probability of occurrence.
+
+The convention
+
+$$
+0\log 0=0
+$$
+
+is justified by
+
+$$
+\lim_{p\to0^+}p\log p=0.
+$$
+
+Although $-\log p$ diverges as $p$ tends to zero, the weighted contribution $-p\log p$ tends to zero.
+
+## Fair coin
+
+For a fair coin,
+
+$$
+P(H)=P(T)=\frac12.
+$$
+
+Hence
+
+$$
+\begin{aligned}
+H(M)
+&=-\frac12\log_2\frac12
+  -\frac12\log_2\frac12\\
+&=1\text{ bit}.
+\end{aligned}
+$$
+
+The two outcomes are equally likely, so the result is maximally uncertain for a binary source.
+
+## Biased coin
+
+For a biased coin with
+
+$$
+P(H)=\frac14,
+\qquad
+P(T)=\frac34,
+$$
+
+we obtain
+
+$$
+H(M)
+=-\frac14\log_2\frac14
+ -\frac34\log_2\frac34
+\approx0.811\text{ bits}.
+$$
+
+The entropy is lower because one outcome is easier to predict.
+
+For a source with $s$ possible outcomes,
+
+$$
+0\leq H(M)\leq\log_2s.
+$$
+
+The minimum is reached when one outcome is certain. The maximum is reached by the uniform distribution, because uncertainty is largest when no outcome is preferred over the others.
+
+# Finite probability spaces
+
+A finite random experiment is described by a sample space
+
+$$
+\Omega=\{\omega_1,\omega_2,\ldots,\omega_n\}.
+$$
+
+A probability function
+
+$$
+P:\Omega\to[0,1]
+$$
+
+satisfies
+
+$$
+P(\omega_i)\geq0
+$$
+
+for every elementary outcome and
+
+$$
+\sum_{i=1}^{n}P(\omega_i)=1.
+$$
+
+An **event** is a subset $A\subseteq\Omega$. The event occurs whenever the observed elementary outcome belongs to $A$, and its probability is
+
+$$
+P(A)=\sum_{\omega\in A}P(\omega).
+$$
+
+Thus an event is a yes-or-no condition on the outcome rather than necessarily one elementary outcome.
+
+## Unions of events
+
+For arbitrary events $A$ and $B$,
+
+$$
+P(A\cup B)=P(A)+P(B)-P(A\cap B).
+$$
+
+The intersection is subtracted because its probability is included once in $P(A)$ and once in $P(B)$.
+
+If $A$ and $B$ are disjoint, then $A\cap B=\varnothing$ and
+
+$$
+P(A\cup B)=P(A)+P(B).
+$$
+
+More generally, for pairwise disjoint events $A_1,\ldots,A_k$,
+
+$$
+P\left(\bigcup_{i=1}^{k}A_i\right)
+=\sum_{i=1}^{k}P(A_i).
+$$
+
+## Animal example
+
+Let
+
+$$
+\Omega=\{c,d,f,w\},
+$$
+
+where the symbols denote cat, dog, fox and wolf. The lecture uses
+
+$$
+P(c)=\frac12,
+\qquad
+P(d)=\frac14,
+\qquad
+P(f)=P(w)=\frac18.
+$$
+
+Consider the event
+
+$$
+A=\{d,f,w\},
+$$
+
+meaning that the animal is not a cat. Since the three elementary outcomes are disjoint,
+
+$$
+P(A)=\frac14+\frac18+\frac18=\frac12.
+$$
+
+# Conditioning and partitions
+
+## Conditional probability
+
+If $P(B)>0$, the conditional probability of $A$ given $B$ is
+
+$$
+P(A\mid B)=\frac{P(A\cap B)}{P(B)}.
+$$
+
+Conditioning means that $B$ is now known to have occurred. Outcomes outside $B$ are removed, and the probabilities of the outcomes remaining inside $B$ are renormalised so that they sum to $1$.
+
+Rearranging the definition gives the product rule:
+
+$$
+P(A\cap B)=P(A\mid B)P(B).
+$$
+
+Because $A\cap B=B\cap A$, the same joint event may also be written as
+
+$$
+P(A\cap B)=P(B\mid A)P(A).
+$$
+
+Therefore,
+
+$$
+P(A\mid B)P(B)=P(B\mid A)P(A).
+$$
+
+## Partitions
+
+Events $B_1,\ldots,B_r$ form a partition of $\Omega$ when they are mutually exclusive and collectively exhaustive:
+
+$$
+B_i\cap B_j=\varnothing
+\quad\text{for }i\neq j,
+$$
+
+and
+
+$$
+\bigcup_{i=1}^{r}B_i=\Omega.
+$$
+
+A partition provides a complete list of non-overlapping cases.
+
+## Law of total probability
+
+Since the events $A\cap B_1,\ldots,A\cap B_r$ form a disjoint decomposition of $A$,
+
+$$
+P(A)=\sum_{i=1}^{r}P(A\cap B_i).
+$$
+
+Using the product rule in each case gives
+
+$$
+P(A)=\sum_{i=1}^{r}P(A\mid B_i)P(B_i).
+$$
+
+The law of total probability therefore computes an overall probability by:
+
+1. calculating the probability inside each possible case;
+2. weighting that conditional probability by how often the case occurs;
+3. adding the weighted terms.
+
+## Dangerous-animal signal
+
+Let $R=1$ mean that the animal is dangerous, and let $S_1,\ldots,S_r$ denote the possible observed signals. If the signal events form a partition, then
+
+$$
+P(R=1)
+=\sum_{i=1}^{r}P(R=1\mid S_i)P(S_i).
+$$
+
+The conditional danger probabilities alone do not determine the overall danger probability. The frequency of each signal, $P(S_i)$, is also required.
+
+# Bayes' theorem
+
+Starting from
+
+$$
+P(A\mid B)P(B)=P(B\mid A)P(A),
+$$
+
+and assuming $P(A)>0$, we obtain
+
+$$
+P(B\mid A)
+=\frac{P(A\mid B)P(B)}{P(A)}.
+$$
+
+If $B_1,\ldots,B_r$ form a partition, the denominator can be expanded with the law of total probability:
+
+$$
+P(B_j\mid A)
+=
+\frac{P(A\mid B_j)P(B_j)}
+{\sum_{i=1}^{r}P(A\mid B_i)P(B_i)}.
+$$
+
+The components have different roles:
+
+- $P(B_j)$ is the **prior**, the probability of hypothesis $B_j$ before observing $A$;
+- $P(A\mid B_j)$ is the **likelihood** of the evidence if $B_j$ is true;
+- $P(A)$ is the total probability of the observed evidence;
+- $P(B_j\mid A)$ is the **posterior**, the updated probability after observing $A$.
+
+Bayes' theorem reverses the direction of conditioning. A model may describe how likely an observation is under each possible cause, while the inferential question asks how likely each cause is after the observation has been made.
+
+# Random variables
+
+A random variable is a function
+
+$$
+X:\Omega\to\mathcal{X}
+$$
+
+that assigns a value to every elementary outcome. The function itself is fixed. The observed value is random because the outcome $\omega\in\Omega$ is not known in advance.
+
+The codomain $\mathcal{X}$ is the set of possible values of $X$. Depending on the model, these values may be numbers or labels.
+
+## Indicator variables
+
+For an event $A$, its indicator variable is
+
+$$
+\mathbf{1}_A(\omega)
+=
+\begin{cases}
+1, & \omega\in A,\\
+0, & \omega\notin A.
+\end{cases}
+$$
+
+The indicator translates a yes-or-no event into a numerical random variable. Its distribution is
+
+$$
+P(\mathbf{1}_A=1)=P(A),
+\qquad
+P(\mathbf{1}_A=0)=1-P(A).
+$$
+
+In the animal example, one may define a variable $T$ that equals $1$ when the observed animal belongs to a chosen target category, such as fox or wolf, and equals $0$ otherwise. The probability that $T=1$ is then the probability of the corresponding event.
+
+# Several random variables
+
+Let $X$ and $Y$ be discrete random variables.
+
+## Joint distribution
+
+The joint probability mass function is
+
+$$
+p_{X,Y}(x,y)=P(X=x,Y=y).
+$$
+
+It assigns a probability to each possible pair $(x,y)$ and satisfies
+
+$$
+p_{X,Y}(x,y)\geq0,
+\qquad
+\sum_x\sum_y p_{X,Y}(x,y)=1.
+$$
+
+## Marginal distributions
+
+If only $X$ is of interest and $Y$ is ignored, all joint probabilities compatible with $X=x$ must be added:
+
+$$
+p_X(x)=\sum_y p_{X,Y}(x,y).
+$$
+
+Similarly,
+
+$$
+p_Y(y)=\sum_x p_{X,Y}(x,y).
+$$
+
+These are called marginal distributions because, in a joint probability table, the sums are traditionally displayed in the table margins.
+
+## Conditional distribution
+
+If $p_Y(y)>0$, the conditional distribution of $X$ given $Y=y$ is
+
+$$
+p_{X\mid Y}(x\mid y)
+=\frac{p_{X,Y}(x,y)}{p_Y(y)}.
+$$
+
+For a fixed observed value $y$, this conditional distribution satisfies
+
+$$
+\sum_x p_{X\mid Y}(x\mid y)=1.
+$$
+
+The product rule becomes
+
+$$
+p_{X,Y}(x,y)
+=p_{X\mid Y}(x\mid y)p_Y(y)
+=p_{Y\mid X}(y\mid x)p_X(x).
+$$
+
+This is the random-variable version of
+
+$$
+P(A\cap B)=P(A\mid B)P(B).
+$$
+
+# Independence
+
+Random variables $X$ and $Y$ are independent if, for every pair $(x,y)$,
+
+$$
+p_{X,Y}(x,y)=p_X(x)p_Y(y).
+$$
+
+When $p_Y(y)>0$, this is equivalent to
+
+$$
+p_{X\mid Y}(x\mid y)=p_X(x).
+$$
+
+Thus independence means that learning the value of $Y$ does not change the probability distribution of $X$.
+
+::: {.callout-warning title="Independence must be established"}
+The factorisation
+
+$$
+p_{X,Y}(x,y)=p_X(x)p_Y(y)
+$$
+
+is not a general calculation rule. It is the condition that characterises independence. Without independence, the valid general identity is
+
+$$
+p_{X,Y}(x,y)=p_{X\mid Y}(x\mid y)p_Y(y).
+$$
+:::
+
+## Disjointness is different from independence
+
+Two events are disjoint when they cannot occur together:
+
+$$
+P(A\cap B)=0.
+$$
+
+If both events have positive probability, then
+
+$$
+P(A)P(B)>0,
+$$
+
+so the independence equation cannot hold. Disjoint positive-probability events are therefore dependent: observing one makes the other impossible.
+
+# Sensor-correctness indicator
+
+The notes conclude by introducing an indicator for whether a sensor-based decision is correct. Let $T=1$ when the sensor's output agrees with the true animal category and $T=0$ otherwise.
+
+The event $T=1$ can be written as a collection of joint outcomes of the true category and the alert. Once the joint distribution is known, its probability is obtained by summing the probabilities of the joint outcomes for which the sensor is correct. In the numerical example recorded in the notes, these correct cases give
+
+$$
+P(T=1)=\frac34.
+$$
+
+This illustrates why joint distributions are needed: correctness depends simultaneously on the real state and on the sensor output, so it cannot be computed from only one marginal distribution.
+
+# Sources
+
+- Goodnotes lecture notes: *02 - 06-10-2026.pdf*.
+- Official Teams material: *CIT_Notes_Part1_Probability_Review (1).pdf*, used to verify probability notation, conditional distributions, Bayes' rule, independence, and the indicator-variable interpretation.
+- Official Teams material: *CIT_Notes_Part2_Information_Measures (1).pdf*, used only for the definitions and interpretations of surprisal and entropy already introduced in this lecture.
+- Thomas M. Cover and Joy A. Thomas, *Elements of Information Theory*, used only to verify the introductory entropy notation and the distinction between the information of one outcome and average entropy.

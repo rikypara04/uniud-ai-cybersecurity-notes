@@ -1,0 +1,398 @@
+---
+title: "LZ77 Compression and Kolmogorov Complexity"
+subtitle: "Lecture 7 - 22 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Completion of the source-coding discussion
+
+The lecture first completes the discussion of lossless source coding from the preceding lecture and then moves from probability-based compression to algorithmic descriptions of individual objects.
+
+## Huffman coding
+
+Shannon-Fano codes are not necessarily optimal, although the construction can improve on a direct Shannon code for a given source. Huffman coding instead builds the code tree **from the leaves to the root**, which is the opposite direction from the top-down Shannon-Fano construction.
+
+The central operation is:
+
+> Repeatedly merge the two currently least probable symbols or compound nodes into a phantom node whose probability is their sum.
+
+For the six-symbol example
+
+$$
+\mathcal A=\{a,b,c,d,e,f\},
+$$
+
+with probabilities
+
+$$
+\left(
+\frac{40}{100},
+\frac{15}{100},
+\frac{18}{100},
+\frac{13}{100},
+\frac{10}{100},
+\frac{4}{100}
+\right),
+$$
+
+the successive combinations are
+
+$$
+\frac4{100}+\frac{10}{100}=\frac{14}{100},
+$$
+
+$$
+\frac{13}{100}+\frac{14}{100}=\frac{27}{100},
+$$
+
+$$
+\frac{15}{100}+\frac{18}{100}=\frac{33}{100},
+$$
+
+$$
+\frac{27}{100}+\frac{33}{100}=\frac{60}{100},
+$$
+
+and finally
+
+$$
+\frac{40}{100}+\frac{60}{100}=1.
+$$
+
+The resulting code has expected length
+
+$$
+EL(\varphi_H)=2.34
+$$
+
+bits per source symbol. Huffman codes are optimal among binary prefix codes for the given symbol probabilities.
+
+## Block Shannon coding and compression rate
+
+A direct Shannon code may be inefficient for very low-probability symbols because each ideal length must be rounded to an integer. The lecture therefore revisits the idea of encoding blocks of $n$ independent source symbols.
+
+Let
+
+$$
+\varphi_S^{(n)}:\mathcal A^n\to\mathcal B^*
+$$
+
+be a Shannon code for the product distribution $p^n$. Shannon's bound applied to one block gives
+
+$$
+EL(\varphi_S^{(n)})<H_D(p^n)+1.
+$$
+
+For independent and identically distributed source symbols,
+
+$$
+H_D(p^n)=nH_D(p).
+$$
+
+Consequently,
+
+$$
+EL(\varphi_S^{(n)})<nH_D(p)+1.
+$$
+
+After division by the block length,
+
+$$
+H_D(p)
+\leq
+\frac{EL(\varphi_S^{(n)})}{n}
+<
+H_D(p)+\frac1n.
+$$
+
+The lecture calls
+
+$$
+\boxed{
+\frac{EL(\varphi^{(n)})}{n}
+}
+$$
+
+the **compression rate** of a code operating on blocks of $n$ source symbols. It is the expected number of output symbols assigned per original source symbol.
+
+As $n$ grows,
+
+$$
+\frac1n\longrightarrow0,
+$$
+
+so Shannon block codes, and similarly block versions of Shannon-Fano coding, are asymptotically optimal.
+
+# Lempel-Ziv codes
+
+The lecture then introduces Lempel-Ziv coding as a variable-to-block or variable-length dictionary-based approach used in practical compressors such as ZIP.
+
+Two early variants are distinguished:
+
+- **LZ77**, the first variant, uses a sliding window and therefore a dictionary represented implicitly by recently processed text;
+- **LZ78**, the second variant, builds an explicit dictionary of phrases.
+
+The lecture focuses on the basic LZ77 mechanism.
+
+::: {.callout-note title="Terminology about the dictionary"}
+The handwritten notes contrast a *dynamic* LZ77 dictionary with a *static* LZ78 dictionary. More precisely, LZ77 uses a changing sliding-window dictionary, while LZ78 also builds its phrase dictionary incrementally. The essential distinction needed here is that LZ77 refers back to recent text rather than storing a separate fixed code tree.
+:::
+
+## Sliding-window structure
+
+View the input message as a stream of bytes. At a given moment:
+
+- one part of the stream has already been encoded;
+- the next part remains unencoded;
+- the **search buffer** contains a fixed number of recently encoded bytes;
+- the **look-ahead buffer** contains the first fixed number of unencoded bytes.
+
+In the example from the lecture, both buffers contain five bytes.
+
+```{mermaid}
+%%| fig-cap: "Sliding-window organisation used by the basic LZ77 example."
+flowchart LR
+    P["Previously encoded stream"] --> S["Search buffer: last 5 encoded bytes"]
+    S --> J["Current boundary"]
+    J --> L["Look-ahead buffer: first 5 unencoded bytes"]
+    L --> U["Remaining unencoded stream"]
+```
+
+The encoder searches for the **longest prefix of the look-ahead buffer** that already occurs as a substring in the search buffer.
+
+## LZ77 output triple
+
+The lecture represents a match by a triple
+
+$$
+(o,l,s),
+$$
+
+where:
+
+- $o$ is the backward offset, namely the distance from the beginning of the selected occurrence in the search buffer to the current position;
+- $l$ is the length of the matching prefix;
+- $s$ is the first symbol in the look-ahead buffer after the matched prefix, that is, the first mismatch.
+
+If no non-empty prefix can be matched, the encoder outputs
+
+$$
+(0,0,s),
+$$
+
+where $s$ is the next literal symbol.
+
+For example, the tuple
+
+$$
+(3,2,a)
+$$
+
+means:
+
+1. move three positions backwards in the already encoded text;
+2. copy two symbols from that position;
+3. append the literal symbol $a$.
+
+The tuple therefore describes a matched phrase followed by the symbol that first prevents the match from being extended.
+
+## Initial phantom symbols
+
+At the beginning of the stream, the search buffer would otherwise be empty. The worked example fills the initial search buffer with phantom symbols, written as `#`, so that the window always has the same size.
+
+The first literal output recorded in the notes is of the form
+
+$$
+(0,0,b),
+$$
+
+because no previous occurrence of $b$ is available in the initial phantom buffer. As real symbols are produced, the window advances and those symbols enter the search buffer. Later tuples can then refer to repeated substrings.
+
+The handwritten example subsequently includes references such as
+
+$$
+(2,1,b),
+\qquad
+(3,2,a),
+\qquad
+(5,4,b),
+\qquad
+(3,3,a),
+$$
+
+illustrating matches of increasing length in the changing search buffer.
+
+::: {.callout-warning title="Partially unreadable worked string"}
+The exact full input string and some intermediate window contents in the handwritten example are not fully legible in the supplied PDF. The tuples above are preserved because they are readable, but the chapter does not invent a complete byte sequence that cannot be recovered reliably from the notes.
+:::
+
+## Decompression
+
+Decompression applies the inverse interpretation of each triple:
+
+1. if $o=l=0$, append the literal symbol $s$;
+2. otherwise, move $o$ positions backwards in the already reconstructed output;
+3. copy $l$ symbols from that position;
+4. append $s$;
+5. advance to the next tuple.
+
+The decoder can reconstruct the same search buffer from the output already produced. Therefore, the dictionary does not need to be transmitted separately.
+
+## Computational and coding observations
+
+With the fixed-size buffers used in the lecture, the working memory is constant with respect to the total input length. Processing proceeds sequentially through the input. The precise running time of match search depends on how the search buffer is implemented; under the fixed small-window model used in the notes, the overall scan is treated as linear in the message length.
+
+LZ77 is not optimal for every input, but performs well in many practical cases because it exploits repeated local patterns.
+
+The comparison made in the lecture is:
+
+- Huffman coding requires symbol probabilities, or equivalent frequency information, to construct its code;
+- LZ77 does not require an a-priori global probability distribution;
+- LZ77 adapts to **local** repetition because its effective dictionary changes with the search buffer.
+
+# Kolmogorov complexity
+
+The final part of the lecture introduces a different notion of intrinsic complexity.
+
+Shannon information begins with a probability model. For a message $m$ of probability $p(m)$, the ideal description length is related to
+
+$$
+-\log p(m).
+$$
+
+Kolmogorov's objective is more general: define the complexity of one individual object without requiring a probability distribution over possible objects.
+
+The central idea is:
+
+> The complexity of a string is the length of the shortest algorithm capable of producing that string.
+
+Informally,
+
+$$
+K(m)
+=
+\text{length of the shortest program that outputs }m.
+$$
+
+A highly regular string may be long but have a short generating algorithm. An irregular string may have no description substantially shorter than writing the string itself.
+
+The notes compare Shannon and algorithmic descriptions through the intuition that a shortest algorithmic description can sometimes exploit individual structure that is not captured by a probabilistic code. The two notions are related but answer different questions and should not be treated as pointwise identical quantities.
+
+# Turing machines as the computation model
+
+An algorithmic description length depends on the language or computational model used to express the algorithm. The lecture fixes a Turing-machine model.
+
+A machine is represented as
+
+$$
+M=(K,\Sigma,\delta,s),
+$$
+
+where:
+
+- $K$ is a finite set of states;
+- $\Sigma$ is a finite tape alphabet;
+- the blank symbol $\sqcup$ belongs to $\Sigma$;
+- the start state $s$ belongs to $K$;
+- the state set and tape alphabet are taken as disjoint, $K\cap\Sigma=\varnothing$;
+- $\delta$ is the transition function.
+
+A transition records the next state or a halting outcome, the symbol written on the current tape cell, and the direction in which the head moves. A representative type is
+
+$$
+\delta:
+K\times\Sigma
+\longrightarrow
+\bigl(K\cup\{\mathrm{yes},\mathrm{no},\mathrm{halt}\}\bigr)
+\times\Sigma\times\{-1,+1\}.
+$$
+
+The machine operates on an unbounded tape. Initially, an input string is written on the tape and the remaining cells contain blanks. A head points to the current cell. At every step, the transition function may:
+
+1. inspect the current state and tape symbol;
+2. write a tape symbol;
+3. change state;
+4. move the head left or right;
+5. enter a halting outcome.
+
+## Machines that produce a string
+
+For Kolmogorov complexity, the lecture considers a Turing machine executed on an empty tape. A machine **produces** a string $x$ when it eventually halts with $x$ on its output portion of the tape.
+
+There are infinitely many machines capable of producing the same string. The objective is to identify the shortest description among them.
+
+The notes denote the size of a machine by
+
+$$
+|M|,
+$$
+
+where the size is the length of an encoding of the machine's finite description, including its states, alphabet, and transition function.
+
+# Universal Turing machine
+
+A universal Turing machine can simulate any encoded Turing machine.
+
+::: {.callout-important title="Universal-machine theorem"}
+There exists a universal Turing machine $U$ such that, for every encoded machine $M$ and input $x$,
+
+$$
+U(M,x)=M(x)
+$$
+
+whenever $M(x)$ halts.
+:::
+
+The first argument is a description of the simulated machine; the second argument is the simulated machine's input. Universality allows all program descriptions to be measured relative to one fixed computational model.
+
+Different reasonable universal machines can encode programs with different constant overheads. For sufficiently long descriptions, this changes Kolmogorov complexity only by a machine-dependent additive constant. The lecture uses one fixed universal machine $U$.
+
+# Definition of Kolmogorov complexity
+
+Relative to the fixed universal Turing machine $U$, the Kolmogorov complexity of a string $x$ is
+
+$$
+\boxed{
+K_U(x)
+=
+\min_{M:\,U(M)=x}|M|
+}.
+$$
+
+The minimisation ranges over all encoded machines or programs $M$ that cause $U$ to output $x$ and halt when no external input is supplied.
+
+This formula combines three ideas:
+
+- $U(M)=x$ requires the program $M$ to produce exactly $x$;
+- $|M|$ measures the length of that program's description;
+- the minimum selects the shortest correct description.
+
+Kolmogorov complexity is therefore an intrinsic description-length measure for an individual string, relative to the chosen universal machine.
+
+# Non-computability
+
+The lecture concludes that Kolmogorov complexity is not computable.
+
+There is no algorithm that, for every string $x$, receives $x$ as input and returns the exact value $K_U(x)$. If such an algorithm existed, it would need to determine that no shorter program can output $x$. That requires resolving the behaviour of arbitrary candidate programs, including whether they eventually halt.
+
+The obstruction is connected to the halting theorem: there is no general algorithm that decides for every program and input whether the computation will halt.
+
+::: {.callout-important title="Non-computability of Kolmogorov complexity"}
+For a fixed universal Turing machine $U$, the function
+
+$$
+x\longmapsto K_U(x)
+$$
+
+is not computable.
+:::
+
+A particular string always has a finite Kolmogorov complexity because a program can always contain the string literally and print it. What is impossible is a general procedure that always finds and certifies the shortest such program.
+
+# Sources
+
+- Goodnotes lecture notes: *07 - 22-10-2026.pdf*.

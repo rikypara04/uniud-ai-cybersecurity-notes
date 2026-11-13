@@ -1,0 +1,444 @@
+---
+title: "Introduction to Formal Verification and Logic"
+subtitle: "Module 1 - Course Introduction and An Introduction to Logic"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+<style>
+.formula-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  border: 1px solid #d0d7de;
+  border-radius: 0.5rem;
+  background: rgba(127, 127, 127, 0.06);
+  -webkit-overflow-scrolling: touch;
+}
+.formula-scroll .MathJax_Display {
+  min-width: max-content;
+  margin: 0;
+}
+</style>
+
+# Verification and validation for reactive systems
+
+## Course perspective
+
+Verification and validation techniques provide formal methods for specifying systems and establishing whether relevant properties hold. The course focuses especially on **reactive programs and systems** and on the environments with which they interact or that they control. Properties are expressed through suitable logical formalisms, particularly temporal logics, and are analysed with mathematical models and algorithms.
+
+The course develops three connected kinds of resources:
+
+- **techniques**, such as satisfiability checking and model checking;
+- **methodologies**, which organise the construction of models and specifications;
+- **tools**, which mechanise analysis, verification, learning, and synthesis.
+
+Formal methods support several distinct tasks. They can be used to check that a specification is internally consistent, to determine whether a program or system satisfies an expected property, and to synthesise a controller that is correct by construction. These tasks should not be conflated. Consistency concerns whether the requirements can hold together. Verification compares a model against a property. Synthesis constructs behaviour from a formal requirement.
+
+The broader course progression begins with background in logic, finite automata, regular languages, and games; it then considers fair transition systems, automata on infinite objects, temporal logics, and algorithms for satisfiability checking, model checking, automata learning, and synthesis. Applications concern artificial intelligence and cybersecurity. This chapter, however, remains within the introductory material and the first deck on logic.
+
+## Reactive and transformational programs
+
+A **transformational program** receives an input, performs a computation, terminates, and returns an output. Its correctness is usually described as a relation between initial and final states.
+
+A **reactive program or system**, by contrast, is intended to maintain an appropriate interaction with its environment over time, potentially indefinitely. Its purpose is not simply to terminate with a final value. Operating systems, concurrent and real-time programs, process-control software, embedded systems, monitors, and control protocols for cyber-physical systems are representative examples.
+
+This distinction changes what correctness means. For a reactive system, it is not enough to inspect a final result. One must reason about an entire execution, often an infinite sequence of states or events. Typical requirements say that something bad never occurs, that a requested service is eventually provided, or that the system continues to react correctly whenever its environment produces new inputs.
+
+## Concurrency and communication
+
+Concurrency is a distinctive feature of reactive systems. It appears in two closely related forms:
+
+1. a system operates concurrently with its environment;
+2. several component processes execute concurrently within the system.
+
+The two views can be unified by treating both the system and its environment as interacting components. Formal analysis must therefore describe not only the local behaviour of each component but also their interactions.
+
+Concurrent processes communicate and synchronise primarily through:
+
+- **shared variables**, where processes access common state;
+- **message passing**, where processes exchange explicit messages.
+
+The course seeks a uniform account that does not depend on one particular communication mechanism. Fundamental patterns such as **mutual exclusion** and the **producer/consumer schema** can be implemented using either shared variables or message passing.
+
+A further distinction is between **true concurrency** and **interleaving**. True concurrency means that processes physically execute at the same time. Interleaving models concurrency by arranging atomic actions from different processes into a sequence, selecting one action at a time. Interleaving can faithfully represent relevant aspects of true concurrency only under suitable syntactic restrictions and fairness assumptions. Without such assumptions, an interleaving model may admit unrealistic computations in which an enabled component is postponed forever.
+
+## Models, specification languages, and algorithms
+
+The computational models announced in the introductory deck include fair transition systems and automata over infinite words, trees, or graphs. Temporal logic provides the corresponding specification language.
+
+The introductory classification of properties distinguishes:
+
+- **safety**: bad situations must never occur;
+- **liveness**: good situations must eventually occur;
+- **reactivity**: ongoing interaction combines obligations to avoid failures and to continue producing appropriate responses.
+
+Safety has a universal flavour: every relevant point of every execution must avoid the forbidden situation. Liveness has an eventuality flavour: an execution must not postpone the required good event forever.
+
+Algorithms then connect models and specifications. The course mentions tableau systems, automata, and logical games as foundations for satisfiability checking, model checking, and synthesis. Model checking is considered for temporal logics such as LTL, CTL, CTL*, and the modal $\mu$-calculus. A central practical obstacle is **state explosion**, where the number of system states grows extremely rapidly with the number of components and variables. Approaches named in the introduction include symbolic model checking, ordered binary decision diagrams (OBDDs), partial-order reduction, automata-based model checking, bounded and SAT-based methods, and IC3-style invariant checking.
+
+The introductory tool landscape includes NuSMV for symbolic model checking and ProVerif and Tamarin for symbolic analysis of cryptographic protocols. These names establish the later application context; their detailed operation is outside this chapter.
+
+# Why logic matters
+
+## Failures and the motivation for formal methods
+
+The logic deck motivates formal reasoning through costly failures:
+
+- the 1994 Pentium floating-point division bug, associated in the slides with losses exceeding 475 million US dollars for Intel;
+- the 1996 Ariane 5 overflow failure, associated with losses exceeding 370 million;
+- the 2016 DAO smart-contract attack, associated with losses exceeding 50 million US dollars for Ethereum users and with a subsequent fork.
+
+The point is not that logic automatically prevents every defect. Rather, informal confidence, testing alone, or unchecked assumptions may fail to cover rare numerical cases, unexpected state combinations, or adversarial behaviours. A formal model makes the relevant behaviours explicit, while a formal specification states exactly what must hold. Verification asks whether all behaviours represented by the model satisfy that specification.
+
+## A model-checking example: the vending machine
+
+The deck introduces a vending machine as a transition system. Its states represent stages of operation, and edges are labelled by events such as insertion of $5\,\text{¢}$ or $10\,\text{¢}$, `coffee`, `refund`, and `kick`. An execution is a path through this graph. Because the property concerns continuing behaviour, the question is posed over infinite executions.
+
+The intended requirement is:
+
+> Whenever a $5\,\text{¢}$ or $10\,\text{¢}$ coin is inserted, the next part of the execution must proceed without a `kick` until either `coffee` or `refund` occurs.
+
+Using the words employed in the slide, the specification is shown below. The cent symbol is written with `\text{¢}`, which renders reliably in Quarto and MathJax.
+
+::: {.formula-scroll}
+$$
+\varphi = \operatorname{ALWAYS}\Bigl(
+  (10\,\text{¢} \operatorname{OR} 5\,\text{¢})
+  \rightarrow
+  \operatorname{NEXT}\bigl(
+    (\operatorname{NOT}\,\mathit{kick})
+    \operatorname{UNTIL}
+    (\mathit{coffee}\operatorname{OR}\mathit{refund})
+  \bigr)
+\Bigr).
+$$
+:::
+
+
+Each operator has a specific role:
+
+- `ALWAYS` applies the obligation at every position of an execution;
+- the implication activates the obligation when a coin event occurs;
+- `NEXT` starts checking after the coin transition;
+- `UNTIL` requires `NOT kick` at preceding positions and eventually requires `coffee OR refund`.
+
+The verification question is whether **all infinite executions of the model satisfy $\varphi$**. A standard automata-theoretic strategy searches for a counterexample rather than proving the universal statement directly. Negating the specification gives, in the notation of the deck,
+
+::: {.formula-scroll}
+$$
+\neg\varphi = \operatorname{EVENTUALLY}\Bigl(
+ (10\,\text{¢} \operatorname{OR} 5\,\text{¢})
+ \operatorname{AND}
+ \operatorname{NEXT}\bigl(
+   \operatorname{ALWAYS}(\operatorname{NOT}(\mathit{coffee}\operatorname{OR}\mathit{refund}))
+   \operatorname{OR}
+   (\operatorname{NOT}(\mathit{coffee}\operatorname{OR}\mathit{refund})
+      \operatorname{UNTIL}\mathit{kick})
+ \bigr)
+\Bigr).
+$$
+:::
+
+This formula describes a violating execution: eventually a coin is inserted, after which either coffee and refund never occur, or a kick occurs before either of them. The negated property is compiled into an automaton and combined with the vending-machine model through a product construction. A successful run in the product is a concrete counterexample. Thus, the model, the logical specification, negation, automata, and product construction form one reasoning chain.
+
+The following diagram condenses the verification procedure developed across the progressive slides. Read it from left to right: the model supplies the possible executions, while the negated specification supplies the accepting condition for violations. Their product is then searched for an accepting execution.
+
+```{mermaid}
+%%| fig-cap: "Counterexample-oriented verification workflow for the vending-machine example."
+flowchart LR
+  M["Vending-machine model"] --> P["Product construction"]
+  S["Required property φ"] --> N["Negate: ¬φ"]
+  N --> A["Automaton for violating executions"]
+  A --> P
+  P --> C{"Accepting execution exists?"}
+  C -->|Yes| X["Counterexample: the model violates φ"]
+  C -->|No| V["All model executions satisfy φ"]
+```
+
+::: {.callout-important}
+For oral explanation, distinguish the property from its negation. The original formula expresses required behaviour. The negated formula characterises precisely the executions that violate it, enabling counterexample search.
+:::
+
+# Logic as a language for formal properties
+
+## Vocabulary, syntax, and semantics
+
+A logic functions first as a language. Any such language must specify:
+
+- a **vocabulary**, namely the symbols available for constructing formulas;
+- a **syntax**, namely the rules determining which combinations are well-formed;
+- a **semantics**, namely the interpretation that gives formulas meaning and determines truth.
+
+These levels cannot replace one another. A string may use allowed symbols but violate the grammar. A well-formed formula may still be ambiguous until the kinds of objects and relations denoted by its symbols are fixed.
+
+The question “Are you two married?” illustrates the role of vocabulary and semantics. Two distinct relations might be intended:
+
+- $\mathit{Married}(x,y)$: $x$ and $y$ are married to one another;
+- $\mathit{Married}(x)$: $x$ is a married person.
+
+These predicates have different arities and express different facts. If the binary relation holds, then both corresponding unary statements hold:
+
+$$
+\mathit{Married}(x,y)
+\rightarrow
+\bigl(\mathit{Married}(x)\land\mathit{Married}(y)\bigr).
+$$
+
+The reverse implication does not follow: two people can each be married without being married to each other. Formalisation forces the relevant distinction to be stated rather than left to conversational context.
+
+## Validity and tautologies
+
+Consider the argument:
+
+> If all humans are mortal and Socrates is human, then Socrates is mortal.
+
+Abstracting “human” as $A$, “mortal” as $B$, and Socrates as $y_0$, the deck gives the form
+
+$$
+\Bigl((\forall x\,(A(x)\rightarrow B(x)))\land A(y_0)\Bigr)
+\rightarrow B(y_0).
+$$
+
+The formula is **valid**: it is true in every structure and under every interpretation of $A$, $B$, and $y_0$. The slides call such a formula a **tautology**. Validity depends on logical form, not on whether the chosen predicates describe the real world. Replacing humans, mortality, and Socrates by beetles, having six legs, and John Lennon preserves the same valid form, even though a premise may be false in the intended real-world interpretation.
+
+A related example is “If Alice sleeps, then someone sleeps.” If $a$ denotes Alice and $S(x)$ means that $x$ sleeps, a suitable translation is
+
+$$
+S(a)\rightarrow \exists x\,S(x).
+$$
+
+The implication is valid provided that the constant $a$ denotes an element of the domain, as is standard in first-order structures.
+
+## Unsatisfiability and contradictions
+
+The barber statement is:
+
+> There is a barber who shaves all and only those men who do not shave themselves.
+
+Writing $R(x,y)$ for “$x$ shaves $y$”, its logical core is
+
+$$
+\exists x\,\forall y\,
+\bigl(R(x,y)\leftrightarrow \neg R(y,y)\bigr).
+$$
+
+Assume that an element $b$ witnesses the existential quantifier. Substituting $y=b$ yields
+
+$$
+R(b,b)\leftrightarrow \neg R(b,b),
+$$
+
+which cannot be true. Therefore no interpretation satisfies the formula. It is **unsatisfiable**, meaning false in every structure or interpretation, and the slides call it a **contradiction**.
+
+This is structurally related to the statement that there exists a set containing exactly the sets that do not contain themselves. The contradiction arises from applying the defining condition to the purported object itself.
+
+The exercise “Everyone sleeps, but Alice is awake” can be translated as
+
+$$
+(\forall x\,S(x))\land \neg S(a).
+$$
+
+The universal conjunct entails $S(a)$, which directly conflicts with $\neg S(a)$. The formula is therefore unsatisfiable.
+
+::: {.callout-note}
+Validity and satisfiability are different notions. A valid formula is true in every structure. A satisfiable formula is true in at least one structure. An unsatisfiable formula is true in none.
+:::
+
+## Typed variables and temporal relationships
+
+The statement
+
+> Every incoming order is eventually processed
+
+requires variables of different types. Let $o$ range over orders and $t,t'$ over times. Let $A(o,t)$ mean that order $o$ arrives at time $t$, and $B(o,t')$ mean that $o$ is processed at time $t'$. Then:
+
+$$
+\forall o\,\forall t\,
+\Bigl(A(o,t)\rightarrow
+\exists t'\,(t'>t\land B(o,t'))\Bigr).
+$$
+
+The typing matters because orders and time points range over different universes or subdomains. The inequality $t'>t$ makes “eventually” explicit as a later time, while the same order variable $o$ connects arrival and processing.
+
+The exercise “If I study long enough from now on, I will pass the exam afterwards” similarly requires a temporal relation and a careful account of what interval counts as “long enough.” The lesson of the slide is not a unique translation but the need to choose an adequate vocabulary, variable types, and temporal ordering before the natural-language statement becomes a precise formula.
+
+## First-order and second-order variables
+
+The scheduling example states:
+
+> Exams can be scheduled in three slots so that no student has two exams at once.
+
+The deck distinguishes:
+
+- first-order variables $x,y,z,\ldots$ for individual exams;
+- first-order variables $s,t,u,\ldots$ for individual students;
+- second-order variables $A,B,C,\ldots$ for sets of exams, representing the three slots.
+
+Let $H(x,s)$ mean that student $s$ has exam $x$. A direct reconstruction of the slide's formula is:
+
+$$
+\begin{aligned}
+\exists A\,\exists B\,\exists C\;\Bigl(&
+  \forall x\,(A(x)\lor B(x)\lor C(x)) \\
+&\land \neg\exists x\,\bigl(
+   (A(x)\land B(x))\lor
+   (A(x)\land C(x))\lor
+   (B(x)\land C(x))
+  \bigr) \\
+&\land \neg\exists x\,\exists y\,\exists s\;\bigl(
+ x\neq y\land H(x,s)\land H(y,s) \\
+&\qquad\land ((A(x)\land A(y))\lor
+               (B(x)\land B(y))\lor
+               (C(x)\land C(y)))
+  \bigr)
+\Bigr).
+\end{aligned}
+$$
+
+The three conjuncts play separate roles:
+
+1. every exam belongs to at least one slot;
+2. no exam belongs to two different slots, so the three sets form a partition;
+3. no student has two distinct exams in the same slot.
+
+The outer existential quantification over $A$, $B$, and $C$ expresses the existence of a valid schedule. Because these variables denote sets rather than individual objects, the formula uses second-order quantification.
+
+# Logic as a formal reasoning tool
+
+Logic is not only a notation for properties. It also supports mechanised reasoning about them. Two guiding questions are:
+
+1. **What can be mechanised?** This concerns decision problems, algorithms, and reductions, including reductions from known undecidable problems such as the Halting Problem or tiling problems.
+2. **How hard is mechanisation?** This concerns computational complexity, expressiveness, succinctness, and the efficiency of available algorithms.
+
+## Reductions
+
+A **reduction from a problem $P$ to a problem $Q$** is an algorithmic method for solving instances of $P$ using solutions to $Q$. Informally, it establishes that $P$ is no harder than $Q$ under the chosen kind of reduction.
+
+For a many-to-one reduction, an algorithm $F$ transforms each input $x$ so that
+
+$$
+P(x) \quad\text{if and only if}\quad Q(F(x)).
+$$
+
+Once $F(x)$ is computed, one call to a solver for $Q$ determines the answer for $P(x)$. The direction matters: a reduction from $P$ to $Q$ transfers an algorithmic upper bound from $Q$ to $P$, while hardness is usually transferred in the opposite interpretive direction.
+
+## Time and space complexity
+
+Let $f:\mathbb{N}\to\mathbb{N}$. An algorithm is time-bounded or space-bounded by $f$ if, on an input of size $n$, it uses at most $f(n)$ units of the corresponding resource.
+
+Asymptotic analysis ignores constant-scale differences. The deck phrases an $O(f)$ bound by requiring constants $c$ and $d$ such that resource use is at most
+
+$$
+c\,f(n)+d.
+$$
+
+The progression of classes shown is
+
+$$
+\mathbf{P}\subseteq\mathbf{NP}\subseteq\mathbf{PSPACE}
+\subseteq\mathbf{EXP}\subseteq\cdots
+$$
+
+Here $\mathbf{P}$ contains decision problems solvable in deterministic polynomial time, $\mathbf{NP}$ those solvable in nondeterministic polynomial time, $\mathbf{PSPACE}$ those solvable using polynomial space, and $\mathbf{EXP}$ those solvable in deterministic exponential time. The displayed inclusions do not assert that every adjacent inclusion is strict.
+
+## Expressiveness and related trade-offs
+
+When comparing logical formalisms, several questions must remain distinct:
+
+- **Expressiveness:** Which properties can the logic express? Is one logic more expressive than another?
+- **Decidability:** Are its central reasoning problems algorithmically solvable?
+- **Succinctness:** How large must a formula be to express a property? Two logics may express the same properties while one gives much shorter formulas.
+- **Efficiency:** What computational resources do the best known decision procedures require?
+- **Normal forms:** Can formulas be transformed into a simpler standard syntax without changing meaning?
+- **Algebraic representations:** Is there an equivalent lower-level or algebraic formalism?
+
+Greater expressiveness is not automatically better. It may cause undecidability or higher complexity. A less expressive fragment can be valuable precisely because it admits more efficient analysis. Likewise, equal expressiveness does not imply equal succinctness or equal verification cost.
+
+# Central decision problems
+
+## Model checking
+
+The **model-checking problem** receives a structure $S$ and a formula $\varphi$ and asks whether
+
+$$
+S\models\varphi.
+$$
+
+The output is yes or no according to whether $\varphi$ holds in $S$. In some settings the structure is fixed and omitted from the input, particularly when reasoning over a standard infinite structure.
+
+In computer-science applications, a structure often represents a set of computations or behaviours. Model checking can then be viewed as an implication or containment question: are all behaviours admitted by the system contained in the behaviours satisfying the property?
+
+This definition explains the vending-machine example. The transition system is $S$, the temporal requirement is $\varphi$, and a counterexample is an execution in $S$ that is not among the executions satisfying $\varphi$.
+
+## Validity and satisfiability
+
+The **validity problem** asks whether a formula holds in every structure:
+
+$$
+\models\varphi.
+$$
+
+The **satisfiability problem** asks whether there exists at least one structure in which it holds:
+
+$$
+\exists S\;(S\models\varphi).
+$$
+
+Validity and unsatisfiability are inter-reducible through negation:
+
+$$
+\varphi\text{ is valid}
+\quad\Longleftrightarrow\quad
+\neg\varphi\text{ is unsatisfiable}.
+$$
+
+Equivalently, $\varphi$ fails to be valid exactly when $\neg\varphi$ is satisfiable. This identity is the logical basis of counterexample-oriented verification: instead of directly proving that every interpretation or execution satisfies a formula, search for one satisfying its negation.
+
+The three questions introduced so far can be compared directly:
+
+| Decision problem | Input | Question | Positive answer means |
+|---|---|---|---|
+| Model checking | Structure $S$ and formula $\varphi$ | Does $S\models\varphi$? | The property holds in the given structure. |
+| Validity | Formula $\varphi$ | Does $\varphi$ hold in every structure? | $\models\varphi$. |
+| Satisfiability | Formula $\varphi$ | Does $\varphi$ hold in at least one structure? | There exists an $S$ such that $S\models\varphi$. |
+
+## Logical equivalence
+
+Two formulas $\varphi_1$ and $\varphi_2$ are **logically equivalent** if they have the same truth value in every structure:
+
+$$
+\forall S\;\bigl(S\models\varphi_1
+\Longleftrightarrow S\models\varphi_2\bigr).
+$$
+
+Equivalence can be reduced to validity. In classical logic,
+
+$$
+\varphi_1\equiv\varphi_2
+\quad\Longleftrightarrow\quad
+\models(\varphi_1\leftrightarrow\varphi_2).
+$$
+
+Thus, a solver for validity can test whether a proposed rewriting, normal form, or translation preserves meaning.
+
+## Definability between logics
+
+Given a formula $\varphi_1$ in a logic $L_1$, the definability problem asks whether there exists a formula $\varphi_2$ in another logic $L_2$ such that
+
+$$
+\varphi_1\equiv\varphi_2.
+$$
+
+Often $L_2$ is a fragment of $L_1$ with better algorithmic complexity. A positive answer means that the property expressed by $\varphi_1$ does not require the full expressive power of $L_1$ and can be transferred to the more tractable formalism. This connects definability directly with the earlier trade-off among expressiveness, succinctness, and efficiency.
+
+# Sources
+
+- *0.1_Introduction.pdf*, course-introduction slide deck.
+- *1_An_introduction_to_logic.pdf*, primary slide deck for this chapter.
+- *0_Outline.pdf*, consulted only to identify the course structure and the position of the deck.

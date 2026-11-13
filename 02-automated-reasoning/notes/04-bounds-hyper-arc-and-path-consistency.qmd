@@ -1,0 +1,707 @@
+---
+title: "Bounds, Hyper-Arc, and Path Consistency"
+subtitle: "Lecture 4 - 9 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Local consistency revisited
+
+The lecture continues the study of constraint propagation by comparing several levels of local consistency. Let
+
+- $n$ be the number of variables;
+- $c$ be the number of constraints;
+- $d$ be the maximum domain size.
+
+The previous lecture established the following coarse worst-case bounds:
+
+$$
+\text{Node consistency: }O(cd),
+$$
+
+$$
+\text{Arc consistency: }O(cnd^3).
+$$
+
+For node consistency, at most $c$ unary constraints are examined, and checking one unary constraint may require inspecting at most $d$ domain values. Hence the total work is bounded by a constant multiple of $cd$.
+
+For arc consistency, revising one binary constraint may require comparing up to $d^2$ pairs of values. Since at most $nd$ values can be removed overall, revisions may be reactivated up to that order of magnitude, leading to the conservative bound
+
+$$
+O(nd\cdot cd^2)=O(cnd^3).
+$$
+
+The notation $O(\cdot)$ expresses asymptotic worst-case growth. It suppresses constant factors and lower-order terms and describes how the computational cost scales as the numbers of constraints, variables, and domain values increase.
+
+All the propagation rules considered here are domain reduction rules: domains can shrink but never grow. The process is therefore monotone and eventually reaches a unique fixpoint, independent of the order in which valid reduction rules are applied.
+
+# Bounds consistency
+
+Arc consistency checks every value in a domain. **Bounds consistency** is weaker: for numerical domains, it checks only the current minimum and maximum values.
+
+Let $c$ be a binary constraint on variables $X$ and $Y$, with domains $D_X$ and $D_Y$. The constraint is bounds consistent if:
+
+1. both $\min(D_X)$ and $\max(D_X)$ have supporting values in the interval from $\min(D_Y)$ to $\max(D_Y)$;
+2. both $\min(D_Y)$ and $\max(D_Y)$ have supporting values in the interval from $\min(D_X)$ to $\max(D_X)$.
+
+Formally, the bounds of $X$ require support:
+
+$$
+\exists b\in \min(D_Y)..\max(D_Y)
+\quad
+(\min(D_X),b)\in c,
+$$
+
+$$
+\exists b\in \min(D_Y)..\max(D_Y)
+\quad
+(\max(D_X),b)\in c.
+$$
+
+Symmetrically, the bounds of $Y$ require support:
+
+$$
+\exists a\in \min(D_X)..\max(D_X)
+\quad
+(a,\min(D_Y))\in c,
+$$
+
+$$
+\exists a\in \min(D_X)..\max(D_X)
+\quad
+(a,\max(D_Y))\in c.
+$$
+
+A CSP is bounds consistent when each of its binary constraints is bounds consistent.
+
+::: {.callout-note title="What bounds consistency does not check"}
+Bounds consistency verifies only the two extremes of each numerical domain. Unsupported internal values may remain. Consequently, bounds consistency normally removes fewer values than arc consistency.
+:::
+
+## Bounds consistent but not arc consistent
+
+Consider
+
+$$
+\langle 2X=Y;
+X\in\{0,1,2\},
+Y\in\{0,4\}\rangle.
+$$
+
+The domain bounds are supported:
+
+- $X=0$ is supported by $Y=0$;
+- $X=2$ is supported by $Y=4$;
+- $Y=0$ is supported by $X=0$;
+- $Y=4$ is supported by $X=2$.
+
+The CSP is therefore bounds consistent. However, the internal value
+
+$$
+X=1
+$$
+
+would require
+
+$$
+Y=2,
+$$
+
+and $2\notin D_Y$. Thus $X=1$ has no actual support, so the CSP is not arc consistent. Applying arc-consistency filtering removes it:
+
+$$
+\langle 2X=Y;
+X\in\{0,2\},
+Y\in\{0,4\}\rangle.
+$$
+
+| Consistency notion | Scope of the check | Main filtering effect |
+|---|---|---|
+| Node consistency | One variable and unary constraints | Removes values violating unary constraints |
+| Arc consistency | One binary constraint | Every domain value must have support in the other domain |
+| Bounds consistency | Bounds of numerical domains | Checks only current minima and maxima |
+| Path consistency | Three variables | Every allowed pair must extend through a third variable |
+| $k$-consistency | $k$ variables | Every consistent assignment to $k-1$ variables extends to the $k$th |
+| Strong $k$-consistency | All levels up to $k$ | The CSP is $j$-consistent for every $j\leq k$ |
+
+# Bounds-consistency reduction rules
+
+For a binary constraint $c$ on $X$ and $Y$, the bounds-consistency rules replace each domain by the interval between its smallest and largest supported values.
+
+For $X$, define the supported values
+
+$$
+S_X
+=
+\left\{
+ a\in D_X:
+ \exists b\in\min(D_Y)..\max(D_Y)
+ \text{ such that }(a,b)\in c
+\right\}.
+$$
+
+Then
+
+$$
+D'_X
+=
+D_X\cap\bigl(\min(S_X)..\max(S_X)\bigr).
+$$
+
+The rule is
+
+$$
+\text{(BC1)}
+\qquad
+\langle c;X\in D_X,Y\in D_Y\rangle
+\longrightarrow
+\langle c;X\in D'_X,Y\in D_Y\rangle.
+$$
+
+Similarly, define
+
+$$
+S_Y
+=
+\left\{
+ b\in D_Y:
+ \exists a\in\min(D_X)..\max(D_X)
+ \text{ such that }(a,b)\in c
+\right\}
+$$
+
+and
+
+$$
+D'_Y
+=
+D_Y\cap\bigl(\min(S_Y)..\max(S_Y)\bigr).
+$$
+
+The symmetric rule is
+
+$$
+\text{(BC2)}
+\qquad
+\langle c;X\in D_X,Y\in D_Y\rangle
+\longrightarrow
+\langle c;X\in D_X,Y\in D'_Y\rangle.
+$$
+
+Although these formulas are general, common arithmetic constraints admit much simpler specialised implementations.
+
+## Example: propagating $X<Y$
+
+Start with
+
+$$
+\langle X<Y;
+X\in5..20,
+Y\in1..10\rangle.
+$$
+
+The upper bound $X=20$ has no support because no value in $Y$ is greater than $20$. For $X<Y$ to hold, the largest supported value of $X$ is
+
+$$
+\max(D_Y)-1=9.
+$$
+
+Hence BC1 yields
+
+$$
+\langle X<Y;
+X\in5..9,
+Y\in1..10\rangle.
+$$
+
+Now the lower bound $Y=1$ has no support in $X\in5..9$. The smallest supported value of $Y$ is
+
+$$
+\min(D_X)+1=6.
+$$
+
+BC2 therefore yields
+
+$$
+\langle X<Y;
+X\in5..9,
+Y\in6..10\rangle.
+$$
+
+For constraints such as $<$, $=$, and $\neq$, bounds can often be revised using a constant number of arithmetic operations rather than scanning every pair of values.
+
+# Complexity of bounds consistency
+
+The lecture analyses a simple fixpoint algorithm that repeatedly applies bounds reductions to all constraints.
+
+```{mermaid}
+%%| fig-cap: "Simple fixpoint computation for bounds consistency."
+flowchart TD
+    P["Current CSP P"] --> PASS["Apply bounds rules to all c constraints"]
+    PASS --> P2["Obtain P prime"]
+    P2 --> EQ{"P prime equals previous CSP?"}
+    EQ -->|"yes"| FIX["Bounds-consistency fixpoint"]
+    EQ -->|"no"| P
+    PASS --> EMPTY{"Empty domain?"}
+    EMPTY -->|"yes"| FAIL["fail"]
+    EMPTY -->|"no"| P2
+```
+
+Assume a specialised bounds revision for one constraint takes almost constant time. A complete pass over all $c$ constraints then costs
+
+$$
+O(c).
+$$
+
+Comparing the domains before and after one pass costs at most
+
+$$
+O(n)
+$$
+
+when the solver stores only numerical bounds for each of the $n$ variables.
+
+Across all variables, at most $nd$ individual domain points can be removed. This provides a coarse upper bound of $nd$ effective cycles. Multiplying the number of cycles by the cost per pass gives
+
+$$
+O(nd\cdot c)
+=
+\boxed{O(cnd)}.
+$$
+
+Bounds consistency is therefore weaker but faster than full arc consistency. The appropriate choice depends on the CSP: stronger propagation may reduce more search, while cheaper propagation may be preferable when it is executed very frequently.
+
+# Queue-based propagation
+
+Real constraint solvers do not normally rescan every constraint after every change. They maintain a **propagation queue**.
+
+The scheduling policy introduced in the lecture is:
+
+1. at the root of the search tree, initialise the queue with all constraints;
+2. after a non-deterministic assignment to a variable $X$, enqueue the constraints involving $X$;
+3. remove one propagator from the queue and execute it;
+4. if the propagator changes the domain of a variable $Y$, enqueue the propagators whose reasoning depends on $D_Y$;
+5. stop when the queue becomes empty or a domain becomes empty.
+
+```{mermaid}
+%%| fig-cap: "Queue-based propagation used by practical constraint solvers."
+flowchart TD
+    INIT["Initialise queue"] --> POP["Remove one propagator"]
+    POP --> RUN["Apply domain reduction"]
+    RUN --> FAIL{"Empty domain?"}
+    FAIL -->|"yes"| F["fail"]
+    FAIL -->|"no"| CHANGE{"Domain changed?"}
+    CHANGE -->|"yes"| ADD["Enqueue affected propagators"]
+    CHANGE -->|"no"| EMPTY{"Queue empty?"}
+    ADD --> EMPTY
+    EMPTY -->|"no"| POP
+    EMPTY -->|"yes"| FIX["Fixpoint reached"]
+```
+
+This avoids reconsidering constraints that cannot be affected by the latest domain change.
+
+## Directional propagators for a binary constraint
+
+A binary constraint $c(X,Y)$ can be viewed as two directional revision operators:
+
+$$
+c(X,Y)_1:
+D_X
+\leftarrow
+\{a\in D_X:\exists b\in D_Y,
+(a,b)\in c\},
+$$
+
+and
+
+$$
+c(X,Y)_2:
+D_Y
+\leftarrow
+\{b\in D_Y:\exists a\in D_X,
+(a,b)\in c\}.
+$$
+
+The first revises $D_X$ using $D_Y$; the second revises $D_Y$ using $D_X$.
+
+If $D_X$ changes, the revision that may newly become useful is $c(X,Y)_2$, because supports in $D_X$ for values of $Y$ may have disappeared. Conversely, if $D_Y$ changes, enqueue $c(X,Y)_1$.
+
+This directional view permits finer scheduling than treating each binary constraint as one indivisible operation. Further optimisations may use the constraint graph, variable ordering, or propagator-specific information.
+
+# Hyper-arc consistency
+
+Arc consistency is defined for binary constraints. **Hyper-arc consistency** generalises the same support idea to a constraint involving $m\geq2$ variables.
+
+Let
+
+$$
+c\subseteq D_1\times\cdots\times D_m
+$$
+
+be a constraint on
+
+$$
+X_1,\ldots,X_m.
+$$
+
+The constraint is hyper-arc consistent if, for every variable $X_i$ and every value $a_i\in D_i$, there exist values for all the other variables such that the entire tuple satisfies $c$:
+
+$$
+\forall i\in\{1,\ldots,m\},
+\quad
+\forall a_i\in D_i,
+$$
+
+$$
+\exists a_1\in D_1,\ldots,
+\exists a_{i-1}\in D_{i-1},
+\exists a_{i+1}\in D_{i+1},\ldots,
+\exists a_m\in D_m
+$$
+
+such that
+
+$$
+(a_1,\ldots,a_i,\ldots,a_m)\in c.
+$$
+
+A CSP is hyper-arc consistent when every constraint is hyper-arc consistent.
+
+The property is also commonly called **generalised arc consistency**. The essential idea is unchanged: every current domain value must participate in at least one full satisfying tuple of the constraint.
+
+## Example: $2X+3Y<Z$
+
+Consider
+
+$$
+\langle 2X+3Y<Z;
+X\in1..10,
+Y\in1..10,
+Z\in1..10\rangle.
+$$
+
+The smallest possible left-hand side is obtained with $X=1$ and $Y=1$:
+
+$$
+2\cdot1+3\cdot1=5.
+$$
+
+Therefore, $Z=1,2,3,4,5$ cannot be supported because the strict inequality requires $Z>5$. Hence
+
+$$
+D_Z=6..10.
+$$
+
+For $Y=3$, even the smallest value $X=1$ gives
+
+$$
+2\cdot1+3\cdot3=11,
+$$
+
+which cannot be strictly smaller than any $Z\in1..10$. Thus $Y=3$ and every larger value are unsupported, leaving
+
+$$
+D_Y=1..2.
+$$
+
+Similarly, $X=4$ is unsupported even with the smallest $Y=1$:
+
+$$
+2\cdot4+3\cdot1=11.
+$$
+
+Therefore,
+
+$$
+D_X=1..3.
+$$
+
+The hyper-arc-consistent CSP is
+
+$$
+\langle 2X+3Y<Z;
+X\in1..3,
+Y\in1..2,
+Z\in6..10\rangle.
+$$
+
+# Hyper-arc-consistency rules and complexity
+
+For each variable position $i\in\{1,\ldots,m\}$, define the supported values
+
+$$
+D'_i
+=
+\left\{
+ a_i\in D_i:
+ \text{there exist values in all other domains completing }a_i
+ \text{ to a tuple in }c
+\right\}.
+$$
+
+The rule $\mathrm{HAC}_i$ replaces $D_i$ by $D'_i$ while leaving the other domains unchanged. Repeated application for every variable position and every constraint continues until a fixpoint or failure.
+
+The deck states the conservative complexity
+
+$$
+\boxed{O(cnmd^{m+1})},
+$$
+
+where:
+
+- $c$ is the number of constraints;
+- $n$ is the number of variables;
+- $m$ is the maximum constraint arity;
+- $d$ is the maximum domain size.
+
+The main factors can be understood as follows:
+
+1. for one $m$-ary constraint and one selected variable, up to $d$ values may be tested;
+2. supporting one selected value may require exploring combinations of values for the remaining $m-1$ variables, giving up to $d^{m-1}$ combinations;
+3. revising every one of the $m$ positions gives a cost on the order of $md^m$ for one complete revision of one constraint;
+4. changes can trigger repeated revisions; a coarse bound uses up to $nd$ value removals;
+5. multiplying by $c$ constraints gives
+   
+   $$
+   c\cdot md^m\cdot nd
+   =
+   O(cnmd^{m+1}).
+   $$
+
+The exponential dependence on the arity $m$ explains why specialised propagators and global-constraint algorithms are important for high-arity constraints.
+
+# Path consistency
+
+Path consistency strengthens reasoning for binary CSPs by considering triples of variables.
+
+## Normalised and standard CSPs
+
+A CSP is **normalised** when, for each unordered pair of variables $X,Y$, there is at most one binary constraint on that pair. Denote it by
+
+$$
+C(X,Y)
+$$
+
+when it exists.
+
+If more than one binary constraint concerns the same pair, replace them by their intersection because constraints are sets of admitted tuples. For example, constraints $C_1(X,Z)$ and $C_2(X,Z)$ can be combined as
+
+$$
+C(X,Z)=C_1(X,Z)\cap C_2(X,Z).
+$$
+
+A CSP is **standard** when every unordered pair of variables has exactly one binary constraint. When no explicit constraint exists between $X$ and $Y$, add the universal relation
+
+$$
+D_X\times D_Y,
+$$
+
+which admits every pair and therefore does not exclude any assignment.
+
+Every CSP can be rewritten into an equivalent standard CSP. During this rewriting, intersections may expose inconsistency and propagate domain reductions.
+
+## Example of standardisation
+
+Suppose a CSP contains:
+
+- one binary constraint on $(X,Y)$;
+- two binary constraints on $(X,Z)$;
+- no binary constraint on $(Y,Z)$;
+- one ternary constraint on $(X,Y,Z)$.
+
+To make the binary part standard:
+
+1. intersect the two relations concerning $(X,Z)$;
+2. add the universal relation $D_Y\times D_Z$ for $(Y,Z)$;
+3. leave the ternary constraint unchanged.
+
+Standardisation concerns the organisation of binary relations; it does not replace higher-arity constraints.
+
+# Composition and transpose of binary relations
+
+For a binary relation $R$, its transpose is
+
+$$
+R^T
+=
+\{(b,a):(a,b)\in R\}.
+$$
+
+For binary relations $R$ and $S$, their composition is
+
+$$
+RS
+=
+\{(a,b):\exists c,
+(a,c)\in R
+\text{ and }
+(c,b)\in S\}.
+$$
+
+The composition contains the endpoint pairs that can be connected through some intermediate value.
+
+```{mermaid}
+%%| fig-cap: "Relational composition through an intermediate variable."
+flowchart LR
+    X["value a of X"] -->|"C(X,Y)"| Y["supporting value c of Y"]
+    Y -->|"C(Y,Z)"| Z["value b of Z"]
+    X -.->|"pair (a,b) belongs to the composition"| Z
+```
+
+# Definition of path consistency
+
+A standard CSP is path consistent if, for every triple of variables $X,Y,Z$,
+
+$$
+C(X,Z)
+\subseteq
+C(X,Y)C(Y,Z).
+$$
+
+Equivalently, whenever
+
+$$
+(a,b)\in C(X,Z),
+$$
+
+there must exist a value $c\in D_Y$ such that
+
+$$
+(a,c)\in C(X,Y)
+$$
+
+and
+
+$$
+(c,b)\in C(Y,Z).
+$$
+
+Thus, every pair allowed directly between $X$ and $Z$ must be extendible through the third variable $Y$.
+
+The analogous requirements hold for the other two choices of endpoints:
+
+$$
+C(X,Y)
+\subseteq
+C(X,Z)C(Z,Y),
+$$
+
+$$
+C(Y,Z)
+\subseteq
+C(Y,X)C(X,Z).
+$$
+
+# Path-consistency example
+
+Consider
+
+$$
+X\neq Y,
+\qquad
+Y\neq Z,
+\qquad
+X\neq Z,
+$$
+
+with
+
+$$
+X,Y,Z\in\{0,1\}.
+$$
+
+Each binary relation is
+
+$$
+C(X,Y)=C(Y,Z)=C(X,Z)
+=
+\{(0,1),(1,0)\}.
+$$
+
+To compose $C(X,Y)$ and $C(Y,Z)$:
+
+- starting with $X=0$, the first disequality forces $Y=1$, and the second forces $Z=0$;
+- starting with $X=1$, the first forces $Y=0$, and the second forces $Z=1$.
+
+Therefore,
+
+$$
+C(X,Y)C(Y,Z)
+=
+\{(0,0),(1,1)\}.
+$$
+
+But
+
+$$
+C(X,Z)
+=
+\{(0,1),(1,0)\}
+$$
+
+is not a subset of the composition. The CSP is not path consistent. This stronger check detects the contradiction that arc consistency alone did not detect.
+
+# Path-consistency proof rules
+
+For a triple $X,Y,Z$, path-consistency rules intersect each binary relation with the pairs that can be supported through the third variable.
+
+The relation on $(X,Z)$ is revised as
+
+$$
+C'(X,Z)
+=
+C(X,Z)
+\cap
+\bigl(C(X,Y)C(Y,Z)\bigr).
+$$
+
+The relation on $(X,Y)$ is revised as
+
+$$
+C'(X,Y)
+=
+C(X,Y)
+\cap
+\bigl(C(X,Z)C(Y,Z)^T\bigr).
+$$
+
+The relation on $(Y,Z)$ is revised as
+
+$$
+C'(Y,Z)
+=
+C(Y,Z)
+\cap
+\bigl(C(X,Y)^T C(X,Z)\bigr).
+$$
+
+The three corresponding rules are repeatedly applied for every triple until no binary relation changes or one becomes empty.
+
+# Complexity of path consistency
+
+The deck provides a conservative polynomial bound. Using $n$ variables and maximum domain size $d$:
+
+- there are on the order of $n(n-1)(n-2)=O(n^3)$ ordered variable triples;
+- checking or revising relations through a third variable can require nested scans over domain values, yielding a factor bounded by a power of $d$;
+- binary relations themselves contain at most $d^2$ pairs, and pair removals may trigger repeated cycles.
+
+The resulting coarse bound stated in the lecture is
+
+$$
+\boxed{O(n^4d^5)}.
+$$
+
+The important conclusion is comparative rather than the exact constant: path consistency reasons more strongly than arc consistency, but its substantially higher cost limits when it is practical.
+
+# Beyond path consistency
+
+The final slide mentions **$k$-consistency** as the generalisation of the preceding notions. Informally, a CSP is $k$-consistent when every consistent assignment to $k-1$ variables can be extended to any $k$th variable.
+
+The deck explicitly postpones this topic, so no further development is included in this chapter.
+
+# Sources
+
+- Original and annotated slide deck: *04 - 09-10-2026.pdf*.

@@ -1,0 +1,433 @@
+---
+title: "Syntax of Logic Programming and Definite-Clause Programs"
+subtitle: "Lecture 10 - 6 November 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Syntax of logic programming
+
+Logic programming starts from a small formal vocabulary: **terms** represent objects, **atoms** express elementary properties or relations, and **rules** describe how atoms depend on other atoms. The lecture develops these layers in this order and then uses them to build executable database-style programs.
+
+## Terms
+
+Let:
+
+- $\mathcal{C}$ be a set of **constant symbols**, such as $a$, $b$, $c$, `socrate`, and `uomo`;
+- $\mathcal{V}$ be a set of **variable symbols**, such as $X$, $Y$, $Z$, $X1$, and $X2$;
+- $\mathcal{F}$ be a set of **function symbols**, such as $f$, $g$, $h$, `sqrt`, `piu`, and `per`.
+
+Every function symbol $f\in\mathcal{F}$ has an **arity** $\operatorname{ar}(f)>0$, namely its number of arguments. For example,
+
+$$
+\operatorname{ar}(\mathrm{sqrt})=1,
+\qquad
+\operatorname{ar}(\mathrm{piu})=2.
+$$
+
+For uniformity, constants and variables are regarded as symbols of arity zero:
+
+$$
+\operatorname{ar}(c)=0 \quad\text{for }c\in\mathcal{C},
+\qquad
+\operatorname{ar}(X)=0 \quad\text{for }X\in\mathcal{V}.
+$$
+
+Terms are defined recursively:
+
+1. if $c\in\mathcal{C}$, then $c$ is a term;
+2. if $X\in\mathcal{V}$, then $X$ is a term;
+3. if $f\in\mathcal{F}$, $\operatorname{ar}(f)=n$, and $t_1,\ldots,t_n$ are terms, then $f(t_1,\ldots,t_n)$ is a term.
+
+A term containing no variables is a **ground term**.
+
+| Expression | Term? | Ground? | Reason |
+|---|---:|---:|---|
+| $0$ | Yes | Yes | Constant |
+| $s(s(0))$ | Yes | Yes | Built only from $s$ and $0$ |
+| $s(s(X))$ | Yes | No | Contains the variable $X$ |
+| $\mathrm{sqrt}(\mathrm{piu}(s(s(Y)),s(0)))$ | Yes | No | Contains $Y$ |
+| $\mathrm{sqrt}(\mathrm{piu}(s(s(0)),s(0)))$ | Yes | Yes | Contains no variables |
+
+Here $\operatorname{ar}(s)=\operatorname{ar}(\mathrm{sqrt})=1$ and $\operatorname{ar}(\mathrm{piu})=2$.
+
+The handwritten annotation on the slide reads the nested term as a tree: the outer function is the root, and each argument becomes a child. For the non-ground term $\mathrm{sqrt}(\mathrm{piu}(s(s(Y)),s(0)))$, the structure is:
+
+```{mermaid}
+%%| fig-cap: "The syntax tree of the annotated term; the leaf Y explains why the term is not ground."
+flowchart TD
+  A["sqrt"] --> B["piu"]
+  B --> C["s"]
+  B --> D["s"]
+  C --> E["s"]
+  E --> F["Y"]
+  D --> G["0"]
+```
+
+The outermost symbol determines the main constructor. The occurrence of $Y$ at a leaf is enough to make the complete term non-ground.
+
+## Atomic formulas and literals
+
+Let $\mathcal{P}$ be a set of **predicate symbols**, such as $p$, $q$, $r$, `genitore`, `allievo`, `coetaneo`, `eq`, `leq`, and `integer`. Each $p\in\mathcal{P}$ has an arity $\operatorname{ar}(p)\ge 0$.
+
+If $p\in\mathcal{P}$ has arity $n$ and $t_1,\ldots,t_n$ are terms, then
+
+$$
+p(t_1,\ldots,t_n)
+$$
+
+is an **atomic formula**, or simply an **atom**. Examples include
+
+$$
+\mathrm{integer}(s(s(s(0)))),
+\qquad
+\mathrm{leq}(0,s(s(0))),
+\qquad
+\mathrm{father}(\mathrm{abramo},\mathrm{isacco}),
+\qquad
+p(X,Y,a).
+$$
+
+A **literal** is either an atom $A$ or its negated form `not A`.
+
+The course also uses predicates of arity zero. Thus $p$, $q$, and $r$ may themselves be atoms. This special case permits propositional logic to be represented inside the same syntax, whereas atoms with arguments support first-order structure.
+
+| Syntactic object | Built from | Role |
+|---|---|---|
+| Term | Constants, variables and function symbols | Denotes an object |
+| Atom | Predicate symbol applied to terms | Expresses an elementary relation or property |
+| Literal | An atom or `not` followed by an atom | Positive or negative condition |
+
+## Rules
+
+An ASP rule has the form
+
+$$
+H \leftarrow B_1,\ldots,B_m,
+\operatorname{not} B_{m+1},\ldots,
+\operatorname{not} B_n,
+\tag{1}
+$$
+
+where $H,B_1,\ldots,B_n$ are atoms and $n,m\ge 0$. In concrete program syntax, the arrow $\leftarrow$ is written `:-`, while the comma represents conjunction.
+
+- $H$ is the **head** of the rule.
+- Everything to the right of $\leftarrow$ is the **body**.
+- If $m=n$, no occurrence of `not` is present and the rule is a **definite rule**, also called a **definite clause**.
+- If $m=n=0$, the body is empty and the rule is a **fact**.
+
+Operationally, the rule says that $H$ may be concluded when all positive body atoms hold and the negative body conditions are satisfied.
+
+### From rule notation to a logical clause
+
+The implication represented by (1) can be written as
+
+$$
+(B_1\land\cdots\land B_m\land
+\neg B_{m+1}\land\cdots\land\neg B_n)
+\to H.
+$$
+
+Eliminating the implication gives the disjunction
+
+$$
+H\lor\neg B_1\lor\cdots\lor\neg B_m
+\lor B_{m+1}\lor\cdots\lor B_n.
+$$
+
+This is a disjunction of literals, also called a **clause**. The handwritten example on the slide performs exactly this transformation for
+
+$$
+A\leftarrow B,C,\operatorname{not}D,
+$$
+
+obtaining
+
+$$
+A\lor\neg B\lor\neg C\lor D.
+$$
+
+When the rule is definite, there is exactly one positive literal in the corresponding clause: the head $H$.
+
+## Denials, also called constraints
+
+A denial has no head:
+
+$$
+\leftarrow B_1,\ldots,B_m,
+\operatorname{not} B_{m+1},\ldots,
+\operatorname{not} B_n.
+\tag{2}
+$$
+
+Logically, it is equivalent to
+
+$$
+\neg B_1\lor\cdots\lor\neg B_m
+\lor B_{m+1}\lor\cdots\lor B_n.
+$$
+
+A denial therefore excludes situations in which its entire body is satisfied. If $m=n$, there are no positive literals in the corresponding clause.
+
+A **Horn clause** is a clause containing at most one positive literal. Consequently:
+
+- a definite clause has exactly one positive literal;
+- a definite denial has no positive literals;
+- both satisfy the Horn restriction.
+
+# Programs and definite clauses
+
+A program is a set of rules of form (1) and denials of form (2). In principle, the order of these statements does not matter.
+
+The lecture initially restricts attention to **definite-clause programs**, also called **pure Prolog programs**. Their rules have the simpler form
+
+$$
+H\leftarrow B_1,\ldots,B_m,
+\tag{3}
+$$
+
+where $H,B_1,\ldots,B_m$ are atoms and $m\ge 0$.
+
+# Programs as databases
+
+## Extensional information: facts
+
+The first program records parent relationships:
+
+```prolog
+parent(elizabeth, charles).
+parent(philip, charles).
+parent(diana, william).
+parent(diana, harry).
+parent(charles, william).
+parent(charles, harry).
+```
+
+Here `parent` is a predicate and each name is a constant symbol. Every statement has an empty body, so every statement is a fact. As stressed in the annotation, facts have **no body** and therefore no written implication. They populate the database **extensionally**, by listing the relationships that hold.
+
+## Intensional information: the `grandparent` predicate
+
+A new relation can be defined from the stored parent facts:
+
+```prolog
+grandparent(X, Y) :- parent(X, Z), parent(Z, Y).
+```
+
+This definite clause says that $X$ is a grandparent of $Y$ whenever an intermediate individual $Z$ connects two parent relationships.
+
+The slide presents two readings of the variable $Z$.
+
+**View 1.** For given $X$ and $Y$, if there exists a $Z$ satisfying both parent relationships, then `grandparent(X,Y)` holds:
+
+$$
+(\forall X)(\forall Y)
+\left(
+(\exists Z)(\mathrm{parent}(X,Z)\land\mathrm{parent}(Z,Y))
+\to \mathrm{grandparent}(X,Y)
+\right).
+$$
+
+**View 2.** Universally quantify all three variables:
+
+$$
+(\forall X)(\forall Y)(\forall Z)
+\left(
+\mathrm{parent}(X,Z)\land\mathrm{parent}(Z,Y)
+\to \mathrm{grandparent}(X,Y)
+\right).
+$$
+
+The two formulas are equivalent because `grandparent(X,Y)` does not contain $Z$. If a suitable $Z$ exists, View 2 gives the conclusion for that witness. Conversely, if View 1 holds and the conjunction is true for an arbitrary $Z$, then the existential premise of View 1 is true, so the same conclusion follows.
+
+Using the facts in the database, a solver should derive:
+
+```prolog
+grandparent(elizabeth, william).
+grandparent(elizabeth, harry).
+grandparent(philip, william).
+grandparent(philip, harry).
+```
+
+For example, `grandparent(elizabeth, william)` follows by choosing `charles` for $Z$ and combining `parent(elizabeth,charles)` with `parent(charles,william)`.
+
+## Recursion: the `ancestor` predicate
+
+The database is enlarged with:
+
+```prolog
+parent(william, george).
+parent(william, charlotte).
+parent(kate, george).
+parent(kate, charlotte).
+```
+
+The ancestor relation is then defined by two clauses:
+
+```prolog
+ancestor(X, Y) :- parent(X, Y).
+ancestor(X, Y) :- parent(X, Z), ancestor(Z, Y).
+```
+
+The first clause is the base case: every parent is an ancestor. The second clause is recursive: if $X$ is a parent of $Z$ and $Z$ is an ancestor of $Y$, then $X$ is an ancestor of $Y$.
+
+A derivation of `ancestor(elizabeth,george)` unfolds as follows:
+
+1. use `parent(elizabeth,charles)`;
+2. reduce the remaining question to `ancestor(charles,george)`;
+3. use `parent(charles,william)`;
+4. reduce again to `ancestor(william,george)`;
+5. close the derivation using the base fact `parent(william,george)`.
+
+This is the lecture's first use of recursion. Recursion is fundamental in both functional and logic declarative programming because it defines relations over paths or structures of unbounded depth using a finite program.
+
+## Detecting and repairing an overgeneral definition
+
+The lecture next proposes:
+
+```prolog
+married(X, Y) :- parent(X, Z), parent(Y, Z).
+sibling(X, Y) :- parent(Z, X), parent(Z, Y).
+```
+
+Both definitions accidentally allow $X=Y$. Anyone who appears as a parent satisfies the first rule with oneself, and anyone with a recorded parent satisfies the second rule with oneself. The intended relations require distinct arguments, so the patch is:
+
+```prolog
+married(X, Y) :- parent(X, Z), parent(Y, Z), X \= Y.
+sibling(X, Y) :- parent(Z, X), parent(Z, Y), X \= Y.
+```
+
+The condition `X \= Y` prevents the two variables from denoting the same term. The lesson is methodological: a syntactically valid rule can still define a relation broader than intended, so boundary cases must be tested explicitly.
+
+## Adding classifications and derived predicates
+
+The database receives further facts:
+
+```prolog
+female(elizabeth).
+female(diana).
+female(kate).
+female(charlotte).
+male(philip).
+male(charles).
+male(william).
+male(harry).
+male(george).
+```
+
+These facts support additional intensional definitions:
+
+```prolog
+isfather(X) :- parent(X, Y), male(X).
+ismother(X) :- parent(X, Y), female(X).
+brother(X, Y) :- sibling(X, Y), male(X).
+has_a_sister(X) :- sibling(X, Y), female(Y).
+```
+
+Notice how the position of a variable determines the meaning. In `brother(X,Y)`, the condition `male(X)` classifies $X$. In `has_a_sister(X)`, the condition `female(Y)` classifies the sibling whose existence establishes the property of $X$.
+
+# Infinite arithmetic
+
+## Natural numbers as terms
+
+Natural numbers can be represented using the constant $0$ and the unary successor function $s$:
+
+```prolog
+nat(0).
+nat(s(X)) :- nat(X).
+```
+
+The first clause establishes $0$ as a natural number. The recursive clause says that whenever $X$ is natural, so is $s(X)$. The expected consequences are
+
+```text
+nat(0), nat(s(0)), nat(s(s(0))), ...
+```
+
+Thus a finite program describes an infinite set of answers. The lecture abbreviates the term with $n$ nested occurrences of $s$ by $\overline{n}$:
+
+$$
+\overline{n}
+=
+\underbrace{s(s(\cdots s}_{n\text{ occurrences}}(0)\cdots)).
+$$
+
+This is a representation of natural numbers by syntax: for example, $\overline{2}=s(s(0))$.
+
+## Addition as a relation
+
+Addition is defined by recursion on the second argument:
+
+```prolog
+sum(X, 0, X) :- nat(X).
+sum(X, s(Y), s(Z)) :- sum(X, Y, Z).
+```
+
+The first rule states that adding zero leaves a natural number unchanged. The second states that, if $X+Y=Z$, then $X+s(Y)=s(Z)$. Therefore the program supports answers such as
+
+$$
+\mathrm{sum}(\overline{5},0,\overline{5})
+\qquad\text{and}\qquad
+\mathrm{sum}(\overline{2},\overline{4},\overline{6}).
+$$
+
+Again, the intended relation contains infinitely many answers.
+
+# Turing completeness
+
+The deck illustrates the expressive power of logic programming by encoding the transition relation and execution of a Turing machine. Transition facts have the shape
+
+```prolog
+delta(q0, 0, qi, 1, left).
+...
+delta(qn, 1, qj, 0, right).
+```
+
+A transition records the current state and scanned symbol, followed by the next state, the symbol to write, and the movement direction.
+
+The supplied slide gives the following program schema:
+
+```prolog
+turing(Left, halt, S, Right, Left, halt, S, Right).
+
+turing([L|L_i], Q, S, R_i, L_o, Q_o, S_o, R_o) :-
+    delta(Q, S, Q1, S1, left),
+    turing(L_i, Q1, L, [S1|R_i], L_o, Q_o, S_o, R_o).
+
+turing(L_i, Q, S, [R|R_i], L_o, Q_o, S_o, R_o) :-
+    delta(Q, S, Q1, S1, right),
+    turing([S1|L_i], Q1, R, R_i, L_o, Q_o, S_o, R_o).
+
+turing([], Q, S, R_i, L_o, Q, S_o, R_o) :-
+    turing([0], Q, S, R_i, L_o, Q, S_o, R_o).
+
+turing(L_i, Q, S, [], L_o, Q, S_o, R_o) :-
+    turing(L_i, Q, S, [0], L_o, Q, S_o, R_o).
+```
+
+This transcription preserves the code shown on the slide. The arguments represent the tape portion to the left of the head, the current state, the scanned symbol, the tape portion to the right, and the corresponding final components.
+
+- The first clause is the halting case: a configuration already in state `halt` is returned unchanged.
+- The second clause implements a left move. The nearest symbol from the left list becomes the new scanned symbol, while the symbol just written is placed at the beginning of the right list.
+- The third clause implements a right move symmetrically.
+- The final two clauses supply a `0` when the simulated head reaches an empty left or right list, modelling the extension of the tape.
+
+The purpose of the example is not to develop a complete Turing-machine interpreter line by line, but to show that recursion, structured terms, lists, and transition facts are sufficient to express arbitrary machine computations.
+
+# Top-down and bottom-up solving
+
+The lecture closes by separating two situations.
+
+| Program setting | Method highlighted in the lecture | Main observation |
+|---|---|---|
+| Definite-clause programs | Prolog with a top-down solver | Can enumerate infinite answer sets one result at a time, although termination is not always guaranteed |
+| Knowledge-representation programs with negation | ASP with a bottom-up solver and a finiteness restriction | Better suited to the intended treatment of negation |
+
+Top-down methods can manage an infinite collection without constructing the entire collection in advance: answers may be produced one at a time. However, the deck warns that these methods behave poorly when negation is required. For definite clauses, Prolog can sometimes manage infiniteness. For programs used in knowledge representation with negation, the course instead imposes finiteness and moves to ASP.
+
+This final distinction sets the practical boundary of the lecture: the chapter has introduced the syntax and expressive examples, while detailed Prolog examples follow afterward.
+
+# Sources
+
+- Annotated lecture slide deck: *10 - 06-11-2026.pdf*, “Syntax of Logic Programming,” Automated Reasoning, University of Udine, 2026.

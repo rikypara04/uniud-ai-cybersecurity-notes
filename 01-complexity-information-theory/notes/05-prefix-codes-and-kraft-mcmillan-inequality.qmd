@@ -1,0 +1,613 @@
+---
+title: "Prefix Codes and the Kraft-McMillan Inequality"
+subtitle: "Lecture 5 - 15 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Decoding delay and uniquely decodable codes
+
+Let
+
+$$
+\mathcal A=\{a_1,\ldots,a_k\}
+$$
+
+be the source alphabet and
+
+$$
+\mathcal B=\{b_1,\ldots,b_D\}
+$$
+
+be an output alphabet of size $D$. A code assigns every source symbol a finite output string:
+
+$$
+\varphi:\mathcal A\to\mathcal B^*.
+$$
+
+The code extends to complete source messages through concatenation. If
+
+$$
+m=a_{i_1}a_{i_2}\cdots a_{i_n},
+$$
+
+then
+
+$$
+\varphi(m)
+=
+\varphi(a_{i_1})\varphi(a_{i_2})\cdots\varphi(a_{i_n}).
+$$
+
+A code is **uniquely decodable** when two different source messages can never produce the same encoded string. Equivalently, the extended mapping
+
+$$
+\varphi:\mathcal A^*\to\mathcal B^*
+$$
+
+must be injective.
+
+Unique decodability guarantees that the complete encoded message has one source interpretation. It does not necessarily guarantee that each source symbol can be decoded immediately while the encoded sequence is still arriving.
+
+## Decoding delay
+
+The **decoding delay** is the amount of future encoded data that must be read before the decoder can determine the current source symbol.
+
+A uniquely decodable code may require the decoder to postpone a decision. The decoder may have read a valid codeword but still be unable to know whether that codeword should be accepted immediately or whether the received symbols are the beginning of a longer codeword.
+
+This motivates a stronger class of codes for which a source symbol can be recognised as soon as its codeword ends.
+
+# Prefix codes
+
+A code $\varphi:\mathcal A\to\mathcal B^*$ is a **prefix code** when no codeword is a prefix of another codeword:
+
+$$
+\forall a,b\in\mathcal A,
+\quad
+a\neq b
+\Longrightarrow
+\varphi(a)\text{ is not a prefix of }\varphi(b).
+$$
+
+A string $u$ is a prefix of a string $v$ if there exists a string $z$ such that
+
+$$
+v=uz.
+$$
+
+The prefix is **proper** when $z$ is non-empty. Thus, the prefix condition says that a complete codeword can never also be the initial part of a different, longer codeword.
+
+## Why a prefix code can be decoded immediately
+
+Suppose the encoded string is read from left to right. As soon as the symbols read so far form a complete codeword, the decoder may output the corresponding source symbol.
+
+There is no need to inspect future symbols, because the prefix property guarantees that the current codeword cannot be the beginning of any other codeword. The decoder can therefore remove the recognised codeword and repeat the same procedure on the remaining suffix.
+
+Prefix codes are consequently also called **instantaneous codes**. Their decoding delay is zero.
+
+## Every prefix code is uniquely decodable
+
+The instantaneous procedure also proves the following proposition.
+
+> If $\varphi$ is a prefix code, then $\varphi$ is uniquely decodable.
+
+To see why, assume that an encoded string is produced by the code. Its first codeword is determined uniquely: two different codewords cannot both match the beginning of the string, because then the shorter one would be a prefix of the longer one. After removing the first codeword, the same argument determines the second codeword, and the process continues until the entire encoded string has been consumed.
+
+Hence the encoded sequence has one unique segmentation into codewords and therefore one unique source message.
+
+The converse is false: a uniquely decodable code need not be a prefix code. Prefix codes form a particularly convenient subclass of uniquely decodable codes because they permit instantaneous decoding.
+
+## Tree representation
+
+A $D$-ary rooted tree gives a useful representation of a code over an alphabet with $D$ output symbols:
+
+- the root represents the empty string;
+- each edge is labelled by one output symbol;
+- a node at depth $h$ represents a string of length $h$;
+- the path from the root to a node spells the represented string.
+
+A set of codewords is prefix-free exactly when no selected codeword node is an ancestor of another selected codeword node. Codewords may therefore be placed at leaves of the pruned code tree.
+
+This tree interpretation explains instantaneous decoding. Reading one output symbol corresponds to following one edge. Reaching a codeword leaf identifies the current source symbol; no codeword continues below that leaf.
+
+### Example of a binary prefix tree
+
+Consider the binary prefix code
+
+$$
+\varphi(a)=0,
+\qquad
+\varphi(b)=10,
+\qquad
+\varphi(c)=11.
+$$
+
+The corresponding tree is:
+
+```{mermaid}
+%%| fig-cap: "Binary prefix tree for the code a -> 0, b -> 10, c -> 11."
+flowchart TD
+    R((root))
+    A["a: 0"]
+    N1(("1"))
+    B["b: 10"]
+    C["c: 11"]
+
+    R -->|0| A
+    R -->|1| N1
+    N1 -->|0| B
+    N1 -->|1| C
+
+    classDef codeword fill:#dff3e4,stroke:#27864a,stroke-width:2px;
+    classDef internal fill:#eef3f8,stroke:#5b6b7a;
+    class A,B,C codeword;
+    class R,N1 internal;
+```
+
+The tree should be read from the root downward:
+
+- following edge $0$ reaches the leaf for $a$;
+- following edges $1,0$ reaches the leaf for $b$;
+- following edges $1,1$ reaches the leaf for $c$.
+
+No codeword leaf has descendants. In particular, $0$ is not the beginning of either $10$ or $11$, and neither $10$ nor $11$ is the beginning of another codeword. Consequently, as soon as the decoder reaches one of the green leaves, one source symbol has been identified.
+
+For example, the encoded string
+
+$$
+01011
+$$
+
+is decoded by traversing the tree repeatedly:
+
+$$
+0\mid10\mid11
+\quad\longrightarrow\quad
+abc.
+$$
+
+# Taxonomy of codes
+
+The lecture distinguishes codes according to whether the source and output are processed in fixed-size or variable-size blocks.
+
+## Block-to-block codes
+
+A **block-to-block** code maps source blocks of one fixed length to output blocks of another fixed length. All input blocks have the same number of source symbols and all output codewords have the same number of output symbols.
+
+Because the output block length is known, codeword boundaries occur at fixed positions.
+
+## Block-to-variable-length codes
+
+A **block-to-variable-length** code maps fixed-length source blocks to output codewords of different lengths.
+
+Shannon-Fano and Huffman codes are examples of this category. Variable codeword lengths make it possible to assign shorter codewords to more probable source blocks and longer codewords to less probable blocks.
+
+## Variable-to-variable-length codes
+
+A **variable-to-variable-length** code maps variable-length source phrases to variable-length output strings. Lempel-Ziv methods belong to this category.
+
+The categories describe the form of the input and output blocks. Properties such as prefix-freeness and unique decodability are separate requirements.
+
+# Codeword lengths
+
+For each source symbol $a_i$, define
+
+$$
+l_i=|\varphi(a_i)|,
+$$
+
+where $l_i$ is the length of the codeword assigned to $a_i$.
+
+The question developed in the remainder of the lecture is:
+
+> Which integer length sequences $l_1,\ldots,l_k$ can occur in a uniquely decodable or prefix code over a $D$-symbol output alphabet?
+
+The answer is expressed by the Kraft-McMillan inequality.
+
+# Kraft-McMillan theorems
+
+The lecture presents the Kraft-McMillan result in **two directions**.
+
+- The **inverse theorem** starts from an existing uniquely decodable code and derives a necessary condition on its codeword lengths.
+- The **direct theorem** starts from a sequence of positive integer lengths satisfying that condition and constructs a prefix code with exactly those lengths.
+
+Together, the two theorems characterise precisely which codeword-length sequences are feasible.
+
+# Inverse theorem: every uniquely decodable code satisfies the inequality
+
+::: {.callout-important title="Kraft-McMillan inverse theorem"}
+Let
+
+$$
+\mathcal A=\{a_1,\ldots,a_k\}
+$$
+
+and let
+
+$$
+\varphi:\mathcal A\to\mathcal B^*
+$$
+
+be a uniquely decodable code over an output alphabet
+
+$$
+\mathcal B=\{b_1,\ldots,b_D\}.
+$$
+
+If
+
+$$
+l_i=|\varphi(a_i)|
+$$
+
+is the length of the codeword assigned to $a_i$, then
+
+$$
+\boxed{
+\sum_{i=1}^{k}D^{-l_i}\leq1
+}.
+$$
+:::
+
+The theorem is called the **inverse theorem** because the code is assumed to exist already. Starting from the code, the theorem infers a restriction that its lengths must satisfy.
+
+For a binary code, $D=2$, so the condition becomes
+
+$$
+\sum_{i=1}^{k}2^{-l_i}\leq1.
+$$
+
+Each term $D^{-l_i}$ can be interpreted as the fraction of the available $D$-ary tree capacity consumed by a codeword of length $l_i$. A shorter codeword consumes a larger fraction because it blocks a larger subtree.
+
+## Why very short lengths can be impossible
+
+Consider a binary output alphabet and three source symbols. If all three codeword lengths were equal to one, then
+
+$$
+2^{-1}+2^{-1}+2^{-1}
+=
+\frac32
+>
+1.
+$$
+
+Such a code cannot exist: a binary tree has only the two length-one strings $0$ and $1$, but three source symbols would require three distinct length-one codewords.
+
+```{mermaid}
+%%| fig-cap: "At depth 1, a binary tree has only two available leaves."
+flowchart TD
+    R((root))
+    Z["available word: 0"]
+    O["available word: 1"]
+
+    R -->|0| Z
+    R -->|1| O
+
+    classDef available fill:#fff2cc,stroke:#b58b00,stroke-width:2px;
+    classDef internal fill:#eef3f8,stroke:#5b6b7a;
+    class Z,O available;
+    class R internal;
+```
+
+The value
+
+$$
+3\cdot2^{-1}=\frac32
+$$
+
+means that the requested codewords would consume one and a half times the available depth-one capacity.
+
+The lecture gives two proofs of the inverse theorem. The first proves the inequality for the special case of a prefix code by using its tree representation. The second proves the full statement for every uniquely decodable code by a counting argument.
+
+# First proof of the inverse theorem: the prefix-code case
+
+Assume first that $\varphi$ is not only uniquely decodable but also a prefix code. Define
+
+$$
+L=\max_{1\leq i\leq k}l_i.
+$$
+
+At depth $L$, the complete $D$-ary tree contains exactly
+
+$$
+D^L
+$$
+
+nodes.
+
+A codeword of length $l_i$ is represented by a node at depth $l_i$. Below that node there are
+
+$$
+D^{L-l_i}
+$$
+
+descendants at depth $L$, because there are $L-l_i$ remaining edge positions and each position has $D$ possible labels.
+
+Because the code is prefix-free, the depth-$L$ descendant sets belonging to different codewords are disjoint. If two such sets overlapped, one selected codeword node would lie above the other selected codeword node, meaning that one codeword was a prefix of the other.
+
+Therefore, the total number of committed depth-$L$ nodes cannot exceed the $D^L$ nodes available in the complete tree:
+
+$$
+\sum_{i=1}^{k}D^{L-l_i}\leq D^L.
+$$
+
+Dividing by $D^L$ gives
+
+$$
+\sum_{i=1}^{k}\frac{D^{L-l_i}}{D^L}
+=
+\sum_{i=1}^{k}D^{-l_i}
+\leq1.
+$$
+
+This proves the inverse theorem for prefix codes.
+
+## A concrete tree satisfying equality
+
+Consider the binary lengths
+
+$$
+l_1=1,
+\qquad
+l_2=2,
+\qquad
+l_3=l_4=3.
+$$
+
+Their Kraft sum is
+
+$$
+2^{-1}+2^{-2}+2^{-3}+2^{-3}
+=
+\frac12+\frac14+\frac18+\frac18
+=1.
+$$
+
+One prefix code with these lengths is
+
+$$
+\varphi(a)=0,
+\qquad
+\varphi(b)=10,
+\qquad
+\varphi(c)=110,
+\qquad
+\varphi(d)=111.
+$$
+
+```{mermaid}
+%%| fig-cap: "A complete binary prefix tree with lengths 1, 2, 3, and 3."
+flowchart TD
+    R((root))
+    A["a: 0 (length 1)"]
+    N1(("1"))
+    B["b: 10 (length 2)"]
+    N11(("11"))
+    C["c: 110 (length 3)"]
+    D["d: 111 (length 3)"]
+
+    R -->|0| A
+    R -->|1| N1
+    N1 -->|0| B
+    N1 -->|1| N11
+    N11 -->|0| C
+    N11 -->|1| D
+
+    classDef codeword fill:#dff3e4,stroke:#27864a,stroke-width:2px;
+    classDef internal fill:#eef3f8,stroke:#5b6b7a;
+    class A,B,C,D codeword;
+    class R,N1,N11 internal;
+```
+
+At the common depth $L=3$:
+
+- codeword $0$ commits $2^{3-1}=4$ leaves;
+- codeword $10$ commits $2^{3-2}=2$ leaves;
+- codewords $110$ and $111$ commit one leaf each.
+
+Thus
+
+$$
+4+2+1+1=8=2^3,
+$$
+
+and, after normalisation by $2^3$,
+
+$$
+\frac48+\frac28+\frac18+\frac18=1.
+$$
+
+The equality means that this prefix tree is complete: all available depth-three capacity is committed.
+
+# Second proof of the inverse theorem: the general uniquely decodable case
+
+The tree proof cannot be applied directly to an arbitrary uniquely decodable code, because a uniquely decodable code need not be prefix-free. The second proof uses only unique decodability and a counting argument.
+
+Let
+
+$$
+l_{\max}=\max_i l_i.
+$$
+
+For integers $m\geq1$ and $h\geq0$, define
+
+$$
+N(m,h)
+$$
+
+as the number of source strings in $\mathcal A^m$ whose encoded strings have output length $h$.
+
+## Why $N(m,h)\leq D^h$
+
+There are exactly $D^h$ different strings of length $h$ over the output alphabet $\mathcal B$.
+
+Because the code is uniquely decodable, different source strings must produce different encoded strings. Therefore, the number of $m$-symbol source strings encoded with length $h$ cannot exceed the number of available output strings of length $h$:
+
+$$
+N(m,h)\leq D^h.
+$$
+
+This is exactly where unique decodability is used. Without it, two or more source strings could share the same encoded string, and the bound would not follow.
+
+## Expanding the Kraft sum
+
+Let
+
+$$
+S=\sum_{i=1}^{k}D^{-l_i}.
+$$
+
+Consider its $m$-th power:
+
+$$
+S^m
+=
+\left(
+\sum_{i=1}^{k}D^{-l_i}
+\right)^m.
+$$
+
+Expanding this product means choosing one source symbol from each of the $m$ factors. A source string
+
+$$
+a_{i_1}a_{i_2}\cdots a_{i_m}
+$$
+
+contributes
+
+$$
+D^{-(l_{i_1}+l_{i_2}+\cdots+l_{i_m})}.
+$$
+
+The exponent is the negative of the total length of the encoded source string. Grouping source strings according to their encoded length $h$ gives
+
+$$
+S^m
+=
+\sum_hN(m,h)D^{-h}.
+$$
+
+Since each of the $m$ source symbols has codeword length at most $l_{\max}$, the total encoded length satisfies
+
+$$
+h\leq ml_{\max}.
+$$
+
+Using $N(m,h)\leq D^h$,
+
+$$
+\begin{aligned}
+S^m
+&=\sum_hN(m,h)D^{-h}\\
+&\leq\sum_{h=1}^{ml_{\max}}D^hD^{-h}\\
+&=\sum_{h=1}^{ml_{\max}}1\\
+&=ml_{\max}.
+\end{aligned}
+$$
+
+The right-hand side grows only linearly with $m$.
+
+If $S>1$, then $S^m$ grows exponentially with $m$. For sufficiently large $m$, an exponentially growing quantity cannot remain bounded by the linear quantity $ml_{\max}$. Therefore $S>1$ is impossible, and
+
+$$
+S\leq1.
+$$
+
+Hence
+
+$$
+\boxed{
+\sum_{i=1}^{k}D^{-l_i}\leq1
+}.
+$$
+
+This completes the second proof and establishes the inverse theorem for every uniquely decodable code.
+
+# Direct theorem: constructing a prefix code from valid lengths
+
+::: {.callout-important title="Kraft-McMillan direct theorem"}
+Let
+
+$$
+\mathcal A=\{a_1,\ldots,a_k\}
+$$
+
+and let $l_1,\ldots,l_k$ be positive integers. If
+
+$$
+\sum_{i=1}^{k}D^{-l_i}\leq1,
+$$
+
+then there exists a $D$-ary prefix code
+
+$$
+\varphi:\mathcal A\to\mathcal B^*
+$$
+
+such that
+
+$$
+|\varphi(a_i)|=l_i
+$$
+
+for every $i\in\{1,\ldots,k\}$.
+:::
+
+The theorem is called the **direct theorem** because it starts from the numerical condition on the desired lengths and directly guarantees the existence of a code. It gives more than unique decodability: it guarantees a prefix code, and every prefix code is uniquely decodable.
+
+## Tree interpretation of the direct theorem
+
+Order the desired lengths so that
+
+$$
+l_1\leq l_2\leq\cdots\leq l_k.
+$$
+
+In the full $D$-ary tree, a codeword of length $l_i$ must be placed at depth $l_i$. Once a node is selected as a codeword, none of its descendants may be selected, otherwise the chosen word would be a prefix of another codeword.
+
+At a common depth $L\geq\max_i l_i$, selecting a codeword of length $l_i$ commits
+
+$$
+D^{L-l_i}
+$$
+
+of the $D^L$ depth-$L$ leaves. Its normalised tree cost is therefore
+
+$$
+\frac{D^{L-l_i}}{D^L}=D^{-l_i}.
+$$
+
+The hypothesis
+
+$$
+\sum_{i=1}^{k}D^{-l_i}\leq1
+$$
+
+states that the total requested cost does not exceed the capacity of the tree.
+
+A constructive procedure chooses codeword nodes from the shortest requested depth to the longest, always avoiding subtrees already committed by earlier codewords. The inequality guarantees that enough uncommitted capacity remains to place all requested codewords. The selected nodes form a prefix-free set, so the resulting code is a prefix code with exactly the prescribed lengths.
+
+# Combined consequence
+
+The inverse and direct theorems together give the exact characterisation:
+
+$$
+\boxed{
+\begin{array}{c}
+\text{A sequence }l_1,\ldots,l_k\text{ is realised by a uniquely decodable}\
+\text{$D$-ary code if and only if }\displaystyle\sum_{i=1}^{k}D^{-l_i}\leq1.
+\end{array}
+}
+$$
+
+Furthermore, whenever a uniquely decodable code exists with lengths $l_1,\ldots,l_k$, the direct theorem guarantees a prefix code with the same lengths.
+
+This does **not** mean that every uniquely decodable code is itself prefix-free. It means that uniquely decodable codes and prefix codes admit exactly the same possible codeword-length sequences.
+
+# Sources
+
+- Goodnotes lecture notes: *05 - 15-10-2026.pdf*.
+- Thomas M. Cover and Joy A. Thomas, *Elements of Information Theory*, used to verify the standard formulation and counting proof of the Kraft-McMillan inequality already presented in the lecture.

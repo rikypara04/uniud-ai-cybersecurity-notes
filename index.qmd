@@ -1,0 +1,30 @@
+﻿---
+title: "MSc Artificial Intelligence & Cybersecurity"
+subtitle: "University notes"
+---
+
+# Courses
+
+## Complexity and Information Theory
+
+Notes based on handwritten lecture notes, official course material and
+the academic references provided for the course.
+
+## Automated Reasoning
+
+Course notes and related material. The internal structure will be
+defined after analysing the actual lectures and source material.
+
+## Foundations of Cybersecurity and Ethics
+
+Course notes and related material. The internal structure will be
+defined after analysing the actual lectures and source material.
+
+# Organisation
+
+Each course is organised separately.
+
+The structure of the processed notes follows the actual handwritten
+notes and the material provided by the lecturers, rather than a common
+structure imposed on all courses.
+

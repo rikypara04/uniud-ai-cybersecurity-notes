@@ -1,0 +1,921 @@
+﻿---
+title: "Mutual Information, Relative Entropy, and Source Coding"
+subtitle: "Lecture 4 - 13 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# From joint entropy to mutual information
+
+Let $X$ and $Y$ be discrete random variables. The chain rule for entropy gives
+
+$$
+H(X,Y)=H(X)+H(Y\mid X)
+$$
+
+and, reversing the order,
+
+$$
+H(X,Y)=H(Y)+H(X\mid Y).
+$$
+
+The notation has the following meaning:
+
+- $H(X)$ is the uncertainty of $X$ before $Y$ is known;
+- $H(X\mid Y)$ is the uncertainty that remains about $X$ after $Y$ is known;
+- $H(X,Y)$ is the uncertainty of the pair $(X,Y)$.
+
+If $X$ and $Y$ are independent, knowing one variable does not change the distribution of the other. Therefore,
+
+$$
+H(Y\mid X)=H(Y)
+$$
+
+and
+
+$$
+H(X,Y)=H(X)+H(Y).
+$$
+
+Without independence, the sum $H(X)+H(Y)$ counts some shared information twice. This motivates a quantity that measures how much information is shared by the two variables.
+
+## Definition of mutual information
+
+The **mutual information** between $X$ and $Y$ is
+
+$$
+I(X;Y)=H(X)+H(Y)-H(X,Y).
+$$
+
+Using the chain rule,
+
+$$
+H(X,Y)=H(Y)+H(X\mid Y),
+$$
+
+so
+
+$$
+\begin{aligned}
+I(X;Y)
+&=H(X)+H(Y)-H(X,Y)\\
+&=H(X)+H(Y)-H(Y)-H(X\mid Y)\\
+&=H(X)-H(X\mid Y).
+\end{aligned}
+$$
+
+Similarly,
+
+$$
+I(X;Y)=H(Y)-H(Y\mid X).
+$$
+
+Therefore,
+
+$$
+I(X;Y)
+=H(X)-H(X\mid Y)
+=H(Y)-H(Y\mid X).
+$$
+
+This gives the main interpretation:
+
+> Mutual information is the average reduction in uncertainty about one variable obtained by observing the other.
+
+## Information-diagram interpretation
+
+The lecture represents entropy with overlapping regions:
+
+- the entire $X$ region has size $H(X)$;
+- the entire $Y$ region has size $H(Y)$;
+- the overlap is $I(X;Y)$;
+- the part of $X$ outside the overlap is $H(X\mid Y)$;
+- the part of $Y$ outside the overlap is $H(Y\mid X)$;
+- the union of both regions is $H(X,Y)$.
+
+The diagram is an intuition aid. The equalities above, rather than geometric area, are the formal definitions.
+
+## Basic properties
+
+Mutual information satisfies:
+
+$$
+I(X;Y)\geq0,
+$$
+
+$$
+I(X;Y)=I(Y;X),
+$$
+
+and
+
+$$
+I(X;Y)=0
+$$
+
+if and only if $X$ and $Y$ are independent.
+
+Symmetry follows immediately from
+
+$$
+I(X;Y)=H(X)+H(Y)-H(X,Y).
+$$
+
+The non-negativity and independence condition will follow from the representation of mutual information as a relative entropy.
+
+# Relative entropy
+
+Suppose that the true probability mass function of a discrete random variable is $p$, but a model uses another pmf $q$. The **relative entropy**, or **Kullback-Leibler divergence**, of $q$ from $p$ is
+
+$$
+D_{\mathrm{KL}}(p\Vert q)
+=
+\sum_{x\in\mathcal X}
+ p(x)\log_2\frac{p(x)}{q(x)}.
+$$
+
+The order is important. The first argument $p$ is the distribution generating the data, while $q$ is the distribution used to represent or predict those data.
+
+## Why does KL divergence measure extra information?
+
+If the true distribution is $p$, the ideal information assigned to outcome $x$ is
+
+$$
+-\log_2p(x).
+$$
+
+If the incorrect model $q$ is used, the assigned information is
+
+$$
+-\log_2q(x).
+$$
+
+The additional information assigned to outcome $x$ is
+
+$$
+-\log_2q(x)-\bigl(-\log_2p(x)\bigr)
+=
+\log_2\frac{p(x)}{q(x)}.
+$$
+
+Averaging this difference under the true distribution $p$ gives
+
+$$
+\sum_xp(x)\log_2\frac{p(x)}{q(x)}
+=
+D_{\mathrm{KL}}(p\Vert q).
+$$
+
+Thus KL divergence is the average extra information required when outcomes generated according to $p$ are described using $q$ instead of the correct distribution $p$.
+
+## Example: a wrong model for two coins
+
+Consider two coin tosses. Under the true distribution $p$, the first coin is fair and the second coin always produces tails. Hence
+
+| Outcome | $p$ |
+|---|---:|
+| $HH$ | $0$ |
+| $HT$ | $1/2$ |
+| $TH$ | $0$ |
+| $TT$ | $1/2$ |
+
+The true entropy is
+
+$$
+H(p)=1\text{ bit},
+$$
+
+because only two equiprobable outcomes can occur.
+
+Suppose that the mistaken model $q$ assigns probability $1/4$ to all four outcomes:
+
+| Outcome | $q$ |
+|---|---:|
+| $HH$ | $1/4$ |
+| $HT$ | $1/4$ |
+| $TH$ | $1/4$ |
+| $TT$ | $1/4$ |
+
+This model has entropy
+
+$$
+H(q)=2\text{ bits}.
+$$
+
+The divergence from the true distribution to the mistaken model is
+
+$$
+\begin{aligned}
+D_{\mathrm{KL}}(p\Vert q)
+&=\frac12\log_2\frac{1/2}{1/4}
+ +\frac12\log_2\frac{1/2}{1/4}\\
+&=\frac12\cdot1+\frac12\cdot1\\
+&=1\text{ bit}.
+\end{aligned}
+$$
+
+The terms corresponding to $HH$ and $TH$ contribute zero because $p$ assigns probability zero to those outcomes.
+
+The one-bit divergence means that using the uniform model $q$ costs, on average, one additional bit per observed pair compared with using the true distribution $p$.
+
+## Basic properties of KL divergence
+
+Relative entropy satisfies:
+
+$$
+D_{\mathrm{KL}}(p\Vert q)\geq0,
+$$
+
+with equality if and only if
+
+$$
+p=q
+$$
+
+on their support.
+
+It is generally not symmetric:
+
+$$
+D_{\mathrm{KL}}(p\Vert q)
+\neq
+D_{\mathrm{KL}}(q\Vert p).
+$$
+
+Therefore, KL divergence is not a distance metric.
+
+It may also be infinite. If there exists an outcome $x$ such that
+
+$$
+p(x)>0
+\qquad\text{but}\qquad
+q(x)=0,
+$$
+
+then
+
+$$
+-\log_2q(x)=+\infty
+$$
+
+and consequently
+
+$$
+D_{\mathrm{KL}}(p\Vert q)=+\infty.
+$$
+
+The model declares an outcome impossible even though that outcome can occur under the true distribution.
+
+# Mutual information as relative entropy
+
+For $X$ and $Y$, consider two distributions over the same set of pairs $(x,y)$:
+
+- the true joint distribution $p_{X,Y}(x,y)$;
+- the product of the marginals $p_X(x)p_Y(y)$.
+
+The product $p_Xp_Y$ is the joint distribution that would hold if $X$ and $Y$ were independent. This motivates
+
+$$
+I(X;Y)
+=
+D_{\mathrm{KL}}
+\left(
+ p_{X,Y}
+ \middle\Vert
+ p_Xp_Y
+\right).
+$$
+
+Expanded,
+
+$$
+I(X;Y)
+=
+\sum_{x,y}
+ p_{X,Y}(x,y)
+ \log_2
+ \frac{p_{X,Y}(x,y)}{p_X(x)p_Y(y)}.
+$$
+
+## Derivation of the entropy form
+
+Starting from the KL expression,
+
+$$
+\begin{aligned}
+I(X;Y)
+&=\sum_{x,y}p(x,y)
+  \log_2\frac{p(x,y)}{p_X(x)p_Y(y)}\\
+&=\sum_{x,y}p(x,y)\log_2p(x,y)\\
+&\quad-
+  \sum_{x,y}p(x,y)\log_2p_X(x)\\
+&\quad-
+  \sum_{x,y}p(x,y)\log_2p_Y(y).
+\end{aligned}
+$$
+
+The first term is
+
+$$
+-H(X,Y).
+$$
+
+For the second term, summing the joint distribution over $y$ gives the marginal $p_X(x)$:
+
+$$
+\begin{aligned}
+-\sum_{x,y}p(x,y)\log_2p_X(x)
+&=-\sum_x
+  \left(\sum_yp(x,y)\right)
+  \log_2p_X(x)\\
+&=-\sum_xp_X(x)\log_2p_X(x)\\
+&=H(X).
+\end{aligned}
+$$
+
+Similarly, the third contribution becomes $H(Y)$. Hence
+
+$$
+I(X;Y)
+=-H(X,Y)+H(X)+H(Y).
+$$
+
+This recovers the earlier definition:
+
+$$
+I(X;Y)=H(X)+H(Y)-H(X,Y).
+$$
+
+Because KL divergence is non-negative,
+
+$$
+I(X;Y)\geq0.
+$$
+
+Moreover,
+
+$$
+I(X;Y)=0
+$$
+
+exactly when
+
+$$
+p_{X,Y}(x,y)=p_X(x)p_Y(y)
+$$
+
+for every relevant pair, which is precisely the condition that $X$ and $Y$ are independent.
+
+# Mutual information as a feature-quality measure
+
+The lecture returns to the animal-classification example. The label variable is
+
+$$
+X\in\{c,d,f,w\}
+$$
+
+with distribution
+
+$$
+p_X=
+\left(
+\frac12,
+\frac14,
+\frac18,
+\frac18
+\right)
+$$
+
+and entropy
+
+$$
+H(X)=1.75\text{ bits}.
+$$
+
+A feature is useful when observing the feature reduces uncertainty about the label. For a feature $F$, the remaining label uncertainty is
+
+$$
+H(X\mid F),
+$$
+
+so the reduction is
+
+$$
+I(X;F)=H(X)-H(X\mid F).
+$$
+
+In a decision-tree interpretation, $H(X\mid F)$ is the weighted impurity after splitting on feature $F$, while $I(X;F)$ is the impurity reduction or information gain produced by that split.
+
+## Alarm feature
+
+Let $Y$ denote the alarm feature. From the preceding lecture,
+
+$$
+H(X\mid Y)=1.406\text{ bits}.
+$$
+
+Therefore,
+
+$$
+\begin{aligned}
+I(X;Y)
+&=H(X)-H(X\mid Y)\\
+&=1.75-1.406\\
+&=0.344\text{ bits}.
+\end{aligned}
+$$
+
+Thus observing the alarm reduces uncertainty about the species by $0.344$ bits on average.
+
+The weighted impurity calculation is
+
+$$
+H(X\mid Y)
+=
+\frac12(0.811)+\frac12(2)
+=1.406\text{ bits},
+$$
+
+because:
+
+- for $Y=0$, the conditional label distribution is
+  $(3/4,1/4,0,0)$ and has entropy approximately $0.811$;
+- for $Y=1$, the conditional label distribution is uniform
+  $(1/4,1/4,1/4,1/4)$ and has entropy $2$.
+
+## Size feature
+
+Let $W$ denote a binary size feature. The notes divide the data into two branches.
+
+For $W=0$:
+
+- the branch has probability $5/8$;
+- the conditional label distribution is
+  $(4/5,0,1/5,0)$;
+- its entropy is approximately $0.722$ bits.
+
+For $W=1$:
+
+- the branch has probability $3/8$;
+- the conditional label distribution is
+  $(0,2/3,0,1/3)$;
+- its entropy is approximately $0.918$ bits.
+
+The weighted impurity after splitting on size is
+
+$$
+\begin{aligned}
+H(X\mid W)
+&=\frac58(0.722)+\frac38(0.918)\\
+&\approx0.796\text{ bits}.
+\end{aligned}
+$$
+
+Therefore, the information gain is
+
+$$
+\begin{aligned}
+I(X;W)
+&=H(X)-H(X\mid W)\\
+&=1.75-0.796\\
+&\approx0.954\text{ bits}.
+\end{aligned}
+$$
+
+Since
+
+$$
+I(X;W)>I(X;Y),
+$$
+
+the size feature reduces the label uncertainty more than the alarm feature. Equivalently, the size split leaves a lower weighted impurity:
+
+$$
+0.796<1.406.
+$$
+
+For an entropy-based classifier or decision tree, size is therefore the better of the two candidate features in this example.
+
+# Maximum likelihood and cross-entropy
+
+Suppose data are generated from a true distribution $p$, while a model uses a distribution $q$. The average negative log-likelihood assigned by $q$ to outcomes generated from $p$ is the **cross-entropy**
+
+$$
+H(p,q)
+=-\sum_xp(x)\log_2q(x).
+$$
+
+Add and subtract $\log_2p(x)$ inside the sum:
+
+$$
+\begin{aligned}
+H(p,q)
+&=-\sum_xp(x)\log_2p(x)
+  +\sum_xp(x)
+   \log_2\frac{p(x)}{q(x)}\\
+&=H(p)+D_{\mathrm{KL}}(p\Vert q).
+\end{aligned}
+$$
+
+The true entropy $H(p)$ does not depend on the chosen model $q$. Therefore, minimising cross-entropy with respect to $q$ is equivalent to minimising
+
+$$
+D_{\mathrm{KL}}(p\Vert q).
+$$
+
+For a data sample $x_1,\ldots,x_n$, maximum likelihood chooses the model that maximises
+
+$$
+\prod_{i=1}^{n}q(x_i).
+$$
+
+Taking a negative logarithm converts the product into a sum:
+
+$$
+-\log_2\prod_{i=1}^{n}q(x_i)
+=
+-\sum_{i=1}^{n}\log_2q(x_i).
+$$
+
+Thus maximising likelihood is equivalent to minimising negative log-likelihood. At the distribution level, this corresponds to minimising cross-entropy and therefore the KL divergence from the data-generating distribution to the model.
+
+The example in the notes includes an estimated model that assigns probability zero to an outcome whose true probability is positive. In this case the negative log-likelihood and $D_{\mathrm{KL}}(p\Vert q)$ become infinite if that outcome occurs. This illustrates a weakness of an unsmoothed maximum-likelihood estimate: an unobserved training outcome is treated as impossible even though it may occur in the underlying population.
+
+# Foundations of source coding
+
+The final part of the lecture introduces the formal language used to
+describe source codes.
+
+# Source and output alphabets
+
+Let
+
+$$
+\mathcal A
+=
+\{a_1,a_2,\ldots,a_k\}
+$$
+
+be the **source alphabet**. Its elements are the symbols that may occur
+in the original message.
+
+Let
+
+$$
+\mathcal B
+=
+\{b_1,b_2,\ldots,b_D\}
+$$
+
+be the **output alphabet**, also called the **code alphabet**. The value
+\(D=|\mathcal B|\) is the number of symbols available for constructing
+codewords.
+
+For a binary code,
+
+$$
+\mathcal B=\{0,1\},
+\qquad
+D=2.
+$$
+
+The set
+
+$$
+\mathcal A^*
+$$
+
+contains all finite strings over the source alphabet, including the empty
+string. Similarly,
+
+$$
+\mathcal B^*
+$$
+
+contains all finite strings over the output alphabet.
+
+For example, if
+
+$$
+\mathcal A=\{a,b,c\},
+$$
+
+then
+
+$$
+a,\quad ab,\quad caa,\quad abcba
+$$
+
+are elements of \(\mathcal A^*\).
+
+# Symbol code and extension to complete messages
+
+A symbol code assigns a finite output string, called a **codeword**, to
+each source symbol:
+
+$$
+\varphi:\mathcal A\to\mathcal B^*.
+$$
+
+For example, a binary code may assign
+
+$$
+\varphi(a)=0,
+\qquad
+\varphi(b)=10,
+\qquad
+\varphi(c)=11.
+$$
+
+However, a source generally produces complete messages rather than
+isolated symbols. Therefore, the symbol code must be extended from
+\(\mathcal A\) to \(\mathcal A^*\).
+
+Given a source message
+
+$$
+m=a_{i_1}a_{i_2}\cdots a_{i_n}\in\mathcal A^*,
+$$
+
+its encoded representation is obtained by concatenating the codewords
+of its symbols:
+
+$$
+\varphi(m)
+=
+\varphi(a_{i_1})
+\varphi(a_{i_2})
+\cdots
+\varphi(a_{i_n}).
+$$
+
+The notation on the right denotes **concatenation**, not numerical
+multiplication.
+
+For example, if
+
+$$
+\varphi(a)=0,
+\qquad
+\varphi(b)=10,
+\qquad
+\varphi(c)=11,
+$$
+
+then
+
+$$
+\varphi(abc)
+=
+\varphi(a)\varphi(b)\varphi(c)
+=
+0\,10\,11
+=
+01011.
+$$
+
+The same symbol \(\varphi\) is commonly used both for the original
+mapping
+
+$$
+\varphi:\mathcal A\to\mathcal B^*
+$$
+
+and for its extension
+
+$$
+\varphi:\mathcal A^*\to\mathcal B^*.
+$$
+
+The intended domain makes clear which mapping is being used.
+
+# Decodability
+
+The purpose of a code is not only to transform a source message into an
+output string. The receiver must also be able to reconstruct the
+original message.
+
+A code is **decodable** when every encoded string produced by the code
+corresponds to only one source message.
+
+Formally, the extended mapping must be injective:
+
+$$
+m\neq m'
+\quad\Longrightarrow\quad
+\varphi(m)\neq\varphi(m').
+$$
+
+Equivalently,
+
+$$
+\varphi(m)=\varphi(m')
+\quad\Longrightarrow\quad
+m=m'.
+$$
+
+The injectivity of the individual symbol assignment is necessary, but it
+is not sufficient. Even if all source symbols have different codewords,
+different sequences of codewords may produce the same concatenated
+output string.
+
+The complete extension
+
+$$
+\varphi:\mathcal A^*\to\mathcal B^*
+$$
+
+must therefore be injective.
+
+# Example of a non-decodable code
+
+Let
+
+$$
+\mathcal A=\{a,b,c\},
+\qquad
+\mathcal B=\{0,1\},
+$$
+
+and define
+
+$$
+\varphi(a)=0,
+\qquad
+\varphi(b)=10,
+\qquad
+\varphi(c)=01.
+$$
+
+The three codewords \(0\), \(10\), and \(01\) are different. Therefore,
+the mapping on the individual symbols is injective.
+
+This does not guarantee that complete messages are uniquely decodable.
+
+Consider the source message \(ca\):
+
+$$
+\begin{aligned}
+\varphi(ca)
+&=
+\varphi(c)\varphi(a)\\
+&=
+01\,0\\
+&=
+010.
+\end{aligned}
+$$
+
+Now consider the different source message \(ab\):
+
+$$
+\begin{aligned}
+\varphi(ab)
+&=
+\varphi(a)\varphi(b)\\
+&=
+0\,10\\
+&=
+010.
+\end{aligned}
+$$
+
+Consequently,
+
+$$
+ca\neq ab,
+$$
+
+but
+
+$$
+\varphi(ca)=\varphi(ab)=010.
+$$
+
+When the receiver observes the encoded string \(010\), the receiver
+cannot determine whether the original message was \(ca\) or \(ab\).
+
+The code is therefore **not decodable**.
+
+The ambiguity occurs because codeword boundaries cannot be reconstructed
+uniquely:
+
+$$
+010
+=
+01\mid0
+=
+0\mid10.
+$$
+
+The same binary sequence admits two valid segmentations into codewords.
+
+# Example of a decodable code
+
+Consider again
+
+$$
+\mathcal A=\{a,b,c\},
+\qquad
+\mathcal B=\{0,1\},
+$$
+
+but now define
+
+$$
+\varphi(a)=00,
+\qquad
+\varphi(b)=01,
+\qquad
+\varphi(c)=10.
+$$
+
+Every source symbol is represented by exactly two bits. This is therefore
+a **fixed-length code** with codeword length \(2\).
+
+For example,
+
+$$
+\begin{aligned}
+\varphi(cab)
+&=
+\varphi(c)\varphi(a)\varphi(b)\\
+&=
+10\,00\,01\\
+&=
+100001.
+\end{aligned}
+$$
+
+The receiver can split the encoded string into consecutive blocks of two
+bits:
+
+$$
+100001
+=
+10\mid00\mid01.
+$$
+
+Using the code assignment,
+
+$$
+10\mapsto c,
+\qquad
+00\mapsto a,
+\qquad
+01\mapsto b,
+$$
+
+the original message is reconstructed uniquely as
+
+$$
+cab.
+$$
+
+The code is decodable because the boundaries between consecutive
+codewords are known: every codeword has the same length.
+
+More generally, if every codeword has length \(\ell\), every valid
+encoded string can be divided into blocks of exactly \(\ell\) output
+symbols. Since the mapping on individual source symbols is injective,
+each block identifies one source symbol uniquely.
+
+Therefore, the extended mapping
+
+$$
+\varphi:\mathcal A^*\to\mathcal B^*
+$$
+
+is injective for this fixed-length code.
+
+::: {.callout-note title="Why the two examples differ"}
+In the non-decodable code, the codewords have different lengths and the
+encoded string \(010\) can be split in two valid ways:
+
+$$
+01\mid0
+\qquad\text{or}\qquad
+0\mid10.
+$$
+
+In the decodable fixed-length code, every codeword contains two bits, so
+the position of each boundary is known:
+
+$$
+10\mid00\mid01.
+$$
+
+The receiver therefore obtains one unique sequence of source symbols.
+
+:::
+
+# Sources
+
+- Goodnotes lecture notes: *04 - 13-10-2026.pdf*.
+- Official Teams material: *CIT_Notes_Part2_Information_Measures (1).pdf*, used to verify mutual information, relative entropy, feature impurity, and cross-entropy identities already present in the lecture.
+- Thomas M. Cover and Joy A. Thomas, *Elements of Information Theory*, used to verify the standard KL-divergence identities and the source-code terminology introduced in the lecture.
+
+

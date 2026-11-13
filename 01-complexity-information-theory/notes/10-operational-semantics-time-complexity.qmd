@@ -1,0 +1,564 @@
+---
+title: "Operational Semantics and Time Complexity of Turing Machines"
+subtitle: "Lecture 10 - 3 November 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+```{=html}
+<style>
+.theorem-box {
+  border: 2px solid #b02a37;
+  border-left: 0.55rem solid #b02a37;
+  border-radius: 0.45rem;
+  padding: 1rem 1.15rem 0.85rem;
+  margin: 1.25rem 0;
+  background: rgba(176, 42, 55, 0.07);
+}
+.theorem-box > :first-child { margin-top: 0; }
+.theorem-box > :last-child { margin-bottom: 0; }
+.theorem-title {
+  color: #b02a37;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+@media (prefers-color-scheme: dark) {
+  .theorem-box {
+    background: rgba(255, 107, 122, 0.10);
+    border-color: #ff6b7a;
+  }
+  .theorem-title { color: #ff8a96; }
+}
+
+.tape-figure { margin: 1.15rem 0; overflow-x: auto; }
+.tape-row { display: flex; align-items: flex-start; min-width: max-content; padding-top: 2.2rem; }
+.tape-cell { position: relative; width: 3.25rem; min-width: 3.25rem; height: 3rem; display: grid; place-items: center; border: 1.5px solid #46637f; border-right: 0; background: rgba(47,111,159,.08); font-family: ui-monospace,monospace; font-size: 1.05rem; }
+.tape-cell:last-child { border-right: 1.5px solid #46637f; }
+.tape-cell.head { background: rgba(176,42,55,.12); border-color: #b02a37; border-right: 1.5px solid #b02a37; }
+.tape-cell.head::before { content: "▼"; position: absolute; top: -1.8rem; color: #b02a37; font-size: 1.2rem; }
+.tape-cell.head::after { content: attr(data-state); position: absolute; top: -3.1rem; color: #b02a37; font-weight: 700; white-space: nowrap; }
+.tape-label { font-weight: 700; margin: .7rem 0 .2rem; }
+.tape-caption { margin-top: .55rem; font-size: .94rem; color: #52606d; }
+@media (prefers-color-scheme: dark) {
+  .tape-cell { border-color: #8ab4d5; background: rgba(90,160,210,.11); }
+  .tape-cell.head { border-color: #ff6b7a; background: rgba(255,107,122,.13); }
+  .tape-cell.head::before, .tape-cell.head::after { color: #ff8a96; }
+  .tape-caption { color: #b9c2cc; }
+}
+</style>
+```
+
+# Why polynomial time is model-independent
+
+The lecture begins by recalling three points from the preceding discussion:
+
+- the logarithmic and uniform cost criteria;
+- the restriction to decision problems;
+- the Extended Church--Turing Thesis.
+
+The logarithmic cost criterion is necessary for computational models whose primitive operations may manipulate values whose size grows during the computation. Charging every such operation one unit could hide the cost of handling increasingly long representations. For a Turing machine, however, one transition reads and modifies only one tape symbol, so the uniform and logarithmic criteria coincide at the level considered here.
+
+A **decision problem** asks for a yes/no answer. Equivalently, it is represented by a language $L \subseteq \Sigma^*$: the strings in $L$ are precisely the yes-instances.
+
+The class $\mathrm{P}$, also called $\mathrm{PTIME}$, contains the decision problems solvable in polynomial time by a deterministic Turing machine. Its importance is not simply that every polynomial is practically small. For example, an $n^{100}$ algorithm is polynomial but already infeasible for modest $n$. The deeper point is invariance under a change of reasonable deterministic computational model.
+
+::: {.theorem-box}
+<div class="theorem-title">Extended Church--Turing Thesis and the invariance of P</div>
+
+All reasonable deterministic models of computation are polynomially related. Consequently, changing from deterministic Turing machines to another reasonable deterministic model, such as a URM or an ordinary programming language, does not change the class $\mathrm{P}$.
+:::
+
+The thesis is a statement about the relationship among reasonable models, not a theorem derived from the formal definitions in this lecture. Its consequence is nevertheless central: $\mathrm{P}$ lets us discuss polynomial-time solvability without fixing every detail of the machine model.
+
+A narrower class, such as the problems solvable in time $n^3$ on one chosen model, need not be invariant. A simulation on another model may introduce overhead and move the same problem outside that exact bound. The union over all polynomial bounds is stable even when individual bounds are not.
+
+```{mermaid}
+%%| fig-cap: "Changing a reasonable deterministic model may alter a precise polynomial bound, but not membership in P."
+flowchart LR
+  A[Deterministic Turing machine] -->|polynomial simulation| B[URM or program model]
+  B -->|polynomial simulation| A
+  A --> C[Polynomial-time problems]
+  B --> C
+  classDef model fill:#2f6f9f,color:#fff,stroke:#173f5f
+  classDef classNode fill:#8f3f71,color:#fff,stroke:#5d2549
+  class A,B model
+  class C classNode
+```
+
+This part of complexity theory is especially relevant to symbolic AI, automated reasoning, and verification. Rule-based procedures can establish that a property holds for every possible execution of a system, but the algorithms needed to prove such guarantees may be computationally expensive. This contrasts with the earlier information-theoretic material, which is particularly relevant to sub-symbolic AI such as machine learning and neural networks.
+
+# Deterministic Turing machines
+
+A deterministic Turing machine is written
+
+$$
+M=(K,\Sigma,\delta,s),
+$$
+
+where:
+
+| Symbol | Role |
+|---|---|
+| $K$ | finite set of internal states, including the halting states $\mathsf{yes}$, $\mathsf{no}$, and possibly $\mathsf{halt}$ |
+| $\Sigma$ | tape alphabet, containing the left-end marker $\triangleright$ and blank symbol $\sqcup$ |
+| $\delta$ | transition function |
+| $s$ | initial internal state |
+
+Using moves $\leftarrow$, $\rightarrow$, and $-$ for left, right, and stay, respectively, the transition function has the form
+
+$$
+\delta:K\times\Sigma
+\longrightarrow
+\bigl(K\cup\{\mathsf{yes},\mathsf{no},\mathsf{halt}\}\bigr)
+\times\Sigma\times\{\leftarrow,\rightarrow,-\}.
+$$
+
+The left-end marker is permanent. It cannot be overwritten, and the head cannot move to its left. The notes record the representative condition
+
+$$
+\delta(q,\triangleright)=(q',\triangleright,\rightarrow).
+$$
+
+Allowing the head to remain temporarily on $\triangleright$ would not add computational power, because a useful computation must eventually move right.
+
+# Operational semantics
+
+The tuple defining $M$ gives its syntax. To describe how it evolves step by step, we need an **operational semantics**. Operational semantics represents computation as a directed graph:
+
+- nodes are complete configurations of the machine;
+- edges are individual computation steps.
+
+This viewpoint extends beyond Turing machines. For a program, a node might contain the control location and current variable values. In verification, the resulting graph represents all possible behaviours, and temporal properties describe what must hold along its paths. By contrast, denotational semantics associates a system with the mathematical function it computes rather than with its step-by-step execution graph.
+
+## Configurations
+
+A configuration must contain all information required to determine the next step. For a one-tape Turing machine it is a triple
+
+$$
+(q,x,y),
+$$
+
+where $q$ is the current internal state and $x,y\in\Sigma^*$. The string $x$ contains the tape from the left-end marker through the cell currently scanned; therefore its last symbol is under the head. The string $y$ is the significant tape content strictly to the right of the head. Unwritten trailing cells are implicitly blank, and the first symbol of $x$ is $\triangleright$.
+
+```{=html}
+<div class="tape-figure" role="img" aria-label="One-tape Turing-machine configuration">
+  <div class="tape-row">
+    <div class="tape-cell">▷</div><div class="tape-cell">x₁</div><div class="tape-cell">…</div><div class="tape-cell head" data-state="q">xⱼ</div><div class="tape-cell">y₁</div><div class="tape-cell">…</div><div class="tape-cell">yₖ</div><div class="tape-cell">□</div><div class="tape-cell">□</div>
+  </div>
+  <div class="tape-caption">The head scans the last symbol of the left component.</div>
+</div>
+```
+
+Configuration $(q,x,y)$, where $x=\triangleright x_1\cdots x_j$ and $y=y_1\cdots y_k$. The head scans the last symbol of $x$.
+
+The initial configuration on input $w\in\Sigma^*$ is
+
+$$
+(s,\triangleright,w).
+$$
+
+Initially the head scans $\triangleright$, the machine is in state $s$, and the input lies to the right.
+
+## One computation step
+
+Write
+
+$$
+(q,x,y)\longrightarrow_M(q',x',y')
+$$
+
+when $M$ transforms the first configuration into the second in one transition. The relation is defined by cases according to $\delta$ and the head movement.
+
+The lecture develops the right-move case. Suppose
+
+$$
+x=x_1\cdots x_j,\qquad y=y_1\cdots y_k,
+$$
+
+and
+
+$$
+\delta(q,x_j)=(q',z,\rightarrow).
+$$
+
+The machine replaces the scanned symbol $x_j$ by $z$, moves right, and enters $q'$. Hence
+
+$$
+(q,x,y)\longrightarrow_M(q',x',y'),
+$$
+
+with
+
+$$
+x'=x_1\cdots x_{j-1}zy_1,
+\qquad
+y'=y_2\cdots y_k.
+$$
+
+The symbol $y_1$ moves into the left component because it becomes the newly scanned symbol. The left-move and stay cases are defined analogously, with separate boundary cases when the significant right suffix is empty.
+
+The same step can be read directly in the parenthesised notation used in the notes. If
+
+$$
+\delta(q,0)=(q',1,\rightarrow),
+$$
+
+then
+
+$$
+(q,\triangleright 10,011)
+\longrightarrow_M
+(q',\triangleright 110,11).
+$$
+
+The scanned $0$ is replaced by $1$; after the right move, the first symbol of the former right part becomes the scanned symbol and therefore joins the new left part.
+
+```{=html}
+<div class="tape-figure" role="img" aria-label="Right-moving transition before and after one step">
+  <div class="tape-label">Before the transition</div>
+  <div class="tape-row"><div class="tape-cell">▷</div><div class="tape-cell">1</div><div class="tape-cell head" data-state="q">0</div><div class="tape-cell">0</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell">□</div></div>
+  <div class="tape-label">After the transition</div>
+  <div class="tape-row"><div class="tape-cell">▷</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell head" data-state="q′">0</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell">□</div></div>
+  <div class="tape-caption">The machine writes 1, moves right and changes state.</div>
+</div>
+```
+
+Before the transition, the configuration is $(q,\triangleright 10,011)$. After the transition, it is $(q',\triangleright 110,11)$.
+
+::: {.callout-note}
+The lecture distinguishes the **internal state** $q$ from the complete **configuration** $(q,x,y)$. In broader operational-semantics terminology, the full configuration may also be called the state of the transition system.
+:::
+
+## Final configurations and computation shapes
+
+A final configuration has the form
+
+$$
+(h,x,y),
+\qquad
+h\in\{\mathsf{yes},\mathsf{no},\mathsf{halt}\}.
+$$
+
+No transition is defined from a halting state. For a decision problem, the relevant outcomes are $\mathsf{yes}$ and $\mathsf{no}$.
+
+Because $M$ is deterministic, each non-final configuration has at most one successor. Starting from a fixed input, the reachable computation therefore has no branching. Three shapes are possible:
+
+```{mermaid}
+%%| fig-cap: "A deterministic computation either halts, repeats a configuration, or continues forever through new configurations."
+flowchart TB
+  I[Initial configuration] --> Q{Evolution}
+  Q -->|finite| H[Halting configuration]
+  Q -->|repeated configuration| L[Infinite loop]
+  Q -->|always new configurations| D[Infinite divergence]
+  classDef start fill:#2f6f9f,color:#fff,stroke:#173f5f
+  classDef halt fill:#347a4a,color:#fff,stroke:#20512f
+  classDef nonterm fill:#8f3f71,color:#fff,stroke:#5d2549
+  class I,Q start
+  class H halt
+  class L,D nonterm
+```
+
+| Case | Shape | What can be concluded? |
+|---|---|---|
+| Termination | A finite path reaches $\mathsf{yes}$, $\mathsf{no}$, or $\mathsf{halt}$ | The computation has a finite running time. |
+| Repeating loop | A configuration already seen is reached again | Determinism forces the same future behaviour, so the loop is infinite and detectable once repetition occurs. |
+| Divergence without repetition | Every reached configuration is new | The run is infinite, but no finite observation certifies that it will never halt. |
+
+The course restricts attention to machines proved to halt on every input. No general algorithm can inspect an arbitrary Turing machine and decide whether it always terminates. For decision problems, a terminating machine decides a language $L\subseteq\Sigma^*$ by satisfying
+
+$$
+M(w)=\mathsf{yes}\Longleftrightarrow w\in L,
+\qquad
+M(w)=\mathsf{no}\Longleftrightarrow w\notin L.
+$$
+
+# Time complexity
+
+We say that $M$ on input $w$ **takes time $t$** if there is a computation
+
+$$
+(s,\triangleright,w)
+\longrightarrow_M^{\,t}
+(h,x',y'),
+\qquad
+h\in\{\mathsf{yes},\mathsf{no}\},
+$$
+
+where exactly $t$ computation steps, equivalently $t$ graph edges, are traversed.
+
+We say that $M$ **works in time $f(n)$** if, for every $w\in\Sigma^*$ with $|w|=n$, the computation of $M$ on $w$ terminates after at most $f(n)$ steps:
+
+$$
+\forall w\in\Sigma^*,\quad |w|=n
+\Longrightarrow
+\operatorname{time}_M(w)\le f(n).
+$$
+
+The phrase “at most” makes $f$ a worst-case upper bound over all inputs of length $n$. At this stage the definition uses an explicit function, not yet asymptotic notation. Thus a machine whose exact running time is below $100n^2$ legitimately works in time $100n^2$, even if that bound is loose.
+
+# Worked example: deciding binary palindromes on one tape
+
+Consider
+
+$$
+\mathcal{L}_{\mathrm{PAL}}
+=
+\left\{w\in\{0,1\}^*\mid w=w^{\mathrm{rev}}\right\},
+$$
+
+where $w^{\mathrm{rev}}$ denotes the reversal of $w$.
+
+The one-tape algorithm repeatedly compares the two outermost unprocessed symbols:
+
+1. Read the leftmost unprocessed symbol and remember it in the internal state, using $q_0$ or $q_1$.
+2. Replace that leftmost symbol with the boundary symbol $\triangleright$.
+3. Move right to the first blank cell $\sqcup$, then move one step left.
+4. Compare the rightmost unprocessed symbol with the symbol stored in the state.
+5. If they differ, enter $\mathsf{no}$. If they agree, replace the rightmost symbol with $\sqcup$.
+6. Move left until the new boundary symbol $\triangleright$ is reached, then repeat on the shorter substring.
+7. If no unprocessed symbol remains, enter $\mathsf{yes}$.
+
+Thus the machine does **not** use an auxiliary symbol $X$. The processed prefix is absorbed into an expanding sequence of $\triangleright$ symbols, while the processed suffix becomes blank.
+
+For input $0110$, the configurations at the end of each complete comparison round are
+
+$$
+(s,\triangleright,0110)
+\longrightarrow_M^*
+(q,\triangleright\triangleright,11)
+\longrightarrow_M^*
+(\mathsf{yes},\triangleright\triangleright\triangleright,\varepsilon).
+$$
+
+The first round remembers the initial $0$, writes $\triangleright$ over it, verifies the final $0$, and replaces that final symbol with $\sqcup$. The remaining unprocessed word is therefore $11$. The second round performs the same operations on the two $1$ symbols. Here $\longrightarrow_M^*$ abbreviates all one-step scans within a complete round.
+
+```{=html}
+<div class="tape-figure" role="img" aria-label="Selected configurations of the palindrome machine on input 0110">
+  <div class="tape-label">Initial configuration</div>
+  <div class="tape-row"><div class="tape-cell head" data-state="s">▷</div><div class="tape-cell">0</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell">0</div><div class="tape-cell">□</div></div>
+  <div class="tape-label">After matching the outer pair</div>
+  <div class="tape-row"><div class="tape-cell">▷</div><div class="tape-cell head" data-state="q">▷</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell">□</div><div class="tape-cell">□</div></div>
+  <div class="tape-label">Accepting configuration</div>
+  <div class="tape-row"><div class="tape-cell">▷</div><div class="tape-cell">▷</div><div class="tape-cell head" data-state="yes">▷</div><div class="tape-cell">□</div><div class="tape-cell">□</div><div class="tape-cell">□</div></div>
+  <div class="tape-caption">At each round, the left symbol becomes a boundary marker and the matching right symbol becomes blank.</div>
+</div>
+```
+
+```{mermaid}
+%%| fig-cap: "The one-tape palindrome decider replaces the left symbol with the boundary marker and erases the matching right symbol."
+flowchart TD
+  A[Read leftmost unprocessed symbol] --> B[Store 0 or 1 in the state]
+  B --> C[Write the boundary symbol]
+  C --> D[Scan right to the first blank]
+  D --> E[Move left and compare]
+  E -->|different| N[Enter no]
+  E -->|equal| F[Write blank]
+  F --> G[Return to the boundary]
+  G --> H{Symbols remain?}
+  H -->|yes| A
+  H -->|no| Y[Enter yes]
+  classDef action fill:#2f6f9f,color:#fff,stroke:#173f5f
+  classDef test fill:#8f3f71,color:#fff,stroke:#5d2549
+  classDef accept fill:#347a4a,color:#fff,stroke:#20512f
+  classDef reject fill:#a33a3a,color:#fff,stroke:#6d2424
+  class A,B,C,D,F,G action
+  class E,H test
+  class Y accept
+  class N reject
+```
+
+The transition function is written directly as a list of rules, exactly in the parenthesised form used in the lecture notes. Each rule has the form
+
+$$
+\delta(\text{current state},\text{read symbol})
+=
+(\text{next state},\text{written symbol},\text{head movement}).
+$$
+
+For the palindrome machine, the rules recorded in the lecture are:
+
+$$
+\begin{aligned}
+\delta(s,\triangleright) &= (q,\triangleright,\rightarrow),\\
+\delta(q,0) &= (q_0,\triangleright,\rightarrow),\\
+\delta(q,1) &= (q_1,\triangleright,\rightarrow),\\
+\delta(q_0,0) &= (q_0,0,\rightarrow),\\
+\delta(q_0,1) &= (q_0,1,\rightarrow),\\
+\delta(q_1,0) &= (q_1,0,\rightarrow),\\
+\delta(q_1,1) &= (q_1,1,\rightarrow),\\
+\delta(q_0,\sqcup) &= (r_0,\sqcup,\leftarrow),\\
+\delta(q_1,\sqcup) &= (r_1,\sqcup,\leftarrow),\\
+\delta(r_0,1) &= (\mathsf{no},1,-),\\
+\delta(r_1,0) &= (\mathsf{no},0,-),\\
+\delta(r_0,0) &= (\ell,\sqcup,\leftarrow),\\
+\delta(r_1,1) &= (\ell,\sqcup,\leftarrow),\\
+\delta(\ell,0) &= (\ell,0,\leftarrow),\\
+\delta(\ell,1) &= (\ell,1,\leftarrow),\\
+\delta(\ell,\triangleright) &= (q,\triangleright,\rightarrow).
+\end{aligned}
+$$
+
+The states $q_0$ and $q_1$ remember whether the leftmost unprocessed symbol was $0$ or $1$. The states $r_0$ and $r_1$ perform the comparison at the right end, while $\ell$ returns the head to the current left boundary. Acceptance occurs when the main state $q$ finds no unprocessed symbol after the boundary; the exact acceptance rule depends on the empty-word and one-symbol boundary cases adopted in the machine definition.
+
+## Counting the steps
+
+For an unprocessed substring of length $n$:
+
+| Phase | Steps recorded in the lecture |
+|---|---:|
+| Scan from left to right and reach the boundary | $n+2$ |
+| Return from right to left | $n$ |
+| Recurse on the remaining substring | $T(n-2)$ |
+
+The notes state the recurrence, up to a possible additive constant that the lecturer explicitly flagged for checking,
+
+$$
+T(n)=
+\begin{cases}
+2, & n=0,\\
+2n+2+T(n-2), & n>0.
+\end{cases}
+$$
+
+Repeated substitution adds a decreasing arithmetic sequence:
+
+$$
+T(n)
+=
+(2n+2)+(2(n-2)+2)+(2(n-4)+2)+\cdots.
+$$
+
+There are about $n/2$ iterations, and the sum of the linear terms is quadratic. Therefore the solution has the form
+
+$$
+T(n)=an^2+bn+c,
+$$
+
+for suitable constants $a,b,c$, and consequently the machine has quadratic running time. The lecture intentionally postpones the formal introduction of asymptotic notation, so the key conclusion here is the explicit quadratic form rather than a formal $\Theta$-classification.
+
+# Turing machines with multiple tapes
+
+A $k$-tape Turing machine has a fixed number $k$ of tapes. The number of tapes is part of the machine definition and cannot grow with the input length. In one step, the transition may read the symbols under all $k$ heads, change one symbol on each tape, move each head independently, and update the common internal state.
+
+A configuration is
+
+$$
+(q,x_1,y_1,x_2,y_2,\ldots,x_k,y_k),
+$$
+
+where $x_i,y_i\in\Sigma^*$ describe tape $i$ exactly as $x,y$ described the one-tape machine. Each $x_i$ begins with $\triangleright$.
+
+For input $w$, the initial configuration is
+
+$$
+(s,\triangleright,w,\triangleright,\varepsilon,\ldots,
+\triangleright,\varepsilon),
+$$
+
+where $\varepsilon$ is the empty string. The first tape contains the input, while every other tape is blank. Since the representation stores only significant nonblank content, an empty right component represents an infinite blank suffix.
+
+For a three-tape machine on input $0110$, the initial configuration is
+
+$$
+(s,\triangleright,0110,\triangleright,\varepsilon,\triangleright,\varepsilon).
+$$
+
+```{=html}
+<div class="tape-figure" role="img" aria-label="Initial configuration of a three-tape Turing machine">
+  <div class="tape-label">Tape 1</div><div class="tape-row"><div class="tape-cell head" data-state="s">▷</div><div class="tape-cell">0</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell">0</div><div class="tape-cell">□</div></div>
+  <div class="tape-label">Tape 2</div><div class="tape-row"><div class="tape-cell head" data-state="head 2">▷</div><div class="tape-cell">□</div><div class="tape-cell">□</div></div>
+  <div class="tape-label">Tape 3</div><div class="tape-row"><div class="tape-cell head" data-state="head 3">▷</div><div class="tape-cell">□</div><div class="tape-cell">□</div></div>
+  <div class="tape-caption">Each tape has its own head and its own left and right components.</div>
+</div>
+```
+
+Each tape contributes a pair $(x_i,y_i)$ to the configuration tuple.
+
+A computation step has the form
+
+$$
+(q,x_1,y_1,\ldots,x_k,y_k)
+\longrightarrow_M
+(q',x_1',y_1',\ldots,x_k',y_k'),
+$$
+
+and is again defined case by case from the transition function. Final configurations are those whose internal state is $\mathsf{yes}$ or $\mathsf{no}$ for a decision problem.
+
+The running-time definition is unchanged: a $k$-tape machine works in time $f(n)$ if every input of length $n$ leads to a final configuration within at most $f(n)$ multi-tape steps.
+
+# Palindromes on a multi-tape machine
+
+Multiple tapes allow the palindrome language to be decided more efficiently:
+
+1. Copy the input from tape 1 to tape 2.
+2. Return one head to the left while leaving the other at the right end.
+3. Move the two heads in opposite directions and compare corresponding symbols.
+4. Reject at the first mismatch; accept if all comparisons agree.
+
+There is no need to know the midpoint in advance. Comparing all positions is simpler and remains linear.
+
+After copying $0110$ to tape 2 and positioning the two heads at opposite ends, the comparison configuration is
+
+$$
+(q_{\mathrm{cmp}},\triangleright 0,110,\triangleright 0110,\varepsilon).
+$$
+
+After the two scanned zeroes agree, the heads move in opposite directions:
+
+$$
+(q_{\mathrm{cmp}},\triangleright 0,110,\triangleright 0110,\varepsilon)
+\longrightarrow_M
+(q_{\mathrm{cmp}},\triangleright 01,10,\triangleright 011,0).
+$$
+
+```{=html}
+<div class="tape-figure" role="img" aria-label="Two-tape palindrome comparison from opposite ends">
+  <div class="tape-label">Tape 1, head moving right</div><div class="tape-row"><div class="tape-cell">▷</div><div class="tape-cell head" data-state="qcmp">0</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell">0</div><div class="tape-cell">□</div></div>
+  <div class="tape-label">Tape 2, head moving left</div><div class="tape-row"><div class="tape-cell">▷</div><div class="tape-cell">0</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell head" data-state="qcmp">0</div><div class="tape-cell">□</div></div>
+  <div class="tape-caption">The heads compare symmetric positions in a single pass.</div>
+</div>
+```
+
+```{mermaid}
+%%| fig-cap: "With two working views of the input, the machine can compare symbols from opposite ends without repeated full-tape scans."
+flowchart LR
+  A[Copy input to a work tape] --> B[Place heads at opposite ends]
+  B --> C[Move inward and compare]
+  C -->|mismatch| N[Enter no]
+  C -->|all equal| Y[Enter yes]
+  classDef action fill:#2f6f9f,color:#fff,stroke:#173f5f
+  classDef test fill:#8f3f71,color:#fff,stroke:#5d2549
+  classDef accept fill:#347a4a,color:#fff,stroke:#20512f
+  classDef reject fill:#a33a3a,color:#fff,stroke:#6d2424
+  class A,B action
+  class C test
+  class Y accept
+  class N reject
+```
+
+The lecture's count is:
+
+| Phase | Steps |
+|---|---:|
+| Copy the input | $n+2$ |
+| Move a head back to the required end | $n+2$ |
+| Compare the symbols | $n+1$ |
+| **Total** | **$3n+5$** |
+
+Thus the multi-tape construction is linear in the input length, while the one-tape construction developed earlier is quadratic.
+
+::: {.theorem-box}
+<div class="theorem-title">Comparison reached in this lecture</div>
+
+For the palindrome language, the constructions considered here use quadratic time on one tape and linear time on multiple tapes. The lecture concludes by announcing that the quadratic slowdown is the worst possible loss when a multi-tape deterministic Turing machine is simulated by a one-tape deterministic Turing machine. The proof is deferred.
+:::
+
+This example motivates the next question: although exact running times depend on the machine model, are the models polynomially related? The announced quadratic simulation bound answers yes and explains, in this concrete setting, why polynomial-time solvability is robust under a change of reasonable deterministic model.
+
+# Sources
+
+- Goodnotes lecture notes: *10 - 03-11-2026.pdf*.
+- Official lecture transcript: *2026-11-03 Complexity and Information theory.txt*.
