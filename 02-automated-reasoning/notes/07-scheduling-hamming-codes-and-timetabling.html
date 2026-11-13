@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Scheduling Models, Hamming Codes, and Timetabling – MSc Artificial Intelligence &amp; Cybersecurity</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b626d73c4c936ccc3cb08be7d45d1df6.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-30c69b05bb77ed3e47d95fc04249e286.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">MSc Artificial Intelligence &amp; Cybersecurity</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../02-automated-reasoning/index.html">Automated Reasoning</a></li><li class="breadcrumb-item"><a href="../../02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.html">Scheduling Models, Hamming Codes, and Timetabling</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../01-complexity-information-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Complexity and Information Theory</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/01-introduction-to-information-theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Information Theory</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/02-information-probability-and-random-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Information, Probability, and Random Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/03-properties-of-entropy-and-conditional-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Properties of Entropy and Conditional Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/04-mutual-information-relative-entropy-and-source-coding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mutual Information, Relative Entropy, and Source Coding</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefix Codes and the Kraft-McMillan Inequality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/06-shannon-codes-huffman-codes-and-asymptotic-optimality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Shannon Codes, Huffman Codes, and Asymptotic Optimality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/07-lz77-and-kolmogorov-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">LZ77 Compression and Kolmogorov Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Kolmogorov Complexity and Its Relation to Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/09-computational-complexity-models-and-cost-criteria.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Computational Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Operational Semantics and Time Complexity of Turing Machines</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/11-multitape-simulation-time-speedup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multitape Simulation, Time Complexity, and Linear Speed-Up</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/12-time-and-space-complexity-classes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Time and Space Complexity Classes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../02-automated-reasoning/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Automated Reasoning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Automated Reasoning and Constraint Programming</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/02-sat-encodings-and-dpll.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SAT Encodings and DPLL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Propagation and Local Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/04-bounds-hyper-arc-and-path-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bounds, Hyper-Arc, and Path Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Search Annotations and Constraint Modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/06-minizinc-modeling-examples-and-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Modelling through Classical Constraint Problems</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Scheduling Models, Hamming Codes, and Timetabling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/08-constraint-optimization-local-search-and-bioinformatics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Optimization, Large Neighbourhood Search, and Bioinformatics Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/09-global-constraints-matching-and-cumulative-scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Global Constraints, Matching-Based Filtering, and Cumulative Scheduling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/10-syntax-and-definite-clause-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Syntax of Logic Programming and Definite-Clause Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/11-semantics-of-logic-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Semantics of Logic Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Unification, SLD Resolution, and the Limits of Computation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../03-foundations-cybersecurity-ethics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Foundations of Cybersecurity and Ethics</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Formal Verification and Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classical Logics: Propositional Logic, QBF, and First-Order Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Games in Logic and First-Order Definability</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learning Automata and Sequential Transducers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/05-uppaal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling and Verification in UPPAAL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Symbolic Verification of Security Protocols with Tamarin</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#choosing-a-representation-for-scheduling" id="toc-choosing-a-representation-for-scheduling" class="nav-link active" data-scroll-target="#choosing-a-representation-for-scheduling"><span class="header-section-number">1</span> Choosing a representation for scheduling</a>
+  <ul class="collapse">
+  <li><a href="#one-variable-per-worker" id="toc-one-variable-per-worker" class="nav-link" data-scroll-target="#one-variable-per-worker"><span class="header-section-number">1.1</span> One variable per worker</a></li>
+  <li><a href="#boolean-assignment-matrix" id="toc-boolean-assignment-matrix" class="nav-link" data-scroll-target="#boolean-assignment-matrix"><span class="header-section-number">1.2</span> Boolean assignment matrix</a></li>
+  <li><a href="#one-variable-per-slot" id="toc-one-variable-per-slot" class="nav-link" data-scroll-target="#one-variable-per-slot"><span class="header-section-number">1.3</span> One variable per slot</a></li>
+  </ul></li>
+  <li><a href="#telethon-runner-assignment" id="toc-telethon-runner-assignment" class="nav-link" data-scroll-target="#telethon-runner-assignment"><span class="header-section-number">2</span> Telethon runner assignment</a>
+  <ul class="collapse">
+  <li><a href="#runner-to-slot-encoding" id="toc-runner-to-slot-encoding" class="nav-link" data-scroll-target="#runner-to-slot-encoding"><span class="header-section-number">2.1</span> Runner-to-slot encoding</a></li>
+  <li><a href="#boolean-matrix-encoding" id="toc-boolean-matrix-encoding" class="nav-link" data-scroll-target="#boolean-matrix-encoding"><span class="header-section-number">2.2</span> Boolean-matrix encoding</a></li>
+  </ul></li>
+  <li><a href="#knapsack-as-a-modelling-comparison" id="toc-knapsack-as-a-modelling-comparison" class="nav-link" data-scroll-target="#knapsack-as-a-modelling-comparison"><span class="header-section-number">3</span> Knapsack as a modelling comparison</a>
+  <ul class="collapse">
+  <li><a href="#boolean-selection" id="toc-boolean-selection" class="nav-link" data-scroll-target="#boolean-selection"><span class="header-section-number">3.1</span> Boolean selection</a></li>
+  <li><a href="#bounded-quantities" id="toc-bounded-quantities" class="nav-link" data-scroll-target="#bounded-quantities"><span class="header-section-number">3.2</span> Bounded quantities</a></li>
+  </ul></li>
+  <li><a href="#why-error-correcting-codes-are-needed" id="toc-why-error-correcting-codes-are-needed" class="nav-link" data-scroll-target="#why-error-correcting-codes-are-needed"><span class="header-section-number">4</span> Why error-correcting codes are needed</a></li>
+  <li><a href="#hamming-distance" id="toc-hamming-distance" class="nav-link" data-scroll-target="#hamming-distance"><span class="header-section-number">5</span> Hamming distance</a>
+  <ul class="collapse">
+  <li><a href="#detection-and-correction-rule" id="toc-detection-and-correction-rule" class="nav-link" data-scroll-target="#detection-and-correction-rule"><span class="header-section-number">5.1</span> Detection and correction rule</a></li>
+  </ul></li>
+  <li><a href="#hamming-code-construction-as-a-csp" id="toc-hamming-code-construction-as-a-csp" class="nav-link" data-scroll-target="#hamming-code-construction-as-a-csp"><span class="header-section-number">6</span> Hamming-code construction as a CSP</a>
+  <ul class="collapse">
+  <li><a href="#symmetry-breaking" id="toc-symmetry-breaking" class="nav-link" data-scroll-target="#symmetry-breaking"><span class="header-section-number">6.1</span> Symmetry breaking</a></li>
+  </ul></li>
+  <li><a href="#timetabling" id="toc-timetabling" class="nav-link" data-scroll-target="#timetabling"><span class="header-section-number">7</span> Timetabling</a>
+  <ul class="collapse">
+  <li><a href="#required-periods" id="toc-required-periods" class="nav-link" data-scroll-target="#required-periods"><span class="header-section-number">7.1</span> Required periods</a></li>
+  <li><a href="#room-occupancy" id="toc-room-occupancy" class="nav-link" data-scroll-target="#room-occupancy"><span class="header-section-number">7.2</span> Room occupancy</a></li>
+  <li><a href="#course-conflicts" id="toc-course-conflicts" class="nav-link" data-scroll-target="#course-conflicts"><span class="header-section-number">7.3</span> Course conflicts</a></li>
+  <li><a href="#availability" id="toc-availability" class="nav-link" data-scroll-target="#availability"><span class="header-section-number">7.4</span> Availability</a></li>
+  </ul></li>
+  <li><a href="#exercise-organising-a-sports-tournament" id="toc-exercise-organising-a-sports-tournament" class="nav-link" data-scroll-target="#exercise-organising-a-sports-tournament"><span class="header-section-number">8</span> Exercise: organising a sports tournament</a></li>
+  <li><a href="#sources" id="toc-sources" class="nav-link" data-scroll-target="#sources"><span class="header-section-number">9</span> Sources</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../02-automated-reasoning/index.html">Automated Reasoning</a></li><li class="breadcrumb-item"><a href="../../02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.html">Scheduling Models, Hamming Codes, and Timetabling</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Scheduling Models, Hamming Codes, and Timetabling</h1>
+<p class="subtitle lead">Lecture 7 - 21 October 2026</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="choosing-a-representation-for-scheduling" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Choosing a representation for scheduling</h1>
+<p>The lecture begins with a general modelling question. Suppose there are <span class="math inline">\(n\)</span> workers, <span class="math inline">\(s\)</span> slots, and constraints governing which assignments are admissible. Before writing constraints, the modeller must decide what the decision variables mean.</p>
+<p>Three representations are proposed.</p>
+<section id="one-variable-per-worker" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="one-variable-per-worker"><span class="header-section-number">1.1</span> One variable per worker</h2>
+<p>Introduce a vector</p>
+<p><span class="math display">\[
+w=(w_1,\ldots,w_n),
+\qquad
+w_i\in 1..s,
+\]</span></p>
+<p>where <span class="math inline">\(w_i=j\)</span> means that worker <span class="math inline">\(i\)</span> is assigned to slot <span class="math inline">\(j\)</span>.</p>
+<p>This uses <span class="math inline">\(n\)</span> integer variables. The assignment of every worker is represented directly. Constraints concerning one worker’s admissible slots are usually easy to state, while constraints about the content or capacity of a slot require counting how many variables take a particular value.</p>
+</section>
+<section id="boolean-assignment-matrix" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="boolean-assignment-matrix"><span class="header-section-number">1.2</span> Boolean assignment matrix</h2>
+<p>Introduce a Boolean matrix</p>
+<p><span class="math display">\[
+A\in\{0,1\}^{n\times s},
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[
+A_{i,j}=1
+\]</span></p>
+<p>if and only if worker <span class="math inline">\(i\)</span> is assigned to slot <span class="math inline">\(j\)</span>.</p>
+<p>Each worker must be assigned exactly once, so every row satisfies</p>
+<p><span class="math display">\[
+\sum_{j=1}^{s}A_{i,j}=1.
+\]</span></p>
+<p>The representation uses <span class="math inline">\(ns\)</span> Boolean variables, but worker-slot compatibility, slot loads, and cardinality constraints become explicit sums over rows or columns.</p>
+</section>
+<section id="one-variable-per-slot" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="one-variable-per-slot"><span class="header-section-number">1.3</span> One variable per slot</h2>
+<p>If every slot contains at most one worker, introduce</p>
+<p><span class="math display">\[
+v=(v_1,\ldots,v_s),
+\]</span></p>
+<p>where <span class="math inline">\(v_j=i\)</span> means that slot <span class="math inline">\(j\)</span> is assigned to worker <span class="math inline">\(i\)</span>.</p>
+<p>This representation is valid only when a slot cannot contain several workers. The qualification in the slide is important: if workers are replaced by students and a time slot may contain many students, one variable per slot cannot directly store the whole group.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 30%">
+<col style="width: 23%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Representation</th>
+<th style="text-align: right;">Variables</th>
+<th>Directly represents</th>
+<th>Main limitation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>worker vector <span class="math inline">\(w\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(n\)</span> integers</td>
+<td>each worker’s slot</td>
+<td>slot occupancy requires aggregation</td>
+</tr>
+<tr class="even">
+<td>Boolean matrix <span class="math inline">\(A\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(ns\)</span> Booleans</td>
+<td>every worker-slot decision</td>
+<td>larger model</td>
+</tr>
+<tr class="odd">
+<td>slot vector <span class="math inline">\(v\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(s\)</span> integers</td>
+<td>each slot’s worker</td>
+<td>requires at most one worker per slot</td>
+</tr>
+</tbody>
+</table>
+<p>There is no universally best representation. The best choice depends on the cardinalities and on which constraints must be expressed most often or propagate most effectively.</p>
+</section>
+</section>
+<section id="telethon-runner-assignment" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Telethon runner assignment</h1>
+<p>The Telethon example has <span class="math inline">\(n\)</span> runners and <span class="math inline">\(n\)</span> slots. Every runner must receive exactly one slot. For each runner, the slots are classified as:</p>
+<ul>
+<li><strong>good</strong>;</li>
+<li><strong>acceptable if needed</strong>;</li>
+<li><strong>impossible</strong>.</li>
+</ul>
+<p>The objective is to minimise the number of acceptable-but-not-good assignments, while impossible assignments are forbidden.</p>
+<p>A useful cost matrix is</p>
+<p><span class="math display">\[
+c_{i,j}=
+\begin{cases}
+0, &amp; \text{slot $j$ is good for runner $i$},\\
+1, &amp; \text{slot $j$ is acceptable for runner $i$},\\
+\text{forbidden}, &amp; \text{slot $j$ is impossible for runner $i$}.
+\end{cases}
+\]</span></p>
+<p>The deck announces two alternative encodings. They correspond naturally to the general representations introduced above.</p>
+<section id="runner-to-slot-encoding" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="runner-to-slot-encoding"><span class="header-section-number">2.1</span> Runner-to-slot encoding</h2>
+<p>Let <span class="math inline">\(w_i\)</span> be the slot assigned to runner <span class="math inline">\(i\)</span>. Then:</p>
+<ul>
+<li><span class="math inline">\(w_i\)</span> is restricted to the non-impossible slots of runner <span class="math inline">\(i\)</span>;</li>
+<li>all runners must receive different slots, normally through <code>all_different(w)</code>;</li>
+<li>the objective counts the runners whose selected slot is merely acceptable.</li>
+</ul>
+<p>Conceptually,</p>
+<p><span class="math display">\[
+\min \sum_{i=1}^{n}[c_{i,w_i}=1],
+\]</span></p>
+<p>where <span class="math inline">\([P]\)</span> is <span class="math inline">\(1\)</span> when proposition <span class="math inline">\(P\)</span> is true and <span class="math inline">\(0\)</span> otherwise.</p>
+</section>
+<section id="boolean-matrix-encoding" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="boolean-matrix-encoding"><span class="header-section-number">2.2</span> Boolean-matrix encoding</h2>
+<p>Let <span class="math inline">\(A_{i,j}=1\)</span> mean that runner <span class="math inline">\(i\)</span> receives slot <span class="math inline">\(j\)</span>. The constraints are</p>
+<p><span class="math display">\[
+\sum_{j=1}^{n}A_{i,j}=1
+\quad\text{for every runner }i,
+\]</span></p>
+<p><span class="math display">\[
+\sum_{i=1}^{n}A_{i,j}=1
+\quad\text{for every slot }j,
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+A_{i,j}=0
+\]</span></p>
+<p>for every impossible pair. The objective is</p>
+<p><span class="math display">\[
+\min\sum_{i=1}^{n}\sum_{j=1}^{n}c_{i,j}A_{i,j},
+\]</span></p>
+<p>with forbidden pairs already removed by constraints.</p>
+<p>The vector model is compact; the matrix model makes assignment and objective contributions explicit. Both encode the same matching problem.</p>
+</section>
+</section>
+<section id="knapsack-as-a-modelling-comparison" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Knapsack as a modelling comparison</h1>
+<p>The slides refer to two MiniZinc versions of knapsack. The modelling distinction mirrors the scheduling discussion.</p>
+<p>Suppose object <span class="math inline">\(i\)</span> has weight <span class="math inline">\(w_i\)</span>, profit <span class="math inline">\(p_i\)</span>, and capacity is <span class="math inline">\(C\)</span>.</p>
+<section id="boolean-selection" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="boolean-selection"><span class="header-section-number">3.1</span> Boolean selection</h2>
+<p>For a 0-1 knapsack, let <span class="math inline">\(x_i\in\{0,1\}\)</span> indicate whether object <span class="math inline">\(i\)</span> is selected:</p>
+<p><span class="math display">\[
+\sum_i w_i x_i\le C,
+\qquad
+\max\sum_i p_i x_i.
+\]</span></p>
+</section>
+<section id="bounded-quantities" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="bounded-quantities"><span class="header-section-number">3.2</span> Bounded quantities</h2>
+<p>If several copies are allowed, let <span class="math inline">\(x_i\)</span> be the quantity selected, with a domain reflecting the available stock:</p>
+<p><span class="math display">\[
+x_i\in 0..u_i.
+\]</span></p>
+<p>The same capacity and profit expressions apply. The domain now changes the problem from selection to bounded allocation.</p>
+<p>The lecture only points to the MiniZinc code; no separate <code>.mzn</code> source was supplied with this deck, so this chapter preserves the mathematical structure without inventing lecturer code.</p>
+</section>
+</section>
+<section id="why-error-correcting-codes-are-needed" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Why error-correcting codes are needed</h1>
+<p>A binary encoding associates a bit word with every message symbol. If one transmitted bit changes, the received word may become another valid word and therefore represent incorrect information.</p>
+<p>For example, the ASCII word for <code>A</code> is shown as</p>
+<p><span class="math display">\[
+01000001.
+\]</span></p>
+<p>A single changed bit may produce another pattern. A naïve parity bit can detect an odd number of bit errors, including one error, but does not identify which bit must be corrected. Two errors may preserve parity and remain undetected.</p>
+<p>Error-correcting codes solve this problem by introducing deliberate redundancy. Valid codewords are placed sufficiently far apart that a corrupted word can still be associated unambiguously with the intended word.</p>
+</section>
+<section id="hamming-distance" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Hamming distance</h1>
+<p>For two binary words <span class="math inline">\(x,y\in\{0,1\}^n\)</span>, their Hamming distance is</p>
+<p><span class="math display">\[
+d_H(x,y)=\sum_{r=1}^{n}[x_r\ne y_r].
+\]</span></p>
+<p>It is the number of positions at which the two words differ.</p>
+<p>The lecture illustrates four six-bit words:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Symbol</th>
+<th>Codeword</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td><code>000000</code></td>
+</tr>
+<tr class="even">
+<td>C</td>
+<td><code>000111</code></td>
+</tr>
+<tr class="odd">
+<td>T</td>
+<td><code>111000</code></td>
+</tr>
+<tr class="even">
+<td>G</td>
+<td><code>101101</code></td>
+</tr>
+</tbody>
+</table>
+<p>Every pair differs in at least three positions. Consequently, a received word containing one error remains closer to the original codeword than to every other valid codeword.</p>
+<section id="detection-and-correction-rule" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="detection-and-correction-rule"><span class="header-section-number">5.1</span> Detection and correction rule</h2>
+<p>Let <span class="math inline">\(d\)</span> be the minimum Hamming distance between distinct codewords.</p>
+<ul>
+<li>If <span class="math inline">\(d=2t+1\)</span>, the code can always correct up to <span class="math inline">\(t\)</span> errors.</li>
+<li>If <span class="math inline">\(d=2t\)</span>, the code can correct up to <span class="math inline">\(t-1\)</span> errors and detect <span class="math inline">\(t\)</span> errors.</li>
+</ul>
+<p>The reason is geometric. Correcting <span class="math inline">\(t\)</span> errors requires the radius-<span class="math inline">\(t\)</span> Hamming balls around codewords to be disjoint. Two such balls are guaranteed not to overlap when the centres are at least <span class="math inline">\(2t+1\)</span> apart.</p>
+</section>
+</section>
+<section id="hamming-code-construction-as-a-csp" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Hamming-code construction as a CSP</h1>
+<p>The CSP stated in the lecture is:</p>
+<blockquote class="blockquote">
+<p>Given integers <span class="math inline">\(n\)</span>, <span class="math inline">\(k\)</span>, and <span class="math inline">\(d\)</span>, find, if possible, <span class="math inline">\(k\)</span> binary words of length <span class="math inline">\(n\)</span> whose pairwise Hamming distance is at least <span class="math inline">\(d\)</span>.</p>
+</blockquote>
+<p>Introduce a Boolean matrix</p>
+<p><span class="math display">\[
+X\in\{0,1\}^{k\times n},
+\]</span></p>
+<p>where row <span class="math inline">\(i\)</span> is codeword <span class="math inline">\(i\)</span>. For all rows <span class="math inline">\(i&lt;j\)</span> impose</p>
+<p><span class="math display">\[
+\sum_{r=1}^{n}[X_{i,r}\ne X_{j,r}]\ge d.
+\]</span></p>
+<p>The example mentioned in the slides has</p>
+<p><span class="math display">\[
+n=25,
+\qquad
+k=29,
+\]</span></p>
+<p>while the target <span class="math inline">\(d\)</span> is to be determined. The slide associates the example with industrial signalling in steel plants.</p>
+<section id="symmetry-breaking" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="symmetry-breaking"><span class="header-section-number">6.1</span> Symmetry breaking</h2>
+<p>The slide explicitly points to symmetry-breaking optimisations. Several transformations preserve all pairwise Hamming distances:</p>
+<ul>
+<li>permuting the <span class="math inline">\(k\)</span> codewords;</li>
+<li>permuting the <span class="math inline">\(n\)</span> bit positions;</li>
+<li>complementing one bit position in every codeword.</li>
+</ul>
+<p>Therefore, without loss of generality, one may fix the first word to all zeroes:</p>
+<p><span class="math display">\[
+X_{1,r}=0
+\qquad\text{for every }r.
+\]</span></p>
+<p>This removes the global bit-complement symmetry. Ordering the binary values represented by the rows can also remove word-permutation symmetry. These constraints do not exclude essentially different codes; they select canonical representatives from symmetric families.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="What symmetry breaking changes">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What symmetry breaking changes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Symmetry breaking reduces repeated search over equivalent codes. It does not increase the achievable minimum distance and does not change whether a code exists, provided the chosen symmetry-breaking conditions are valid representatives of the true symmetries.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="timetabling" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Timetabling</h1>
+<p>The timetabling problem contains:</p>
+<ul>
+<li>a set of courses;</li>
+<li>a set of weekly periods;</li>
+<li>a set of rooms;</li>
+<li>the exact number of periods required by each course;</li>
+<li>a Boolean conflict matrix between pairs of courses;</li>
+<li>a Boolean availability matrix that states whether a course, or its teacher, can be assigned to a period.</li>
+</ul>
+<p>A direct Boolean representation is</p>
+<p><span class="math display">\[
+X_{c,p,r}\in\{0,1\},
+\]</span></p>
+<p>where <span class="math inline">\(X_{c,p,r}=1\)</span> means that course <span class="math inline">\(c\)</span> is held in period <span class="math inline">\(p\)</span> and room <span class="math inline">\(r\)</span>.</p>
+<p>The principal constraint families are:</p>
+<section id="required-periods" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="required-periods"><span class="header-section-number">7.1</span> Required periods</h2>
+<p>If course <span class="math inline">\(c\)</span> requires <span class="math inline">\(h_c\)</span> periods,</p>
+<p><span class="math display">\[
+\sum_{p,r}X_{c,p,r}=h_c.
+\]</span></p>
+</section>
+<section id="room-occupancy" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="room-occupancy"><span class="header-section-number">7.2</span> Room occupancy</h2>
+<p>At most one course can use one room in one period:</p>
+<p><span class="math display">\[
+\sum_c X_{c,p,r}\le1
+\qquad\text{for every }p,r.
+\]</span></p>
+</section>
+<section id="course-conflicts" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="course-conflicts"><span class="header-section-number">7.3</span> Course conflicts</h2>
+<p>If <code>conflict[c,d] = 1</code>, the two courses cannot occur simultaneously:</p>
+<p><span class="math display">\[
+\sum_rX_{c,p,r}+\sum_rX_{d,p,r}\le1
+\qquad\text{for every }p.
+\]</span></p>
+</section>
+<section id="availability" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="availability"><span class="header-section-number">7.4</span> Availability</h2>
+<p>If course <span class="math inline">\(c\)</span> is unavailable in period <span class="math inline">\(p\)</span>,</p>
+<p><span class="math display">\[
+X_{c,p,r}=0
+\qquad\text{for every room }r.
+\]</span></p>
+<p>The precise variable representation may be changed, but every correct model must preserve these four ideas. The deck refers to MiniZinc code, but no authoritative code file accompanies these slides, so no unverified implementation is reproduced.</p>
+</section>
+</section>
+<section id="exercise-organising-a-sports-tournament" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Exercise: organising a sports tournament</h1>
+<p>The final slide asks for a MiniZinc model of a tournament.</p>
+<p>The input contains:</p>
+<ul>
+<li>a set of players;</li>
+<li>a set of periods organised into days;</li>
+<li>the distance in days between periods;</li>
+<li>each player’s available periods;</li>
+<li>a minimum team size <span class="math inline">\(k\)</span>.</li>
+</ul>
+<p>The model has two connected decisions:</p>
+<ol type="1">
+<li>divide players into teams;</li>
+<li>schedule exactly one match between two teams in every used period.</li>
+</ol>
+<p>The schedule must satisfy:</p>
+<ul>
+<li>every pair of teams plays exactly once;</li>
+<li>every team has at least three free days between consecutive matches;</li>
+<li>players assigned to the two teams in a period must be available then.</li>
+</ul>
+<p>A possible primary objective is to minimise the ending day of the tournament.</p>
+<p>The extension adds player roles, such as goalkeeper, defender, or forward. Some players may support several roles. The new objective minimises the number of players assigned outside their preferred role.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    P["Players and roles"] --&gt; T["Form teams"]
+    A["Player availability"] --&gt; S["Schedule matches"]
+    T --&gt; S
+    S --&gt; R["Round-robin and rest constraints"]
+    R --&gt; O["Minimise ending day or role mismatches"]
+</pre>
+</div>
+<p></p><figcaption> The exercise couples team formation with match scheduling; availability and rest constraints connect the two decisions.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>The important modelling difficulty is that team formation and scheduling cannot be solved independently: changing a team’s members changes that team’s feasible periods.</p>
+</section>
+<section id="sources" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Sources</h1>
+<ul>
+<li>Original lecture slide deck: <code>07 - 21-10-2026.pdf</code>. Used for the lecture sequence, three scheduling representations, Telethon specification, Hamming examples and rule, Hamming-code CSP, timetabling data, and tournament exercise.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/rikypara04\.github\.io\/uniud-ai-cybersecurity-notes\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

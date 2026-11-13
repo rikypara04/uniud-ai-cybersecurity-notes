@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Kolmogorov Complexity and Its Relation to Entropy – MSc Artificial Intelligence &amp; Cybersecurity</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b626d73c4c936ccc3cb08be7d45d1df6.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-30c69b05bb77ed3e47d95fc04249e286.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">MSc Artificial Intelligence &amp; Cybersecurity</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/index.html">Complexity and Information Theory</a></li><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html">Kolmogorov Complexity and Its Relation to Entropy</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../01-complexity-information-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Complexity and Information Theory</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/01-introduction-to-information-theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Information Theory</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/02-information-probability-and-random-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Information, Probability, and Random Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/03-properties-of-entropy-and-conditional-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Properties of Entropy and Conditional Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/04-mutual-information-relative-entropy-and-source-coding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mutual Information, Relative Entropy, and Source Coding</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefix Codes and the Kraft-McMillan Inequality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/06-shannon-codes-huffman-codes-and-asymptotic-optimality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Shannon Codes, Huffman Codes, and Asymptotic Optimality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/07-lz77-and-kolmogorov-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">LZ77 Compression and Kolmogorov Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Kolmogorov Complexity and Its Relation to Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/09-computational-complexity-models-and-cost-criteria.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Computational Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Operational Semantics and Time Complexity of Turing Machines</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/11-multitape-simulation-time-speedup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multitape Simulation, Time Complexity, and Linear Speed-Up</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/12-time-and-space-complexity-classes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Time and Space Complexity Classes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../02-automated-reasoning/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Automated Reasoning</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Automated Reasoning and Constraint Programming</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/02-sat-encodings-and-dpll.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SAT Encodings and DPLL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Propagation and Local Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/04-bounds-hyper-arc-and-path-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bounds, Hyper-Arc, and Path Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Search Annotations and Constraint Modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/06-minizinc-modeling-examples-and-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Modelling through Classical Constraint Problems</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scheduling Models, Hamming Codes, and Timetabling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/08-constraint-optimization-local-search-and-bioinformatics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Optimization, Large Neighbourhood Search, and Bioinformatics Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/09-global-constraints-matching-and-cumulative-scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Global Constraints, Matching-Based Filtering, and Cumulative Scheduling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/10-syntax-and-definite-clause-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Syntax of Logic Programming and Definite-Clause Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/11-semantics-of-logic-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Semantics of Logic Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Unification, SLD Resolution, and the Limits of Computation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../03-foundations-cybersecurity-ethics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Foundations of Cybersecurity and Ethics</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Formal Verification and Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classical Logics: Propositional Logic, QBF, and First-Order Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Games in Logic and First-Order Definability</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learning Automata and Sequential Transducers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/05-uppaal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling and Verification in UPPAAL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Symbolic Verification of Security Protocols with Tamarin</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#encoding-turing-machines" id="toc-encoding-turing-machines" class="nav-link active" data-scroll-target="#encoding-turing-machines"><span class="header-section-number">1</span> Encoding Turing machines</a>
+  <ul class="collapse">
+  <li><a href="#a-binary-representation-of-a-machine" id="toc-a-binary-representation-of-a-machine" class="nav-link" data-scroll-target="#a-binary-representation-of-a-machine"><span class="header-section-number">1.1</span> A binary representation of a machine</a>
+  <ul class="collapse">
+  <li><a href="#numbering-the-states-and-halting-outcomes" id="toc-numbering-the-states-and-halting-outcomes" class="nav-link" data-scroll-target="#numbering-the-states-and-halting-outcomes"><span class="header-section-number">1.1.1</span> Numbering the states and halting outcomes</a></li>
+  <li><a href="#numbering-the-tape-alphabet" id="toc-numbering-the-tape-alphabet" class="nav-link" data-scroll-target="#numbering-the-tape-alphabet"><span class="header-section-number">1.1.2</span> Numbering the tape alphabet</a></li>
+  <li><a href="#encoding-the-sizes-and-the-transition-table" id="toc-encoding-the-sizes-and-the-transition-table" class="nav-link" data-scroll-target="#encoding-the-sizes-and-the-transition-table"><span class="header-section-number">1.1.3</span> Encoding the sizes and the transition table</a></li>
+  </ul></li>
+  <li><a href="#why-a-separator-matters" id="toc-why-a-separator-matters" class="nav-link" data-scroll-target="#why-a-separator-matters"><span class="header-section-number">1.2</span> Why a separator matters</a></li>
+  </ul></li>
+  <li><a href="#kolmogorov-complexity" id="toc-kolmogorov-complexity" class="nav-link" data-scroll-target="#kolmogorov-complexity"><span class="header-section-number">2</span> Kolmogorov complexity</a>
+  <ul class="collapse">
+  <li><a href="#conditional-kolmogorov-complexity" id="toc-conditional-kolmogorov-complexity" class="nav-link" data-scroll-target="#conditional-kolmogorov-complexity"><span class="header-section-number">2.1</span> Conditional Kolmogorov complexity</a>
+  <ul class="collapse">
+  <li><a href="#example-a-long-string-of-zeros" id="toc-example-a-long-string-of-zeros" class="nav-link" data-scroll-target="#example-a-long-string-of-zeros"><span class="header-section-number">2.1.1</span> Example: a long string of zeros</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#dependence-on-the-universal-machine" id="toc-dependence-on-the-universal-machine" class="nav-link" data-scroll-target="#dependence-on-the-universal-machine"><span class="header-section-number">3</span> Dependence on the universal machine</a></li>
+  <li><a href="#basic-properties" id="toc-basic-properties" class="nav-link" data-scroll-target="#basic-properties"><span class="header-section-number">4</span> Basic properties</a>
+  <ul class="collapse">
+  <li><a href="#a-direct-upper-bound" id="toc-a-direct-upper-bound" class="nav-link" data-scroll-target="#a-direct-upper-bound"><span class="header-section-number">4.1</span> A direct upper bound</a></li>
+  <li><a href="#existence-of-incompressible-strings" id="toc-existence-of-incompressible-strings" class="nav-link" data-scroll-target="#existence-of-incompressible-strings"><span class="header-section-number">4.2</span> Existence of incompressible strings</a></li>
+  <li><a href="#non-computability" id="toc-non-computability" class="nav-link" data-scroll-target="#non-computability"><span class="header-section-number">4.3</span> Non-computability</a></li>
+  </ul></li>
+  <li><a href="#the-kolmogorov-code" id="toc-the-kolmogorov-code" class="nav-link" data-scroll-target="#the-kolmogorov-code"><span class="header-section-number">5</span> The Kolmogorov code</a></li>
+  <li><a href="#from-kolmogorov-complexity-to-shannon-entropy" id="toc-from-kolmogorov-complexity-to-shannon-entropy" class="nav-link" data-scroll-target="#from-kolmogorov-complexity-to-shannon-entropy"><span class="header-section-number">6</span> From Kolmogorov complexity to Shannon entropy</a></li>
+  <li><a href="#from-source-codes-to-programs" id="toc-from-source-codes-to-programs" class="nav-link" data-scroll-target="#from-source-codes-to-programs"><span class="header-section-number">7</span> From source codes to programs</a>
+  <ul class="collapse">
+  <li><a href="#choosing-the-shannon-code" id="toc-choosing-the-shannon-code" class="nav-link" data-scroll-target="#choosing-the-shannon-code"><span class="header-section-number">7.1</span> Choosing the Shannon code</a></li>
+  </ul></li>
+  <li><a href="#sources" id="toc-sources" class="nav-link" data-scroll-target="#sources"><span class="header-section-number">8</span> Sources</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/index.html">Complexity and Information Theory</a></li><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html">Kolmogorov Complexity and Its Relation to Entropy</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Kolmogorov Complexity and Its Relation to Entropy</h1>
+<p class="subtitle lead">Lecture 8 - 27 October 2026</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<style>
+.tm-tape-wrap { overflow-x: auto; margin: 1.25rem 0 0.35rem; padding-bottom: .35rem; }
+.tm-tape { display: inline-flex; align-items: stretch; min-width: max-content; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.tm-cell { min-width: 2.15rem; height: 2.55rem; padding: 0 .35rem; border: 1.5px solid currentColor; border-right: 0; display: flex; align-items: center; justify-content: center; font-size: 1rem; background: var(--bs-body-bg, white); }
+.tm-cell:last-child { border-right: 1.5px solid currentColor; }
+.tm-cell.meta { background: rgba(255, 193, 7, .14); }
+.tm-cell.transition { background: rgba(25, 135, 84, .12); }
+.tm-cell.separator { min-width: 1.35rem; background: rgba(108, 117, 125, .10); font-weight: 700; }
+.tm-cell.program { background: rgba(13, 110, 253, .10); }
+.tm-cell.output { background: rgba(25, 135, 84, .12); }
+.tm-braces { display: inline-grid; grid-template-columns: repeat(7, auto); min-width: max-content; font-size: .85rem; margin-bottom: 1.25rem; }
+.tm-brace { text-align: center; padding-top: .2rem; border-top: 2px solid currentColor; margin: .15rem .2rem 0; }
+@media (prefers-color-scheme: dark) { .tm-cell { background: #202124; } }
+</style>
+<section id="encoding-turing-machines" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Encoding Turing machines</h1>
+<p>Kolmogorov complexity measures the descriptive complexity of an individual string. To define it, a program must itself be represented as a finite string that can be supplied to a universal Turing machine.</p>
+<p>Let a Turing machine be described schematically by</p>
+<p><span class="math display">\[
+m=(K,\Sigma,\delta,s),
+\]</span></p>
+<p>where:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Meaning</th>
+<th>Role in the finite description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(K\)</span></td>
+<td>finite set of states</td>
+<td>determines the control states that must be encoded</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\Sigma\)</span></td>
+<td>finite tape alphabet</td>
+<td>determines the symbols that may be read and written</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\delta\)</span></td>
+<td>transition function</td>
+<td>returns a next state or special outcome, a symbol to write, and a head movement</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s\in K\)</span></td>
+<td>initial state</td>
+<td>identifies where execution begins</td>
+</tr>
+</tbody>
+</table>
+<p>The tape is unbounded, but the machine description is finite. A configuration consists of the current state, the finite non-blank portion of the tape, and the head position.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TB
+    C["Finite control: current state q"] --&gt;|"read current symbol a"| H["Read/write head"]
+    H --&gt; T["... | blank | 1 | 0 | a | 1 | blank | ..."]
+    C --&gt; D["delta(q,a) = (q',b,d)"]
+    D --&gt;|"write b"| H
+    D --&gt;|"enter q'"| C
+    D --&gt; M["move d in {-1,0,+1}"]
+
+    classDef control fill:#fff2cc,stroke:#b38600,stroke-width:2px;
+    classDef tape fill:#e8f1ff,stroke:#2f6fb0,stroke-width:2px;
+    class C,D control;
+    class H,T,M tape;
+</pre>
+</div>
+<p></p><figcaption> Schematic Turing-machine configuration. The finite control reads one tape cell, applies the transition function, writes a symbol, changes state, and moves the head.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>A universal Turing machine <span class="math inline">\(U\)</span> receives an encoding of another machine <span class="math inline">\(m\)</span> and simulates it. When the simulated machine halts with a string <span class="math inline">\(x\)</span> on its output tape, write</p>
+<p><span class="math display">\[
+U(m)=x.
+\]</span></p>
+<p>The notation <span class="math inline">\(m(x)\)</span> can likewise be read as the result produced by machine <span class="math inline">\(m\)</span> on the relevant input.</p>
+<section id="a-binary-representation-of-a-machine" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="a-binary-representation-of-a-machine"><span class="header-section-number">1.1</span> A binary representation of a machine</h2>
+<p>The universal Turing machine is written as</p>
+<p><span class="math display">\[
+U=(\mathbb Z_U,\Sigma_U,\delta_U,s_U),
+\]</span></p>
+<p>and its tape alphabet must contain at least the symbols needed to write binary descriptions and control the tape representation. In the notation used in the lecture,</p>
+<p><span class="math display">\[
+\Sigma_U \supseteq \{0,1,\sqcup,\triangleright\}.
+\]</span></p>
+<p>where <span class="math inline">\(\sqcup\)</span> is the blank symbol and <span class="math inline">\(\triangleright\)</span> is the left-end or start marker. The first two symbols, <span class="math inline">\(0\)</span> and <span class="math inline">\(1\)</span>, are the symbols from which the binary encoding is constructed.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Status of the separator symbol">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Status of the separator symbol
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The notes explicitly write <span class="math inline">\(\Sigma_U\supseteq\{0,1,\sqcup,\triangleright\}\)</span>, without including a semicolon. The tape drawing nevertheless uses <code>;</code> between variable-length fields. The chapter preserves both facts without silently modifying the stated alphabet: <code>;</code> is treated as a separator in the schematic representation. For <code>;</code> to be an actual symbol written on the tape, it would also have to belong to <span class="math inline">\(\Sigma_U\)</span>; alternatively, the separator must be implemented through a binary self-delimiting encoding. The lecture notes do not resolve which interpretation is intended at this point.</p>
+</div>
+</div>
+<p>The machine to be encoded is</p>
+<p><span class="math display">\[
+m=(K,\Sigma,\delta,s),
+\]</span></p>
+<p>with transition function</p>
+<p><span class="math display">\[
+\delta:
+K\times\Sigma
+\longrightarrow
+\bigl(K\cup\{\mathrm{yes},\mathrm{no},\mathrm{halt}\}\bigr)
+\times\Sigma\times\{\rightarrow,\leftarrow,-\}.
+\]</span></p>
+<p>The movement component uses <span class="math inline">\(\rightarrow\)</span> to move one tape cell to the right, <span class="math inline">\(\leftarrow\)</span> to move one tape cell to the left, and <span class="math inline">\(-\)</span> to leave the head on the current cell. The three special outcomes in the codomain are not members of <span class="math inline">\(K\)</span>. Consequently, the encoding must assign numbers not only to the states in <span class="math inline">\(K\)</span> and the symbols in <span class="math inline">\(\Sigma\)</span>, but also to <span class="math inline">\(\mathrm{yes}\)</span>, <span class="math inline">\(\mathrm{no}\)</span>, and <span class="math inline">\(\mathrm{halt}\)</span>.</p>
+<section id="numbering-the-states-and-halting-outcomes" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="numbering-the-states-and-halting-outcomes"><span class="header-section-number">1.1.1</span> Numbering the states and halting outcomes</h3>
+<p>Let</p>
+<p><span class="math display">\[
+K=\{s,q_0,\ldots,q_{|K|-2}\}.
+\]</span></p>
+<p>There are <span class="math inline">\(|K|\)</span> states in total: the initial state <span class="math inline">\(s\)</span> plus the remaining <span class="math inline">\(|K|-1\)</span> states. The lecture assigns consecutive integers as follows:</p>
+<p><span class="math display">\[
+\nu(s)=0,
+\]</span></p>
+<p><span class="math display">\[
+\nu(q_i)=i+1
+\qquad
+\text{for }i=0,\ldots,|K|-2.
+\]</span></p>
+<p>Thus the ordinary states use exactly the integers</p>
+<p><span class="math display">\[
+0,1,\ldots,|K|-1.
+\]</span></p>
+<p>The three special results appearing in the codomain of <span class="math inline">\(\delta\)</span> are placed immediately after the ordinary states:</p>
+<p><span class="math display">\[
+\nu(\mathrm{yes})=|K|,
+\qquad
+\nu(\mathrm{no})=|K|+1,
+\qquad
+\nu(\mathrm{halt})=|K|+2.
+\]</span></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Object</th>
+<th style="text-align: right;">Assigned integer or range</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>initial state <span class="math inline">\(s\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(0\)</span></td>
+</tr>
+<tr class="even">
+<td>remaining states <span class="math inline">\(q_0,\ldots,q_{|K|-2}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(1,\ldots,|K|-1\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathrm{yes}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(|K|\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathrm{no}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(|K|+1\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathrm{halt}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(|K|+2\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>This numbering explains the labels <span class="math inline">\(|K|\)</span>, <span class="math inline">\(|K|+1\)</span>, and <span class="math inline">\(|K|+2\)</span> written above <span class="math inline">\(\mathrm{yes}\)</span>, <span class="math inline">\(\mathrm{no}\)</span>, and <span class="math inline">\(\mathrm{halt}\)</span> in the notes.</p>
+</section>
+<section id="numbering-the-tape-alphabet" class="level3" data-number="1.1.2">
+<h3 data-number="1.1.2" class="anchored" data-anchor-id="numbering-the-tape-alphabet"><span class="header-section-number">1.1.2</span> Numbering the tape alphabet</h3>
+<p>The symbols of <span class="math inline">\(\Sigma\)</span> are numbered after all the state and outcome codes. If</p>
+<p><span class="math display">\[
+\Sigma=\{a_0,a_1,\ldots,a_{|\Sigma|-1}\},
+\]</span></p>
+<p>then</p>
+<p><span class="math display">\[
+\nu(a_j)=|K|+3+j
+\qquad
+\text{for }j=0,\ldots,|\Sigma|-1.
+\]</span></p>
+<p>Therefore, the alphabet symbols occupy the consecutive range</p>
+<p><span class="math display">\[
+|K|+3,\ |K|+4,\ \ldots,\ |K|+|\Sigma|+2.
+\]</span></p>
+<p>Equivalently, using a half-open interval, their codes lie in</p>
+<p><span class="math display">\[
+[\,|K|+3,\ |K|+|\Sigma|+3\,).
+\]</span></p>
+<p>The upper endpoint is excluded. This is why the first alphabet code is <span class="math inline">\(|K|+3\)</span>, while exactly <span class="math inline">\(|\Sigma|\)</span> integers are reserved for alphabet symbols.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Category</th>
+<th style="text-align: right;">Number of objects</th>
+<th style="text-align: right;">Codes used</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>states in <span class="math inline">\(K\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(|K|\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(0,\ldots,|K|-1\)</span></td>
+</tr>
+<tr class="even">
+<td>special outcomes</td>
+<td style="text-align: right;"><span class="math inline">\(3\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(|K|,|K|+1,|K|+2\)</span></td>
+</tr>
+<tr class="odd">
+<td>symbols in <span class="math inline">\(\Sigma\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(|\Sigma|\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(|K|+3,\ldots,|K|+|\Sigma|+2\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The three ranges are disjoint. Hence, after decoding an integer, <span class="math inline">\(U\)</span> can determine whether that integer denotes an ordinary state, a special outcome, or a tape symbol.</p>
+</section>
+<section id="encoding-the-sizes-and-the-transition-table" class="level3" data-number="1.1.3">
+<h3 data-number="1.1.3" class="anchored" data-anchor-id="encoding-the-sizes-and-the-transition-table"><span class="header-section-number">1.1.3</span> Encoding the sizes and the transition table</h3>
+<p>To reconstruct <span class="math inline">\(m\)</span>, the universal machine first needs the two sizes</p>
+<p><span class="math display">\[
+\operatorname{bin}(|K|)
+\qquad\text{and}\qquad
+\operatorname{bin}(|\Sigma|).
+\]</span></p>
+<p>Once these values are known, the numerical ranges above are determined. The remaining part of the description contains the finitely many entries of <span class="math inline">\(\delta\)</span>.</p>
+<p>For example, the transition appearing in the notes is</p>
+<p><span class="math display">\[
+\delta(q_0,a)=(q_1,b,\rightarrow).
+\]</span></p>
+<p>This means that, when the machine is in state <span class="math inline">\(q_0\)</span> and reads <span class="math inline">\(a\)</span>, the machine enters state <span class="math inline">\(q_1\)</span>, writes <span class="math inline">\(b\)</span>, and moves one cell to the right. The transition is encoded field by field as</p>
+<p><span class="math display">\[
+\operatorname{bin}(\nu(q_0))\ ;\
+\operatorname{bin}(\nu(a))\ ;\
+\operatorname{bin}(\nu(q_1))\ ;\
+\operatorname{bin}(\nu(b))\ ;\
+\operatorname{bin}(\rightarrow).
+\]</span></p>
+<p>A transition ending in <span class="math inline">\(\mathrm{yes}\)</span>, <span class="math inline">\(\mathrm{no}\)</span>, or <span class="math inline">\(\mathrm{halt}\)</span> is encoded in exactly the same way, using the respective codes <span class="math inline">\(|K|\)</span>, <span class="math inline">\(|K|+1\)</span>, or <span class="math inline">\(|K|+2\)</span> in the next-state field.</p>
+<p>The complete description therefore has the conceptual form</p>
+<p><span class="math display">\[
+\triangleright\
+\operatorname{bin}(|K|)\ ;\
+\operatorname{bin}(|\Sigma|)\ ;\
+\operatorname{bin}(\nu(q_0))\ ;\
+\operatorname{bin}(\nu(a))\ ;\
+\operatorname{bin}(\nu(q_1))\ ;\
+\operatorname{bin}(\nu(b))\ ;\
+\operatorname{bin}(\rightarrow)\ ;\ \cdots.
+\]</span></p>
+<p>Every rectangle below is one cell of the input tape of <span class="math inline">\(U\)</span>. The concrete first fields reproduce the values written in the notes: <code>10100</code> for <span class="math inline">\(\operatorname{bin}(|K|)\)</span> and <code>1111</code> for <span class="math inline">\(\operatorname{bin}(|\Sigma|)\)</span>.</p>
+<div class="tm-tape-wrap" role="img" aria-label="Tape encoding the sizes of K and Sigma followed by one transition">
+  <div class="tm-tape">
+    <span class="tm-cell">▷</span>
+    <span class="tm-cell meta">1</span><span class="tm-cell meta">0</span><span class="tm-cell meta">1</span><span class="tm-cell meta">0</span><span class="tm-cell meta">0</span>
+    <span class="tm-cell separator">;</span>
+    <span class="tm-cell meta">1</span><span class="tm-cell meta">1</span><span class="tm-cell meta">1</span><span class="tm-cell meta">1</span>
+    <span class="tm-cell separator">;</span>
+    <span class="tm-cell transition">...</span><span class="tm-cell transition">...</span>
+    <span class="tm-cell separator">;</span>
+    <span class="tm-cell transition">...</span><span class="tm-cell transition">...</span>
+    <span class="tm-cell separator">;</span>
+    <span class="tm-cell transition">...</span><span class="tm-cell transition">...</span>
+    <span class="tm-cell separator">;</span>
+    <span class="tm-cell transition">...</span><span class="tm-cell transition">...</span>
+    <span class="tm-cell separator">;</span>
+    <span class="tm-cell transition">...</span><span class="tm-cell transition">...</span>
+  </div>
+</div>
+<p><em>Figure: the first two groups are <span class="math inline">\(\operatorname{bin}(|K|)=10100\)</span> and <span class="math inline">\(\operatorname{bin}(|\Sigma|)=1111\)</span>. The following groups encode, in order, <span class="math inline">\(q_0\)</span>, <span class="math inline">\(a\)</span>, <span class="math inline">\(q_1\)</span>, <span class="math inline">\(b\)</span>, and the movement <span class="math inline">\(\rightarrow\)</span>.</em></p>
+</section>
+</section>
+<section id="why-a-separator-matters" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="why-a-separator-matters"><span class="header-section-number">1.2</span> Why a separator matters</h2>
+<p>If <span class="math inline">\(\Sigma_U\)</span> contained only <span class="math inline">\(0\)</span> and <span class="math inline">\(1\)</span>, concatenated binary integers would not reveal their own boundaries. A fixed field width cannot solve the problem for every Turing machine because there is no fixed upper bound on the number of states or symbols.</p>
+<p>The lecture described a binary-only workaround:</p>
+<ul>
+<li>encode each data bit twice, so <span class="math inline">\(0\)</span> becomes <span class="math inline">\(00\)</span> and <span class="math inline">\(1\)</span> becomes <span class="math inline">\(11\)</span>;</li>
+<li>reserve a mixed pair, such as <span class="math inline">\(01\)</span>, as a separator or stop sequence.</li>
+</ul>
+<p>The reserved pair can never occur inside a doubled data word. This makes the representation unambiguous, but doubles the part of the description written with the repetition code. If a separator symbol is made available directly to <span class="math inline">\(U\)</span>, the encoding obtains sharper additive bounds later. In the written definition above, however, the separator is not explicitly listed as a member of <span class="math inline">\(\Sigma_U\)</span>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Original item</th>
+<th>Binary-only representation</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>data bit <span class="math inline">\(0\)</span></td>
+<td><code>00</code></td>
+<td>doubled data symbol</td>
+</tr>
+<tr class="even">
+<td>data bit <span class="math inline">\(1\)</span></td>
+<td><code>11</code></td>
+<td>doubled data symbol</td>
+</tr>
+<tr class="odd">
+<td>field boundary</td>
+<td><code>01</code></td>
+<td>reserved separator, impossible inside doubled data</td>
+</tr>
+</tbody>
+</table>
+<p>For instance, the data word <code>100011</code> becomes <code>110000001111</code>. The pair <code>01</code> can then be inserted as a stop sequence without being confused with encoded data.</p>
+</section>
+</section>
+<section id="kolmogorov-complexity" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Kolmogorov complexity</h1>
+<p>Fix a universal Turing machine <span class="math inline">\(U\)</span>. The Kolmogorov complexity of a string <span class="math inline">\(x\)</span> relative to <span class="math inline">\(U\)</span> is the length of the shortest binary description of a machine that makes <span class="math inline">\(U\)</span> output <span class="math inline">\(x\)</span>:</p>
+<p><span class="math display">\[
+K_U(x)=\min_{m:U(m)=x}|m|.
+\]</span></p>
+<p>Here <span class="math inline">\(|m|\)</span> is the length of the binary encoding of <span class="math inline">\(m\)</span>. Kolmogorov complexity therefore asks for the shortest effective description of one specific string, rather than the average description length of a random source.</p>
+<section id="conditional-kolmogorov-complexity" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="conditional-kolmogorov-complexity"><span class="header-section-number">2.1</span> Conditional Kolmogorov complexity</h2>
+<p>For strings <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>, the conditional Kolmogorov complexity of <span class="math inline">\(x\)</span> given <span class="math inline">\(y\)</span> is</p>
+<p><span class="math display">\[
+K_U(x\mid y)=\min_{m:U(m,y)=x}|m|.
+\]</span></p>
+<p>The auxiliary string <span class="math inline">\(y\)</span> is supplied to the universal machine and is not counted as part of the program length. The quantity measures the additional description needed to produce <span class="math inline">\(x\)</span> once <span class="math inline">\(y\)</span> is already known.</p>
+<section id="example-a-long-string-of-zeros" class="level3" data-number="2.1.1">
+<h3 data-number="2.1.1" class="anchored" data-anchor-id="example-a-long-string-of-zeros"><span class="header-section-number">2.1.1</span> Example: a long string of zeros</h3>
+<p>Let</p>
+<p><span class="math display">\[
+x=0^n=\underbrace{00\cdots0}_{n\text{ zeros}}.
+\]</span></p>
+<p>If the value of <span class="math inline">\(n\)</span> must be included in the program, the program needs both:</p>
+<ul>
+<li>instructions that print a zero repeatedly;</li>
+<li>a representation of the number <span class="math inline">\(n\)</span>.</li>
+</ul>
+<p>The two situations in the notes are visually different:</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    subgraph A["Unconditional description"]
+      P1["program: loop and encoded value n"] --&gt; U1["universal machine U"]
+      U1 --&gt; X1["0 repeated n times"]
+    end
+    subgraph B["Conditional description"]
+      P2["fixed loop program"] --&gt; U2["universal machine U"]
+      N["auxiliary input n"] --&gt; U2
+      U2 --&gt; X2["0 repeated n times"]
+    end
+
+    classDef prog fill:#fff2cc,stroke:#b38600,stroke-width:2px;
+    classDef machine fill:#e8f1ff,stroke:#2f6fb0,stroke-width:2px;
+    class P1,P2,N prog;
+    class U1,U2 machine;
+</pre>
+</div>
+<p></p><figcaption> Producing a long all-zero string with and without the length supplied as auxiliary input.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>If <span class="math inline">\(n=|x|\)</span> is instead supplied as conditional information, a fixed loop suffices:</p>
+<pre class="text"><code>for i = 1 to |x|:
+    print(0)</code></pre>
+<p>The corresponding tape picture has a fixed program followed by the auxiliary input <span class="math inline">\(n\)</span>:</p>
+<div class="tm-tape-wrap" role="img" aria-label="Conditional program tape with program and auxiliary input n">
+  <div class="tm-tape">
+    <span class="tm-cell">▷</span>
+    <span class="tm-cell program">P</span><span class="tm-cell program">r</span><span class="tm-cell program">i</span><span class="tm-cell program">n</span><span class="tm-cell program">t</span><span class="tm-cell program">(</span><span class="tm-cell program">0</span><span class="tm-cell program">)</span>
+    <span class="tm-cell separator">;</span>
+    <span class="tm-cell meta">bin(n)</span>
+    <span class="tm-cell">□</span><span class="tm-cell">□</span>
+  </div>
+</div>
+<p><em>Figure: the program is fixed; only the auxiliary input <span class="math inline">\(n=|x|\)</span> varies. The output is <span class="math inline">\(0^n\)</span>.</em></p>
+<p>The loop has constant size, independently of <span class="math inline">\(n\)</span>. Consequently,</p>
+<p><span class="math display">\[
+K_U(0^n\mid n)=O(1).
+\]</span></p>
+<p>The important distinction is between receiving <span class="math inline">\(n\)</span> as an external input and hard-coding <span class="math inline">\(n\)</span> inside the program. In the latter case, the bits used to represent <span class="math inline">\(n\)</span> contribute to the program length.</p>
+</section>
+</section>
+</section>
+<section id="dependence-on-the-universal-machine" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Dependence on the universal machine</h1>
+<p>At first sight, <span class="math inline">\(K_U(x)\)</span> depends on the chosen universal machine. Suppose that <span class="math inline">\(U\)</span> and <span class="math inline">\(A\)</span> are two universal Turing machines, and let <span class="math inline">\(m_A\)</span> be a shortest program for <span class="math inline">\(x\)</span> on <span class="math inline">\(A\)</span>. Thus</p>
+<p><span class="math display">\[
+A(m_A)=x
+\qquad\text{and}\qquad
+|m_A|=K_A(x).
+\]</span></p>
+<p>Machine <span class="math inline">\(U\)</span> can simulate <span class="math inline">\(A\)</span> when it receives a fixed description of <span class="math inline">\(A\)</span>, a separator, and <span class="math inline">\(m_A\)</span>.</p>
+<p>On the input tape of <span class="math inline">\(U\)</span>, this is the block structure drawn in the notes:</p>
+<div class="tm-tape-wrap" role="img" aria-label="Tape containing the binary description of A and the shortest A-program">
+  <div class="tm-tape">
+    <span class="tm-cell">▷</span>
+    <span class="tm-cell meta">...</span><span class="tm-cell meta">...</span><span class="tm-cell meta">...</span>
+    <span class="tm-cell separator">;</span>
+    <span class="tm-cell program">...</span><span class="tm-cell program">...</span><span class="tm-cell program">...</span><span class="tm-cell program">...</span>
+  </div>
+</div>
+<p><em>Figure: the left block is <span class="math inline">\(\operatorname{bin}(A)\)</span>, a fixed interpreter description. The right block is <span class="math inline">\(\operatorname{bin}(m_A)\)</span>, the shortest <span class="math inline">\(A\)</span>-program that produces <span class="math inline">\(x\)</span>.</em></p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    DA["fixed description &lt;A&gt;"] --&gt; JOIN["&lt;A&gt; ; m_A"]
+    SEP["separator ;"] --&gt; JOIN
+    MA["shortest A-program m_A"] --&gt; JOIN
+    JOIN --&gt; U["universal machine U"]
+    U --&gt; X["output x"]
+
+    classDef fixed fill:#fff2cc,stroke:#b38600,stroke-width:2px;
+    classDef variable fill:#e2f0d9,stroke:#548235,stroke-width:2px;
+    class DA,SEP fixed;
+    class MA variable;
+</pre>
+</div>
+<p></p><figcaption> Simulation argument behind the invariance property. The description of A is fixed; only the shortest A-program for x varies with x.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>Hence</p>
+<p><span class="math display">\[
+K_U(x)\le |\langle A\rangle|+1+|m_A|,
+\]</span></p>
+<p>so</p>
+<p><span class="math display">\[
+K_U(x)\le K_A(x)+c_A,
+\]</span></p>
+<p>where <span class="math inline">\(c_A=|\langle A\rangle|+1\)</span> is independent of <span class="math inline">\(x\)</span>. Exchanging the roles of <span class="math inline">\(U\)</span> and <span class="math inline">\(A\)</span> gives the reverse inequality up to another constant. Therefore, for some constant <span class="math inline">\(c_{U,A}\)</span>,</p>
+<p><span class="math display">\[
+|K_U(x)-K_A(x)|\le c_{U,A}.
+\]</span></p>
+<p>This is the invariance property: changing the universal description language changes Kolmogorov complexity by at most an additive constant. A compiler or interpreter gives the same intuition. A program written in one Turing-complete language can be executed in another by adding a fixed translator whose length does not grow with the output string.</p>
+<p>Once a reference universal machine has been fixed, the subscript is usually omitted and the complexity is written simply as <span class="math inline">\(K(x)\)</span>.</p>
+</section>
+<section id="basic-properties" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Basic properties</h1>
+<section id="a-direct-upper-bound" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="a-direct-upper-bound"><span class="header-section-number">4.1</span> A direct upper bound</h2>
+<p>Consider a universal machine with two behaviours selected by its first bit:</p>
+<ul>
+<li>if the first bit is <span class="math inline">\(0\)</span>, it interprets the rest of the input as a machine description and performs universal simulation;</li>
+<li>if the first bit is <span class="math inline">\(1\)</span>, it prints the remaining input verbatim.</li>
+</ul>
+<p>Then <span class="math inline">\(1x\)</span> is a program that outputs <span class="math inline">\(x\)</span>. For this particular machine,</p>
+<p><span class="math display">\[
+K_U(x)\le |x|+1.
+\]</span></p>
+<p>By the invariance property, for any fixed reference universal machine,</p>
+<p><span class="math display">\[
+K(x)\le |x|+c.
+\]</span></p>
+<p>The book’s binary-only model has no separate delimiter. Repeating the bits so that a reserved binary stop sequence remains available gives the weaker direct estimate</p>
+<p><span class="math display">\[
+K(x)\le 2|x|+c.
+\]</span></p>
+<p>The factor <span class="math inline">\(2\)</span> is an encoding overhead, not an intrinsic property of the string. The lecture’s machine model with a separator avoids it.</p>
+<p>A binary-only description can also reduce the overhead by first encoding <span class="math inline">\(|x|\)</span> in a self-delimiting way and then writing <span class="math inline">\(x\)</span> without repetition. This changes the dominant term from approximately <span class="math inline">\(2|x|\)</span> to <span class="math inline">\(|x|\)</span> plus a logarithmic description of the length. Iterating the same idea pushes the remaining overhead into progressively smaller iterated logarithmic terms. The lecture used this observation only to explain the role of separators and did not develop a new complexity notion from it.</p>
+</section>
+<section id="existence-of-incompressible-strings" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="existence-of-incompressible-strings"><span class="header-section-number">4.2</span> Existence of incompressible strings</h2>
+<p>For every integer <span class="math inline">\(k\)</span>, fewer than <span class="math inline">\(2^k\)</span> binary programs have length strictly less than <span class="math inline">\(k\)</span>:</p>
+<p><span class="math display">\[
+\sum_{i=0}^{k-1}2^i=2^k-1.
+\]</span></p>
+<p>Each terminating program produces at most one output string. Therefore, fewer than <span class="math inline">\(2^k\)</span> strings can have Kolmogorov complexity less than <span class="math inline">\(k\)</span>.</p>
+<p>There are exactly <span class="math inline">\(2^k\)</span> binary strings of length <span class="math inline">\(k\)</span>. By the pigeonhole principle, at least one length-<span class="math inline">\(k\)</span> string is not produced by any program shorter than <span class="math inline">\(k\)</span>. Hence, for every <span class="math inline">\(k\)</span>, there exists a string <span class="math inline">\(x\in\{0,1\}^k\)</span> such that</p>
+<p><span class="math display">\[
+K(x)\ge k=|x|.
+\]</span></p>
+<p>This is an existence statement. It does not provide an algorithm for identifying a particular incompressible string.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 42%">
+<col style="width: 57%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Objects counted</th>
+<th style="text-align: right;">Number</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>binary programs of length <span class="math inline">\(i\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(2^i\)</span></td>
+</tr>
+<tr class="even">
+<td>binary programs of length less than <span class="math inline">\(k\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(\sum_{i=0}^{k-1}2^i=2^k-1\)</span></td>
+</tr>
+<tr class="odd">
+<td>binary strings of length exactly <span class="math inline">\(k\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(2^k\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Since there are more length-<span class="math inline">\(k\)</span> strings than shorter programs, at least one length-<span class="math inline">\(k\)</span> string cannot be named by a program of length below <span class="math inline">\(k\)</span>.</p>
+</section>
+<section id="non-computability" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="non-computability"><span class="header-section-number">4.3</span> Non-computability</h2>
+<p>Kolmogorov complexity is mathematically well defined but not computable. To determine <span class="math inline">\(K(x)\)</span> exactly, an algorithm would need to decide whether each shorter candidate program eventually outputs <span class="math inline">\(x\)</span> or runs forever. Non-termination prevents such a general decision procedure.</p>
+<p>The difficulty is stronger than merely not knowing a shortest program: in general, even the length of that shortest program cannot be computed algorithmically. This is why useful results about Kolmogorov complexity are commonly expressed as upper and lower bounds.</p>
+</section>
+</section>
+<section id="the-kolmogorov-code" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> The Kolmogorov code</h1>
+<p>Fix the universal machine <span class="math inline">\(U\)</span>. For each string <span class="math inline">\(x\)</span>, choose a shortest machine description <span class="math inline">\(m_x\)</span> that outputs <span class="math inline">\(x\)</span>, and define</p>
+<p><span class="math display">\[
+\varphi_K(x)=m_x.
+\]</span></p>
+<p>Then, by definition,</p>
+<p><span class="math display">\[
+|\varphi_K(x)|=K(x).
+\]</span></p>
+<p>The map <span class="math inline">\(\varphi_K\)</span> is the <strong>Kolmogorov code</strong>. Its encoder is not computable, because selecting <span class="math inline">\(m_x\)</span> would compute <span class="math inline">\(K(x)\)</span>. Its decoding operation is conceptually clear: simulate the encoded machine on <span class="math inline">\(U\)</span> and read its output. Under the self-delimiting machine representation used in the lecture, the descriptions form a uniquely decodable code.</p>
+<p>Unlike the symbol-by-symbol codes studied earlier, this code is defined directly on complete strings. A codeword is itself a machine description capable of generating its decoded string.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    X["string x"] --&gt;|"non-computable choice"| E["encoder phi_K"]
+    E --&gt; M["shortest description m_x"]
+    M --&gt; U["universal machine U"]
+    U --&gt;|"simulate until halt"| XO["reconstructed string x"]
+
+    classDef impossible fill:#f8d7da,stroke:#b02a37,stroke-width:2px;
+    classDef executable fill:#e2f0d9,stroke:#548235,stroke-width:2px;
+    class E impossible;
+    class U executable;
+</pre>
+</div>
+<p></p><figcaption> The Kolmogorov code assigns to each string one of its shortest generating machines. Decoding consists of universal simulation.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+</section>
+<section id="from-kolmogorov-complexity-to-shannon-entropy" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> From Kolmogorov complexity to Shannon entropy</h1>
+<p>Let <span class="math inline">\(A\)</span> be a finite source alphabet and let <span class="math inline">\(P\)</span> be a probability distribution on <span class="math inline">\(A\)</span>. Consider strings</p>
+<p><span class="math display">\[
+X^m=(X_1,\ldots,X_m)\in A^m
+\]</span></p>
+<p>produced by a stationary memoryless source, so the symbols are independent and identically distributed according to <span class="math inline">\(P\)</span>. The induced distribution on <span class="math inline">\(A^m\)</span> is denoted by <span class="math inline">\(P^m\)</span>.</p>
+<p>The expected length of the Kolmogorov code over length-<span class="math inline">\(m\)</span> strings is</p>
+<p><span class="math display">\[
+\mathbb E_{P^m}[|\varphi_K(X^m)|]
+=
+\sum_{x\in A^m}P^m(x)|\varphi_K(x)|
+=
+\sum_{x\in A^m}P^m(x)K(x)
+=
+\mathbb E_{P^m}[K(X^m)].
+\]</span></p>
+<p>Because the Kolmogorov descriptions are treated as a uniquely decodable code, Shannon’s lower bound on expected codeword length gives</p>
+<p><span class="math display">\[
+\mathbb E_{P^m}[K(X^m)]\ge H(P^m).
+\]</span></p>
+<p>For a memoryless source,</p>
+<p><span class="math display">\[
+H(P^m)=mH(P),
+\]</span></p>
+<p>and therefore</p>
+<p><span class="math display">\[
+\frac{1}{m}\mathbb E_{P^m}[K(X^m)]\ge H(P).
+\]</span></p>
+<p>The left-hand side is the expected intrinsic algorithmic complexity per source symbol. Entropy is thus a lower bound for its expected value.</p>
+</section>
+<section id="from-source-codes-to-programs" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> From source codes to programs</h1>
+<p>The converse comparison starts from the observation that every effective uniquely decodable source code can be interpreted as a program-producing mechanism.</p>
+<p>Let <span class="math inline">\(\varphi\)</span> be such a code and let <span class="math inline">\(D_\varphi\)</span> be a fixed decoder. Given the concatenation of</p>
+<ol type="1">
+<li>a description of <span class="math inline">\(D_\varphi\)</span>;</li>
+<li>a separator;</li>
+<li>the codeword <span class="math inline">\(\varphi(x)\)</span>,</li>
+</ol>
+<p>universal machine <span class="math inline">\(U\)</span> can reconstruct <span class="math inline">\(x\)</span>. This gives a particular program for <span class="math inline">\(x\)</span>, so minimality of Kolmogorov complexity implies</p>
+<div class="tm-tape-wrap" role="img" aria-label="Program formed by a decoder description and a source-code word">
+  <div class="tm-tape">
+    <span class="tm-cell">▷</span>
+    <span class="tm-cell meta">D</span><span class="tm-cell meta">e</span><span class="tm-cell meta">c</span><span class="tm-cell meta">o</span><span class="tm-cell meta">d</span><span class="tm-cell meta">e</span><span class="tm-cell meta">r</span>
+    <span class="tm-cell separator">;</span>
+    <span class="tm-cell program">φ(x)</span><span class="tm-cell program">...</span>
+    <span class="tm-cell">□</span><span class="tm-cell">□</span>
+  </div>
+</div>
+<p><em>Figure: a fixed decoder description followed by the codeword <span class="math inline">\(\varphi(x)\)</span> forms a program that produces <span class="math inline">\(x\)</span>.</em></p>
+<p><span class="math display">\[
+K(x)\le |D_\varphi|+1+|\varphi(x)|.
+\]</span></p>
+<p>Taking expectations over <span class="math inline">\(A^m\)</span> yields</p>
+<p><span class="math display">\[
+\mathbb E_{P^m}[K(X^m)]
+\le
+|D_\varphi|+1+\mathbb E_{P^m}[|\varphi(X^m)|].
+\]</span></p>
+<section id="choosing-the-shannon-code" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="choosing-the-shannon-code"><span class="header-section-number">7.1</span> Choosing the Shannon code</h2>
+<p>Let <span class="math inline">\(\varphi_S\)</span> be the Shannon code for the distribution <span class="math inline">\(P^m\)</span>. Its expected length satisfies</p>
+<p><span class="math display">\[
+\mathbb E_{P^m}[|\varphi_S(X^m)|]
+&lt; H(P^m)+1
+= mH(P)+1.
+\]</span></p>
+<p>The Shannon decoder is determined by the distribution <span class="math inline">\(P\)</span>. A shortest effective description of <span class="math inline">\(P\)</span> can therefore be used as part of a program implementing that decoder. Absorbing fixed implementation details into the machine-dependent constant, the lecture writes this decoder cost as <span class="math inline">\(K(P)\)</span>. Hence</p>
+<p><span class="math display">\[
+\mathbb E_{P^m}[K(X^m)]
+\le
+K(P)+mH(P)+1.
+\]</span></p>
+<p>After division by <span class="math inline">\(m\)</span>,</p>
+<p><span class="math display">\[
+\frac{1}{m}\mathbb E_{P^m}[K(X^m)]
+\le
+H(P)+\frac{K(P)+1}{m}.
+\]</span></p>
+<p>The two directions can be compared directly:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Direction</th>
+<th>Construction used</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>entropy lower-bounds expected algorithmic description length</td>
+<td>treat shortest machine descriptions as a uniquely decodable code</td>
+<td><span class="math inline">\(H(P^m)\le \mathbb E[K(X^m)]\)</span></td>
+</tr>
+<tr class="even">
+<td>entropy upper-bounds the normalized expectation asymptotically</td>
+<td>turn a Shannon codeword and its decoder into a program</td>
+<td><span class="math inline">\(\mathbb E[K(X^m)]\le K(P)+mH(P)+1\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Combining the lower and upper bounds gives</p>
+<p><span class="math display">\[
+H(P)
+\le
+\frac{1}{m}\mathbb E_{P^m}[K(X^m)]
+\le
+H(P)+\frac{K(P)+1}{m}.
+\]</span></p>
+<p>The term <span class="math inline">\(K(P)+1\)</span> does not depend on the block length <span class="math inline">\(m\)</span>. Therefore,</p>
+<p><span class="math display">\[
+\lim_{m\to\infty}
+\frac{1}{m}\mathbb E_{P^m}[K(X^m)]
+=H(P).
+\]</span></p>
+<p>The conclusion concerns the <strong>expected</strong> Kolmogorov complexity of strings generated by the source, normalized per symbol. It does not claim that every individual length-<span class="math inline">\(m\)</span> string has complexity exactly <span class="math inline">\(mH(P)\)</span>.</p>
+</section>
+</section>
+<section id="sources" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Sources</h1>
+<ul>
+<li>Goodnotes lecture notes: <code>08 - 27-10-2026.pdf</code>.</li>
+<li>Lecture transcription: <code>2026-10-27 08 communication and information theory lecture transcription.txt</code>.</li>
+<li>Thomas M. Cover and Joy A. Thomas, <em>Elements of Information Theory</em>, Chapter 7, sections used to verify the definitions, invariance bounds, counting argument, non-computability, and the relationship between Kolmogorov complexity and entropy.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/rikypara04\.github\.io\/uniud-ai-cybersecurity-notes\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

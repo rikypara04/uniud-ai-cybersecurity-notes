@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>MiniZinc Search Annotations and Constraint Modelling – MSc Artificial Intelligence &amp; Cybersecurity</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b626d73c4c936ccc3cb08be7d45d1df6.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-30c69b05bb77ed3e47d95fc04249e286.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">MSc Artificial Intelligence &amp; Cybersecurity</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../02-automated-reasoning/index.html">Automated Reasoning</a></li><li class="breadcrumb-item"><a href="../../02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.html">MiniZinc Search Annotations and Constraint Modelling</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../01-complexity-information-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Complexity and Information Theory</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/01-introduction-to-information-theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Information Theory</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/02-information-probability-and-random-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Information, Probability, and Random Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/03-properties-of-entropy-and-conditional-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Properties of Entropy and Conditional Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/04-mutual-information-relative-entropy-and-source-coding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mutual Information, Relative Entropy, and Source Coding</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefix Codes and the Kraft-McMillan Inequality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/06-shannon-codes-huffman-codes-and-asymptotic-optimality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Shannon Codes, Huffman Codes, and Asymptotic Optimality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/07-lz77-and-kolmogorov-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">LZ77 Compression and Kolmogorov Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Kolmogorov Complexity and Its Relation to Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/09-computational-complexity-models-and-cost-criteria.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Computational Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Operational Semantics and Time Complexity of Turing Machines</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/11-multitape-simulation-time-speedup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multitape Simulation, Time Complexity, and Linear Speed-Up</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/12-time-and-space-complexity-classes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Time and Space Complexity Classes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../02-automated-reasoning/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Automated Reasoning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Automated Reasoning and Constraint Programming</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/02-sat-encodings-and-dpll.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SAT Encodings and DPLL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Propagation and Local Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/04-bounds-hyper-arc-and-path-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bounds, Hyper-Arc, and Path Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">MiniZinc Search Annotations and Constraint Modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/06-minizinc-modeling-examples-and-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Modelling through Classical Constraint Problems</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scheduling Models, Hamming Codes, and Timetabling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/08-constraint-optimization-local-search-and-bioinformatics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Optimization, Large Neighbourhood Search, and Bioinformatics Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/09-global-constraints-matching-and-cumulative-scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Global Constraints, Matching-Based Filtering, and Cumulative Scheduling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/10-syntax-and-definite-clause-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Syntax of Logic Programming and Definite-Clause Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/11-semantics-of-logic-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Semantics of Logic Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Unification, SLD Resolution, and the Limits of Computation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../03-foundations-cybersecurity-ethics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Foundations of Cybersecurity and Ethics</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Formal Verification and Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classical Logics: Propositional Logic, QBF, and First-Order Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Games in Logic and First-Order Definability</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learning Automata and Sequential Transducers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/05-uppaal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling and Verification in UPPAAL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Symbolic Verification of Security Protocols with Tamarin</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#from-the-propagation-labeling-tree-to-search-heuristics" id="toc-from-the-propagation-labeling-tree-to-search-heuristics" class="nav-link active" data-scroll-target="#from-the-propagation-labeling-tree-to-search-heuristics"><span class="header-section-number">1</span> From the propagation-labeling tree to search heuristics</a>
+  <ul class="collapse">
+  <li><a href="#invoking-search" id="toc-invoking-search" class="nav-link" data-scroll-target="#invoking-search"><span class="header-section-number">1.1</span> Invoking search</a></li>
+  </ul></li>
+  <li><a href="#minizinc-solve-items" id="toc-minizinc-solve-items" class="nav-link" data-scroll-target="#minizinc-solve-items"><span class="header-section-number">2</span> MiniZinc solve items</a></li>
+  <li><a href="#search-annotations" id="toc-search-annotations" class="nav-link" data-scroll-target="#search-annotations"><span class="header-section-number">3</span> Search annotations</a>
+  <ul class="collapse">
+  <li><a href="#variable-choice-annotations" id="toc-variable-choice-annotations" class="nav-link" data-scroll-target="#variable-choice-annotations"><span class="header-section-number">3.1</span> Variable-choice annotations</a></li>
+  <li><a href="#domain-choice-annotations" id="toc-domain-choice-annotations" class="nav-link" data-scroll-target="#domain-choice-annotations"><span class="header-section-number">3.2</span> Domain-choice annotations</a></li>
+  </ul></li>
+  <li><a href="#constraint-programming-in-practice" id="toc-constraint-programming-in-practice" class="nav-link" data-scroll-target="#constraint-programming-in-practice"><span class="header-section-number">4</span> Constraint Programming in practice</a>
+  <ul class="collapse">
+  <li><a href="#minizinc-and-flatzinc" id="toc-minizinc-and-flatzinc" class="nav-link" data-scroll-target="#minizinc-and-flatzinc"><span class="header-section-number">4.1</span> MiniZinc and FlatZinc</a></li>
+  </ul></li>
+  <li><a href="#minizinc-declarations" id="toc-minizinc-declarations" class="nav-link" data-scroll-target="#minizinc-declarations"><span class="header-section-number">5</span> MiniZinc declarations</a>
+  <ul class="collapse">
+  <li><a href="#parameters-and-decision-variables" id="toc-parameters-and-decision-variables" class="nav-link" data-scroll-target="#parameters-and-decision-variables"><span class="header-section-number">5.1</span> Parameters and decision variables</a></li>
+  <li><a href="#arrays" id="toc-arrays" class="nav-link" data-scroll-target="#arrays"><span class="header-section-number">5.2</span> Arrays</a></li>
+  <li><a href="#set-variables-and-set-expressions" id="toc-set-variables-and-set-expressions" class="nav-link" data-scroll-target="#set-variables-and-set-expressions"><span class="header-section-number">5.3</span> Set variables and set expressions</a></li>
+  </ul></li>
+  <li><a href="#writing-constraints" id="toc-writing-constraints" class="nav-link" data-scroll-target="#writing-constraints"><span class="header-section-number">6</span> Writing constraints</a>
+  <ul class="collapse">
+  <li><a href="#universal-constraints-and-comprehensions" id="toc-universal-constraints-and-comprehensions" class="nav-link" data-scroll-target="#universal-constraints-and-comprehensions"><span class="header-section-number">6.1</span> Universal constraints and comprehensions</a></li>
+  </ul></li>
+  <li><a href="#aggregates-as-propagating-constraints" id="toc-aggregates-as-propagating-constraints" class="nav-link" data-scroll-target="#aggregates-as-propagating-constraints"><span class="header-section-number">7</span> Aggregates as propagating constraints</a>
+  <ul class="collapse">
+  <li><a href="#propagation-through-a-minimum-constraint" id="toc-propagation-through-a-minimum-constraint" class="nav-link" data-scroll-target="#propagation-through-a-minimum-constraint"><span class="header-section-number">7.1</span> Propagation through a minimum constraint</a></li>
+  </ul></li>
+  <li><a href="#sequencing-search-annotations" id="toc-sequencing-search-annotations" class="nav-link" data-scroll-target="#sequencing-search-annotations"><span class="header-section-number">8</span> Sequencing search annotations</a></li>
+  <li><a href="#restart-strategies" id="toc-restart-strategies" class="nav-link" data-scroll-target="#restart-strategies"><span class="header-section-number">9</span> Restart strategies</a>
+  <ul class="collapse">
+  <li><a href="#restart-schedules" id="toc-restart-schedules" class="nav-link" data-scroll-target="#restart-schedules"><span class="header-section-number">9.1</span> Restart schedules</a></li>
+  <li><a href="#the-luby-sequence" id="toc-the-luby-sequence" class="nav-link" data-scroll-target="#the-luby-sequence"><span class="header-section-number">9.2</span> The Luby sequence</a></li>
+  </ul></li>
+  <li><a href="#modelling-workflow" id="toc-modelling-workflow" class="nav-link" data-scroll-target="#modelling-workflow"><span class="header-section-number">10</span> Modelling workflow</a></li>
+  <li><a href="#sources" id="toc-sources" class="nav-link" data-scroll-target="#sources"><span class="header-section-number">11</span> Sources</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../02-automated-reasoning/index.html">Automated Reasoning</a></li><li class="breadcrumb-item"><a href="../../02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.html">MiniZinc Search Annotations and Constraint Modelling</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">MiniZinc Search Annotations and Constraint Modelling</h1>
+<p class="subtitle lead">Lecture 5 - 14 October 2026</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="from-the-propagation-labeling-tree-to-search-heuristics" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> From the propagation-labeling tree to search heuristics</h1>
+<p>Constraint solving combines two complementary mechanisms:</p>
+<ul>
+<li><strong>propagation</strong>, which reasons about the constraints and removes values that cannot participate in a solution;</li>
+<li><strong>labeling</strong>, which makes a choice that propagation alone cannot justify, thereby creating branches in the search tree.</li>
+</ul>
+<p>If a choice later leads to failure, the solver backtracks and explores another branch. The resulting structure is the <strong>propagation-labeling tree</strong>.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+    R["Initial CSP"] --&gt; P0["Propagate"]
+    P0 --&gt; C{"Choose a variable and a value"}
+    C --&gt; L["Left branch"]
+    C --&gt; R1["Right branch"]
+    L --&gt; PL["Propagate"]
+    R1 --&gt; PR["Propagate"]
+    PL --&gt; S1["Solution or further branching"]
+    PR --&gt; S2["Solution, failure, or further branching"]
+
+    classDef propagation fill:#e2f0d9,stroke:#548235,stroke-width:2px;
+    classDef choice fill:#fff2cc,stroke:#b38600,stroke-width:2px;
+    classDef result fill:#e8f1ff,stroke:#2f6fb0,stroke-width:2px;
+    class P0,PL,PR propagation;
+    class C choice;
+    class S1,S2 result;
+</pre>
+</div>
+<p></p><figcaption> Schematic propagation-labeling tree: propagation reduces domains at each node, while labeling creates alternative branches.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>The lecture makes an important distinction between the <strong>solutions of the problem</strong> and the <strong>cost of finding them</strong>. Changing the first variable selected or the first value attempted does not change the number of successful leaves: the solution set of the CSP remains the same. However, these choices can change:</p>
+<ul>
+<li>the shape of the search tree;</li>
+<li>the order in which solutions are encountered;</li>
+<li>the number of internal nodes visited before a solution or proof of failure is obtained;</li>
+<li>the amount of time spent exploring unproductive branches.</li>
+</ul>
+<p>This is the motivation for <strong>search heuristics</strong>. A heuristic does not change what counts as a solution; it changes how the solver explores the search space.</p>
+<section id="invoking-search" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="invoking-search"><span class="header-section-number">1.1</span> Invoking search</h2>
+<p>The construction and traversal of the propagation-labeling tree are requested through a built-in operation:</p>
+<ul>
+<li><code>labeling</code> in Constraint Logic Programming over Finite Domains (CLP(FD));</li>
+<li><code>solve</code> in MiniZinc.</li>
+</ul>
+<p>The handwritten annotation recalls that CLP(FD) was the first Constraint Programming language discussed in the course. The model describes the problem, whereas the search strategy controls how the solver explores the choices left after propagation.</p>
+<p>A solver may expose parameters for:</p>
+<ul>
+<li>choosing a variable, such as the leftmost variable or a first-fail choice;</li>
+<li>choosing or excluding a value from the selected domain;</li>
+<li>approximate search;</li>
+<li>Large Neighbourhood Search (LNS);</li>
+<li>time limits and other stopping conditions.</li>
+</ul>
+</section>
+</section>
+<section id="minizinc-solve-items" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> MiniZinc solve items</h1>
+<p>MiniZinc distinguishes satisfaction from optimisation through the solve item.</p>
+<pre class="minizinc"><code>solve satisfy;</code></pre>
+<p>This asks for an assignment satisfying all constraints, without an objective function.</p>
+<pre class="minizinc"><code>solve maximize(arithmetic_expression);</code></pre>
+<pre class="minizinc"><code>solve minimize(arithmetic_expression);</code></pre>
+<p>The objective may be a single variable or a more complex arithmetic expression. Maximising <span class="math inline">\(f(x)\)</span> is mathematically equivalent to minimising <span class="math inline">\(-f(x)\)</span>, but MiniZinc provides both forms directly so that the model can state the intended objective clearly.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Solve item</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>solve satisfy;</code></td>
+<td>find a feasible assignment</td>
+</tr>
+<tr class="even">
+<td><code>solve maximize(e);</code></td>
+<td>find a feasible assignment with maximum value of <code>e</code></td>
+</tr>
+<tr class="odd">
+<td><code>solve minimize(e);</code></td>
+<td>find a feasible assignment with minimum value of <code>e</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="search-annotations" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Search annotations</h1>
+<p>The lecture introduces integer search through the schematic annotation</p>
+<pre class="minizinc"><code>int_search(variables, varchoice, constrainchoice)</code></pre>
+<p>where:</p>
+<ul>
+<li><code>variables</code> is a one-dimensional array of integer decision variables;</li>
+<li><code>varchoice</code> specifies which variable should be considered next;</li>
+<li><code>constrainchoice</code> specifies how the selected variable should be constrained.</li>
+</ul>
+<p>The annotation controls search rather than changing the declarative constraints. In particular, the same model can be tested with several annotations without changing its set of solutions.</p>
+<section id="variable-choice-annotations" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="variable-choice-annotations"><span class="header-section-number">3.1</span> Variable-choice annotations</h2>
+<p>A variable-choice heuristic attempts to select the variable whose assignment is expected to expose useful propagation or failure early.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Annotation</th>
+<th>Choice made</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>input_order</code></td>
+<td>select variables in the order supplied to <code>int_search</code></td>
+</tr>
+<tr class="even">
+<td><code>occurrence</code></td>
+<td>select the variable participating in the largest number of constraints</td>
+</tr>
+<tr class="odd">
+<td><code>first_fail</code></td>
+<td>select a variable with the smallest current domain</td>
+</tr>
+<tr class="even">
+<td><code>anti_first_fail</code></td>
+<td>select a variable with the largest current domain</td>
+</tr>
+<tr class="odd">
+<td><code>most_constrained</code></td>
+<td>select a smallest-domain variable, breaking ties by the number of attached constraints</td>
+</tr>
+<tr class="even">
+<td><code>dom_w_deg</code></td>
+<td>use a domain-size to weighted-degree criterion, where failures increase constraint weights</td>
+</tr>
+<tr class="odd">
+<td><code>impact</code></td>
+<td>select the variable with the largest measured impact on the remaining search space</td>
+</tr>
+<tr class="even">
+<td><code>max_regret</code></td>
+<td>select the variable with the largest difference between the two smallest values in its domain</td>
+</tr>
+<tr class="odd">
+<td><code>smallest</code></td>
+<td>select the variable whose domain currently contains the smallest value</td>
+</tr>
+<tr class="even">
+<td><code>largest</code></td>
+<td>select the variable whose domain currently contains the largest value</td>
+</tr>
+</tbody>
+</table>
+<p>The <strong>first-fail principle</strong> tries to branch on the variable most likely to become impossible. If the current partial assignment is inconsistent, discovering that inconsistency near the top of the tree avoids constructing a much larger doomed subtree. <code>most_constrained</code> refines this idea by using constraint participation as a tie-breaker.</p>
+<p><code>anti_first_fail</code> makes the opposite choice. It is therefore not a generally interchangeable spelling of <code>first_fail</code>; it deliberately favours the variable with the largest domain.</p>
+</section>
+<section id="domain-choice-annotations" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="domain-choice-annotations"><span class="header-section-number">3.2</span> Domain-choice annotations</h2>
+<p>After selecting a variable, a domain-choice annotation determines the next branch. Some annotations assign a value; others split the domain or remove one value.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Annotation</th>
+<th>Effect on the selected domain</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>indomain</code></td>
+<td>try values in ascending order</td>
+</tr>
+<tr class="even">
+<td><code>indomain_interval</code></td>
+<td>if the domain has several contiguous intervals, keep the first interval; otherwise bisect it</td>
+</tr>
+<tr class="odd">
+<td><code>indomain_max</code></td>
+<td>assign the largest value</td>
+</tr>
+<tr class="even">
+<td><code>indomain_median</code></td>
+<td>assign a middle value of the domain</td>
+</tr>
+<tr class="odd">
+<td><code>indomain_middle</code></td>
+<td>assign the domain value closest to the mean of the current lower and upper bounds</td>
+</tr>
+<tr class="even">
+<td><code>indomain_min</code></td>
+<td>assign the smallest value</td>
+</tr>
+<tr class="odd">
+<td><code>indomain_random</code></td>
+<td>assign a randomly selected value</td>
+</tr>
+<tr class="even">
+<td><code>indomain_reverse_split</code></td>
+<td>bisect the domain and exclude the lower half first</td>
+</tr>
+<tr class="odd">
+<td><code>indomain_split</code></td>
+<td>bisect the domain and exclude the upper half first</td>
+</tr>
+<tr class="even">
+<td><code>indomain_split_random</code></td>
+<td>bisect the domain and randomly decide which half to exclude first</td>
+</tr>
+<tr class="odd">
+<td><code>outdomain_max</code></td>
+<td>exclude the largest value</td>
+</tr>
+<tr class="even">
+<td><code>outdomain_median</code></td>
+<td>exclude a middle value</td>
+</tr>
+<tr class="odd">
+<td><code>outdomain_min</code></td>
+<td>exclude the smallest value</td>
+</tr>
+<tr class="even">
+<td><code>outdomain_random</code></td>
+<td>exclude a randomly selected value</td>
+</tr>
+</tbody>
+</table>
+<p>The distinction between <code>indomain_median</code> and <code>indomain_middle</code> matters. The former is based on the ordered values actually present in the domain. The latter uses the mean of the current bounds and then chooses the available value closest to that mean. The results can differ when the domain has holes.</p>
+</section>
+</section>
+<section id="constraint-programming-in-practice" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Constraint Programming in practice</h1>
+<p>The lecture returns from the abstract solving process to language support. A CSP or COP contains variables, domains, and constraints; a solver combines propagation with choices and backtracking. To use this process in practice, a modelling language is needed.</p>
+<p>Constraint Logic Programming was introduced as a parametric extension of Prolog. Later systems adopted other languages and interfaces. The annual solver challenge encouraged the emergence of MiniZinc as a common high-level modelling language through which the same model can be connected to different back-end solvers.</p>
+<section id="minizinc-and-flatzinc" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="minizinc-and-flatzinc"><span class="header-section-number">4.1</span> MiniZinc and FlatZinc</h2>
+<p>A MiniZinc model is translated into an equivalent FlatZinc model, either implicitly by the toolchain or explicitly. The command shown in the lecture is:</p>
+<pre class="text"><code>minizinc --solver gecode prova.mzn --fzn out.fzn</code></pre>
+<p>FlatZinc is an unfolded, solver-oriented representation consisting mainly of simple, flat constraints. High-level MiniZinc notation is therefore separated from the lower-level format consumed by a solver.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    P["Problem"] --&gt; M["MiniZinc model"]
+    M --&gt; F["FlatZinc model"]
+    F --&gt; S["Constraint solver"]
+    S --&gt; O["Solution or search result"]
+
+    classDef model fill:#fff2cc,stroke:#b38600,stroke-width:2px;
+    classDef solver fill:#e2f0d9,stroke:#548235,stroke-width:2px;
+    class M,F model;
+    class S solver;
+</pre>
+</div>
+<p></p><figcaption> Translation pipeline presented in the lecture: a high-level MiniZinc model is flattened before being passed to a solver.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>Flattening preserves the meaning of the model while replacing convenient high-level constructs with a representation closer to the primitive constraints supported by the selected solver.</p>
+</section>
+</section>
+<section id="minizinc-declarations" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> MiniZinc declarations</h1>
+<section id="parameters-and-decision-variables" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="parameters-and-decision-variables"><span class="header-section-number">5.1</span> Parameters and decision variables</h2>
+<p>Every MiniZinc declaration has a type. The lecture distinguishes parameters from decision variables:</p>
+<pre class="minizinc"><code>par int: a = 3;
+var int: b;</code></pre>
+<p>A parameter is fixed for one model instance and should be assigned as soon as possible. <code>par</code> is the default qualification. A <code>var</code> declaration introduces a value that the solver must determine and should therefore be written explicitly.</p>
+<p>The principal types introduced in the deck are:</p>
+<ul>
+<li><code>int</code>, for integer values and finite-domain decision variables;</li>
+<li><code>bool</code>, for Boolean values, which are a special finite-domain case;</li>
+<li><code>float</code>, for floating-point variables in hybrid models;</li>
+<li><code>string</code>, additionally available for textual values.</li>
+</ul>
+<p>A decision variable should normally have a specified domain:</p>
+<pre class="minizinc"><code>var 0..100: v;
+var {0, 2, 4, 6}: w;</code></pre>
+<p>The first declaration uses an integer interval, written with two dots. The second explicitly lists the allowed values.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="Parameters are fixed; decision variables are searched">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Parameters are fixed; decision variables are searched
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A parameter such as <code>a</code> receives one value for the model instance. A decision variable such as <code>b</code>, <code>v</code>, or <code>w</code> represents an unknown whose value must be restricted by constraints and eventually determined by solving.</p>
+</div>
+</div>
+</section>
+<section id="arrays" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="arrays"><span class="header-section-number">5.2</span> Arrays</h2>
+<p>MiniZinc supports arrays with one or more index sets:</p>
+<pre class="minizinc"><code>array[indexset1, indexset2] of var type: varname;</code></pre>
+<p>The examples from the lecture are:</p>
+<pre class="minizinc"><code>array[0..2] of var 1..5: v;
+array[1..5, 1..5] of var 0..2: M;</code></pre>
+<p>The first declaration creates a one-dimensional array indexed by <span class="math inline">\(0,1,2\)</span>. The second creates a <span class="math inline">\(5\times5\)</span> array. Elements are accessed as <code>v[i]</code> and <code>M[i,j]</code>.</p>
+</section>
+<section id="set-variables-and-set-expressions" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="set-variables-and-set-expressions"><span class="header-section-number">5.3</span> Set variables and set expressions</h2>
+<p>A declaration such as</p>
+<pre class="minizinc"><code>set of 1..8: s;</code></pre>
+<p>allows <code>s</code> to denote a subset of <span class="math inline">\(\{1,\ldots,8\}\)</span>. The deck lists operations for constructing set expressions:</p>
+<ul>
+<li>membership: <code>in</code>;</li>
+<li>inclusion: <code>subset</code>, <code>superset</code>;</li>
+<li>union: <code>union</code>;</li>
+<li>intersection: <code>inter</code>;</li>
+<li>difference: <code>diff</code>;</li>
+<li>symmetric difference: <code>symdiff</code>;</li>
+<li>cardinality: <code>card</code>.</li>
+</ul>
+</section>
+</section>
+<section id="writing-constraints" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Writing constraints</h1>
+<p>Constraints are introduced explicitly with the <code>constraint</code> keyword. They may be written directly or generated compactly.</p>
+<pre class="minizinc"><code>constraint a + b &lt; 100;
+constraint a \/ b;</code></pre>
+<p>For Boolean expressions, <code>a \/ b</code> is disjunction. The deck also introduces a global constraint:</p>
+<pre class="minizinc"><code>constraint alldifferent(v);</code></pre>
+<p>Here <code>v</code> is an array of variables. The lecture notes that an appropriate global-constraint library may need to be imported; details are postponed to later lessons.</p>
+<section id="universal-constraints-and-comprehensions" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="universal-constraints-and-comprehensions"><span class="header-section-number">6.1</span> Universal constraints and comprehensions</h2>
+<p>A family of pairwise constraints can be generated through <code>forall</code>. The list-comprehension form shown in the deck is:</p>
+<pre class="minizinc"><code>constraint forall([
+  v[i] != v[j] |
+  i, j in 1..3 where i &lt; j
+]);</code></pre>
+<p>A more readable generator form is:</p>
+<pre class="minizinc"><code>constraint forall(i, j in 1..3 where i &lt; j)(
+  v[i] != v[j]
+);</code></pre>
+<p>The indices range over <code>1..3</code>, while <code>where i &lt; j</code> removes duplicate and reflexive pairs. The body then requires every selected pair of variables to have different values.</p>
+</section>
+</section>
+<section id="aggregates-as-propagating-constraints" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Aggregates as propagating constraints</h1>
+<p>MiniZinc provides aggregates such as <code>min</code> and <code>sum</code>. For example:</p>
+<pre class="minizinc"><code>constraint s = min(i in 1..n)(vec[i]);</code></pre>
+<p>For the complete vector, the lecture gives the equivalent compact expression:</p>
+<pre class="minizinc"><code>constraint s = min(vec);</code></pre>
+<p>Generators may filter multidimensional arrays:</p>
+<pre class="minizinc"><code>constraint s = sum(
+  i in 1..n,
+  j in 1..n where i + j &lt;= n
+)(mat[i, i + j]);</code></pre>
+<p>The <code>where</code> condition selects only index pairs satisfying <span class="math inline">\(i+j\le n\)</span>. The aggregate then sums the corresponding matrix entries.</p>
+<p>These constructs are not merely one-way programming-language functions. They establish constraints and therefore support propagation in multiple directions.</p>
+<section id="propagation-through-a-minimum-constraint" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="propagation-through-a-minimum-constraint"><span class="header-section-number">7.1</span> Propagation through a minimum constraint</h2>
+<p>Consider</p>
+<p><span class="math display">\[
+X=\min(A,B,C,D)
+\]</span></p>
+<p>with domains</p>
+<p><span class="math display">\[
+D_X=2..10,
+\quad
+D_A=4..20,
+\quad
+D_B=4..5,
+\quad
+D_C=5..23,
+\quad
+D_D=7..20.
+\]</span></p>
+<p>The minimum cannot be below <span class="math inline">\(4\)</span>, because every argument is at least <span class="math inline">\(4\)</span>. It cannot exceed <span class="math inline">\(5\)</span>, because <span class="math inline">\(B\)</span> is guaranteed to be at most <span class="math inline">\(5\)</span>. Therefore propagation infers</p>
+<p><span class="math display">\[
+D_X=4..5.
+\]</span></p>
+<p>Furthermore, <span class="math inline">\(D\)</span> cannot be the variable attaining the minimum, since its lower bound is <span class="math inline">\(7\)</span>, whereas the minimum is at most <span class="math inline">\(5\)</span>. The example illustrates why an aggregate is a genuine constraint: information flows from the argument domains to <span class="math inline">\(X\)</span> and can also rule out roles for individual arguments.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th style="text-align: right;">Initial domain</th>
+<th>Consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(X\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(2..10\)</span></td>
+<td>reduced to <span class="math inline">\(4..5\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(A\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(4..20\)</span></td>
+<td>may attain the minimum</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(B\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(4..5\)</span></td>
+<td>forces the minimum not to exceed <span class="math inline">\(5\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(C\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(5..23\)</span></td>
+<td>may attain the minimum only at <span class="math inline">\(5\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(D\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(7..20\)</span></td>
+<td>cannot attain the minimum</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="sequencing-search-annotations" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Sequencing search annotations</h1>
+<p>MiniZinc can combine search strategies through <code>seq_search</code>:</p>
+<pre class="minizinc"><code>seq_search([
+  &lt;search-ann&gt;,
+  ...,
+  &lt;search-ann&gt;
+])</code></pre>
+<p>Each component may use different search parameters and act on a different group of decision variables. This is useful when a model contains distinct classes of decisions. A modeller can specify which class is assigned first and choose a suitable variable and domain heuristic for each class.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    A["Decision variables"] --&gt; G1["Variable group 1"]
+    A --&gt; G2["Variable group 2"]
+    G1 --&gt; S1["Search annotation 1"]
+    S1 --&gt; G2
+    G2 --&gt; S2["Search annotation 2"]
+    S2 --&gt; R["Remaining search"]
+</pre>
+</div>
+<p></p><figcaption> A sequential search applies specialised annotations to different groups of decision variables in a chosen order.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+</section>
+<section id="restart-strategies" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Restart strategies</h1>
+<p>A search tree may be too large to traverse within the available time. A poor decision close to the root can direct a deterministic search into a large unproductive region. A <strong>restart</strong> interrupts the current exploration and starts again from the root.</p>
+<p>A restart is useful only if the new run can follow a different trajectory. Randomised value selection or another changed heuristic prevents the solver from repeating exactly the same deterministic path.</p>
+<p>The example in the lecture combines random value selection with a geometric restart schedule:</p>
+<pre class="minizinc"><code>solve
+  :: int_search(x ++ y, most_constrained, indomain_random)
+  :: restart_geometric(1.5, 500);</code></pre>
+<p>The expression <code>x ++ y</code> concatenates the two arrays of variables searched by the annotation.</p>
+<section id="restart-schedules" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="restart-schedules"><span class="header-section-number">9.1</span> Restart schedules</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Annotation</th>
+<th>Node budget before the next restart</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>restart_constant(n)</code></td>
+<td>always <span class="math inline">\(n\)</span> nodes</td>
+</tr>
+<tr class="even">
+<td><code>restart_linear(n)</code></td>
+<td><span class="math inline">\(nk\)</span> nodes for run <span class="math inline">\(k\)</span></td>
+</tr>
+<tr class="odd">
+<td><code>restart_geometric(\omega,n)</code></td>
+<td><span class="math inline">\(n\omega^k\)</span> nodes for run <span class="math inline">\(k\)</span></td>
+</tr>
+<tr class="even">
+<td><code>restart_luby(n)</code></td>
+<td><span class="math inline">\(nL[k]\)</span> nodes, where <span class="math inline">\(L\)</span> is the Luby sequence</td>
+</tr>
+<tr class="odd">
+<td><code>restart_none</code></td>
+<td>no restart</td>
+</tr>
+</tbody>
+</table>
+<p>The schedules express different trade-offs. A constant schedule repeatedly gives the same budget. A linear schedule increases it steadily. A geometric schedule increases it multiplicatively. The Luby schedule repeatedly returns to short runs while also allocating runs of increasing length.</p>
+</section>
+<section id="the-luby-sequence" class="level2" data-number="9.2">
+<h2 data-number="9.2" class="anchored" data-anchor-id="the-luby-sequence"><span class="header-section-number">9.2</span> The Luby sequence</h2>
+<p>The sequence shown in the lecture begins</p>
+<p><span class="math display">\[
+1,1,2,1,1,2,4,1,1,2,1,1,2,4,8,\ldots
+\]</span></p>
+<p>All run lengths are powers of two. After two runs of a given length have been completed in the recursive pattern, a run of twice that length appears.</p>
+<p>One recursive definition is</p>
+<p><span class="math display">\[
+t_i=
+\begin{cases}
+2^{k-1}, &amp; \text{if } i=2^k-1,\\[4pt]
+t_{i-2^{k-1}+1}, &amp; \text{if }2^{k-1}\le i&lt;2^k-1.
+\end{cases}
+\]</span></p>
+<p>For example, <span class="math inline">\(i=14\)</span> lies in the block associated with <span class="math inline">\(k=4\)</span>, so</p>
+<p><span class="math display">\[
+t_{14}=t_{14-8+1}=t_7=4.
+\]</span></p>
+<p>The purpose is not to predict the ideal restart length in advance. The schedule systematically tries short and progressively longer runs.</p>
+</section>
+</section>
+<section id="modelling-workflow" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Modelling workflow</h1>
+<p>The final part of the deck summarises Constraint Programming as a modelling process. Starting from a real problem:</p>
+<ol type="1">
+<li>identify the decision variables;</li>
+<li>define each variable’s domain;</li>
+<li>express the relationships among the variables as constraints;</li>
+<li>select satisfaction or an optimisation objective;</li>
+<li>test whether the model correctly represents the problem;</li>
+<li>only then investigate search annotations and restart strategies that may accelerate solving.</li>
+</ol>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    P["Real problem"] --&gt; V["Variables"]
+    V --&gt; D["Domains"]
+    D --&gt; C["Constraints"]
+    C --&gt; M["Validated model"]
+    M --&gt; H["Search heuristics"]
+    H --&gt; S["Solver"]
+</pre>
+</div>
+<p></p><figcaption> Constraint-modelling workflow presented at the end of the lecture.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled" title="There is almost never a unique encoding">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>There is almost never a unique encoding
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Different choices of variables, domains, and constraints can represent the same real problem. These encodings can behave very differently under propagation and search. Modelling is therefore a creative activity that improves with experience; search tuning should not substitute for checking the quality and correctness of the model itself.</p>
+</div>
+</div>
+</section>
+<section id="sources" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> Sources</h1>
+<ul>
+<li>Annotated lecture slide deck: <code>05 - 14-10-2026.pdf</code>, 23 slides. The supplied PDF was used for the slide order, formal material, diagrams, examples, and handwritten annotations.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/rikypara04\.github\.io\/uniud-ai-cybersecurity-notes\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

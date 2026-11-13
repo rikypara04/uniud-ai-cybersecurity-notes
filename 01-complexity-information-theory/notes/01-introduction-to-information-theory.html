@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Introduction to Information Theory – MSc Artificial Intelligence &amp; Cybersecurity</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b626d73c4c936ccc3cb08be7d45d1df6.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-30c69b05bb77ed3e47d95fc04249e286.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">MSc Artificial Intelligence &amp; Cybersecurity</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/index.html">Complexity and Information Theory</a></li><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/notes/01-introduction-to-information-theory.html">Introduction to Information Theory</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../01-complexity-information-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Complexity and Information Theory</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/01-introduction-to-information-theory.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Introduction to Information Theory</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/02-information-probability-and-random-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Information, Probability, and Random Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/03-properties-of-entropy-and-conditional-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Properties of Entropy and Conditional Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/04-mutual-information-relative-entropy-and-source-coding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mutual Information, Relative Entropy, and Source Coding</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefix Codes and the Kraft-McMillan Inequality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/06-shannon-codes-huffman-codes-and-asymptotic-optimality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Shannon Codes, Huffman Codes, and Asymptotic Optimality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/07-lz77-and-kolmogorov-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">LZ77 Compression and Kolmogorov Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Kolmogorov Complexity and Its Relation to Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/09-computational-complexity-models-and-cost-criteria.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Computational Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Operational Semantics and Time Complexity of Turing Machines</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/11-multitape-simulation-time-speedup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multitape Simulation, Time Complexity, and Linear Speed-Up</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/12-time-and-space-complexity-classes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Time and Space Complexity Classes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../02-automated-reasoning/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Automated Reasoning</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Automated Reasoning and Constraint Programming</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/02-sat-encodings-and-dpll.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SAT Encodings and DPLL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Propagation and Local Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/04-bounds-hyper-arc-and-path-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bounds, Hyper-Arc, and Path Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Search Annotations and Constraint Modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/06-minizinc-modeling-examples-and-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Modelling through Classical Constraint Problems</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scheduling Models, Hamming Codes, and Timetabling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/08-constraint-optimization-local-search-and-bioinformatics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Optimization, Large Neighbourhood Search, and Bioinformatics Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/09-global-constraints-matching-and-cumulative-scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Global Constraints, Matching-Based Filtering, and Cumulative Scheduling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/10-syntax-and-definite-clause-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Syntax of Logic Programming and Definite-Clause Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/11-semantics-of-logic-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Semantics of Logic Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Unification, SLD Resolution, and the Limits of Computation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../03-foundations-cybersecurity-ethics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Foundations of Cybersecurity and Ethics</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Formal Verification and Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classical Logics: Propositional Logic, QBF, and First-Order Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Games in Logic and First-Order Definability</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learning Automata and Sequential Transducers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/05-uppaal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling and Verification in UPPAAL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Symbolic Verification of Security Protocols with Tamarin</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#course-organisation-and-references" id="toc-course-organisation-and-references" class="nav-link active" data-scroll-target="#course-organisation-and-references"><span class="header-section-number">1</span> Course organisation and references</a></li>
+  <li><a href="#the-information-carried-by-a-message" id="toc-the-information-carried-by-a-message" class="nav-link" data-scroll-target="#the-information-carried-by-a-message"><span class="header-section-number">2</span> The information carried by a message</a></li>
+  <li><a href="#probability-and-surprise" id="toc-probability-and-surprise" class="nav-link" data-scroll-target="#probability-and-surprise"><span class="header-section-number">3</span> Probability and surprise</a>
+  <ul class="collapse">
+  <li><a href="#limiting-cases" id="toc-limiting-cases" class="nav-link" data-scroll-target="#limiting-cases"><span class="header-section-number">3.1</span> Limiting cases</a>
+  <ul class="collapse">
+  <li><a href="#a-certain-message" id="toc-a-certain-message" class="nav-link" data-scroll-target="#a-certain-message"><span class="header-section-number">3.1.1</span> A certain message</a></li>
+  <li><a href="#an-increasingly-unlikely-message" id="toc-an-increasingly-unlikely-message" class="nav-link" data-scroll-target="#an-increasingly-unlikely-message"><span class="header-section-number">3.1.2</span> An increasingly unlikely message</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#a-logarithmic-measure-of-information" id="toc-a-logarithmic-measure-of-information" class="nav-link" data-scroll-target="#a-logarithmic-measure-of-information"><span class="header-section-number">4</span> A logarithmic measure of information</a>
+  <ul class="collapse">
+  <li><a href="#why-use-a-logarithm" id="toc-why-use-a-logarithm" class="nav-link" data-scroll-target="#why-use-a-logarithm"><span class="header-section-number">4.1</span> Why use a logarithm?</a></li>
+  <li><a href="#why-is-there-a-minus-sign" id="toc-why-is-there-a-minus-sign" class="nav-link" data-scroll-target="#why-is-there-a-minus-sign"><span class="header-section-number">4.2</span> Why is there a minus sign?</a></li>
+  <li><a href="#why-use-base-2" id="toc-why-use-base-2" class="nav-link" data-scroll-target="#why-use-base-2"><span class="header-section-number">4.3</span> Why use base 2?</a></li>
+  </ul></li>
+  <li><a href="#shannons-communication-model" id="toc-shannons-communication-model" class="nav-link" data-scroll-target="#shannons-communication-model"><span class="header-section-number">5</span> Shannon’s communication model</a></li>
+  <li><a href="#two-fundamental-communication-tasks" id="toc-two-fundamental-communication-tasks" class="nav-link" data-scroll-target="#two-fundamental-communication-tasks"><span class="header-section-number">6</span> Two fundamental communication tasks</a>
+  <ul class="collapse">
+  <li><a href="#compressing-messages" id="toc-compressing-messages" class="nav-link" data-scroll-target="#compressing-messages"><span class="header-section-number">6.1</span> Compressing messages</a></li>
+  <li><a href="#correcting-transmission-errors" id="toc-correcting-transmission-errors" class="nav-link" data-scroll-target="#correcting-transmission-errors"><span class="header-section-number">6.2</span> Correcting transmission errors</a></li>
+  </ul></li>
+  <li><a href="#shannons-fundamental-result" id="toc-shannons-fundamental-result" class="nav-link" data-scroll-target="#shannons-fundamental-result"><span class="header-section-number">7</span> Shannon’s fundamental result</a></li>
+  <li><a href="#sources" id="toc-sources" class="nav-link" data-scroll-target="#sources"><span class="header-section-number">8</span> Sources</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/index.html">Complexity and Information Theory</a></li><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/notes/01-introduction-to-information-theory.html">Introduction to Information Theory</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Introduction to Information Theory</h1>
+<p class="subtitle lead">Lecture 1 - 1 October 2026</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="course-organisation-and-references" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Course organisation and references</h1>
+<p>The course carries <strong>6 CFU</strong> and consists of <strong>48 hours</strong>. The lecture introduces separate references for the two main parts of the course.</p>
+<p>For <strong>Information Theory</strong>, the indicated references are:</p>
+<ul>
+<li>Thomas M. Cover and Joy A. Thomas, <em>Elements of Information Theory</em>;</li>
+<li>David J. C. MacKay, <em>Information Theory, Inference, and Learning Algorithms</em>.</li>
+</ul>
+<p>For <strong>Complexity Theory</strong>, the indicated reference is:</p>
+<ul>
+<li>Christos H. Papadimitriou, <em>Computational Complexity</em>.</li>
+</ul>
+<p>The first lecture begins the Information Theory part and refers to Claude Shannon’s 1948 paper <em>A Mathematical Theory of Communication</em>.</p>
+</section>
+<section id="the-information-carried-by-a-message" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> The information carried by a message</h1>
+<p>Consider the message</p>
+<blockquote class="blockquote">
+<p>It is raining outside.</p>
+</blockquote>
+<p>The sentence alone does not determine a fixed quantity of information. The quantity depends on the <strong>context</strong> in which the message is received and on how probable the receiver considered the message before hearing it.</p>
+<p>For example, hearing that it is raining may provide little new information when rain was already expected. The same message may provide much more information when the weather made rain seem very unlikely.</p>
+<p>This leads to the first intuition of the lecture:</p>
+<blockquote class="blockquote">
+<p>The information carried by a message is related to the surprise produced when that message is received.</p>
+</blockquote>
+<p>The relevant quantity is therefore not merely the content of the sentence, but the probability assigned to the message in the current context.</p>
+</section>
+<section id="probability-and-surprise" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Probability and surprise</h1>
+<p>Let <span class="math inline">\(m\)</span> be a possible message and let</p>
+<p><span class="math display">\[
+p(m) \in (0,1]
+\]</span></p>
+<p>be its probability before the message is observed.</p>
+<p>The relationship required by the lecture is inverse:</p>
+<ul>
+<li>when <span class="math inline">\(p(m)\)</span> is <strong>low</strong>, receiving <span class="math inline">\(m\)</span> is highly surprising, so the quantity of information should be <strong>high</strong>;</li>
+<li>when <span class="math inline">\(p(m)\)</span> is <strong>high</strong>, receiving <span class="math inline">\(m\)</span> is not very surprising, so the quantity of information should be <strong>low</strong>.</li>
+</ul>
+<p>Thus a measure of information must decrease as the probability of the message increases.</p>
+<section id="limiting-cases" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="limiting-cases"><span class="header-section-number">3.1</span> Limiting cases</h2>
+<p>The two extreme cases make this relationship clear.</p>
+<section id="a-certain-message" class="level3" data-number="3.1.1">
+<h3 data-number="3.1.1" class="anchored" data-anchor-id="a-certain-message"><span class="header-section-number">3.1.1</span> A certain message</h3>
+<p>If</p>
+<p><span class="math display">\[
+p(m)=1,
+\]</span></p>
+<p>then the message was already certain. Receiving the message removes no uncertainty and therefore provides no new information:</p>
+<p><span class="math display">\[
+I(m)=0.
+\]</span></p>
+</section>
+<section id="an-increasingly-unlikely-message" class="level3" data-number="3.1.2">
+<h3 data-number="3.1.2" class="anchored" data-anchor-id="an-increasingly-unlikely-message"><span class="header-section-number">3.1.2</span> An increasingly unlikely message</h3>
+<p>As</p>
+<p><span class="math display">\[
+p(m)\to 0^+,
+\]</span></p>
+<p>the occurrence of <span class="math inline">\(m\)</span> becomes increasingly surprising. The corresponding information should grow without bound:</p>
+<p><span class="math display">\[
+I(m)\to +\infty.
+\]</span></p>
+<p>The limit is written as <span class="math inline">\(p(m)\to0^+\)</span> because the lecture defines the information of messages with positive probability. A message assigned probability zero is treated as impossible by the model, so observing it would reveal a problem in that model rather than merely an extremely large but ordinary surprise.</p>
+</section>
+</section>
+</section>
+<section id="a-logarithmic-measure-of-information" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> A logarithmic measure of information</h1>
+<p>The lecture associates the quantity of information of message <span class="math inline">\(m\)</span> with</p>
+<p><span class="math display">\[
+I(m)=-\log_2 p(m)
+\]</span></p>
+<p>or, equivalently,</p>
+<p><span class="math display">\[
+I(m)=\log_2\left(\frac{1}{p(m)}\right).
+\]</span></p>
+<p>This formula has exactly the behaviour required above:</p>
+<ul>
+<li><span class="math inline">\(I(m)=0\)</span> when <span class="math inline">\(p(m)=1\)</span>;</li>
+<li><span class="math inline">\(I(m)\)</span> increases when <span class="math inline">\(p(m)\)</span> decreases;</li>
+<li><span class="math inline">\(I(m)\to+\infty\)</span> when <span class="math inline">\(p(m)\to0^+\)</span>.</li>
+</ul>
+<section id="why-use-a-logarithm" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="why-use-a-logarithm"><span class="header-section-number">4.1</span> Why use a logarithm?</h2>
+<p>The logarithm is used because separate independent pieces of information should combine <strong>additively</strong>.</p>
+<p>Suppose that two independent messages <span class="math inline">\(m_1\)</span> and <span class="math inline">\(m_2\)</span> occur. Independence means that their joint probability is</p>
+<p><span class="math display">\[
+p(m_1,m_2)=p(m_1)p(m_2).
+\]</span></p>
+<p>If the two observations are independent, the information obtained from observing both should be the information from the first plus the information from the second:</p>
+<p><span class="math display">\[
+I(m_1,m_2)=I(m_1)+I(m_2).
+\]</span></p>
+<p>Therefore, an information measure <span class="math inline">\(f\)</span> based on probability should satisfy</p>
+<p><span class="math display">\[
+f(pq)=f(p)+f(q).
+\]</span></p>
+<p>The logarithm has precisely this property:</p>
+<p><span class="math display">\[
+\log(pq)=\log p+\log q.
+\]</span></p>
+<p>Consequently,</p>
+<p><span class="math display">\[
+\begin{aligned}
+I(m_1,m_2)
+&amp;=-\log_2\bigl(p(m_1)p(m_2)\bigr)\\
+&amp;=-\log_2p(m_1)-\log_2p(m_2)\\
+&amp;=I(m_1)+I(m_2).
+\end{aligned}
+\]</span></p>
+<p>Under the natural requirements that the measure varies continuously with probability and that independent information adds, the logarithmic form is not an arbitrary choice: it is the form that fulfils those requirements, up to a positive multiplicative constant.</p>
+</section>
+<section id="why-is-there-a-minus-sign" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="why-is-there-a-minus-sign"><span class="header-section-number">4.2</span> Why is there a minus sign?</h2>
+<p>For every probability <span class="math inline">\(p\in(0,1]\)</span>,</p>
+<p><span class="math display">\[
+\log_2p\leq0.
+\]</span></p>
+<p>The minus sign makes the information non-negative:</p>
+<p><span class="math display">\[
+-\log_2p\geq0.
+\]</span></p>
+<p>It also ensures that smaller probabilities correspond to larger information values.</p>
+</section>
+<section id="why-use-base-2" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="why-use-base-2"><span class="header-section-number">4.3</span> Why use base 2?</h2>
+<p>The base determines the unit of measurement. Base <span class="math inline">\(2\)</span> measures information in <strong>bits</strong>.</p>
+<p>For example,</p>
+<p><span class="math display">\[
+I(m)=-\log_2\left(\frac12\right)=1\text{ bit}.
+\]</span></p>
+<p>An event with probability <span class="math inline">\(1/2\)</span> therefore carries one bit of self-information. Similarly,</p>
+<p><span class="math display">\[
+I(m)=-\log_2\left(\frac14\right)=2\text{ bits},
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+I(m)=-\log_2\left(\frac18\right)=3\text{ bits}.
+\]</span></p>
+<p>Every halving of probability adds one bit of information. This gives the logarithmic measure a direct interpretation in terms of binary distinctions.</p>
+</section>
+</section>
+<section id="shannons-communication-model" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Shannon’s communication model</h1>
+<p>Claude Shannon’s <em>A Mathematical Theory of Communication</em> studies the technical problem of communicating a selected message through a channel.</p>
+<p>The basic structure noted in the lecture is</p>
+<p><span class="math display">\[
+\text{message}
+\longrightarrow
+\text{channel}
+\longrightarrow
+\text{receiver}.
+\]</span></p>
+<p>A message must be represented in a form that can pass through the channel. The receiver observes what arrives through the channel and attempts to recover the intended message.</p>
+<p>The abstraction focuses on the alternatives available to the source and on the reliable identification of the selected message. The semantic meaning of the message is not needed to define its mathematical quantity of information.</p>
+</section>
+<section id="two-fundamental-communication-tasks" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Two fundamental communication tasks</h1>
+<p>The lecture identifies two central tasks associated with communication.</p>
+<section id="compressing-messages" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="compressing-messages"><span class="header-section-number">6.1</span> Compressing messages</h2>
+<p>Compression seeks a more compact representation of a message while preserving the information required for its recovery.</p>
+<p>Compression is possible when the original representation contains redundancy. If some messages or patterns are more predictable than others, a coding method can exploit that predictability instead of representing every possibility in the same way.</p>
+<p>The lecture associates <strong>entropy</strong> with the fundamental limit on message compression. At this point, entropy is introduced only through this role: it expresses how far a source can be compressed on average without losing the information needed to recover its messages. The mathematical definition of entropy is left to a later lecture.</p>
+<p>The statement written in the lecture notes as “entropy is the maximum message compression” should therefore be read as follows:</p>
+<blockquote class="blockquote">
+<p>Entropy determines the theoretical limit of lossless compression for a source.</p>
+</blockquote>
+<p>It is the achievable compactness that is limited; entropy is not itself a compression algorithm.</p>
+</section>
+<section id="correcting-transmission-errors" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="correcting-transmission-errors"><span class="header-section-number">6.2</span> Correcting transmission errors</h2>
+<p>A transmitted representation may be altered while passing through the channel. Error-correcting methods add carefully designed structure that enables the receiver to detect or correct some transmission errors.</p>
+<p>Compression and error correction address different problems:</p>
+<ul>
+<li>compression removes redundancy that is unnecessary for representing the source efficiently;</li>
+<li>error correction introduces useful redundancy to protect the encoded message during transmission.</li>
+</ul>
+</section>
+</section>
+<section id="shannons-fundamental-result" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Shannon’s fundamental result</h1>
+<p>The notes refer to the <strong>Shannon theorem</strong> in connection with compression and the correction of transmission errors.</p>
+<p>The importance of Shannon’s result is that communication has mathematical limits:</p>
+<ul>
+<li>a source cannot be compressed losslessly beyond the limit determined by its statistical uncertainty;</li>
+<li>a noisy channel cannot transmit information reliably at an arbitrarily high rate.</li>
+</ul>
+<p>The first lecture introduces these limits conceptually. Their precise mathematical formulations and the quantities used to express them are not developed here, because those belong to later parts of the course.</p>
+</section>
+<section id="sources" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Sources</h1>
+<ul>
+<li>Goodnotes lecture notes: <em>01 - 01-10-2026.pdf</em>.</li>
+<li>Claude E. Shannon, “A Mathematical Theory of Communication,” 1948.</li>
+<li>Thomas M. Cover and Joy A. Thomas, <em>Elements of Information Theory</em>, used only to clarify the logarithmic information measure and the introductory interpretation of compression limits.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/rikypara04\.github\.io\/uniud-ai-cybersecurity-notes\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Learning Automata and Sequential Transducers – MSc Artificial Intelligence &amp; Cybersecurity</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b626d73c4c936ccc3cb08be7d45d1df6.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-30c69b05bb77ed3e47d95fc04249e286.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="../../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">MSc Artificial Intelligence &amp; Cybersecurity</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/index.html">Foundations of Cybersecurity and Ethics</a></li><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html">Learning Automata and Sequential Transducers</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../01-complexity-information-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Complexity and Information Theory</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/01-introduction-to-information-theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Information Theory</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/02-information-probability-and-random-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Information, Probability, and Random Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/03-properties-of-entropy-and-conditional-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Properties of Entropy and Conditional Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/04-mutual-information-relative-entropy-and-source-coding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mutual Information, Relative Entropy, and Source Coding</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefix Codes and the Kraft-McMillan Inequality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/06-shannon-codes-huffman-codes-and-asymptotic-optimality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Shannon Codes, Huffman Codes, and Asymptotic Optimality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/07-lz77-and-kolmogorov-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">LZ77 Compression and Kolmogorov Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Kolmogorov Complexity and Its Relation to Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/09-computational-complexity-models-and-cost-criteria.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Computational Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Operational Semantics and Time Complexity of Turing Machines</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/11-multitape-simulation-time-speedup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multitape Simulation, Time Complexity, and Linear Speed-Up</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/12-time-and-space-complexity-classes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Time and Space Complexity Classes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../02-automated-reasoning/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Automated Reasoning</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Automated Reasoning and Constraint Programming</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/02-sat-encodings-and-dpll.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SAT Encodings and DPLL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Propagation and Local Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/04-bounds-hyper-arc-and-path-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bounds, Hyper-Arc, and Path Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Search Annotations and Constraint Modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/06-minizinc-modeling-examples-and-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Modelling through Classical Constraint Problems</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scheduling Models, Hamming Codes, and Timetabling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/08-constraint-optimization-local-search-and-bioinformatics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Optimization, Large Neighbourhood Search, and Bioinformatics Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/09-global-constraints-matching-and-cumulative-scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Global Constraints, Matching-Based Filtering, and Cumulative Scheduling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/10-syntax-and-definite-clause-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Syntax of Logic Programming and Definite-Clause Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/11-semantics-of-logic-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Semantics of Logic Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Unification, SLD Resolution, and the Limits of Computation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../03-foundations-cybersecurity-ethics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Foundations of Cybersecurity and Ethics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Formal Verification and Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classical Logics: Propositional Logic, QBF, and First-Order Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Games in Logic and First-Order Definability</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Learning Automata and Sequential Transducers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/05-uppaal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling and Verification in UPPAAL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Symbolic Verification of Security Protocols with Tamarin</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#learning-structured-behaviours" id="toc-learning-structured-behaviours" class="nav-link active" data-scroll-target="#learning-structured-behaviours"><span class="header-section-number">1</span> Learning structured behaviours</a>
+  <ul class="collapse">
+  <li><a href="#automata-as-learnable-models" id="toc-automata-as-learnable-models" class="nav-link" data-scroll-target="#automata-as-learnable-models"><span class="header-section-number">1.1</span> Automata as learnable models</a></li>
+  <li><a href="#passive-and-active-learning" id="toc-passive-and-active-learning" class="nav-link" data-scroll-target="#passive-and-active-learning"><span class="header-section-number">1.2</span> Passive and active learning</a></li>
+  </ul></li>
+  <li><a href="#learning-a-regular-language-as-a-game" id="toc-learning-a-regular-language-as-a-game" class="nav-link" data-scroll-target="#learning-a-regular-language-as-a-game"><span class="header-section-number">2</span> Learning a regular language as a game</a>
+  <ul class="collapse">
+  <li><a href="#teacher-learner-and-query-types" id="toc-teacher-learner-and-query-types" class="nav-link" data-scroll-target="#teacher-learner-and-query-types"><span class="header-section-number">2.1</span> Teacher, learner, and query types</a></li>
+  <li><a href="#minimally-adequate-teachers-and-black-box-learning" id="toc-minimally-adequate-teachers-and-black-box-learning" class="nav-link" data-scroll-target="#minimally-adequate-teachers-and-black-box-learning"><span class="header-section-number">2.2</span> Minimally adequate teachers and black-box learning</a></li>
+  </ul></li>
+  <li><a href="#myhill-nerode-equivalence-as-the-basis-of-learning" id="toc-myhill-nerode-equivalence-as-the-basis-of-learning" class="nav-link" data-scroll-target="#myhill-nerode-equivalence-as-the-basis-of-learning"><span class="header-section-number">3</span> Myhill-Nerode equivalence as the basis of learning</a>
+  <ul class="collapse">
+  <li><a href="#the-true-equivalence" id="toc-the-true-equivalence" class="nav-link" data-scroll-target="#the-true-equivalence"><span class="header-section-number">3.1</span> The true equivalence</a></li>
+  <li><a href="#approximation-by-a-finite-test-set" id="toc-approximation-by-a-finite-test-set" class="nav-link" data-scroll-target="#approximation-by-a-finite-test-set"><span class="header-section-number">3.2</span> Approximation by a finite test set</a></li>
+  </ul></li>
+  <li><a href="#constructing-and-refining-the-candidate-dfa" id="toc-constructing-and-refining-the-candidate-dfa" class="nav-link" data-scroll-target="#constructing-and-refining-the-candidate-dfa"><span class="header-section-number">4</span> Constructing and refining the candidate DFA</a>
+  <ul class="collapse">
+  <li><a href="#candidate-construction" id="toc-candidate-construction" class="nav-link" data-scroll-target="#candidate-construction"><span class="header-section-number">4.1</span> Candidate construction</a></li>
+  <li><a href="#why-a-counterexample-forces-progress" id="toc-why-a-counterexample-forces-progress" class="nav-link" data-scroll-target="#why-a-counterexample-forces-progress"><span class="header-section-number">4.2</span> Why a counterexample forces progress</a></li>
+  </ul></li>
+  <li><a href="#the-hankel-matrix-view" id="toc-the-hankel-matrix-view" class="nav-link" data-scroll-target="#the-hankel-matrix-view"><span class="header-section-number">5</span> The Hankel-matrix view</a>
+  <ul class="collapse">
+  <li><a href="#rows-as-behaviours-and-columns-as-tests" id="toc-rows-as-behaviours-and-columns-as-tests" class="nav-link" data-scroll-target="#rows-as-behaviours-and-columns-as-tests"><span class="header-section-number">5.1</span> Rows as behaviours and columns as tests</a></li>
+  </ul></li>
+  <li><a href="#from-languages-to-word-functions" id="toc-from-languages-to-word-functions" class="nav-link" data-scroll-target="#from-languages-to-word-functions"><span class="header-section-number">6</span> From languages to word functions</a>
+  <ul class="collapse">
+  <li><a href="#sequential-transducers" id="toc-sequential-transducers" class="nav-link" data-scroll-target="#sequential-transducers"><span class="header-section-number">6.1</span> Sequential transducers</a></li>
+  <li><a href="#the-active-learning-protocol-for-functions" id="toc-the-active-learning-protocol-for-functions" class="nav-link" data-scroll-target="#the-active-learning-protocol-for-functions"><span class="header-section-number">6.2</span> The active-learning protocol for functions</a></li>
+  </ul></li>
+  <li><a href="#myhill-nerode-equivalence-for-monotone-functions" id="toc-myhill-nerode-equivalence-for-monotone-functions" class="nav-link" data-scroll-target="#myhill-nerode-equivalence-for-monotone-functions"><span class="header-section-number">7</span> Myhill-Nerode equivalence for monotone functions</a>
+  <ul class="collapse">
+  <li><a href="#residual-output" id="toc-residual-output" class="nav-link" data-scroll-target="#residual-output"><span class="header-section-number">7.1</span> Residual output</a></li>
+  <li><a href="#the-separator-insertion-example" id="toc-the-separator-insertion-example" class="nav-link" data-scroll-target="#the-separator-insertion-example"><span class="header-section-number">7.2</span> The separator-insertion example</a></li>
+  <li><a href="#functional-hankel-matrix-and-learning" id="toc-functional-hankel-matrix-and-learning" class="nav-link" data-scroll-target="#functional-hankel-matrix-and-learning"><span class="header-section-number">7.3</span> Functional Hankel matrix and learning</a></li>
+  </ul></li>
+  <li><a href="#generalisations-and-the-final-application" id="toc-generalisations-and-the-final-application" class="nav-link" data-scroll-target="#generalisations-and-the-final-application"><span class="header-section-number">8</span> Generalisations and the final application</a></li>
+  <li><a href="#sources" id="toc-sources" class="nav-link" data-scroll-target="#sources"><span class="header-section-number">9</span> Sources</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/index.html">Foundations of Cybersecurity and Ethics</a></li><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html">Learning Automata and Sequential Transducers</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Learning Automata and Sequential Transducers</h1>
+<p class="subtitle lead">Module 1 - Deck 4: Learning Automata</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<style>
+.formula-scroll {
+  max-width: 100%; overflow-x: auto; overflow-y: hidden;
+  padding: 0.75rem 1rem; margin: 1rem 0;
+  border: 1px solid #d0d7de; border-radius: 0.5rem;
+  background: rgba(127,127,127,0.06); -webkit-overflow-scrolling: touch;
+}
+.formula-scroll .MathJax_Display { min-width: max-content; margin: 0; }
+</style>
+<section id="learning-structured-behaviours" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Learning structured behaviours</h1>
+<section id="automata-as-learnable-models" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="automata-as-learnable-models"><span class="header-section-number">1.1</span> Automata as learnable models</h2>
+<p>The deck introduces automata learning as a supervised-learning problem in which the examples are structured objects, typically words <span class="math inline">\(w\in\Sigma^*\)</span>, and the target is a regular language. A regular language can be represented by its characteristic function</p>
+<p><span class="math display">\[
+f:\Sigma^*\longrightarrow\{0,1\}.
+\]</span></p>
+<p>The comparison with neural networks is conceptual. A neural network is presented as learning a complex function over comparatively simple numerical data while its architecture is fixed in advance. In automata learning, inputs such as words are structurally rich, the target function is regular, and the learner must infer the automaton’s states and transitions. The learned result is therefore an explicit behavioural model rather than only a classifier.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aspect</th>
+<th>Neural-network example in the deck</th>
+<th>Automata-learning example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Input</td>
+<td>vector <span class="math inline">\(\bar x\in\mathbb R^k\)</span></td>
+<td>word <span class="math inline">\(w\in\Sigma^*\)</span></td>
+</tr>
+<tr class="even">
+<td>Target</td>
+<td>complex classifier, such as recognising dogs</td>
+<td>regular language <span class="math inline">\(L\subseteq\Sigma^*\)</span></td>
+</tr>
+<tr class="odd">
+<td>Structure</td>
+<td>architecture fixed before training</td>
+<td>states and transitions inferred</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="passive-and-active-learning" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="passive-and-active-learning"><span class="header-section-number">1.2</span> Passive and active learning</h2>
+<p>In <strong>passive learning</strong>, the learner receives labelled examples chosen in advance. In <strong>active learning</strong>, the learner chooses queries and uses the answers to decide what information to request next. Active learning can be more efficient because each query can target a current uncertainty, but it can be less practical because it requires an entity capable of answering those queries.</p>
+<p>The historical path shown in the deck starts with Moore’s 1956 thought experiments on sequential machines, continues with Gold’s learning in the limit and Angluin’s 1987 active query framework, and then branches into PAC learning and cryptographic hardness, regular <span class="math inline">\(\omega\)</span>-languages, word and tree transformations, weighted automata, infinite alphabets, timed languages, and spectral techniques. These later entries establish the breadth of the area; the chapter follows the deck by concentrating on active learning of regular languages and its extension to sequential transducers.</p>
+</section>
+</section>
+<section id="learning-a-regular-language-as-a-game" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Learning a regular language as a game</h1>
+<section id="teacher-learner-and-query-types" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="teacher-learner-and-query-types"><span class="header-section-number">2.1</span> Teacher, learner, and query types</h2>
+<p>The teacher has a secret regular language <span class="math inline">\(L_0\subseteq\Sigma^*\)</span>, represented conceptually by a target DFA <span class="math inline">\(A_0\)</span>. The learner initially knows only the alphabet <span class="math inline">\(\Sigma\)</span> and may ask two kinds of questions.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Query</th>
+<th>Learner asks</th>
+<th>Teacher returns</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Membership</td>
+<td>“Is <span class="math inline">\(w\in L_0\)</span>?”</td>
+<td>yes or no</td>
+</tr>
+<tr class="even">
+<td>Equivalence</td>
+<td>“Is <span class="math inline">\(L(A)=L_0\)</span>?”</td>
+<td>yes, or a counterexample in the symmetric difference</td>
+</tr>
+</tbody>
+</table>
+<p>For an incorrect hypothesis <span class="math inline">\(A\)</span>, the counterexample belongs to</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+(L_0\setminus L(A))\cup(L(A)\setminus L_0).
+\]</span></p>
+</div>
+<p>It is therefore a word on which the target and the candidate disagree. The slides allow the teacher to return a shortest counterexample, which is particularly informative because it localises the earliest observable failure of the candidate.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  L["Learner"] --&gt;|"membership query w"| T["Teacher for L0"]
+  T --&gt;|"yes or no"| L
+  L --&gt;|"equivalence query A"| T
+  T --&gt;|"yes"| D["Learning terminates"]
+  T --&gt;|"counterexample w"| L
+</pre>
+</div>
+<p></p><figcaption> Active automata learning as an interaction between learner and teacher.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>Membership queries alone cannot guarantee exact identification after finitely many questions: any finite set of observed words leaves infinitely many unqueried words on which another regular language might differ. Equivalence queries force global progress by returning a discrepancy whenever the hypothesis is wrong. Angluin’s result states that the learner has a winning strategy whose number of query rounds is polynomial in the size of the target automaton <span class="math inline">\(A_0\)</span>. The deck identifies this strategy with the <span class="math inline">\(L^*\)</span> algorithm.</p>
+</section>
+<section id="minimally-adequate-teachers-and-black-box-learning" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="minimally-adequate-teachers-and-black-box-learning"><span class="header-section-number">2.2</span> Minimally adequate teachers and black-box learning</h2>
+<p>The idealised interface is called a <strong>minimally adequate teacher</strong> (MAT). Exact equivalence queries can be unrealistic. If the teacher already possesses the complete target automaton, directly transferring it would be simpler than testing hypotheses. In black-box learning, equivalence is approximated through experiments, test suites, or repeated membership queries. The current hypothesis is retained while tested behaviours agree with the black box.</p>
+<p>This substitution is practical but weakens the guarantee. Passing a finite test suite establishes agreement only on that suite, not language equivalence. A missed behaviour can produce a later counterexample.</p>
+<p>The parking-machine illustration uses inputs such as <span class="math inline">\(5\,\text{¢}\)</span>, <span class="math inline">\(10\,\text{¢}\)</span>, and the production of a parking ticket. By submitting sequences of inputs and observing outputs or acceptance, the learner reconstructs a behavioural model without inspecting the implementation. The applications named in the deck are:</p>
+<ul>
+<li>system identification and diagram inference in control theory;</li>
+<li>model learning for verification, in contrast with checking an already supplied model;</li>
+<li>grammar inference and regular extrapolation;</li>
+<li>protocol-state fuzzing in security.</li>
+</ul>
+</section>
+</section>
+<section id="myhill-nerode-equivalence-as-the-basis-of-learning" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Myhill-Nerode equivalence as the basis of learning</h1>
+<section id="the-true-equivalence" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="the-true-equivalence"><span class="header-section-number">3.1</span> The true equivalence</h2>
+<p>For the target language <span class="math inline">\(L_0\)</span>, define</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+u\sim_{L_0}v
+\quad\Longleftrightarrow\quad
+\forall t\in\Sigma^*\;
+(ut\in L_0\iff vt\in L_0).
+\]</span></p>
+</div>
+<p>Two prefixes are equivalent when every continuation gives the same membership result. They therefore have the same future behaviour and may be represented by the same DFA state.</p>
+<p>The relation has three properties emphasised in the deck:</p>
+<ol type="1">
+<li>it refines the coarse partition into words inside and outside <span class="math inline">\(L_0\)</span> because the empty continuation <span class="math inline">\(\varepsilon\)</span> is permitted;</li>
+<li>it is right-invariant: <span class="math display">\[u\sim_{L_0}v\Longrightarrow ua\sim_{L_0}va;\]</span></li>
+<li>it has finite index exactly when <span class="math inline">\(L_0\)</span> is regular.</li>
+</ol>
+<p>The states of the minimal DFA correspond to the equivalence classes <span class="math inline">\([u]_{\sim_{L_0}}\)</span>. Its transition on <span class="math inline">\(a\)</span> sends <span class="math inline">\([u]\)</span> to <span class="math inline">\([ua]\)</span>, and right invariance makes this definition independent of the chosen representative.</p>
+</section>
+<section id="approximation-by-a-finite-test-set" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="approximation-by-a-finite-test-set"><span class="header-section-number">3.2</span> Approximation by a finite test set</h2>
+<p>The learner cannot quantify over all continuations. It maintains a finite test set <span class="math inline">\(T\subseteq\Sigma^*\)</span> and uses</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+u\approx_{L_0,T}v
+\quad\Longleftrightarrow\quad
+\forall t\in T\;
+(ut\in L_0\iff vt\in L_0).
+\]</span></p>
+</div>
+<p>Because <span class="math inline">\(T\)</span> contains only some continuations, <span class="math inline">\(\approx_{L_0,T}\)</span> is coarser than <span class="math inline">\(\sim_{L_0}\)</span>: distinct true states may initially appear equal. Adding tests can split an approximate class, but it cannot merge classes already distinguished.</p>
+<p>The learner also maintains a finite set <span class="math inline">\(S\subseteq\Sigma^*\)</span> of state representatives.</p>
+<ul>
+<li><p><span class="math inline">\(S\)</span> is <strong><span class="math inline">\(T\)</span>-minimal</strong> when different representatives have different rows over <span class="math inline">\(T\)</span>:</p>
+<p><span class="math display">\[
+\forall s\ne s'\in S\qquad s\not\approx_{L_0,T}s'.
+\]</span></p></li>
+<li><p><span class="math inline">\(S\)</span> is <strong><span class="math inline">\(T\)</span>-complete</strong> when every one-letter extension is represented:</p></li>
+</ul>
+<div class="formula-scroll">
+<p><span class="math display">\[
+\forall s\in S\;\forall a\in\Sigma\;\exists s'\in S
+\qquad s'\approx_{L_0,T}sa.
+\]</span></p>
+</div>
+<p>Minimality guarantees uniqueness of the representative <span class="math inline">\(s'\)</span>; completeness guarantees existence. Together, they make the candidate transition function well-defined.</p>
+</section>
+</section>
+<section id="constructing-and-refining-the-candidate-dfa" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Constructing and refining the candidate DFA</h1>
+<section id="candidate-construction" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="candidate-construction"><span class="header-section-number">4.1</span> Candidate construction</h2>
+<p>Start from</p>
+<p><span class="math display">\[
+S=T=\{\varepsilon\}.
+\]</span></p>
+<p>While <span class="math inline">\(S\)</span> is not <span class="math inline">\(T\)</span>-complete, choose <span class="math inline">\(s\in S\)</span> and <span class="math inline">\(a\in\Sigma\)</span> whose extension <span class="math inline">\(sa\)</span> has no equivalent representative, and add <span class="math inline">\(sa\)</span> to <span class="math inline">\(S\)</span>. Once the table is minimal and complete, construct the DFA <span class="math inline">\(A\)</span> as follows:</p>
+<ul>
+<li>state set: <span class="math inline">\(S\)</span>;</li>
+<li>initial state: <span class="math inline">\(\varepsilon\)</span>;</li>
+<li>accepting states: those <span class="math inline">\(s\in S\)</span> for which the membership query on <span class="math inline">\(s\)</span> returns yes;</li>
+<li>transition: <span class="math display">\[
+\delta(s,a)=s',
+\]</span> where <span class="math inline">\(s'\)</span> is the unique representative satisfying <span class="math inline">\(s'\approx_{L_0,T}sa\)</span>.</li>
+</ul>
+<p>The candidate is then submitted in an equivalence query. If the answer is yes, learning terminates. If the teacher returns a counterexample <span class="math inline">\(w\)</span>, the algorithm adds all suffixes of <span class="math inline">\(w\)</span> to <span class="math inline">\(T\)</span> and restores completeness.</p>
+<pre class="text"><code>S := {ε}; T := {ε}
+repeat
+  while S is not T-complete do
+    choose s in S and a in Σ with no representative for sa
+    S := S ∪ {sa}
+  construct candidate DFA A from (S,T)
+  if Equivalence(A) then return A
+  else
+    obtain counterexample w
+    T := T ∪ {suffixes of w}</code></pre>
+</section>
+<section id="why-a-counterexample-forces-progress" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="why-a-counterexample-forces-progress"><span class="header-section-number">4.2</span> Why a counterexample forces progress</h2>
+<p>Let</p>
+<p><span class="math display">\[
+w=a_1\cdots a_n
+\]</span></p>
+<p>be a counterexample, let <span class="math inline">\(t_i=a_{i+1}\cdots a_n\)</span> be its suffixes, and let <span class="math inline">\(s_i\)</span> be the candidate state reached after reading the prefix <span class="math inline">\(a_1\cdots a_i\)</span>. Assume, for contradiction, that adding all <span class="math inline">\(t_i\)</span> leaves <span class="math inline">\(S\)</span> complete. Using the definition of transitions and the new tests, one proves inductively that</p>
+<p><span class="math display">\[
+w\in L_0\iff s_i t_i\in L_0
+\]</span></p>
+<p>for each <span class="math inline">\(i\)</span>, and ultimately that</p>
+<p><span class="math display">\[
+w\in L_0\iff w\in L(A).
+\]</span></p>
+<p>This contradicts the fact that <span class="math inline">\(w\)</span> is a counterexample. Hence the refined test set makes the current state set incomplete, so the next iteration adds a new representative. Since distinct representatives correspond to distinct true Myhill-Nerode classes, <span class="math inline">\(S\)</span> cannot grow beyond the index of <span class="math inline">\(\sim_{L_0}\)</span>. When that index is reached, the target minimal DFA has been recovered.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The counterexample is not simply stored as another labelled sample. Its suffixes are added as experiments that reveal which previously merged prefixes have different futures.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="the-hankel-matrix-view" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> The Hankel-matrix view</h1>
+<section id="rows-as-behaviours-and-columns-as-tests" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="rows-as-behaviours-and-columns-as-tests"><span class="header-section-number">5.1</span> Rows as behaviours and columns as tests</h2>
+<p>The language Hankel matrix is the infinite Boolean matrix</p>
+<p><span class="math display">\[
+H\in\{0,1\}^{\Sigma^*\times\Sigma^*}
+\]</span></p>
+<p>with</p>
+<p><span class="math display">\[
+H(s,t)=\operatorname{Membership}(st).
+\]</span></p>
+<p>Rows are indexed by prefixes and columns by continuation tests. Two complete rows are equal exactly when their prefixes are Myhill-Nerode equivalent. Restricting a row to the columns in <span class="math inline">\(T\)</span> yields the approximate equivalence <span class="math inline">\(\approx_{L_0,T}\)</span>.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Matrix object</th>
+<th>Learning interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>row indexed by <span class="math inline">\(s\)</span></td>
+<td>future behaviour after prefix <span class="math inline">\(s\)</span></td>
+</tr>
+<tr class="even">
+<td>column indexed by <span class="math inline">\(t\)</span></td>
+<td>continuation experiment <span class="math inline">\(t\)</span></td>
+</tr>
+<tr class="odd">
+<td>equal full rows</td>
+<td>same <span class="math inline">\(\sim_{L_0}\)</span> class</td>
+</tr>
+<tr class="even">
+<td>equal subrows over <span class="math inline">\(T\)</span></td>
+<td>same <span class="math inline">\(\approx_{L_0,T}\)</span> class</td>
+</tr>
+<tr class="odd">
+<td>selected rows <span class="math inline">\(S\)</span></td>
+<td>candidate states</td>
+</tr>
+<tr class="even">
+<td>selected columns <span class="math inline">\(T\)</span></td>
+<td>current distinguishing tests</td>
+</tr>
+</tbody>
+</table>
+<p>The algorithm can therefore be read geometrically. It chooses enough rows to make the observed table closed under one-letter extensions, constructs a hypothesis from those rows, and uses counterexamples to add columns. New columns split rows that were falsely identified.</p>
+<p>The progressive example begins with <span class="math inline">\(S=T=\{\varepsilon\}\)</span>, expands <span class="math inline">\(S\)</span> to obtain completeness, and builds an initial automaton. The counterexample <span class="math inline">\(w=aba\)</span> adds</p>
+<p><span class="math display">\[
+\{\varepsilon,a,ba,aba\}
+\]</span></p>
+<p>to the test set. These columns reveal another distinct row, so <span class="math inline">\(S\)</span> grows to include a new representative such as <span class="math inline">\(ab\)</span>. The rebuilt automaton then reflects the finer behavioural partition.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  ST["Finite table (S,T)"] --&gt; C{"T-complete?"}
+  C --&gt;|"no"| R["Add a representative to S"]
+  R --&gt; ST
+  C --&gt;|"yes"| A["Build candidate automaton"]
+  A --&gt; E{"Equivalent to target?"}
+  E --&gt;|"yes"| F["Return learned DFA"]
+  E --&gt;|"no"| X["Add counterexample suffixes to T"]
+  X --&gt; ST
+</pre>
+</div>
+<p></p><figcaption> Mutual refinement of representatives and experiments in the Hankel table.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="from-languages-to-word-functions" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> From languages to word functions</h1>
+<section id="sequential-transducers" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="sequential-transducers"><span class="header-section-number">6.1</span> Sequential transducers</h2>
+<p>Automata can also represent functions</p>
+<p><span class="math display">\[
+f:\Sigma^*\longrightarrow\Gamma^*.
+\]</span></p>
+<p>The deck uses a <strong>sequential transducer</strong></p>
+<p><span class="math display">\[
+A=(\Sigma,\Gamma,Q,q_0,\delta)
+\]</span></p>
+<p>with</p>
+<p><span class="math display">\[
+\delta:Q\times\Sigma\longrightarrow Q\times\Gamma^*.
+\]</span></p>
+<p>A transition consumes one input letter, changes state, and appends a finite output word. Concatenating transition outputs along the unique run gives the value of the function.</p>
+<p>The functions considered are total and <strong>monotone</strong> with respect to the prefix order:</p>
+<p><span class="math display">\[
+w\preceq w'\Longrightarrow f(w)\preceq f(w').
+\]</span></p>
+<p>A sequential transducer cannot retract output already emitted. Extending the input therefore only extends the output.</p>
+</section>
+<section id="the-active-learning-protocol-for-functions" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="the-active-learning-protocol-for-functions"><span class="header-section-number">6.2</span> The active-learning protocol for functions</h2>
+<p>The teacher now has a secret monotone function <span class="math inline">\(f_0:\Sigma^*\to\Gamma^*\)</span> computed by a sequential transducer <span class="math inline">\(A_0\)</span>. The learner may ask:</p>
+<ul>
+<li>an <strong>evaluation query</strong>: “What is <span class="math inline">\(f_0(w)\)</span>?”;</li>
+<li>an <strong>equivalence query</strong>: “Does candidate transducer <span class="math inline">\(A\)</span> compute <span class="math inline">\(f_0\)</span>?”</li>
+</ul>
+<p>An incorrect candidate produces a shortest word <span class="math inline">\(w\)</span> satisfying</p>
+<p><span class="math display">\[
+f_0(w)\ne A(w).
+\]</span></p>
+<p>The protocol is the functional analogue of membership and equivalence learning for languages.</p>
+</section>
+</section>
+<section id="myhill-nerode-equivalence-for-monotone-functions" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Myhill-Nerode equivalence for monotone functions</h1>
+<section id="residual-output" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="residual-output"><span class="header-section-number">7.1</span> Residual output</h2>
+<p>If <span class="math inline">\(x\)</span> is a prefix of <span class="math inline">\(y\)</span>, write <span class="math inline">\(y-x\)</span> for the unique suffix <span class="math inline">\(z\)</span> such that <span class="math inline">\(y=xz\)</span>. Monotonicity guarantees that <span class="math inline">\(f_0(u)\)</span> is a prefix of <span class="math inline">\(f_0(ut)\)</span>, so the residual</p>
+<p><span class="math display">\[
+f_0(ut)-f_0(u)
+\]</span></p>
+<p>is defined. It represents the additional output produced after continuation <span class="math inline">\(t\)</span> from the state reached by <span class="math inline">\(u\)</span>.</p>
+<p>The functional Myhill-Nerode equivalence is</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+u\sim_{f_0}v
+\quad\Longleftrightarrow\quad
+\forall t\in\Sigma^*\;
+\bigl(f_0(ut)-f_0(u)=f_0(vt)-f_0(v)\bigr).
+\]</span></p>
+</div>
+<p>Prefixes are equivalent when every future input produces the same future output, after removing output already produced. The relation is right-invariant, and its finite index characterises functions computable by the sequential transducers considered in the deck.</p>
+</section>
+<section id="the-separator-insertion-example" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="the-separator-insertion-example"><span class="header-section-number">7.2</span> The separator-insertion example</h2>
+<p>The example function inserts <span class="math inline">\(c\)</span> between successive input positions. The slides give values such as</p>
+<p><span class="math display">\[
+f_0(\varepsilon)=\varepsilon,
+\qquad f_0(a)=a,
+\qquad f_0(aa)=aac,
+\qquad f_0(aaa)=aaca.
+\]</span></p>
+<p>The apparent ordering reflects when the transducer can emit the separator while reading incrementally. The residual behaviour distinguishes the empty prefix from nonempty prefixes, but all nonempty prefixes have the same future mode. Hence the relation has two classes, represented by <span class="math inline">\([\varepsilon]_{\sim_{f_0}}\)</span> and <span class="math inline">\([a]_{\sim_{f_0}}\)</span>.</p>
+</section>
+<section id="functional-hankel-matrix-and-learning" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="functional-hankel-matrix-and-learning"><span class="header-section-number">7.3</span> Functional Hankel matrix and learning</h2>
+<p>The Hankel matrix now has word-valued entries:</p>
+<p><span class="math display">\[
+H\in(\Gamma^*)^{\Sigma^*\times\Sigma^*},
+\qquad
+H(s,t)=f_0(st)-f_0(s).
+\]</span></p>
+<p>The finite-test approximation is</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+u\approx_{f_0,T}v
+\quad\Longleftrightarrow\quad
+\forall t\in T\;
+\bigl(f_0(ut)-f_0(u)=f_0(vt)-f_0(v)\bigr).
+\]</span></p>
+</div>
+<p>As before, the learner maintains <span class="math inline">\(T\)</span>-minimal and <span class="math inline">\(T\)</span>-complete sets of representatives. For a transition from representative <span class="math inline">\(s\)</span> on input <span class="math inline">\(a\)</span>, the successor is the representative equivalent to <span class="math inline">\(sa\)</span>, while the transition output is the incremental output exposed by the corresponding table entries.</p>
+<p>In the progressive example, the learner starts from <span class="math inline">\(S=T=\{\varepsilon\}\)</span> and builds a one-state candidate. The counterexample <span class="math inline">\(w=ab\)</span> expands the tests to include <span class="math inline">\(\varepsilon\)</span>, <span class="math inline">\(b\)</span>, and <span class="math inline">\(ab\)</span>. The new observations distinguish the empty and nonempty residual modes, so <span class="math inline">\(S\)</span> expands to <span class="math inline">\(\{\varepsilon,a\}\)</span> and the resulting two-state transducer implements the separator-insertion behaviour.</p>
+</section>
+</section>
+<section id="generalisations-and-the-final-application" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Generalisations and the final application</h1>
+<p>The deck closes by listing domains in which the same Hankel-style learning principle has been applied:</p>
+<ul>
+<li>weighted automata and, partially, probabilistic automata;</li>
+<li>Büchi automata;</li>
+<li>tree transducers, including learning transformations of XML documents;</li>
+<li>timed and register automata for timestamped or data-carrying words.</li>
+</ul>
+<p>These are presented as generalisations of the central language and transducer constructions, not developed as complete theories in this deck.</p>
+<p>The final proposed application is to infer regular expressions automatically from positive and negative examples. Date-time strings such as <code>01/01/2000</code> and <code>18/10/1985</code> provide positive examples, while malformed strings such as <code>ab/01/2000</code> or <code>18/10/200x</code> provide negative examples. A learning procedure first infers a regular language consistent with the observations and then translates the learned automaton into a regular expression. The long regular expression displayed in the slide illustrates the kind of pattern that humans can write but that an automata learner could derive from systematic interaction.</p>
+</section>
+<section id="sources" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Sources</h1>
+<ul>
+<li><em>4_Learning automata.pdf</em>, primary slide deck.</li>
+<li><em>Introduction to Automata Theory, Languages, and Computations</em>, consulted to confirm standard DFA, Myhill-Nerode, and state-equivalence terminology.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/rikypara04\.github\.io\/uniud-ai-cybersecurity-notes\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

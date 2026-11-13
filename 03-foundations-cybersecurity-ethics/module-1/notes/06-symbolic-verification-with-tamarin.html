@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Symbolic Verification of Security Protocols with Tamarin – MSc Artificial Intelligence &amp; Cybersecurity</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b626d73c4c936ccc3cb08be7d45d1df6.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-30c69b05bb77ed3e47d95fc04249e286.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="../../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">MSc Artificial Intelligence &amp; Cybersecurity</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/index.html">Foundations of Cybersecurity and Ethics</a></li><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.html">Symbolic Verification of Security Protocols with Tamarin</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../01-complexity-information-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Complexity and Information Theory</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/01-introduction-to-information-theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Information Theory</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/02-information-probability-and-random-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Information, Probability, and Random Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/03-properties-of-entropy-and-conditional-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Properties of Entropy and Conditional Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/04-mutual-information-relative-entropy-and-source-coding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mutual Information, Relative Entropy, and Source Coding</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefix Codes and the Kraft-McMillan Inequality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/06-shannon-codes-huffman-codes-and-asymptotic-optimality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Shannon Codes, Huffman Codes, and Asymptotic Optimality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/07-lz77-and-kolmogorov-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">LZ77 Compression and Kolmogorov Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Kolmogorov Complexity and Its Relation to Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/09-computational-complexity-models-and-cost-criteria.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Computational Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Operational Semantics and Time Complexity of Turing Machines</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/11-multitape-simulation-time-speedup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multitape Simulation, Time Complexity, and Linear Speed-Up</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/12-time-and-space-complexity-classes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Time and Space Complexity Classes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../02-automated-reasoning/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Automated Reasoning</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Automated Reasoning and Constraint Programming</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/02-sat-encodings-and-dpll.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SAT Encodings and DPLL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Propagation and Local Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/04-bounds-hyper-arc-and-path-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bounds, Hyper-Arc, and Path Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Search Annotations and Constraint Modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/06-minizinc-modeling-examples-and-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Modelling through Classical Constraint Problems</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scheduling Models, Hamming Codes, and Timetabling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/08-constraint-optimization-local-search-and-bioinformatics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Optimization, Large Neighbourhood Search, and Bioinformatics Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/09-global-constraints-matching-and-cumulative-scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Global Constraints, Matching-Based Filtering, and Cumulative Scheduling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/10-syntax-and-definite-clause-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Syntax of Logic Programming and Definite-Clause Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/11-semantics-of-logic-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Semantics of Logic Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Unification, SLD Resolution, and the Limits of Computation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../03-foundations-cybersecurity-ethics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Foundations of Cybersecurity and Ethics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Formal Verification and Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classical Logics: Propositional Logic, QBF, and First-Order Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Games in Logic and First-Order Definability</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learning Automata and Sequential Transducers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/05-uppaal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling and Verification in UPPAAL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Symbolic Verification of Security Protocols with Tamarin</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#why-security-protocols-require-formal-analysis" id="toc-why-security-protocols-require-formal-analysis" class="nav-link active" data-scroll-target="#why-security-protocols-require-formal-analysis"><span class="header-section-number">1</span> Why security protocols require formal analysis</a></li>
+  <li><a href="#designing-a-key-establishment-protocol" id="toc-designing-a-key-establishment-protocol" class="nav-link" data-scroll-target="#designing-a-key-establishment-protocol"><span class="header-section-number">2</span> Designing a key-establishment protocol</a>
+  <ul class="collapse">
+  <li><a href="#first-attempt-the-key-in-clear-text" id="toc-first-attempt-the-key-in-clear-text" class="nav-link" data-scroll-target="#first-attempt-the-key-in-clear-text"><span class="header-section-number">2.1</span> First attempt: the key in clear text</a></li>
+  <li><a href="#second-attempt-long-term-symmetric-keys" id="toc-second-attempt-long-term-symmetric-keys" class="nav-link" data-scroll-target="#second-attempt-long-term-symmetric-keys"><span class="header-section-number">2.2</span> Second attempt: long-term symmetric keys</a></li>
+  <li><a href="#the-dolev-yao-adversary-and-a-binding-attack" id="toc-the-dolev-yao-adversary-and-a-binding-attack" class="nav-link" data-scroll-target="#the-dolev-yao-adversary-and-a-binding-attack"><span class="header-section-number">2.3</span> The Dolev-Yao adversary and a binding attack</a></li>
+  <li><a href="#replay-and-key-compromise" id="toc-replay-and-key-compromise" class="nav-link" data-scroll-target="#replay-and-key-compromise"><span class="header-section-number">2.4</span> Replay and key compromise</a></li>
+  <li><a href="#needham-schroeder-with-conventional-keys" id="toc-needham-schroeder-with-conventional-keys" class="nav-link" data-scroll-target="#needham-schroeder-with-conventional-keys"><span class="header-section-number">2.5</span> Needham-Schroeder with conventional keys</a></li>
+  <li><a href="#final-design-and-remaining-interpretation-issue" id="toc-final-design-and-remaining-interpretation-issue" class="nav-link" data-scroll-target="#final-design-and-remaining-interpretation-issue"><span class="header-section-number">2.6</span> Final design and remaining interpretation issue</a></li>
+  </ul></li>
+  <li><a href="#symbolic-protocol-analysis" id="toc-symbolic-protocol-analysis" class="nav-link" data-scroll-target="#symbolic-protocol-analysis"><span class="header-section-number">3</span> Symbolic protocol analysis</a></li>
+  <li><a href="#tamarins-high-level-model" id="toc-tamarins-high-level-model" class="nav-link" data-scroll-target="#tamarins-high-level-model"><span class="header-section-number">4</span> Tamarin’s high-level model</a></li>
+  <li><a href="#terms-equations-and-unification" id="toc-terms-equations-and-unification" class="nav-link" data-scroll-target="#terms-equations-and-unification"><span class="header-section-number">5</span> Terms, equations, and unification</a>
+  <ul class="collapse">
+  <li><a href="#sorted-term-algebra" id="toc-sorted-term-algebra" class="nav-link" data-scroll-target="#sorted-term-algebra"><span class="header-section-number">5.1</span> Sorted term algebra</a></li>
+  <li><a href="#equational-theories" id="toc-equational-theories" class="nav-link" data-scroll-target="#equational-theories"><span class="header-section-number">5.2</span> Equational theories</a></li>
+  </ul></li>
+  <li><a href="#facts-states-and-multiset-rewriting" id="toc-facts-states-and-multiset-rewriting" class="nav-link" data-scroll-target="#facts-states-and-multiset-rewriting"><span class="header-section-number">6</span> Facts, states, and multiset rewriting</a>
+  <ul class="collapse">
+  <li><a href="#linear-and-persistent-facts" id="toc-linear-and-persistent-facts" class="nav-link" data-scroll-target="#linear-and-persistent-facts"><span class="header-section-number">6.1</span> Linear and persistent facts</a></li>
+  <li><a href="#labelled-rules-and-transitions" id="toc-labelled-rules-and-transitions" class="nav-link" data-scroll-target="#labelled-rules-and-transitions"><span class="header-section-number">6.2</span> Labelled rules and transitions</a></li>
+  <li><a href="#traces" id="toc-traces" class="nav-link" data-scroll-target="#traces"><span class="header-section-number">6.3</span> Traces</a></li>
+  </ul></li>
+  <li><a href="#public-key-infrastructure-diffie-hellman-and-naxos" id="toc-public-key-infrastructure-diffie-hellman-and-naxos" class="nav-link" data-scroll-target="#public-key-infrastructure-diffie-hellman-and-naxos"><span class="header-section-number">7</span> Public-key infrastructure, Diffie-Hellman, and NAXOS</a></li>
+  <li><a href="#security-goals-as-trace-properties" id="toc-security-goals-as-trace-properties" class="nav-link" data-scroll-target="#security-goals-as-trace-properties"><span class="header-section-number">8</span> Security goals as trace properties</a>
+  <ul class="collapse">
+  <li><a href="#secrecy-with-compromise-exceptions" id="toc-secrecy-with-compromise-exceptions" class="nav-link" data-scroll-target="#secrecy-with-compromise-exceptions"><span class="header-section-number">8.1</span> Secrecy with compromise exceptions</a></li>
+  </ul></li>
+  <li><a href="#dependency-graphs-and-normal-forms" id="toc-dependency-graphs-and-normal-forms" class="nav-link" data-scroll-target="#dependency-graphs-and-normal-forms"><span class="header-section-number">9</span> Dependency graphs and normal forms</a></li>
+  <li><a href="#guarded-formulas-and-constraint-solving" id="toc-guarded-formulas-and-constraint-solving" class="nav-link" data-scroll-target="#guarded-formulas-and-constraint-solving"><span class="header-section-number">10</span> Guarded formulas and constraint solving</a>
+  <ul class="collapse">
+  <li><a href="#guarded-trace-properties" id="toc-guarded-trace-properties" class="nav-link" data-scroll-target="#guarded-trace-properties"><span class="header-section-number">10.1</span> Guarded trace properties</a></li>
+  <li><a href="#backward-reachability" id="toc-backward-reachability" class="nav-link" data-scroll-target="#backward-reachability"><span class="header-section-number">10.2</span> Backward reachability</a></li>
+  <li><a href="#reading-the-backward-example" id="toc-reading-the-backward-example" class="nav-link" data-scroll-target="#reading-the-backward-example"><span class="header-section-number">10.3</span> Reading the backward example</a></li>
+  </ul></li>
+  <li><a href="#sources" id="toc-sources" class="nav-link" data-scroll-target="#sources"><span class="header-section-number">11</span> Sources</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/index.html">Foundations of Cybersecurity and Ethics</a></li><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.html">Symbolic Verification of Security Protocols with Tamarin</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Symbolic Verification of Security Protocols with Tamarin</h1>
+<p class="subtitle lead">Module 1 - Deck 6: Tamarin</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<style>
+.formula-scroll {
+  max-width: 100%; overflow-x: auto; overflow-y: hidden;
+  padding: 0.75rem 1rem; margin: 1rem 0;
+  border: 1px solid #d0d7de; border-radius: 0.5rem;
+  background: rgba(127,127,127,0.06); -webkit-overflow-scrolling: touch;
+}
+.formula-scroll .MathJax_Display { min-width: max-content; margin: 0; }
+</style>
+<section id="why-security-protocols-require-formal-analysis" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Why security protocols require formal analysis</h1>
+<p>Strong cryptographic primitives such as RSA, DSA, ElGamal, AES, and SHA-3 do not by themselves guarantee a secure distributed application. E-commerce, e-banking, electronic voting, mobile communication, and digital contract signing combine primitives into communication protocols. Errors can arise from the order of messages, omitted identities, replayed values, or incorrect assumptions about what a received message proves.</p>
+<p>A <strong>protocol</strong> is a set of rules governing the exchange of messages between two or more principals. It is a distributed algorithm with particular emphasis on communication. A cryptographic protocol employs cryptographic mechanisms to achieve goals such as secrecy, authentication, integrity, key establishment, freshness, or non-repudiation under an explicit threat model.</p>
+<p>In a concrete execution, abstract roles are instantiated by agents. One agent may even occupy different roles in different concurrent sessions. The protocol specification therefore describes permitted role behaviour, whereas an execution combines instantiated roles, network activity, and adversarial interference.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../assets/06-symbolic-verification-with-tamarin/protocol-specification-vs-execution.png" class="img-fluid figure-img" alt="Lecturer slide contrasting an initiator-responder protocol specification with a concrete network execution containing several role instances."></p>
+<figcaption>Protocol roles and a concrete execution with several role instances.</figcaption>
+</figure>
+</div>
+<p>The central questions are semantic. What does it mean for a key to be known only to two agents? How can an agent know that a key is fresh? What evidence authenticates the peer? Formal verification requires a precise model of messages, agents, adversarial knowledge, executions, and goals.</p>
+</section>
+<section id="designing-a-key-establishment-protocol" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Designing a key-establishment protocol</h1>
+<section id="first-attempt-the-key-in-clear-text" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="first-attempt-the-key-in-clear-text"><span class="header-section-number">2.1</span> First attempt: the key in clear text</h2>
+<p>Assume an honest server <span class="math inline">\(S\)</span> assists initiator <span class="math inline">\(A\)</span> and responder <span class="math inline">\(B\)</span>:</p>
+<pre class="text"><code>A -&gt; S : A, B
+S -&gt; A : k_AB
+A -&gt; B : k_AB, A</code></pre>
+<p>The construction fails immediately because <span class="math inline">\(k_{AB}\)</span> is transmitted in clear text. The first threat assumption is that an adversary can eavesdrop on every network message.</p>
+</section>
+<section id="second-attempt-long-term-symmetric-keys" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="second-attempt-long-term-symmetric-keys"><span class="header-section-number">2.2</span> Second attempt: long-term symmetric keys</h2>
+<p>Assume that <span class="math inline">\(S\)</span> shares a long-term key <span class="math inline">\(k_S(A)\)</span> with each agent <span class="math inline">\(A\)</span>:</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+\begin{aligned}
+A&amp;\rightarrow S: A,B,\\
+S&amp;\rightarrow A: \{k_{AB}\}_{k_S(A)},\{k_{AB}\}_{k_S(B)},\\
+A&amp;\rightarrow B: \{k_{AB}\}_{k_S(B)},A.
+\end{aligned}
+\]</span></p>
+</div>
+<p>The encrypted messages resist passive eavesdropping under the <strong>perfect cryptography assumption</strong>: ciphertext can be deciphered only by an agent possessing the required key. The threat model is then strengthened. The adversary may capture, modify, drop, replay, and inject messages.</p>
+</section>
+<section id="the-dolev-yao-adversary-and-a-binding-attack" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="the-dolev-yao-adversary-and-a-binding-attack"><span class="header-section-number">2.3</span> The Dolev-Yao adversary and a binding attack</h2>
+<p>In the <strong>Dolev-Yao model</strong>, the adversary completely controls the network. The adversary can intercept any message and send any term constructible from currently available information, under any apparent sender identity. Cryptographic operations remain ideal: the adversary cannot break encryption but may apply legitimate constructors and destructors when the required material is known.</p>
+<p>The adversary may also be a legitimate participant. If intruder <span class="math inline">\(I\)</span> changes <span class="math inline">\(A\)</span>’s request from <span class="math inline">\((A,B)\)</span> to <span class="math inline">\((A,I)\)</span>, the server creates <span class="math inline">\(k_{AI}\)</span>. Because the reply to <span class="math inline">\(A\)</span> does not cryptographically bind the intended peer identity to the key, <span class="math inline">\(A\)</span> can mistake this key for one shared with <span class="math inline">\(B\)</span>. This is a <strong>binding attack</strong>: a message valid in one context is accepted in another.</p>
+<p>The repair is to include peer identities inside the protected data:</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+\begin{aligned}
+A&amp;\rightarrow S: A,B,\\
+S&amp;\rightarrow A:
+\{k_{AB},B\}_{k_S(A)},\{k_{AB},A\}_{k_S(B)},\\
+A&amp;\rightarrow B:\{k_{AB},A\}_{k_S(B)}.
+\end{aligned}
+\]</span></p>
+</div>
+</section>
+<section id="replay-and-key-compromise" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="replay-and-key-compromise"><span class="header-section-number">2.4</span> Replay and key compromise</h2>
+<p>The third attempt identifies peers correctly, but old encrypted tickets can be replayed. If an old session key <span class="math inline">\(k_{AB}\)</span> is later compromised, an adversary can replay the old server response. The agents may accept a known, stale key, allowing the adversary to decrypt, modify, or inject traffic protected under it.</p>
+<p>Even without learning the old key, forcing acceptance of an old key is harmful because previous ciphertexts can be replayed. Freshness therefore cannot be inferred solely from successful decryption.</p>
+<p>A <strong>nonce</strong> is a random value intended for one use. A challenge-response exchange returns a nonce, or a function of it, to demonstrate that a response belongs to the current run.</p>
+</section>
+<section id="needham-schroeder-with-conventional-keys" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="needham-schroeder-with-conventional-keys"><span class="header-section-number">2.5</span> Needham-Schroeder with conventional keys</h2>
+<p>The fourth attempt is the Needham-Schroeder protocol with conventional keys:</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+\begin{aligned}
+A&amp;\rightarrow S: A,B,N_A,\\
+S&amp;\rightarrow A:
+\{k_{AB},B,N_A,\{k_{AB},A\}_{k_S(B)}\}_{k_S(A)},\\
+A&amp;\rightarrow B:\{k_{AB},A\}_{k_S(B)},\\
+B&amp;\rightarrow A:\{N_B\}_{k_{AB}},\\
+A&amp;\rightarrow B:\{N_B-1\}_{k_{AB}}.
+\end{aligned}
+\]</span></p>
+</div>
+<p><span class="math inline">\(N_A\)</span> ties the server response to <span class="math inline">\(A\)</span>’s current request. The final exchange provides key confirmation: each response demonstrates possession of <span class="math inline">\(k_{AB}\)</span>. Nevertheless, the Denning-Sacco attack replays an old ticket for <span class="math inline">\(B\)</span> after the corresponding session key has been compromised. The challenge-response then succeeds because the adversary knows that old key.</p>
+</section>
+<section id="final-design-and-remaining-interpretation-issue" class="level2" data-number="2.6">
+<h2 data-number="2.6" class="anchored" data-anchor-id="final-design-and-remaining-interpretation-issue"><span class="header-section-number">2.6</span> Final design and remaining interpretation issue</h2>
+<p>The final design begins with a fresh responder nonce:</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+\begin{aligned}
+B&amp;\rightarrow A:A,B,N_B,\\
+A&amp;\rightarrow S:A,B,N_A,N_B,\\
+S&amp;\rightarrow A:
+\{k_{AB},B,N_A\}_{k_S(A)},
+\{k_{AB},A,N_B\}_{k_S(B)},\\
+A&amp;\rightarrow B:\{k_{AB},A,N_B\}_{k_S(B)}.
+\end{aligned}
+\]</span></p>
+</div>
+<p>Each recipient checks a nonce it generated, so the server-protected key is linked to the current run. The protocol avoids the attacks shown under perfect cryptography and server honesty. However, the slides stress that “correct” must still be defined. Unlike the previous protocol, the final design does not give either side explicit key confirmation that the peer actually possesses <span class="math inline">\(k_{AB}\)</span>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Attack</th>
+<th>Root problem</th>
+<th>Defence used in the sequence</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Eavesdropping</td>
+<td>session key sent in clear</td>
+<td>encrypt under long-term keys</td>
+</tr>
+<tr class="even">
+<td>Binding</td>
+<td>peer identity not cryptographically tied to key</td>
+<td>include names in encrypted payloads</td>
+</tr>
+<tr class="odd">
+<td>Replay</td>
+<td>old protected values remain syntactically valid</td>
+<td>use fresh nonces and challenge-response</td>
+</tr>
+<tr class="even">
+<td>Masquerading after compromise</td>
+<td>old key enables a valid response</td>
+<td>bind freshness to the current session</td>
+</tr>
+</tbody>
+</table>
+<p>Other attack forms listed in the deck include intruder-in-the-middle, reflection, oracle, and type-flaw attacks. The engineering guidance is correspondingly explicit: every message should say what it means; names essential to interpretation should be present; conditions for acting on a message should be clear; the purpose of encryption and all assumptions should be stated; and timestamp-based designs must account for clock variation.</p>
+</section>
+</section>
+<section id="symbolic-protocol-analysis" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Symbolic protocol analysis</h1>
+<p>Formal analysis models both protocols and properties and provides mathematically sound reasoning over the resulting models. The deck positions symbolic Dolev-Yao analysis against computational, probabilistic cryptographic models and distinguishes deductive from automatic methods and bounded-session from unbounded-session analysis.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../assets/06-symbolic-verification-with-tamarin/security-protocol-analysis-landscape.png" class="img-fluid figure-img" alt="Lecturer slide classifying security protocol analysis into symbolic and computational approaches, and symbolic methods into deductive and automatic analyses with bounded or unbounded sessions."></p>
+<figcaption>Landscape of security-protocol analysis methods.</figcaption>
+</figure>
+</div>
+<p>Protocol analysis is difficult because the state space is infinite in several independent dimensions:</p>
+<ul>
+<li>the adversary can construct messages of arbitrary size;</li>
+<li>there may be unboundedly many parallel sessions;</li>
+<li>unbounded sessions generate unboundedly many nonces.</li>
+</ul>
+<p>The secrecy problem is undecidable in general. The decidability chart in the deck shows that at least two of message size, session count, and nonce count must be bounded in the considered variants. Tamarin targets useful unbounded models despite this undecidability, so termination cannot be guaranteed.</p>
+</section>
+<section id="tamarins-high-level-model" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Tamarin’s high-level model</h1>
+<p>Tamarin combines two formalisms:</p>
+<ol type="1">
+<li>a protocol and adversary model expressed by <strong>multiset rewriting</strong>, inducing a labelled transition system and a set of traces;</li>
+<li>security properties expressed in a guarded fragment of first-order logic over traces.</li>
+</ol>
+<p>Tamarin tries either to prove that every trace is good or to construct a counterexample trace, interpreted as an attack. Its procedure is sound and complete for the model described in the slides, but it may not terminate.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../assets/06-symbolic-verification-with-tamarin/tamarin-high-level-picture.png" class="img-fluid figure-img" alt="Lecturer slide showing multiset rewriting for protocol and adversary modelling, the induced labelled transition system and traces, and guarded first-order logic for good traces."></p>
+<figcaption>Tamarin modelling and verification workflow.</figcaption>
+</figure>
+</div>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  R["Protocol and attacker rules"] --&gt; L["Labelled transition system"]
+  L --&gt; T["Execution traces"]
+  P["Guarded trace property φ"] --&gt; V["Verification"]
+  T --&gt; V
+  V --&gt;|"all traces satisfy φ"| O["verification successful"]
+  V --&gt;|"some trace satisfies ¬φ"| A["attack trace"]
+</pre>
+</div>
+<p></p><figcaption> Relationship between protocol rules, traces, and security verification in Tamarin.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+</section>
+<section id="terms-equations-and-unification" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Terms, equations, and unification</h1>
+<section id="sorted-term-algebra" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="sorted-term-algebra"><span class="header-section-number">5.1</span> Sorted term algebra</h2>
+<p>Messages are represented as well-sorted terms over a signature. The signature shown in the deck includes encryption and decryption, hashing, multiplication and inverses in an exponent group, exponentiation, the unit element, pairing, and projections:</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+\Sigma_{DH}=
+\{\operatorname{enc},\operatorname{dec},h,*,{}^{-1},{}^{\_},1,
+\langle\_,\_\rangle,\operatorname{fst},\operatorname{snd}\}.
+\]</span></p>
+</div>
+<p>The sorts include messages, fresh names, and public names. Fresh and public names are constants; variables are available for each sort. Terms are generated inductively: variables are terms, and applying an <span class="math inline">\(n\)</span>-ary function symbol to <span class="math inline">\(n\)</span> terms produces another term. <strong>Ground terms</strong> contain no variables.</p>
+<p>A substitution maps variables to terms and extends homomorphically. If <span class="math inline">\(\sigma(x)=i(y)\)</span> and <span class="math inline">\(\sigma(y)=e\)</span>, then applying <span class="math inline">\(\sigma\)</span> replaces every occurrence consistently throughout a term.</p>
+</section>
+<section id="equational-theories" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="equational-theories"><span class="header-section-number">5.2</span> Equational theories</h2>
+<p>An equation <span class="math inline">\(t\simeq u\)</span> identifies two terms. Important examples are</p>
+<p><span class="math display">\[
+\operatorname{dec}(\operatorname{enc}(m,k),k)\simeq m
+\]</span></p>
+<p>and the Diffie-Hellman equality</p>
+<p><span class="math display">\[
+(g^x)^y\simeq(g^y)^x.
+\]</span></p>
+<p>A set <span class="math inline">\(E\)</span> of equations induces a congruence <span class="math inline">\(=_E\)</span> and a quotient term algebra. Equality modulo <span class="math inline">\(E\)</span> means that terms belong to the same equivalence class.</p>
+<p>The Diffie-Hellman theory in the deck also contains pairing projections, associativity and commutativity of multiplication, neutral and inverse laws, and exponent laws. For example,</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+((g^a)^b)^{a^{-1}}
+=_E g^{(a*b)*a^{-1}}
+=_E g^b.
+\]</span></p>
+</div>
+<p><strong>Unification</strong> asks whether substitutions can make two terms equal modulo the equational theory. Syntactic unification, with no equations, is decidable and has a most general unifier. Unification modulo unrestricted theories is undecidable, motivating restrictions on supported theories.</p>
+<p>A rewrite system is terminating when every reduction sequence reaches a normal form, and confluent when diverging reductions can be joined. A convergent system is both. It is <strong>subterm-convergent</strong> when each right-hand side is a proper subterm of the left-hand side, or a ground normal form. This provides a controlled extension mechanism for primitives such as asymmetric encryption and signatures.</p>
+</section>
+</section>
+<section id="facts-states-and-multiset-rewriting" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Facts, states, and multiset rewriting</h1>
+<section id="linear-and-persistent-facts" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="linear-and-persistent-facts"><span class="header-section-number">6.1</span> Linear and persistent facts</h2>
+<p>A Tamarin state is a finite multiset of facts. Linear facts model resources that can be consumed once. Persistent facts, written with <code>!</code> in Tamarin notation, remain available and can be used arbitrarily often.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Special fact</th>
+<th>Kind</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(K(m)\)</span></td>
+<td>persistent</td>
+<td>message <span class="math inline">\(m\)</span> is known to the adversary</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(Out(m)\)</span></td>
+<td>linear</td>
+<td>the protocol placed <span class="math inline">\(m\)</span> on the network</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(In(m)\)</span></td>
+<td>linear</td>
+<td>the adversary supplied <span class="math inline">\(m\)</span> to the protocol</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(Fr(n)\)</span></td>
+<td>linear</td>
+<td>fresh value <span class="math inline">\(n\)</span> was generated uniquely</td>
+</tr>
+</tbody>
+</table>
+<p>User-defined facts represent protocol-local state.</p>
+</section>
+<section id="labelled-rules-and-transitions" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="labelled-rules-and-transitions"><span class="header-section-number">6.2</span> Labelled rules and transitions</h2>
+<p>A rule has the form</p>
+<p><span class="math display">\[
+L\xrightarrow{A}R,
+\]</span></p>
+<p>where <span class="math inline">\(L\)</span>, <span class="math inline">\(R\)</span>, and <span class="math inline">\(A\)</span> are multisets of facts. For a ground instance <span class="math inline">\(l\xrightarrow{a}r\)</span> applicable in state <span class="math inline">\(S\)</span>, linear premises are removed, conclusions are added, persistent premises remain, and action facts <span class="math inline">\(a\)</span> are appended to the trace:</p>
+<p><span class="math display">\[
+S'=S-\operatorname{lin}(l)+r.
+\]</span></p>
+<p>For example,</p>
+<p><span class="math display">\[
+F(x)\xrightarrow{A(x)}G(h(x))
+\]</span></p>
+<p>applied with <span class="math inline">\(x=a\)</span> consumes <span class="math inline">\(F(a)\)</span>, produces <span class="math inline">\(G(h(a))\)</span>, and appends <span class="math inline">\(A(a)\)</span> to the trace.</p>
+<p>Built-in rules generate unique fresh names and model adversary deduction. Representative rules are</p>
+<p><span class="math display">\[
+Out(x)\longrightarrow K(x)
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+K(x)\xrightarrow{K(x)}In(x).
+\]</span></p>
+<p>The adversary can learn public names, create fresh values under its control, and apply public function symbols to known messages. Protocol rules cannot mention <span class="math inline">\(K\)</span> directly; <code>Out</code> appears only in conclusions, while <code>In</code> and <code>Fr</code> appear only in premises. Non-public variables in conclusions must already occur in premises.</p>
+</section>
+<section id="traces" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="traces"><span class="header-section-number">6.3</span> Traces</h2>
+<p>A trace is the sequence</p>
+<p><span class="math display">\[
+\langle a_1,\ldots,a_n\rangle
+\]</span></p>
+<p>of action multisets produced during execution. Empty action sets can be removed to obtain the observable trace. The examples show why persistent facts matter: a persistent fact such as <span class="math inline">\(!C(a)\)</span> can justify multiple later applications, whereas a linear fact <span class="math inline">\(D(y)\)</span> is consumed and replaced by <span class="math inline">\(D(h(y))\)</span>.</p>
+</section>
+</section>
+<section id="public-key-infrastructure-diffie-hellman-and-naxos" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Public-key infrastructure, Diffie-Hellman, and NAXOS</h1>
+<p>A public-key infrastructure can be modelled by a rule that consumes a fresh secret, records persistent secret and public key facts, and releases the public key:</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+Fr(y)\longrightarrow !Sk(X,y),!Pk(X,pk(y)),Out(pk(y)).
+\]</span></p>
+</div>
+<p>For Diffie-Hellman keys, <span class="math inline">\(pk(y)\)</span> is represented by <span class="math inline">\(g^y\)</span>.</p>
+<p>In the basic Diffie-Hellman exchange, <span class="math inline">\(A\)</span> sends <span class="math inline">\(g^a\)</span>, <span class="math inline">\(B\)</span> sends <span class="math inline">\(g^b\)</span>, and both derive <span class="math inline">\(g^{ab}\)</span>. An active adversary can replace both public contributions, establishing separate keys with the two honest agents. The example motivates authenticated key-exchange protocols.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../assets/06-symbolic-verification-with-tamarin/naxos-protocol.png" class="img-fluid figure-img" alt="Lecturer slide showing the NAXOS initiator and responder, their long-term and ephemeral secrets, exchanged Diffie-Hellman values, and derived session-key expressions."></p>
+<figcaption>The NAXOS initiator and responder computations.</figcaption>
+</figure>
+</div>
+<p>NAXOS combines each ephemeral secret with the corresponding long-term secret:</p>
+<p><span class="math display">\[
+a=h_1(ek_I,sk_I),
+\qquad
+b=h_1(ek_R,sk_R).
+\]</span></p>
+<p>The initiator and responder compute matching session keys through combinations of long-term public keys, received exponentials, and the shared Diffie-Hellman component, with identities included in <span class="math inline">\(h_2\)</span>.</p>
+<p>The formalisation is split into rules:</p>
+<ol type="1">
+<li>generate a long-term secret/public pair;</li>
+<li>initiator step 1 creates <span class="math inline">\(ek\)</span>, stores <code>Start</code>, and outputs <span class="math inline">\(g^a\)</span>;</li>
+<li>responder receives <span class="math inline">\(y=g^a\)</span>, creates its ephemeral value, derives <span class="math inline">\(k\)</span>, records session actions, and outputs <span class="math inline">\(g^b\)</span>;</li>
+<li>initiator receives <span class="math inline">\(z=g^b\)</span>, derives <span class="math inline">\(k\)</span>, and records acceptance and matching information.</li>
+</ol>
+<p>Action facts such as <code>Accept</code>, <code>Sess</code>, and <code>Match</code> do not represent stored protocol resources. They mark semantically relevant events in traces so that properties can refer to them.</p>
+<p>Additional attacker capabilities are modelled explicitly. A session-key reveal rule consumes or observes a completed session state, emits the key, and records <code>SessKeyRev(ek)</code>. Similar rules can represent long-term-secret compromise.</p>
+</section>
+<section id="security-goals-as-trace-properties" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Security goals as trace properties</h1>
+<p>The semantics of protocol <span class="math inline">\(P\)</span> is <span class="math inline">\(\operatorname{traces}(P)\)</span>. A property <span class="math inline">\(\varphi\)</span> also denotes a set of traces. Correctness means</p>
+<p><span class="math display">\[
+P\models\varphi
+\quad\Longleftrightarrow\quad
+\operatorname{traces}(P)\subseteq\operatorname{traces}(\varphi).
+\]</span></p>
+<p>Attack traces lie in</p>
+<p><span class="math display">\[
+\operatorname{traces}(P)\cap\operatorname{traces}(\neg\varphi).
+\]</span></p>
+<p>Tamarin’s many-sorted first-order trace logic quantifies over messages and time points. Atomic formulas include falsehood, term equality <span class="math inline">\(t_1\simeq t_2\)</span>, time ordering <span class="math inline">\(i\lessdot j\)</span>, time equality <span class="math inline">\(i\doteq j\)</span>, and action occurrence <span class="math inline">\(F@i\)</span>.</p>
+<p>For trace <span class="math inline">\(T=\langle a_1,\ldots,a_n\rangle\)</span> and interpretation <span class="math inline">\(\theta\)</span>,</p>
+<p><span class="math display">\[
+(T,\theta)\models F@i
+\]</span></p>
+<p>exactly when <span class="math inline">\(\theta(i)\)</span> is a valid trace index and <span class="math inline">\(\theta(F)\)</span> occurs in the corresponding action set.</p>
+<section id="secrecy-with-compromise-exceptions" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="secrecy-with-compromise-exceptions"><span class="header-section-number">8.1</span> Secrecy with compromise exceptions</h2>
+<p>The NAXOS secrecy statement begins:</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+\forall A,B,ek,k,i,j.
+\ Accept(A,B,ek,k)@i\land K(k)@j
+\rightarrow \text{an authorised compromise occurred}.
+\]</span></p>
+</div>
+<p>The right-hand side may allow that the accepted session key was revealed, that the key of a matching session was revealed, or that a relevant long-term secret was compromised. This illustrates an important point: secrecy is not simply “the attacker never knows <span class="math inline">\(k\)</span>.” It is conditional on the compromise model stated by the protocol analysis.</p>
+</section>
+</section>
+<section id="dependency-graphs-and-normal-forms" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Dependency graphs and normal forms</h1>
+<p>Multiset-rewriting traces record action order but do not directly record causal history. Symbolic reasoning is also complicated by cancellation equations and by redundant deduction sequences, such as constructing an encryption and immediately decrypting it.</p>
+<p>A <strong>dependency graph</strong> has nodes labelled by ground rule instances. An edge from a conclusion fact of one node to a premise fact of another records that the former justifies the latter modulo the equational theory.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../assets/06-symbolic-verification-with-tamarin/dependency-graph-concept.png" class="img-fluid figure-img" alt="Lecturer slide defining dependency graphs as rule-instance nodes linked by causal justification edges."></p>
+<figcaption>Dependency graphs add explicit causal structure to protocol executions.</figcaption>
+</figure>
+</div>
+<p>The Diffie-Hellman theory is separated into an associative-commutative theory <span class="math inline">\(AC\)</span> for multiplication and a rewrite system <span class="math inline">\(DH\)</span>. Every term has a unique <span class="math inline">\(DH\)</span> normal form, and</p>
+<p><span class="math display">\[
+t_1\simeq_{DH,AC}t_2
+\quad\Longleftrightarrow\quad
+t_1\downarrow_{DH}\simeq_{AC}t_2\downarrow_{DH}.
+\]</span></p>
+<p>Normalising rule instances removes cancellation equations from later reasoning. For example, a conclusion <span class="math inline">\(K(\operatorname{dec}(\operatorname{enc}(a,k),k))\)</span> becomes <span class="math inline">\(K(a)\)</span>.</p>
+<p>To avoid redundant attacker derivations, knowledge is divided into construction knowledge <span class="math inline">\(K^\uparrow\)</span> and deconstruction knowledge <span class="math inline">\(K^\downarrow\)</span>. A term just produced by a constructor cannot be immediately deconstructed through a pointless loop. Additional <code>exp</code> and <code>noexp</code> tags prevent repeated exponentiation when equivalent reasoning can combine exponents first.</p>
+<p>For the class of <strong><span class="math inline">\(*\)</span>-restricted protocols</strong>, rules do not perform multiplication of exponents or introduce forbidden products. The deck’s normalisation lemma states that normalised execution traces and traces of tagged normal dependency graphs coincide modulo <span class="math inline">\(AC\)</span> for this class.</p>
+</section>
+<section id="guarded-formulas-and-constraint-solving" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Guarded formulas and constraint solving</h1>
+<section id="guarded-trace-properties" class="level2" data-number="10.1">
+<h2 data-number="10.1" class="anchored" data-anchor-id="guarded-trace-properties"><span class="header-section-number">10.1</span> Guarded trace properties</h2>
+<p>The verification fragment uses formulas in negation normal form. Quantified variables must be guarded by an action atom containing all of them:</p>
+<ul>
+<li>existential form: <span class="math inline">\(\exists\vec x.\ G\land\psi\)</span>;</li>
+<li>universal form: <span class="math inline">\(\forall\vec x.\ G\rightarrow\psi\)</span>.</li>
+</ul>
+<p>Terms may be built only from quantified variables and public names. The set of guarded properties is closed under negation and invariant under trace normalisation. Thus verification in multiset-rewriting semantics modulo the Diffie-Hellman theory agrees with verification over normalised dependency graphs modulo <span class="math inline">\(AC\)</span>.</p>
+<p>The freshness example states that two consumptions of the same fresh value must occur at the same time point:</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+\forall n{:}\mathit{fresh},i,j.\
+FreshConsumed(n)@i\land FreshConsumed(n)@j
+\rightarrow i\doteq j.
+\]</span></p>
+</div>
+</section>
+<section id="backward-reachability" class="level2" data-number="10.2">
+<h2 data-number="10.2" class="anchored" data-anchor-id="backward-reachability"><span class="header-section-number">10.2</span> Backward reachability</h2>
+<p>Tamarin negates the property and searches for a model of the negation. A constraint system contains dependency-graph constraints and guarded trace formulas. A solution is a normal dependency graph, together with a valuation, satisfying all constraints.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../assets/06-symbolic-verification-with-tamarin/verification-strategy.png" class="img-fluid figure-img" alt="Lecturer slide describing backward reachability, negation of a security property, constraint systems, dependency-graph solutions, and normal dependency graphs for state-space reduction."></p>
+<figcaption>Backward-reachability verification strategy.</figcaption>
+</figure>
+</div>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+  N["Negate φ and rewrite to NNF"] --&gt; O["Initial multiset Ω of constraint systems"]
+  O --&gt; C{"Solved system exists?"}
+  C --&gt;|"yes"| A["Construct attack dependency graph"]
+  C --&gt;|"no"| E{"Ω empty?"}
+  E --&gt;|"yes"| V["Verification successful"]
+  E --&gt;|"no"| R["Choose Γ and apply a reduction rule"]
+  R --&gt; O
+</pre>
+</div>
+<p></p><figcaption> Constraint-refinement loop used to search for an attack.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>The reduction relation refines a constraint system into alternatives. The slides present rules for trace formulas, graph constraints, and message deduction. Soundness and completeness mean that the solution set of a parent system equals the union of the solution sets of its children, and that every solved system yields a concrete protocol solution.</p>
+</section>
+<section id="reading-the-backward-example" class="level2" data-number="10.3">
+<h2 data-number="10.3" class="anchored" data-anchor-id="reading-the-backward-example"><span class="header-section-number">10.3</span> Reading the backward example</h2>
+<p>To prove that no <code>Rev(k)</code> action is reachable, Tamarin starts from the negated goal</p>
+<p><span class="math display">\[
+\exists k,i.\ Rev(k)@i.
+\]</span></p>
+<p>Free variables are treated existentially, so the initial constraint can be represented as <code>Rev(k)@i</code>. Because only one rule emits <code>Rev</code>, any satisfying dependency graph must contain an instance of that rule. Its <code>Key(k)</code> premise must be justified by an incoming edge from a rule producing <code>Key(k)</code>. Repeating this reasoning constructs earlier causal requirements until a solved graph is obtained or a contradiction is exposed.</p>
+<p>In the illustrated example, the procedure reaches a solved system and therefore a counterexample to unreachability. The final sequence of slides performs a more detailed reduction for a uniqueness property: two <code>Fin</code> actions using the same key must occur at the same time and with the same message. Equalities are unified where possible; incompatible action symbols generate contradictory branches; and the remaining constraints are progressively expanded into rule instances and edges.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A successful Tamarin proof is relative to the symbolic model, equational theory, compromise rules, and guarded property supplied. A counterexample is a trace admitted by that model. The model assumptions are therefore part of the security claim.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="sources" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> Sources</h1>
+<ul>
+<li><em>6_Tamarin.pdf</em>, primary slide deck. The six local figures are unmodified extractions from this lecturer-supplied deck.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/rikypara04\.github\.io\/uniud-ai-cybersecurity-notes\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

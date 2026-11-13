@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Classical Logics: Propositional Logic, QBF, and First-Order Logic – MSc Artificial Intelligence &amp; Cybersecurity</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b626d73c4c936ccc3cb08be7d45d1df6.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-30c69b05bb77ed3e47d95fc04249e286.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="../../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">MSc Artificial Intelligence &amp; Cybersecurity</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/index.html">Foundations of Cybersecurity and Ethics</a></li><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html">Classical Logics: Propositional Logic, QBF, and First-Order Logic</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../01-complexity-information-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Complexity and Information Theory</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/01-introduction-to-information-theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Information Theory</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/02-information-probability-and-random-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Information, Probability, and Random Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/03-properties-of-entropy-and-conditional-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Properties of Entropy and Conditional Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/04-mutual-information-relative-entropy-and-source-coding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mutual Information, Relative Entropy, and Source Coding</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefix Codes and the Kraft-McMillan Inequality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/06-shannon-codes-huffman-codes-and-asymptotic-optimality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Shannon Codes, Huffman Codes, and Asymptotic Optimality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/07-lz77-and-kolmogorov-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">LZ77 Compression and Kolmogorov Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Kolmogorov Complexity and Its Relation to Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/09-computational-complexity-models-and-cost-criteria.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Computational Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Operational Semantics and Time Complexity of Turing Machines</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/11-multitape-simulation-time-speedup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multitape Simulation, Time Complexity, and Linear Speed-Up</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../01-complexity-information-theory/notes/12-time-and-space-complexity-classes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Time and Space Complexity Classes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../02-automated-reasoning/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Automated Reasoning</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Automated Reasoning and Constraint Programming</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/02-sat-encodings-and-dpll.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SAT Encodings and DPLL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Propagation and Local Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/04-bounds-hyper-arc-and-path-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bounds, Hyper-Arc, and Path Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Search Annotations and Constraint Modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/06-minizinc-modeling-examples-and-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Modelling through Classical Constraint Problems</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scheduling Models, Hamming Codes, and Timetabling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/08-constraint-optimization-local-search-and-bioinformatics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Optimization, Large Neighbourhood Search, and Bioinformatics Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/09-global-constraints-matching-and-cumulative-scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Global Constraints, Matching-Based Filtering, and Cumulative Scheduling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/10-syntax-and-definite-clause-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Syntax of Logic Programming and Definite-Clause Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/11-semantics-of-logic-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Semantics of Logic Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Unification, SLD Resolution, and the Limits of Computation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../03-foundations-cybersecurity-ethics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Foundations of Cybersecurity and Ethics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Formal Verification and Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Classical Logics: Propositional Logic, QBF, and First-Order Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Games in Logic and First-Order Definability</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learning Automata and Sequential Transducers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/05-uppaal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling and Verification in UPPAAL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Symbolic Verification of Security Protocols with Tamarin</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#propositional-logic" id="toc-propositional-logic" class="nav-link active" data-scroll-target="#propositional-logic"><span class="header-section-number">1</span> Propositional logic</a>
+  <ul class="collapse">
+  <li><a href="#vocabulary-syntax-and-semantics" id="toc-vocabulary-syntax-and-semantics" class="nav-link" data-scroll-target="#vocabulary-syntax-and-semantics"><span class="header-section-number">1.1</span> Vocabulary, syntax, and semantics</a></li>
+  <li><a href="#model-checking" id="toc-model-checking" class="nav-link" data-scroll-target="#model-checking"><span class="header-section-number">1.2</span> Model checking</a></li>
+  <li><a href="#satisfiability" id="toc-satisfiability" class="nav-link" data-scroll-target="#satisfiability"><span class="header-section-number">1.3</span> Satisfiability</a></li>
+  </ul></li>
+  <li><a href="#economy-of-syntax-and-normal-forms" id="toc-economy-of-syntax-and-normal-forms" class="nav-link" data-scroll-target="#economy-of-syntax-and-normal-forms"><span class="header-section-number">2</span> Economy of syntax and normal forms</a>
+  <ul class="collapse">
+  <li><a href="#eliminating-implication-and-equivalence" id="toc-eliminating-implication-and-equivalence" class="nav-link" data-scroll-target="#eliminating-implication-and-equivalence"><span class="header-section-number">2.1</span> Eliminating implication and equivalence</a></li>
+  <li><a href="#negation-normal-form" id="toc-negation-normal-form" class="nav-link" data-scroll-target="#negation-normal-form"><span class="header-section-number">2.2</span> Negation normal form</a></li>
+  <li><a href="#conjunctive-and-disjunctive-normal-form" id="toc-conjunctive-and-disjunctive-normal-form" class="nav-link" data-scroll-target="#conjunctive-and-disjunctive-normal-form"><span class="header-section-number">2.3</span> Conjunctive and disjunctive normal form</a></li>
+  <li><a href="#tseitin-transformation" id="toc-tseitin-transformation" class="nav-link" data-scroll-target="#tseitin-transformation"><span class="header-section-number">2.4</span> Tseitin transformation</a></li>
+  <li><a href="#circuits-and-shared-subformulas" id="toc-circuits-and-shared-subformulas" class="nav-link" data-scroll-target="#circuits-and-shared-subformulas"><span class="header-section-number">2.5</span> Circuits and shared subformulas</a></li>
+  </ul></li>
+  <li><a href="#a-bounded-reachability-encoding" id="toc-a-bounded-reachability-encoding" class="nav-link" data-scroll-target="#a-bounded-reachability-encoding"><span class="header-section-number">3</span> A bounded reachability encoding</a></li>
+  <li><a href="#quantified-boolean-formulas" id="toc-quantified-boolean-formulas" class="nav-link" data-scroll-target="#quantified-boolean-formulas"><span class="header-section-number">4</span> Quantified Boolean formulas</a>
+  <ul class="collapse">
+  <li><a href="#syntax-and-semantics" id="toc-syntax-and-semantics" class="nav-link" data-scroll-target="#syntax-and-semantics"><span class="header-section-number">4.1</span> Syntax and semantics</a></li>
+  <li><a href="#satisfiability-and-quantifier-structure" id="toc-satisfiability-and-quantifier-structure" class="nav-link" data-scroll-target="#satisfiability-and-quantifier-structure"><span class="header-section-number">4.2</span> Satisfiability and quantifier structure</a></li>
+  </ul></li>
+  <li><a href="#first-order-logic" id="toc-first-order-logic" class="nav-link" data-scroll-target="#first-order-logic"><span class="header-section-number">5</span> First-order logic</a>
+  <ul class="collapse">
+  <li><a href="#vocabulary-and-structures" id="toc-vocabulary-and-structures" class="nav-link" data-scroll-target="#vocabulary-and-structures"><span class="header-section-number">5.1</span> Vocabulary and structures</a></li>
+  <li><a href="#translating-statements" id="toc-translating-statements" class="nav-link" data-scroll-target="#translating-statements"><span class="header-section-number">5.2</span> Translating statements</a></li>
+  <li><a href="#model-checking-and-satisfiability" id="toc-model-checking-and-satisfiability" class="nav-link" data-scroll-target="#model-checking-and-satisfiability"><span class="header-section-number">5.3</span> Model checking and satisfiability</a></li>
+  </ul></li>
+  <li><a href="#the-domino-reduction" id="toc-the-domino-reduction" class="nav-link" data-scroll-target="#the-domino-reduction"><span class="header-section-number">6</span> The domino reduction</a>
+  <ul class="collapse">
+  <li><a href="#the-source-problem" id="toc-the-source-problem" class="nav-link" data-scroll-target="#the-source-problem"><span class="header-section-number">6.1</span> The source problem</a></li>
+  <li><a href="#encoding-a-rectangle-in-first-order-logic" id="toc-encoding-a-rectangle-in-first-order-logic" class="nav-link" data-scroll-target="#encoding-a-rectangle-in-first-order-logic"><span class="header-section-number">6.2</span> Encoding a rectangle in first-order logic</a></li>
+  </ul></li>
+  <li><a href="#first-order-theories" id="toc-first-order-theories" class="nav-link" data-scroll-target="#first-order-theories"><span class="header-section-number">7</span> First-order theories</a>
+  <ul class="collapse">
+  <li><a href="#ordered-natural-numbers" id="toc-ordered-natural-numbers" class="nav-link" data-scroll-target="#ordered-natural-numbers"><span class="header-section-number">7.1</span> Ordered natural numbers</a></li>
+  <li><a href="#presburger-arithmetic" id="toc-presburger-arithmetic" class="nav-link" data-scroll-target="#presburger-arithmetic"><span class="header-section-number">7.2</span> Presburger arithmetic</a></li>
+  <li><a href="#peano-arithmetic" id="toc-peano-arithmetic" class="nav-link" data-scroll-target="#peano-arithmetic"><span class="header-section-number">7.3</span> Peano arithmetic</a></li>
+  <li><a href="#tarski-arithmetic" id="toc-tarski-arithmetic" class="nav-link" data-scroll-target="#tarski-arithmetic"><span class="header-section-number">7.4</span> Tarski arithmetic</a></li>
+  <li><a href="#random-graphs-and-the-zero-one-law" id="toc-random-graphs-and-the-zero-one-law" class="nav-link" data-scroll-target="#random-graphs-and-the-zero-one-law"><span class="header-section-number">7.5</span> Random graphs and the zero-one law</a></li>
+  </ul></li>
+  <li><a href="#logical-reductions-and-interpretations" id="toc-logical-reductions-and-interpretations" class="nav-link" data-scroll-target="#logical-reductions-and-interpretations"><span class="header-section-number">8</span> Logical reductions and interpretations</a></li>
+  <li><a href="#sources" id="toc-sources" class="nav-link" data-scroll-target="#sources"><span class="header-section-number">9</span> Sources</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/index.html">Foundations of Cybersecurity and Ethics</a></li><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html">Classical Logics: Propositional Logic, QBF, and First-Order Logic</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Classical Logics: Propositional Logic, QBF, and First-Order Logic</h1>
+<p class="subtitle lead">Module 1 - Deck 2: Classical Logics</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<style>
+.formula-scroll {
+  max-width: 100%; overflow-x: auto; overflow-y: hidden;
+  padding: 0.75rem 1rem; margin: 1rem 0;
+  border: 1px solid #d0d7de; border-radius: 0.5rem;
+  background: rgba(127,127,127,0.06); -webkit-overflow-scrolling: touch;
+}
+.formula-scroll .MathJax_Display { min-width: max-content; margin: 0; }
+</style>
+<section id="propositional-logic" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Propositional logic</h1>
+<section id="vocabulary-syntax-and-semantics" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="vocabulary-syntax-and-semantics"><span class="header-section-number">1.1</span> Vocabulary, syntax, and semantics</h2>
+<p>Propositional logic is the first classical logic considered in the deck. Its vocabulary contains a set</p>
+<p><span class="math display">\[
+\Sigma=\{p,q,r,\ldots\}
+\]</span></p>
+<p>of <strong>Boolean variables</strong>, also called <strong>propositional letters</strong>, together with the Boolean connectives</p>
+<p><span class="math display">\[
+\lor,\quad \land,\quad \neg,\quad \rightarrow,\quad \leftrightarrow.
+\]</span></p>
+<p>The syntax is defined inductively. Every propositional letter is a formula; if <span class="math inline">\(\varphi\)</span> and <span class="math inline">\(\psi\)</span> are formulas, then so are <span class="math inline">\(\varphi\lor\psi\)</span>, <span class="math inline">\(\varphi\land\psi\)</span>, <span class="math inline">\(\neg\varphi\)</span>, <span class="math inline">\(\varphi\rightarrow\psi\)</span>, and <span class="math inline">\(\varphi\leftrightarrow\psi\)</span>. This inductive definition matters because algorithms can follow the same recursive structure.</p>
+<p>A structure, or valuation, is a function</p>
+<p><span class="math display">\[
+S:\Sigma\longrightarrow\{\mathit{true},\mathit{false}\}.
+\]</span></p>
+<p>The satisfaction relation <span class="math inline">\(S\models\varphi\)</span> says that <span class="math inline">\(\varphi\)</span> holds under <span class="math inline">\(S\)</span>. It is defined recursively:</p>
+<p><span class="math display">\[
+\begin{aligned}
+S\models p &amp;\iff S(p)=\mathit{true},\\
+S\models\varphi\lor\psi &amp;\iff S\models\varphi\text{ or }S\models\psi,\\
+S\models\varphi\land\psi &amp;\iff S\models\varphi\text{ and }S\models\psi,\\
+S\models\neg\varphi &amp;\iff S\not\models\varphi.
+\end{aligned}
+\]</span></p>
+<p>Implication and equivalence have their usual Boolean meanings. Syntax determines which expressions are formulas; semantics determines whether a formula is true in a given valuation.</p>
+</section>
+<section id="model-checking" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="model-checking"><span class="header-section-number">1.2</span> Model checking</h2>
+<p>The propositional model-checking problem receives a formula <span class="math inline">\(\varphi\)</span> and a valuation <span class="math inline">\(S\)</span> and asks whether <span class="math inline">\(S\models\varphi\)</span>. The algorithm evaluates the syntax tree recursively. At a leaf it reads <span class="math inline">\(S(p)\)</span>; at a connective it recursively evaluates the immediate subformulas and combines their truth values.</p>
+<pre class="text"><code>Model-check(φ, S):
+  if φ = p, return S(p)
+  if φ = φ₁ ∨ φ₂, return Model-check(φ₁,S) or Model-check(φ₂,S)
+  if φ = φ₁ ∧ φ₂, return Model-check(φ₁,S) and Model-check(φ₂,S)
+  if φ = ¬φ₁, return not Model-check(φ₁,S)
+  treat → and ↔ according to their Boolean semantics</code></pre>
+<p>The running time is polynomial, in fact linear in the size of the represented formula when each node is visited once. The deck records the sharper complexity statement that propositional model checking is <strong>P-complete</strong>.</p>
+</section>
+<section id="satisfiability" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="satisfiability"><span class="header-section-number">1.3</span> Satisfiability</h2>
+<p>A formula is satisfiable if some valuation makes it true:</p>
+<p><span class="math display">\[
+\varphi\text{ is satisfiable}\iff \exists S\;(S\models\varphi).
+\]</span></p>
+<p>A direct algorithm enumerates the <span class="math inline">\(2^n\)</span> valuations of the <span class="math inline">\(n\)</span> propositional letters occurring in <span class="math inline">\(\varphi\)</span> and invokes model checking on each one. The search is therefore exponential in the number of variables. The decision problem SAT is <strong>NP-complete</strong>.</p>
+<p>The following table separates the two algorithmic questions.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Problem</th>
+<th>Input</th>
+<th>Question</th>
+<th>Complexity stated in the deck</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Model checking</td>
+<td><span class="math inline">\(S,\varphi\)</span></td>
+<td>Does <span class="math inline">\(S\models\varphi\)</span>?</td>
+<td>P-complete</td>
+</tr>
+<tr class="even">
+<td>Satisfiability</td>
+<td><span class="math inline">\(\varphi\)</span></td>
+<td>Is there an <span class="math inline">\(S\)</span> such that <span class="math inline">\(S\models\varphi\)</span>?</td>
+<td>NP-complete</td>
+</tr>
+</tbody>
+</table>
+<p>The difference is the valuation. Model checking receives it; satisfiability must find one.</p>
+</section>
+</section>
+<section id="economy-of-syntax-and-normal-forms" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Economy of syntax and normal forms</h1>
+<section id="eliminating-implication-and-equivalence" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="eliminating-implication-and-equivalence"><span class="header-section-number">2.1</span> Eliminating implication and equivalence</h2>
+<p>The first economy-of-syntax result states that every formula is equivalent to one not using <span class="math inline">\(\rightarrow\)</span> or <span class="math inline">\(\leftrightarrow\)</span>. The rewritings are</p>
+<p><span class="math display">\[
+\varphi\rightarrow\psi\equiv\neg\varphi\lor\psi
+\]</span></p>
+<p>and</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+\varphi\leftrightarrow\psi
+\equiv
+(\neg\varphi\lor\psi)\land(\neg\psi\lor\varphi).
+\]</span></p>
+</div>
+<p>These identities show that the two connectives are convenient abbreviations rather than essential additions to expressive power.</p>
+</section>
+<section id="negation-normal-form" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="negation-normal-form"><span class="header-section-number">2.2</span> Negation normal form</h2>
+<p>A formula is in <strong>negation normal form</strong> (NNF) when it uses only <span class="math inline">\(\land\)</span>, <span class="math inline">\(\lor\)</span>, and negation applied directly to propositional letters. After removing implication and equivalence, negations are pushed inward with De Morgan’s laws and double-negation elimination:</p>
+<p><span class="math display">\[
+\neg(\varphi\land\psi)\equiv\neg\varphi\lor\neg\psi,
+\qquad
+\neg(\varphi\lor\psi)\equiv\neg\varphi\land\neg\psi,
+\qquad
+\neg\neg\varphi\equiv\varphi.
+\]</span></p>
+<p>The transformation follows the syntax tree and preserves equivalence.</p>
+</section>
+<section id="conjunctive-and-disjunctive-normal-form" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="conjunctive-and-disjunctive-normal-form"><span class="header-section-number">2.3</span> Conjunctive and disjunctive normal form</h2>
+<p>A <strong>literal</strong> is a propositional letter <span class="math inline">\(p\)</span> or its negation <span class="math inline">\(\neg p\)</span>. A formula is in <strong>conjunctive normal form</strong> (CNF) if it is a conjunction of clauses, where each clause is a disjunction of literals. It is in <strong>disjunctive normal form</strong> (DNF) if it is a disjunction of terms, where each term is a conjunction of literals.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Normal form</th>
+<th>Outer operation</th>
+<th>Inner components</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CNF</td>
+<td>conjunction</td>
+<td>disjunctions of literals</td>
+</tr>
+<tr class="even">
+<td>DNF</td>
+<td>disjunction</td>
+<td>conjunctions of literals</td>
+</tr>
+</tbody>
+</table>
+<p>Distributivity converts NNF formulas to CNF or DNF, but a direct equivalence-preserving conversion can cause an exponential increase in formula size. The deck therefore introduces a more economical construction for satisfiability.</p>
+</section>
+<section id="tseitin-transformation" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="tseitin-transformation"><span class="header-section-number">2.4</span> Tseitin transformation</h2>
+<p>The <strong>Tseitin transformation</strong> introduces a fresh variable for selected subformulas and constrains that variable to represent the subformula’s truth value. For example, if <span class="math inline">\(x\)</span> names <span class="math inline">\(\alpha\land\beta\)</span>, the defining equivalence is</p>
+<p><span class="math display">\[
+x\leftrightarrow(\alpha\land\beta).
+\]</span></p>
+<p>It can be expressed in CNF as</p>
+<p><span class="math display">\[
+(\neg x\lor\alpha)\land(\neg x\lor\beta)\land(x\lor\neg\alpha\lor\neg\beta).
+\]</span></p>
+<p>Analogous local constraints are produced for disjunction and negation. A final unit clause requires the variable naming the whole formula to be true. The result is linear in the original syntax tree and is <strong>equisatisfiable</strong> with the original formula.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Equivalent formulas have the same truth value under every valuation of the same variables. Equisatisfiable formulas need only agree on whether some satisfying valuation exists. Tseitin variables make the latter relation sufficient for SAT solving.</p>
+</div>
+</div>
+</section>
+<section id="circuits-and-shared-subformulas" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="circuits-and-shared-subformulas"><span class="header-section-number">2.5</span> Circuits and shared subformulas</h2>
+<p>A formula is a tree: repeated subformulas are copied. A Boolean circuit is a directed acyclic graph: a subcomputation may feed several later gates. This sharing can represent the same Boolean function more succinctly.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  P["p"] --&gt; A["p ∧ q"]
+  Q["q"] --&gt; A
+  A --&gt; O["(p ∧ q) ∨ r"]
+  R["r"] --&gt; O
+  A --&gt; N["¬(p ∧ q)"]
+</pre>
+</div>
+<p></p><figcaption> A shared Boolean subexpression represented once in a circuit.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>The shared node <span class="math inline">\(p\land q\)</span> is computed once and reused. Tseitin variables provide a logical encoding of such gate-by-gate structure.</p>
+</section>
+</section>
+<section id="a-bounded-reachability-encoding" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> A bounded reachability encoding</h1>
+<p>The deck applies propositional formulas to a device whose state is encoded by a tuple of bits <span class="math inline">\(\bar p\)</span>. Let</p>
+<ul>
+<li><span class="math inline">\(\varphi_{\mathrm{init}}(\bar p)\)</span> describe initial states;</li>
+<li><span class="math inline">\(\varphi_{\mathrm{target}}(\bar p)\)</span> describe target states;</li>
+<li><span class="math inline">\(\varphi_{\mathrm{step}}(\bar p,\bar p')\)</span> describe one legal transition.</li>
+</ul>
+<p>To ask whether a target is reachable in exactly <span class="math inline">\(n-1\)</span> steps, introduce a fresh copy <span class="math inline">\(\bar p_i\)</span> of the state variables for each position of the run:</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+\varphi_{\mathrm{reach}}(\bar p_1,\ldots,\bar p_n)
+=
+\varphi_{\mathrm{init}}(\bar p_1)
+\land
+\varphi_{\mathrm{target}}(\bar p_n)
+\land
+\bigwedge_{i=1}^{n-1}
+\varphi_{\mathrm{step}}(\bar p_i,\bar p_{i+1}).
+\]</span></p>
+</div>
+<p>The device admits such a run exactly when <span class="math inline">\(\varphi_{\mathrm{reach}}\)</span> is satisfiable. A satisfying valuation explicitly identifies every bit of every intermediate state. The example shows why SAT can solve a behavioural question: the run itself becomes a finite collection of Boolean choices checked by constraints.</p>
+</section>
+<section id="quantified-boolean-formulas" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Quantified Boolean formulas</h1>
+<section id="syntax-and-semantics" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="syntax-and-semantics"><span class="header-section-number">4.1</span> Syntax and semantics</h2>
+<p>Quantified Boolean formulas (QBF) extend propositional logic with quantifiers <span class="math inline">\(\exists p\)</span> and <span class="math inline">\(\forall p\)</span>. Their semantics modifies the value assigned to the quantified variable:</p>
+<p><span class="math display">\[
+S\models\exists p\,\varphi
+\iff
+S[p:=\mathit{true}]\models\varphi
+\text{ or }
+S[p:=\mathit{false}]\models\varphi,
+\]</span></p>
+<p><span class="math display">\[
+S\models\forall p\,\varphi
+\iff
+S[p:=\mathit{true}]\models\varphi
+\text{ and }
+S[p:=\mathit{false}]\models\varphi.
+\]</span></p>
+<p>An occurrence of <span class="math inline">\(p\)</span> under the scope of <span class="math inline">\(\exists p\)</span> or <span class="math inline">\(\forall p\)</span> is <strong>bound</strong>; otherwise it is <strong>free</strong>. A formula with no free variables is a sentence. Its truth no longer depends on an external valuation.</p>
+<p>The recursive model-checking algorithm branches existentially for <span class="math inline">\(\exists p\)</span> and universally for <span class="math inline">\(\forall p\)</span>. Although the recursion explores exponentially many assignments in the worst case, it needs to keep only the current branch and valuation. QBF model checking is <strong>PSPACE-complete</strong>.</p>
+</section>
+<section id="satisfiability-and-quantifier-structure" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="satisfiability-and-quantifier-structure"><span class="header-section-number">4.2</span> Satisfiability and quantifier structure</h2>
+<p>A QBF with free variables <span class="math inline">\(p_1,\ldots,p_k\)</span> is satisfiable precisely when its existential closure is true:</p>
+<p><span class="math display">\[
+\varphi(p_1,\ldots,p_k)\text{ satisfiable}
+\iff
+\models\exists p_1\cdots\exists p_k\,\varphi.
+\]</span></p>
+<p>Quantifier order is semantically significant. In general,</p>
+<p><span class="math display">\[
+\forall p\,\exists q\,\varphi
+\not\equiv
+\exists q\,\forall p\,\varphi.
+\]</span></p>
+<p>In the first formula, the choice of <span class="math inline">\(q\)</span> may depend on <span class="math inline">\(p\)</span>; in the second, one choice of <span class="math inline">\(q\)</span> must work for both values of <span class="math inline">\(p\)</span>. This dependence explains the game-like character of alternating quantifiers and the increased complexity from SAT to QBF.</p>
+</section>
+</section>
+<section id="first-order-logic" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> First-order logic</h1>
+<section id="vocabulary-and-structures" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="vocabulary-and-structures"><span class="header-section-number">5.1</span> Vocabulary and structures</h2>
+<p>First-order logic (FO) replaces Boolean variables with variables ranging over a domain and introduces relation, function, and constant symbols. A vocabulary records the arities of its symbols. A structure <span class="math inline">\(S\)</span> supplies:</p>
+<ul>
+<li>a nonempty universe <span class="math inline">\(U^S\)</span>;</li>
+<li>a relation <span class="math inline">\(R^S\subseteq(U^S)^k\)</span> for every <span class="math inline">\(k\)</span>-ary relation symbol <span class="math inline">\(R\)</span>;</li>
+<li>a function <span class="math inline">\(f^S:(U^S)^k\to U^S\)</span> for every <span class="math inline">\(k\)</span>-ary function symbol <span class="math inline">\(f\)</span>;</li>
+<li>an element <span class="math inline">\(c^S\in U^S\)</span> for every constant symbol <span class="math inline">\(c\)</span>.</li>
+</ul>
+<p>Terms are built from variables, constants, and function applications. Atomic formulas compare terms or apply relation symbols. Formulas are then constructed using Boolean connectives and the quantifiers <span class="math inline">\(\exists x\)</span> and <span class="math inline">\(\forall x\)</span>.</p>
+<p>A variable assignment maps free variables to elements of <span class="math inline">\(U^S\)</span>. The satisfaction relation for quantifiers is</p>
+<p><span class="math display">\[
+S,\eta\models\exists x\,\varphi
+\iff
+\text{for some }a\in U^S,
+\ S,\eta[x:=a]\models\varphi,
+\]</span></p>
+<p><span class="math display">\[
+S,\eta\models\forall x\,\varphi
+\iff
+\text{for every }a\in U^S,
+\ S,\eta[x:=a]\models\varphi.
+\]</span></p>
+<p>The deck illustrates how formulas acquire meaning only after the corresponding symbols are interpreted. A unary relation may express a property such as “drinks,” while a binary relation can express an association between two elements.</p>
+</section>
+<section id="translating-statements" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="translating-statements"><span class="header-section-number">5.2</span> Translating statements</h2>
+<p>The sentence “There is a man such that, when he drinks, everybody drinks” is represented by a formula of the form</p>
+<p><span class="math display">\[
+\exists x\bigl(R(x)\rightarrow\forall y\,R(y)\bigr),
+\]</span></p>
+<p>where <span class="math inline">\(R\)</span> is unary. Since the formula has no free variables, a structure either satisfies it or does not.</p>
+<p>Properties of a binary relation can also be stated internally. For example, that <span class="math inline">\(R\)</span> represents a total function can be written by requiring every <span class="math inline">\(x\)</span> to have exactly one <span class="math inline">\(R\)</span>-successor:</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+\forall x\,\exists y\left(
+R(x,y)\land
+\forall z\,(R(x,z)\rightarrow z=y)
+\right).
+\]</span></p>
+</div>
+<p>For a binary function symbol <span class="math inline">\(+\)</span>, commutativity is</p>
+<p><span class="math display">\[
+\forall x\,\forall y\;(x+y=y+x).
+\]</span></p>
+<p>The existence of a neutral element and inverses requires quantifier order that reflects dependence: first choose a common neutral element, then allow each <span class="math inline">\(x\)</span> to have its own inverse.</p>
+</section>
+<section id="model-checking-and-satisfiability" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="model-checking-and-satisfiability"><span class="header-section-number">5.3</span> Model checking and satisfiability</h2>
+<p>FO model checking recursively evaluates atomic formulas, Boolean connectives, and quantifiers. For <span class="math inline">\(\exists x\,\varphi\)</span>, it tries elements of the finite domain until one succeeds; for <span class="math inline">\(\forall x\,\varphi\)</span>, every element must succeed. With a finite structure this is an effective algorithm, although its cost depends strongly on formula size, quantifier nesting, and domain size.</p>
+<p>The satisfiability question is fundamentally different:</p>
+<p><span class="math display">\[
+\text{Does there exist a structure }S\text{ such that }S\models\varphi?
+\]</span></p>
+<p>The deck states <strong>Trakhtenbrot’s theorem</strong>: finite satisfiability of first-order logic is undecidable. The proof strategy is a reduction from an undecidable domino-tiling problem.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Logic</th>
+<th>Model checking</th>
+<th>Satisfiability</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Propositional logic</td>
+<td>P-complete</td>
+<td>NP-complete</td>
+</tr>
+<tr class="even">
+<td>QBF</td>
+<td>PSPACE-complete</td>
+<td>reducible to truth of an existential closure</td>
+</tr>
+<tr class="odd">
+<td>First-order logic over finite structures</td>
+<td>decidable for a supplied finite structure</td>
+<td>undecidable</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="the-domino-reduction" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> The domino reduction</h1>
+<section id="the-source-problem" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="the-source-problem"><span class="header-section-number">6.1</span> The source problem</h2>
+<p>The domino problem receives finitely many four-sided tile types and asks whether copies of them can form a finite rectangle with a prescribed white border and matching adjacent colours. The variant used in the deck is undecidable by reduction from the Halting Problem. A computation can be represented row by row: each row describes a machine configuration, while local colour constraints force the next row to represent a valid transition.</p>
+</section>
+<section id="encoding-a-rectangle-in-first-order-logic" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="encoding-a-rectangle-in-first-order-logic"><span class="header-section-number">6.2</span> Encoding a rectangle in first-order logic</h2>
+<p>Given a domino set, the reduction constructs an FO sentence <span class="math inline">\(\varphi_D\)</span> such that</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+\varphi_D\text{ is finitely satisfiable}
+\iff
+D\text{ tiles a white-bordered rectangle}.
+\]</span></p>
+</div>
+<p>The encoding has three conceptual layers:</p>
+<ol type="1">
+<li><strong>Grid structure.</strong> Binary relations <span class="math inline">\(H(x,y)\)</span> and <span class="math inline">\(V(x,y)\)</span> describe the horizontal and vertical successor relations. They are constrained as partial functions or partial bijections and must commute where both paths exist, so moving right then up reaches the same cell as moving up then right.</li>
+<li><strong>Tile assignment.</strong> Unary predicates identify which domino type labels each cell, with exactly one type assigned to each grid position.</li>
+<li><strong>Local compatibility and border.</strong> FO formulas require matching colours across <span class="math inline">\(H\)</span>- and <span class="math inline">\(V\)</span>-adjacent cells and enforce the prescribed border condition.</li>
+</ol>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  X["x"] --&gt;|"H"| Y["y"]
+  X --&gt;|"V"| Z["z"]
+  Y --&gt;|"V"| W["w"]
+  Z --&gt;|"H"| W
+</pre>
+</div>
+<p></p><figcaption> Local square condition used in the first-order encoding of a rectangular grid.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>The commuting-square requirement is expressed by a formula of the form</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+\forall x\,\forall y\,\forall z\,
+\bigl(H(x,y)\land V(x,z)
+\rightarrow
+\exists w\,(V(y,w)\land H(z,w))\bigr).
+\]</span></p>
+</div>
+<p>Because all constraints are local, FO can state them even though the global rectangle may be arbitrarily large. If finite satisfiability were decidable, the domino problem would be decidable, contradicting its undecidability. This is the purpose of the construction.</p>
+</section>
+</section>
+<section id="first-order-theories" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> First-order theories</h1>
+<p>For a fixed structure <span class="math inline">\(S\)</span>, its first-order theory is</p>
+<p><span class="math display">\[
+\operatorname{Th}_{\mathrm{FO}}(S)
+=
+\{\varphi:S\models\varphi\}.
+\]</span></p>
+<p>Fixing the structure changes the decision problem: instead of asking whether some structure satisfies <span class="math inline">\(\varphi\)</span>, one asks whether <span class="math inline">\(\varphi\)</span> holds in one designated mathematical structure.</p>
+<section id="ordered-natural-numbers" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="ordered-natural-numbers"><span class="header-section-number">7.1</span> Ordered natural numbers</h2>
+<p>The theory <span class="math inline">\(\mathrm{FO}[\mathbb N,&lt;]\)</span> includes statements expressing that every natural number has a larger one, that no element is smaller than itself, and that the order is total. The point is that familiar order properties become sentences whose truth is evaluated in the single structure <span class="math inline">\((\mathbb N,&lt;)\)</span>.</p>
+</section>
+<section id="presburger-arithmetic" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="presburger-arithmetic"><span class="header-section-number">7.2</span> Presburger arithmetic</h2>
+<p><strong>Presburger arithmetic</strong> is the first-order theory of natural numbers with addition, written in the deck as <span class="math inline">\(\mathrm{FO}[\mathbb N,+]\)</span>. It is decidable. The slides connect it with constraint solving, theorem provers such as Coq and Isabelle, and models of distributed systems such as Petri nets.</p>
+<p>Multiplication by a fixed natural number can be represented through repeated addition, but multiplication of two variables is not available as a primitive relation in this theory. This expressive restriction is central to decidability.</p>
+</section>
+<section id="peano-arithmetic" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="peano-arithmetic"><span class="header-section-number">7.3</span> Peano arithmetic</h2>
+<p>The deck contrasts Presburger arithmetic with the theory of natural numbers equipped with both addition and multiplication, written <span class="math inline">\(\mathrm{FO}[\mathbb N,+,\times]\)</span>. This theory is undecidable. The stated proof route is a reduction from <strong>Hilbert’s tenth problem</strong>, the problem of deciding whether a Diophantine equation has a solution in natural numbers.</p>
+</section>
+<section id="tarski-arithmetic" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="tarski-arithmetic"><span class="header-section-number">7.4</span> Tarski arithmetic</h2>
+<p>The first-order theory of real closed fields, represented in the deck by the real numbers with addition, multiplication, and order, is referred to as <strong>Tarski arithmetic</strong>. Unlike the corresponding natural-number theory, it is decidable through quantifier elimination. The applications listed in the slides include computer graphics, invariants and abstractions, kinematics and motion planning, combinatorics on words, grammar equivalence, coding theory, and cryptography.</p>
+<p>The contrast is worth keeping explicit:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Fixed structure</th>
+<th>Common name in the deck</th>
+<th>Status highlighted in the deck</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\((\mathbb N,&lt;)\)</span></td>
+<td>ordered natural numbers</td>
+<td>decidable theory</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\((\mathbb N,+)\)</span></td>
+<td>Presburger arithmetic</td>
+<td>decidable</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\((\mathbb N,+,\times)\)</span></td>
+<td>Peano arithmetic</td>
+<td>undecidable</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\((\mathbb R,+,\times,&lt;)\)</span></td>
+<td>Tarski arithmetic</td>
+<td>decidable</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="random-graphs-and-the-zero-one-law" class="level2" data-number="7.5">
+<h2 data-number="7.5" class="anchored" data-anchor-id="random-graphs-and-the-zero-one-law"><span class="header-section-number">7.5</span> Random graphs and the zero-one law</h2>
+<p>The deck also considers FO over finite random graphs. For a fixed FO sentence <span class="math inline">\(\varphi\)</span>, examine the probability that a random graph with <span class="math inline">\(n\)</span> vertices satisfies it. The <strong>zero-one law for FO</strong> states that, as <span class="math inline">\(n\)</span> tends to infinity, this probability tends to either <span class="math inline">\(0\)</span> or <span class="math inline">\(1\)</span>.</p>
+<p>This does not mean that every finite graph agrees on <span class="math inline">\(\varphi\)</span>. It says that asymptotically almost all large finite graphs satisfy the sentence or asymptotically almost none do. The limiting theory is associated with the countable Rado graph, which explains its appearance beside the arithmetic theories.</p>
+</section>
+</section>
+<section id="logical-reductions-and-interpretations" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Logical reductions and interpretations</h1>
+<p>A reduction from a problem <span class="math inline">\(P\)</span> to a problem <span class="math inline">\(Q\)</span> transforms each input <span class="math inline">\(x\)</span> into an input <span class="math inline">\(F(x)\)</span> such that</p>
+<p><span class="math display">\[
+x\in P\iff F(x)\in Q.
+\]</span></p>
+<p>When the problems are theories, the inputs are formulas. The deck asks whether such reductions can be derived systematically from a logical description of one structure inside another.</p>
+<p>A <strong>logical interpretation</strong> maps each relation symbol <span class="math inline">\(R\)</span> of a source structure <span class="math inline">\(S\)</span> to a formula <span class="math inline">\(\alpha_R\)</span> over a target structure <span class="math inline">\(T\)</span>. Tuples satisfying <span class="math inline">\(\alpha_R\)</span> in <span class="math inline">\(T\)</span> represent the tuples belonging to <span class="math inline">\(R^S\)</span>. The translation extends recursively from atomic formulas to complete FO formulas, producing <span class="math inline">\(F(\varphi)\)</span> with the intended preservation property</p>
+<div class="formula-scroll">
+<p><span class="math display">\[
+S\models\varphi
+\iff
+T\models F(\varphi).
+\]</span></p>
+</div>
+<p>The slides illustrate this idea by interpreting the infinite binary tree inside an arithmetic structure: formulas define left-child, right-child, and parent relationships in terms of arithmetic operations. Once the relations are definable, every source formula can be translated compositionally.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  A["FO sentence φ over S"] --&gt; T["Syntactic translation F"]
+  D["Definitions of S-relations inside T"] --&gt; T
+  T --&gt; B["FO sentence F(φ) over T"]
+  S["S ⊨ φ"] &lt;--&gt;|"equivalent"| U["T ⊨ F(φ)"]
+</pre>
+</div>
+<p></p><figcaption> A logical interpretation induces a reduction between first-order theories.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>This final step connects the deck’s earlier algorithmic notion of reduction with definability. A logical interpretation does not merely assert that a reduction exists; it explains how the vocabulary and relations of the source problem are represented in the target structure.</p>
+</section>
+<section id="sources" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Sources</h1>
+<ul>
+<li><em>2_Classical_logics.pdf</em>, primary slide deck.</li>
+<li><em>Introduction to Automata Theory, Languages, and Computations</em>, consulted only for background confirmation on finite-state representations and formal encodings.</li>
+<li><em>Handbook of Theoretical Computer Science, Volume B: Formal Models and Semantics</em>, consulted only for background confirmation on automata, formal structures, and logical decision problems.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/rikypara04\.github\.io\/uniud-ai-cybersecurity-notes\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

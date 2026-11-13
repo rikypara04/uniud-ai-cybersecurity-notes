@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>SAT Encodings and DPLL – MSc Artificial Intelligence &amp; Cybersecurity</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b626d73c4c936ccc3cb08be7d45d1df6.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-30c69b05bb77ed3e47d95fc04249e286.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">MSc Artificial Intelligence &amp; Cybersecurity</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../02-automated-reasoning/index.html">Automated Reasoning</a></li><li class="breadcrumb-item"><a href="../../02-automated-reasoning/notes/02-sat-encodings-and-dpll.html">SAT Encodings and DPLL</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../01-complexity-information-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Complexity and Information Theory</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/01-introduction-to-information-theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Information Theory</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/02-information-probability-and-random-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Information, Probability, and Random Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/03-properties-of-entropy-and-conditional-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Properties of Entropy and Conditional Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/04-mutual-information-relative-entropy-and-source-coding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mutual Information, Relative Entropy, and Source Coding</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefix Codes and the Kraft-McMillan Inequality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/06-shannon-codes-huffman-codes-and-asymptotic-optimality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Shannon Codes, Huffman Codes, and Asymptotic Optimality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/07-lz77-and-kolmogorov-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">LZ77 Compression and Kolmogorov Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Kolmogorov Complexity and Its Relation to Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/09-computational-complexity-models-and-cost-criteria.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Computational Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Operational Semantics and Time Complexity of Turing Machines</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/11-multitape-simulation-time-speedup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multitape Simulation, Time Complexity, and Linear Speed-Up</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/12-time-and-space-complexity-classes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Time and Space Complexity Classes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../02-automated-reasoning/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Automated Reasoning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Automated Reasoning and Constraint Programming</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/02-sat-encodings-and-dpll.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">SAT Encodings and DPLL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Propagation and Local Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/04-bounds-hyper-arc-and-path-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bounds, Hyper-Arc, and Path Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Search Annotations and Constraint Modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/06-minizinc-modeling-examples-and-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Modelling through Classical Constraint Problems</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scheduling Models, Hamming Codes, and Timetabling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/08-constraint-optimization-local-search-and-bioinformatics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Optimization, Large Neighbourhood Search, and Bioinformatics Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/09-global-constraints-matching-and-cumulative-scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Global Constraints, Matching-Based Filtering, and Cumulative Scheduling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/10-syntax-and-definite-clause-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Syntax of Logic Programming and Definite-Clause Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/11-semantics-of-logic-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Semantics of Logic Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Unification, SLD Resolution, and the Limits of Computation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../03-foundations-cybersecurity-ethics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Foundations of Cybersecurity and Ethics</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Formal Verification and Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classical Logics: Propositional Logic, QBF, and First-Order Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Games in Logic and First-Order Definability</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learning Automata and Sequential Transducers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/05-uppaal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling and Verification in UPPAAL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Symbolic Verification of Security Protocols with Tamarin</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#from-constraint-problems-to-sat" id="toc-from-constraint-problems-to-sat" class="nav-link active" data-scroll-target="#from-constraint-problems-to-sat"><span class="header-section-number">1</span> From constraint problems to SAT</a></li>
+  <li><a href="#the-boolean-satisfiability-problem" id="toc-the-boolean-satisfiability-problem" class="nav-link" data-scroll-target="#the-boolean-satisfiability-problem"><span class="header-section-number">2</span> The Boolean satisfiability problem</a>
+  <ul class="collapse">
+  <li><a href="#a-clause-as-an-arithmetic-constraint" id="toc-a-clause-as-an-arithmetic-constraint" class="nav-link" data-scroll-target="#a-clause-as-an-arithmetic-constraint"><span class="header-section-number">2.1</span> A clause as an arithmetic constraint</a></li>
+  <li><a href="#why-sat-is-useful" id="toc-why-sat-is-useful" class="nav-link" data-scroll-target="#why-sat-is-useful"><span class="header-section-number">2.2</span> Why SAT is useful</a></li>
+  </ul></li>
+  <li><a href="#exactly-one-constraints" id="toc-exactly-one-constraints" class="nav-link" data-scroll-target="#exactly-one-constraints"><span class="header-section-number">3</span> Exactly-one constraints</a>
+  <ul class="collapse">
+  <li><a href="#at-least-one" id="toc-at-least-one" class="nav-link" data-scroll-target="#at-least-one"><span class="header-section-number">3.1</span> At least one</a></li>
+  <li><a href="#at-most-one" id="toc-at-most-one" class="nav-link" data-scroll-target="#at-most-one"><span class="header-section-number">3.2</span> At most one</a></li>
+  </ul></li>
+  <li><a href="#sat-reduction-of-the-non-attacking-rooks-problem" id="toc-sat-reduction-of-the-non-attacking-rooks-problem" class="nav-link" data-scroll-target="#sat-reduction-of-the-non-attacking-rooks-problem"><span class="header-section-number">4</span> SAT reduction of the non-attacking rooks problem</a>
+  <ul class="collapse">
+  <li><a href="#exactly-one-rook-in-every-row" id="toc-exactly-one-rook-in-every-row" class="nav-link" data-scroll-target="#exactly-one-rook-in-every-row"><span class="header-section-number">4.1</span> Exactly one rook in every row</a></li>
+  <li><a href="#exactly-one-rook-in-every-column" id="toc-exactly-one-rook-in-every-column" class="nav-link" data-scroll-target="#exactly-one-rook-in-every-column"><span class="header-section-number">4.2</span> Exactly one rook in every column</a></li>
+  <li><a href="#combining-both-families" id="toc-combining-both-families" class="nav-link" data-scroll-target="#combining-both-families"><span class="header-section-number">4.3</span> Combining both families</a></li>
+  </ul></li>
+  <li><a href="#generating-the-cnf-instance" id="toc-generating-the-cnf-instance" class="nav-link" data-scroll-target="#generating-the-cnf-instance"><span class="header-section-number">5</span> Generating the CNF instance</a></li>
+  <li><a href="#dimacs-cnf-format" id="toc-dimacs-cnf-format" class="nav-link" data-scroll-target="#dimacs-cnf-format"><span class="header-section-number">6</span> DIMACS CNF format</a>
+  <ul class="collapse">
+  <li><a href="#mapping-structured-variables-to-dimacs-identifiers" id="toc-mapping-structured-variables-to-dimacs-identifiers" class="nav-link" data-scroll-target="#mapping-structured-variables-to-dimacs-identifiers"><span class="header-section-number">6.1</span> Mapping structured variables to DIMACS identifiers</a></li>
+  </ul></li>
+  <li><a href="#assignment-as-a-sat-encoding" id="toc-assignment-as-a-sat-encoding" class="nav-link" data-scroll-target="#assignment-as-a-sat-encoding"><span class="header-section-number">7</span> Assignment as a SAT encoding</a></li>
+  <li><a href="#sat-reduction-of-the-n-queens-problem" id="toc-sat-reduction-of-the-n-queens-problem" class="nav-link" data-scroll-target="#sat-reduction-of-the-n-queens-problem"><span class="header-section-number">8</span> SAT reduction of the <span class="math inline">\(n\)</span>-Queens problem</a>
+  <ul class="collapse">
+  <li><a href="#one-row-value-for-every-column" id="toc-one-row-value-for-every-column" class="nav-link" data-scroll-target="#one-row-value-for-every-column"><span class="header-section-number">8.1</span> One row value for every column</a></li>
+  <li><a href="#horizontal-attacks" id="toc-horizontal-attacks" class="nav-link" data-scroll-target="#horizontal-attacks"><span class="header-section-number">8.2</span> Horizontal attacks</a></li>
+  <li><a href="#diagonal-attacks" id="toc-diagonal-attacks" class="nav-link" data-scroll-target="#diagonal-attacks"><span class="header-section-number">8.3</span> Diagonal attacks</a></li>
+  </ul></li>
+  <li><a href="#sudoku-as-sat" id="toc-sudoku-as-sat" class="nav-link" data-scroll-target="#sudoku-as-sat"><span class="header-section-number">9</span> Sudoku as SAT</a>
+  <ul class="collapse">
+  <li><a href="#fixed-part-of-the-encoding" id="toc-fixed-part-of-the-encoding" class="nav-link" data-scroll-target="#fixed-part-of-the-encoding"><span class="header-section-number">9.1</span> Fixed part of the encoding</a></li>
+  <li><a href="#instance-specific-clues" id="toc-instance-specific-clues" class="nav-link" data-scroll-target="#instance-specific-clues"><span class="header-section-number">9.2</span> Instance-specific clues</a></li>
+  </ul></li>
+  <li><a href="#when-sat-encodings-are-appropriate" id="toc-when-sat-encodings-are-appropriate" class="nav-link" data-scroll-target="#when-sat-encodings-are-appropriate"><span class="header-section-number">10</span> When SAT encodings are appropriate</a></li>
+  <li><a href="#dpll-and-unit-propagation" id="toc-dpll-and-unit-propagation" class="nav-link" data-scroll-target="#dpll-and-unit-propagation"><span class="header-section-number">11</span> DPLL and unit propagation</a>
+  <ul class="collapse">
+  <li><a href="#unit-propagation" id="toc-unit-propagation" class="nav-link" data-scroll-target="#unit-propagation"><span class="header-section-number">11.1</span> Unit propagation</a></li>
+  </ul></li>
+  <li><a href="#the-dpll-procedure" id="toc-the-dpll-procedure" class="nav-link" data-scroll-target="#the-dpll-procedure"><span class="header-section-number">12</span> The DPLL procedure</a></li>
+  <li><a href="#modern-sat-solvers" id="toc-modern-sat-solvers" class="nav-link" data-scroll-target="#modern-sat-solvers"><span class="header-section-number">13</span> Modern SAT solvers</a></li>
+  <li><a href="#exercises-from-the-lecture" id="toc-exercises-from-the-lecture" class="nav-link" data-scroll-target="#exercises-from-the-lecture"><span class="header-section-number">14</span> Exercises from the lecture</a></li>
+  <li><a href="#sources" id="toc-sources" class="nav-link" data-scroll-target="#sources"><span class="header-section-number">15</span> Sources</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../02-automated-reasoning/index.html">Automated Reasoning</a></li><li class="breadcrumb-item"><a href="../../02-automated-reasoning/notes/02-sat-encodings-and-dpll.html">SAT Encodings and DPLL</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">SAT Encodings and DPLL</h1>
+<p class="subtitle lead">Lecture 2 - 2 October 2026</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="from-constraint-problems-to-sat" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> From constraint problems to SAT</h1>
+<p>The lecture begins by recalling the two problem classes introduced previously.</p>
+<p>A <strong>Constraint Satisfaction Problem</strong> consists of:</p>
+<ul>
+<li>variables <span class="math inline">\(V=\{V_1,\ldots,V_n\}\)</span>;</li>
+<li>domains <span class="math inline">\(D=\{D_1,\ldots,D_n\}\)</span>;</li>
+<li>constraints <span class="math inline">\(C\)</span> over the variables.</li>
+</ul>
+<p>Its solutions are assignments that choose one value from each variable’s domain and satisfy every constraint.</p>
+<p>A <strong>Constraint Optimization Problem</strong> adds an objective function</p>
+<p><span class="math display">\[
+f:D_1\times\cdots\times D_n\to A
+\]</span></p>
+<p>and asks for an admissible assignment that minimises, or equivalently maximises after a suitable reformulation, the objective value.</p>
+<p>The previous lecture considered two naive solving methods: complete generate-and-test and backtracking with checks on partial assignments. This lecture studies a different route:</p>
+<blockquote class="blockquote">
+<p>translate a finite-domain CSP into a Boolean satisfiability problem and delegate the resulting formula to a SAT solver.</p>
+</blockquote>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    P["Finite-domain CSP"] --&gt; E["SAT encoding"]
+    E --&gt; C["CNF file"]
+    C --&gt; S["SAT solver"]
+    S --&gt; B["Boolean model or UNSAT"]
+    B --&gt; D["Decode the CSP solution"]
+</pre>
+</div>
+<p></p><figcaption> The solving pipeline introduced in the lecture.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>The quality of this approach depends on both the correctness of the reduction and the effectiveness of the SAT solver.</p>
+</section>
+<section id="the-boolean-satisfiability-problem" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> The Boolean satisfiability problem</h1>
+<p>Let</p>
+<p><span class="math display">\[
+X_1,\ldots,X_n
+\]</span></p>
+<p>be Boolean variables with domain</p>
+<p><span class="math display">\[
+D(X_i)=\{0,1\}.
+\]</span></p>
+<p>A <strong>literal</strong> is either a variable <span class="math inline">\(X_i\)</span> or its negation <span class="math inline">\(\neg X_i\)</span>. A <strong>clause</strong> is a disjunction of literals, and a formula is in <strong>conjunctive normal form</strong> (CNF) when it is a conjunction of clauses:</p>
+<p><span class="math display">\[
+\Phi
+=
+C_1\land\cdots\land C_k,
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[
+C_i
+=
+\ell_{i1}\lor\cdots\lor\ell_{in_i}.
+\]</span></p>
+<p>The SAT problem asks whether there exists an assignment</p>
+<p><span class="math display">\[
+\theta:\{X_1,\ldots,X_n\}\to\{0,1\}
+\]</span></p>
+<p>such that</p>
+<p><span class="math display">\[
+\Phi\theta=1.
+\]</span></p>
+<p>SAT is itself a CSP: the variables are Boolean and each clause is a constraint.</p>
+<section id="a-clause-as-an-arithmetic-constraint" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="a-clause-as-an-arithmetic-constraint"><span class="header-section-number">2.1</span> A clause as an arithmetic constraint</h2>
+<p>Consider</p>
+<p><span class="math display">\[
+X_1\lor\neg X_2.
+\]</span></p>
+<p>Over the Boolean values <span class="math inline">\(0\)</span> and <span class="math inline">\(1\)</span>, this clause is equivalent to</p>
+<p><span class="math display">\[
+X_1+(1-X_2)\geq1.
+\]</span></p>
+<p>Its satisfying pairs are</p>
+<p><span class="math display">\[
+(1,0),\qquad(1,1),\qquad(0,0),
+\]</span></p>
+<p>while <span class="math inline">\((0,1)\)</span> falsifies both literals.</p>
+<p>The lecture recalls the Boolean operations:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;"><span class="math inline">\(a\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(b\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(a\lor b\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(a\land b\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+<p>Negation exchanges the two Boolean values:</p>
+<p><span class="math display">\[
+\neg0=1,
+\qquad
+\neg1=0.
+\]</span></p>
+</section>
+<section id="why-sat-is-useful" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="why-sat-is-useful"><span class="header-section-number">2.2</span> Why SAT is useful</h2>
+<p>SAT was the first problem proved NP-complete. Consequently, every problem in NP can be transformed into SAT by a polynomial-time reduction. A finite-domain CSP is typically in NP, so it can in principle be encoded as a SAT instance and solved using software such as MiniSAT, PicoSAT, RelSAT, or another competition-grade SAT solver.</p>
+<p>The theoretical existence of a reduction does not make the encoding automatic. The modeller must decide:</p>
+<ul>
+<li>which Boolean variables represent the original choices;</li>
+<li>which clauses enforce the original constraints;</li>
+<li>how original structured variables are mapped to the integer identifiers required by a solver;</li>
+<li>how a Boolean model is translated back into a solution of the initial problem.</li>
+</ul>
+</section>
+</section>
+<section id="exactly-one-constraints" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Exactly-one constraints</h1>
+<p>Many encodings require <strong>exactly one</strong> variable in a collection</p>
+<p><span class="math display">\[
+y_1,\ldots,y_m
+\]</span></p>
+<p>to be true. The lecture decomposes this into two parts.</p>
+<section id="at-least-one" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="at-least-one"><span class="header-section-number">3.1</span> At least one</h2>
+<p>At least one variable must hold:</p>
+<p><span class="math display">\[
+y_1\lor\cdots\lor y_m.
+\]</span></p>
+</section>
+<section id="at-most-one" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="at-most-one"><span class="header-section-number">3.2</span> At most one</h2>
+<p>To enforce that at most one of the Boolean variables</p>
+<p><span class="math display">\[
+y_1,\ldots,y_m
+\]</span></p>
+<p>is true, every pair of distinct variables must be prevented from being true simultaneously.</p>
+<p>For each pair of indices (i&lt;j), add the binary clause</p>
+<p><span class="math display">\[
+\neg y_i\lor\neg y_j.
+\]</span></p>
+<p>This clause is false only when</p>
+<p><span class="math display">\[
+y_i=y_j=1.
+\]</span></p>
+<p>It therefore excludes the assignment in which both variables in the pair are true.</p>
+<p>The complete at-most-one constraint is</p>
+<p><span class="math display">\[
+\bigwedge_{1\leq i&lt;j\leq m}
+(\neg y_i\lor\neg y_j).
+\]</span></p>
+<p>The condition (i&lt;j) ensures that every unordered pair is considered exactly once. For example, the pair ((y_1,y_2)) is included, while the equivalent reversed pair ((y_2,y_1)) is not generated again.</p>
+<p>Together with the at-least-one clause</p>
+<p><span class="math display">\[
+y_1\lor\cdots\lor y_m,
+\]</span></p>
+<p>these clauses enforce that exactly one variable is true.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Number of clauses in the pairwise encoding">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Number of clauses in the pairwise encoding
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The at-least-one condition requires one clause.</p>
+<p>For the at-most-one condition, one binary clause is generated for every pair of distinct variables. The number of unordered pairs that can be selected from (m) variables is</p>
+<p><span class="math display">\[
+\binom{m}{2}
+=
+\frac{m(m-1)}{2}.
+\]</span></p>
+<p>The factor (m(m-1)) first counts the ordered choices of two different variables: there are (m) choices for the first variable and (m-1) choices for the second. Division by (2) removes the duplicated order, because the pairs ((y_i,y_j)) and ((y_j,y_i)) produce the same clause.</p>
+<p>For example, if (m=4), the six distinct pairs are</p>
+<p><span class="math display">\[
+(y_1,y_2),\quad
+(y_1,y_3),\quad
+(y_1,y_4),\quad
+(y_2,y_3),\quad
+(y_2,y_4),\quad
+(y_3,y_4).
+\]</span></p>
+<p>The pairwise at-most-one encoding therefore contains</p>
+<p><span class="math display">\[
+\binom{4}{2}
+=
+\frac{4\cdot3}{2}
+=
+6
+\]</span></p>
+<p>binary clauses:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;(\neg y_1\lor\neg y_2)
+\land(\neg y_1\lor\neg y_3)
+\land(\neg y_1\lor\neg y_4)\\
+&amp;{}\land(\neg y_2\lor\neg y_3)
+\land(\neg y_2\lor\neg y_4)
+\land(\neg y_3\lor\neg y_4).
+\end{aligned}
+\]</span></p>
+<p>Thus, the complete exactly-one encoding uses one at-least-one clause and</p>
+<p><span class="math display">\[
+\binom{m}{2}
+\]</span></p>
+<p>binary at-most-one clauses.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="sat-reduction-of-the-non-attacking-rooks-problem" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> SAT reduction of the non-attacking rooks problem</h1>
+<p>Consider an <span class="math inline">\(n\times n\)</span> chessboard. The objective is to place <span class="math inline">\(n\)</span> rooks so that no pair attacks another. The lecture uses <span class="math inline">\(n=3\)</span> as the concrete example.</p>
+<p>Introduce one Boolean variable per cell:</p>
+<p><span class="math display">\[
+V_{ij}
+=
+\begin{cases}
+1, &amp; \text{if a rook is placed in row }i\text{ and column }j,\\
+0, &amp; \text{otherwise.}
+\end{cases}
+\]</span></p>
+<p>There are <span class="math inline">\(n^2\)</span> Boolean variables.</p>
+<section id="exactly-one-rook-in-every-row" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="exactly-one-rook-in-every-row"><span class="header-section-number">4.1</span> Exactly one rook in every row</h2>
+<p>For row <span class="math inline">\(i\)</span>, require at least one rook:</p>
+<p><span class="math display">\[
+V_{i1}\lor\cdots\lor V_{in},
+\]</span></p>
+<p>and require that no two cells in the row both contain a rook:</p>
+<p><span class="math display">\[
+\neg V_{ij}\lor\neg V_{ik}
+\qquad
+(1\leq j&lt;k\leq n).
+\]</span></p>
+<p>For the first row of the <span class="math inline">\(3\times3\)</span> board, the clauses are</p>
+<p><span class="math display">\[
+V_{11}\lor V_{12}\lor V_{13},
+\]</span></p>
+<p><span class="math display">\[
+\neg V_{11}\lor\neg V_{12},
+\qquad
+\neg V_{11}\lor\neg V_{13},
+\qquad
+\neg V_{12}\lor\neg V_{13}.
+\]</span></p>
+<p>The same pattern is generated for rows <span class="math inline">\(2\)</span> and <span class="math inline">\(3\)</span>.</p>
+<p>Row constraints alone do not solve the original problem. The assignment with all three rooks in the first column satisfies “exactly one rook in each row”, but the rooks still attack vertically.</p>
+</section>
+<section id="exactly-one-rook-in-every-column" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="exactly-one-rook-in-every-column"><span class="header-section-number">4.2</span> Exactly one rook in every column</h2>
+<p>For column <span class="math inline">\(j\)</span>, require</p>
+<p><span class="math display">\[
+V_{1j}\lor\cdots\lor V_{nj}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\neg V_{ij}\lor\neg V_{kj}
+\qquad
+(1\leq i&lt;k\leq n).
+\]</span></p>
+<p>Column constraints alone are also insufficient: three rooks placed across the first row satisfy exactly one rook per column but attack horizontally.</p>
+</section>
+<section id="combining-both-families" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="combining-both-families"><span class="header-section-number">4.3</span> Combining both families</h2>
+<p>When the row and column clauses are conjoined, SAT models correspond exactly to non-attacking rook placements. For example,</p>
+<p><span class="math display">\[
+V_{11}=V_{23}=V_{32}=1
+\]</span></p>
+<p>with every other <span class="math inline">\(V_{ij}=0\)</span> describes one rook in each row and one rook in each column.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-rooks-sat" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rooks-sat-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="02-sat-encodings-and-dpll_files/figure-html/fig-rooks-sat-1.png" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rooks-sat-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Three stages of the <span class="math inline">\(3    imes3\)</span> rook encoding: row constraints alone, column constraints alone, and a complete non-attacking placement.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="generating-the-cnf-instance" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Generating the CNF instance</h1>
+<p>Once the encoding is understood mathematically, a program must generate all clauses.</p>
+<p>For each row or column vector</p>
+<p><span class="math display">\[
+v=[v_1,\ldots,v_n],
+\]</span></p>
+<p>the generator emits:</p>
+<ol type="1">
+<li>one at-least-one clause containing all <span class="math inline">\(v_i\)</span>;</li>
+<li>one binary clause <span class="math inline">\((-v_i,-v_j)\)</span> for every <span class="math inline">\(i&lt;j\)</span>.</li>
+</ol>
+<p>The pseudo-code from the deck is conceptually:</p>
+<pre class="text"><code>exactly_one(v):
+    print all v[i], then 0
+
+    for i = 1 to n - 1:
+        for j = i + 1 to n:
+            print -v[i], -v[j], 0</code></pre>
+<p>The terminating zero belongs to the DIMACS representation, not to the logical clause itself.</p>
+</section>
+<section id="dimacs-cnf-format" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> DIMACS CNF format</h1>
+<p>SAT solvers commonly accept an ASCII DIMACS file with suffix <code>.cnf</code>.</p>
+<p>The relevant conventions are:</p>
+<ul>
+<li>Boolean variables are represented by positive integers;</li>
+<li>integer <span class="math inline">\(0\)</span> is reserved as the clause terminator;</li>
+<li>a positive integer <span class="math inline">\(p\)</span> denotes <span class="math inline">\(X_p\)</span>;</li>
+<li>a negative integer <span class="math inline">\(-p\)</span> denotes <span class="math inline">\(\neg X_p\)</span>;</li>
+<li>comment lines begin with <code>c</code>;</li>
+<li>the problem line begins with <code>p cnf</code> and gives the number of variables and clauses.</li>
+</ul>
+<p>For example:</p>
+<pre class="text"><code>c SAT encoding of a problem
+p cnf 256 1200
+54 0
+-12 85 0
+33 161 -200 0</code></pre>
+<p>The header declares 256 variables and 1200 clauses. The next lines encode</p>
+<p><span class="math display">\[
+(X_{54}),
+\]</span></p>
+<p><span class="math display">\[
+(\neg X_{12}\lor X_{85}),
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+(X_{33}\lor X_{161}\lor\neg X_{200}).
+\]</span></p>
+<div class="callout callout-style-default callout-warning callout-titled" title="The header must match the generated file">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>The header must match the generated file
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The numbers in the <code>p cnf</code> line must equal the actual number of variables and clauses. A generator should therefore compute these values or accumulate the clauses before writing the final file.</p>
+</div>
+</div>
+<section id="mapping-structured-variables-to-dimacs-identifiers" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="mapping-structured-variables-to-dimacs-identifiers"><span class="header-section-number">6.1</span> Mapping structured variables to DIMACS identifiers</h2>
+<p>For the <span class="math inline">\(3\times3\)</span> rook instance, the nine variables <span class="math inline">\(V_{ij}\)</span> must be mapped to the integers <span class="math inline">\(1,\ldots,9\)</span>. A row-major mapping is</p>
+<p><span class="math display">\[
+\operatorname{id}(i,j)=3(i-1)+j.
+\]</span></p>
+<p>Thus:</p>
+<p><span class="math display">\[
+\begin{array}{c|ccc}
+&amp; j=1 &amp; j=2 &amp; j=3\\
+\hline
+i=1 &amp; 1 &amp; 2 &amp; 3\\
+i=2 &amp; 4 &amp; 5 &amp; 6\\
+i=3 &amp; 7 &amp; 8 &amp; 9
+\end{array}
+\]</span></p>
+<p>The mapping is reversible using integer division and remainder. More generally, for an <span class="math inline">\(n\times n\)</span> board,</p>
+<p><span class="math display">\[
+\operatorname{id}(i,j)=n(i-1)+j.
+\]</span></p>
+</section>
+</section>
+<section id="assignment-as-a-sat-encoding" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Assignment as a SAT encoding</h1>
+<p>The Telethon example asks for 24 people to be assigned to 24 one-hour slots. Every person provides a set of available slots, and each person must receive exactly one slot.</p>
+<p>For a smaller example with four people and four times, define a Boolean variable</p>
+<p><span class="math display">\[
+A_{pt}
+\]</span></p>
+<p>that is true exactly when person <span class="math inline">\(p\)</span> is assigned slot <span class="math inline">\(t\)</span>.</p>
+<p>The encoding contains:</p>
+<ul>
+<li>exactly one available slot for every person;</li>
+<li>exactly one person for every slot;</li>
+<li>a negative unit clause <span class="math inline">\(\neg A_{pt}\)</span> whenever person <span class="math inline">\(p\)</span> is unavailable at time <span class="math inline">\(t\)</span>.</li>
+</ul>
+<p>The availability and one possible assignment shown in the deck are:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Person</th>
+<th style="text-align: right;">12</th>
+<th style="text-align: right;">13</th>
+<th style="text-align: right;">14</th>
+<th style="text-align: right;">15</th>
+<th style="text-align: right;">Assigned slot</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Alice</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">13</td>
+</tr>
+<tr class="even">
+<td>Bob</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr class="odd">
+<td>Charlie</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="even">
+<td>Dana</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">14</td>
+</tr>
+</tbody>
+</table>
+<p>This example is a bipartite matching problem expressed through exactly-one clauses and availability restrictions.</p>
+</section>
+<section id="sat-reduction-of-the-n-queens-problem" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> SAT reduction of the <span class="math inline">\(n\)</span>-Queens problem</h1>
+<p>The column-variable model of <span class="math inline">\(n\)</span>-Queens uses an integer variable <span class="math inline">\(X_i\)</span> for the row of the queen in column <span class="math inline">\(i\)</span>. A SAT solver, however, requires Boolean variables. Introduce</p>
+<p><span class="math display">\[
+Z_{ir}
+\]</span></p>
+<p>with the meaning</p>
+<p><span class="math display">\[
+Z_{ir}=1
+\quad\Longleftrightarrow\quad
+X_i=r.
+\]</span></p>
+<section id="one-row-value-for-every-column" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="one-row-value-for-every-column"><span class="header-section-number">8.1</span> One row value for every column</h2>
+<p>For each column <span class="math inline">\(i\)</span>, require exactly one of</p>
+<p><span class="math display">\[
+Z_{i1},\ldots,Z_{in}
+\]</span></p>
+<p>to be true.</p>
+<p>The at-least-one clause is</p>
+<p><span class="math display">\[
+Z_{i1}\lor\cdots\lor Z_{in},
+\]</span></p>
+<p>and the pairwise at-most-one clauses are</p>
+<p><span class="math display">\[
+\neg Z_{ir}\lor\neg Z_{is}
+\qquad(r&lt;s).
+\]</span></p>
+</section>
+<section id="horizontal-attacks" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="horizontal-attacks"><span class="header-section-number">8.2</span> Horizontal attacks</h2>
+<p>Queens in distinct columns <span class="math inline">\(i\neq j\)</span> must not share a row. For every row <span class="math inline">\(r\)</span>,</p>
+<p><span class="math display">\[
+\neg Z_{ir}\lor\neg Z_{jr}.
+\]</span></p>
+</section>
+<section id="diagonal-attacks" class="level2" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="diagonal-attacks"><span class="header-section-number">8.3</span> Diagonal attacks</h2>
+<p>Two positions <span class="math inline">\((i,r)\)</span> and <span class="math inline">\((j,s)\)</span> share a diagonal when</p>
+<p><span class="math display">\[
+|r-s|=|i-j|.
+\]</span></p>
+<p>For every such pair, add</p>
+<p><span class="math display">\[
+\neg Z_{ir}\lor\neg Z_{js}.
+\]</span></p>
+<p>For example, when <span class="math inline">\(i=2\)</span> and <span class="math inline">\(j=4\)</span>, the column distance is <span class="math inline">\(2\)</span>. The forbidden pairs include</p>
+<p><span class="math display">\[
+\neg Z_{21}\lor\neg Z_{43},
+\qquad
+\neg Z_{22}\lor\neg Z_{44},
+\]</span></p>
+<p><span class="math display">\[
+\neg Z_{23}\lor\neg Z_{41},
+\qquad
+\neg Z_{24}\lor\neg Z_{42}.
+\]</span></p>
+<p>The exercise is to write a program that, given <span class="math inline">\(n\)</span>, emits the DIMACS encoding, runs a SAT solver, and optionally decodes a model into a readable board. The deck mentions MiniSAT and using <code>clingo --mode=clasp</code> as possible SAT-solving routes.</p>
+</section>
+</section>
+<section id="sudoku-as-sat" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Sudoku as SAT</h1>
+<p>A <span class="math inline">\(9\times9\)</span> Sudoku requires a value from <span class="math inline">\(1\)</span> to <span class="math inline">\(9\)</span> in every cell. Introduce Boolean variables</p>
+<p><span class="math display">\[
+X_{rcv}
+\]</span></p>
+<p>with the meaning</p>
+<p><span class="math display">\[
+X_{rcv}=1
+\quad\Longleftrightarrow\quad
+\text{cell }(r,c)\text{ contains value }v.
+\]</span></p>
+<p>There are</p>
+<p><span class="math display">\[
+9^3=729
+\]</span></p>
+<p>Boolean variables. Before constraints are considered, the Boolean search space therefore has size</p>
+<p><span class="math display">\[
+2^{729}\approx2.8\times10^{219}.
+\]</span></p>
+<section id="fixed-part-of-the-encoding" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="fixed-part-of-the-encoding"><span class="header-section-number">9.1</span> Fixed part of the encoding</h2>
+<p>The structural Sudoku rules require:</p>
+<ol type="1">
+<li>exactly one value in each cell;</li>
+<li>each value exactly once in every row;</li>
+<li>each value exactly once in every column;</li>
+<li>each value exactly once in every <span class="math inline">\(3\times3\)</span> subgrid.</li>
+</ol>
+<p>For one cell <span class="math inline">\((r,c)\)</span>, the at-least-one clause is</p>
+<p><span class="math display">\[
+X_{rc1}\lor X_{rc2}\lor\cdots\lor X_{rc9},
+\]</span></p>
+<p>and the pairwise clauses are</p>
+<p><span class="math display">\[
+\neg X_{rci}\lor\neg X_{rcj}
+\qquad(1\leq i&lt;j\leq9).
+\]</span></p>
+<p>The row, column, and subgrid conditions use analogous exactly-one encodings.</p>
+</section>
+<section id="instance-specific-clues" class="level2" data-number="9.2">
+<h2 data-number="9.2" class="anchored" data-anchor-id="instance-specific-clues"><span class="header-section-number">9.2</span> Instance-specific clues</h2>
+<p>The given Sudoku entries are represented by positive unit clauses. If the puzzle states that cell <span class="math inline">\((r,c)\)</span> contains <span class="math inline">\(v\)</span>, add</p>
+<p><span class="math display">\[
+(X_{rcv}).
+\]</span></p>
+<p>The fixed structural encoding can be reused for every Sudoku instance; only the unit clauses for the clues change.</p>
+</section>
+</section>
+<section id="when-sat-encodings-are-appropriate" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> When SAT encodings are appropriate</h1>
+<p>The lecture identifies SAT translation as particularly suitable when:</p>
+<ul>
+<li>the problem uses small finite values that can be represented by Boolean choices;</li>
+<li>the model is stable enough that maintaining a dedicated CNF generator is worthwhile;</li>
+<li>high-performance SAT technology compensates for the low-level encoding effort.</li>
+</ul>
+<p>The principal modelling disadvantage is maintainability. A change in the conceptual model may require changing the C, Java, Python, or other program that generates the CNF, and such generators are usually less readable than a declarative high-level model.</p>
+</section>
+<section id="dpll-and-unit-propagation" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> DPLL and unit propagation</h1>
+<p>The final part of the lecture introduces the Davis-Putnam-Logemann-Loveland procedure, DPLL, as an early and fundamental SAT algorithm. The historical development begins with the Davis-Putnam procedure and continues with the 1962 machine program by Davis, Logemann, and Loveland.</p>
+<p>The central reasoning mechanism is <strong>unit propagation</strong>.</p>
+<section id="unit-propagation" class="level2" data-number="11.1">
+<h2 data-number="11.1" class="anchored" data-anchor-id="unit-propagation"><span class="header-section-number">11.1</span> Unit propagation</h2>
+<p>Consider the clause</p>
+<p><span class="math display">\[
+X_1\lor\neg X_2\lor X_3.
+\]</span></p>
+<p>Under the partial assignment</p>
+<p><span class="math display">\[
+X_1=0,
+\qquad
+X_2=1,
+\]</span></p>
+<p>the first two literals are false. The only way to satisfy the clause is therefore</p>
+<p><span class="math display">\[
+X_3=1.
+\]</span></p>
+<p>Now add</p>
+<p><span class="math display">\[
+\neg X_3\lor\neg X_4
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+X_4\lor X_5.
+\]</span></p>
+<p>Since <span class="math inline">\(X_3=1\)</span>, the first new clause forces</p>
+<p><span class="math display">\[
+X_4=0.
+\]</span></p>
+<p>Then the second forces</p>
+<p><span class="math display">\[
+X_5=1.
+\]</span></p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    A["X1 = 0 and X2 = 1"] --&gt; B["X3 = 1"]
+    B --&gt; C["X4 = 0"]
+    C --&gt; D["X5 = 1"]
+</pre>
+</div>
+<p></p><figcaption> Deterministic implication chain produced by unit propagation.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>Unit propagation repeatedly inspects clauses that are not already satisfied. If every literal but one is false under the current partial assignment, the remaining literal is forced. Propagation continues until:</p>
+<ul>
+<li>no additional unit consequence exists;</li>
+<li>every clause is satisfied; or</li>
+<li>a clause becomes false, producing a conflict.</li>
+</ul>
+<p>This is a weak but effective form of automated reasoning because it reduces the search space before a new choice is made.</p>
+</section>
+</section>
+<section id="the-dpll-procedure" class="level1" data-number="12">
+<h1 data-number="12"><span class="header-section-number">12</span> The DPLL procedure</h1>
+<p>Given a CNF formula <span class="math inline">\(\Phi\)</span> and a partial assignment <span class="math inline">\(\theta\)</span>, DPLL alternates deterministic propagation with binary branching.</p>
+<pre class="text"><code>DPLL(Phi, theta):
+    theta' = unit_propagation(Phi, theta)
+
+    if Phi under theta' is satisfied:
+        return theta'
+
+    if Phi under theta' contains a conflict:
+        return false
+
+    X = select_unassigned_variable(Phi, theta')
+
+    result = DPLL(Phi, theta' extended with X = true)
+    if result is not false:
+        return result
+
+    return DPLL(Phi, theta' extended with X = false)</code></pre>
+<p>The steps have distinct roles:</p>
+<ol type="1">
+<li><strong>propagate</strong> every deterministic consequence;</li>
+<li><strong>accept</strong> the branch if all clauses are satisfied;</li>
+<li><strong>reject and backtrack</strong> if a conflict appears;</li>
+<li><strong>select</strong> an unassigned variable if the status is still undecided;</li>
+<li><strong>branch</strong> on true, then on false if necessary.</li>
+</ol>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+    S["Start with Phi and theta"] --&gt; U["Unit propagation"]
+    U --&gt; Q{"Status?"}
+    Q --&gt;|"all clauses satisfied"| SAT["Return satisfying assignment"]
+    Q --&gt;|"conflict"| UNSAT["Return false"]
+    Q --&gt;|"undecided"| X["Select unassigned X"]
+    X --&gt; T["Recurse with X = true"]
+    T --&gt; R{"Succeeded?"}
+    R --&gt;|"yes"| SAT
+    R --&gt;|"no"| F["Recurse with X = false"]
+    F --&gt; Q2{"Succeeded?"}
+    Q2 --&gt;|"yes"| SAT
+    Q2 --&gt;|"no"| UNSAT
+</pre>
+</div>
+<p></p><figcaption> Control flow of the DPLL procedure.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>DPLL is described in the lecture as the first constraint solver because it combines inference, search, and backtracking over a declarative set of clauses.</p>
+</section>
+<section id="modern-sat-solvers" class="level1" data-number="13">
+<h1 data-number="13"><span class="header-section-number">13</span> Modern SAT solvers</h1>
+<p>SAT competitions have been organised since 2002 and have driven major practical improvements. Modern SAT solvers go substantially beyond basic DPLL. The lecture highlights:</p>
+<ul>
+<li><strong>CDCL</strong>, Conflict-Driven Clause Learning;</li>
+<li>restart strategies;</li>
+<li>search heuristics and meta-heuristics;</li>
+<li>watched literals;</li>
+<li>parallelism.</li>
+</ul>
+<p>CDCL learns clauses from conflicts so that the solver avoids repeating the same failing combinations. The lecture introduces these techniques only as the modern continuation of DPLL; their detailed operation belongs beyond the scope of this deck.</p>
+</section>
+<section id="exercises-from-the-lecture" class="level1" data-number="14">
+<h1 data-number="14"><span class="header-section-number">14</span> Exercises from the lecture</h1>
+<p>The lecture proposes the following practical tasks:</p>
+<ol type="1">
+<li>model the Telethon assignment problem in SAT and invent additional instances;</li>
+<li>write a program that produces the DIMACS encoding of <span class="math inline">\(n\)</span>-Queens;</li>
+<li>run a SAT solver on the generated instance;</li>
+<li>optionally write a post-processor that reconstructs and prints the board.</li>
+</ol>
+</section>
+<section id="sources" class="level1" data-number="15">
+<h1 data-number="15"><span class="header-section-number">15</span> Sources</h1>
+<ul>
+<li>Original and annotated slide deck: <em>02 - 02-10-2026.pdf</em>.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/rikypara04\.github\.io\/uniud-ai-cybersecurity-notes\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

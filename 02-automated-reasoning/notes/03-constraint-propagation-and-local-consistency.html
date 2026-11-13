@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Constraint Propagation and Local Consistency – MSc Artificial Intelligence &amp; Cybersecurity</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b626d73c4c936ccc3cb08be7d45d1df6.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-30c69b05bb77ed3e47d95fc04249e286.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">MSc Artificial Intelligence &amp; Cybersecurity</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../02-automated-reasoning/index.html">Automated Reasoning</a></li><li class="breadcrumb-item"><a href="../../02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.html">Constraint Propagation and Local Consistency</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../01-complexity-information-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Complexity and Information Theory</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/01-introduction-to-information-theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Information Theory</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/02-information-probability-and-random-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Information, Probability, and Random Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/03-properties-of-entropy-and-conditional-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Properties of Entropy and Conditional Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/04-mutual-information-relative-entropy-and-source-coding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mutual Information, Relative Entropy, and Source Coding</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefix Codes and the Kraft-McMillan Inequality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/06-shannon-codes-huffman-codes-and-asymptotic-optimality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Shannon Codes, Huffman Codes, and Asymptotic Optimality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/07-lz77-and-kolmogorov-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">LZ77 Compression and Kolmogorov Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Kolmogorov Complexity and Its Relation to Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/09-computational-complexity-models-and-cost-criteria.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Computational Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Operational Semantics and Time Complexity of Turing Machines</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/11-multitape-simulation-time-speedup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multitape Simulation, Time Complexity, and Linear Speed-Up</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/12-time-and-space-complexity-classes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Time and Space Complexity Classes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../02-automated-reasoning/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Automated Reasoning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Automated Reasoning and Constraint Programming</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/02-sat-encodings-and-dpll.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SAT Encodings and DPLL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Constraint Propagation and Local Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/04-bounds-hyper-arc-and-path-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bounds, Hyper-Arc, and Path Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Search Annotations and Constraint Modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/06-minizinc-modeling-examples-and-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Modelling through Classical Constraint Problems</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scheduling Models, Hamming Codes, and Timetabling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/08-constraint-optimization-local-search-and-bioinformatics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Optimization, Large Neighbourhood Search, and Bioinformatics Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/09-global-constraints-matching-and-cumulative-scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Global Constraints, Matching-Based Filtering, and Cumulative Scheduling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/10-syntax-and-definite-clause-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Syntax of Logic Programming and Definite-Clause Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/11-semantics-of-logic-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Semantics of Logic Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Unification, SLD Resolution, and the Limits of Computation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../03-foundations-cybersecurity-ethics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Foundations of Cybersecurity and Ethics</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Formal Verification and Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classical Logics: Propositional Logic, QBF, and First-Order Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Games in Logic and First-Order Definability</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learning Automata and Sequential Transducers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/05-uppaal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling and Verification in UPPAAL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Symbolic Verification of Security Protocols with Tamarin</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#formal-definition-of-a-constraint-satisfaction-problem" id="toc-formal-definition-of-a-constraint-satisfaction-problem" class="nav-link active" data-scroll-target="#formal-definition-of-a-constraint-satisfaction-problem"><span class="header-section-number">1</span> Formal definition of a Constraint Satisfaction Problem</a>
+  <ul class="collapse">
+  <li><a href="#solutions-consistency-and-free-variables" id="toc-solutions-consistency-and-free-variables" class="nav-link" data-scroll-target="#solutions-consistency-and-free-variables"><span class="header-section-number">1.1</span> Solutions, consistency, and free variables</a></li>
+  </ul></li>
+  <li><a href="#relational-interpretation-of-4-queens-constraints" id="toc-relational-interpretation-of-4-queens-constraints" class="nav-link" data-scroll-target="#relational-interpretation-of-4-queens-constraints"><span class="header-section-number">2</span> Relational interpretation of 4-Queens constraints</a>
+  <ul class="collapse">
+  <li><a href="#horizontal-constraints-as-relations" id="toc-horizontal-constraints-as-relations" class="nav-link" data-scroll-target="#horizontal-constraints-as-relations"><span class="header-section-number">2.1</span> Horizontal constraints as relations</a></li>
+  <li><a href="#diagonal-constraints-as-relations" id="toc-diagonal-constraints-as-relations" class="nav-link" data-scroll-target="#diagonal-constraints-as-relations"><span class="header-section-number">2.2</span> Diagonal constraints as relations</a></li>
+  </ul></li>
+  <li><a href="#constraint-solving" id="toc-constraint-solving" class="nav-link" data-scroll-target="#constraint-solving"><span class="header-section-number">3</span> Constraint solving</a></li>
+  <li><a href="#constraint-propagation" id="toc-constraint-propagation" class="nav-link" data-scroll-target="#constraint-propagation"><span class="header-section-number">4</span> Constraint propagation</a>
+  <ul class="collapse">
+  <li><a href="#proof-rules" id="toc-proof-rules" class="nav-link" data-scroll-target="#proof-rules"><span class="header-section-number">4.1</span> Proof rules</a></li>
+  </ul></li>
+  <li><a href="#families-of-propagation-rules" id="toc-families-of-propagation-rules" class="nav-link" data-scroll-target="#families-of-propagation-rules"><span class="header-section-number">5</span> Families of propagation rules</a></li>
+  <li><a href="#domain-reduction-rules" id="toc-domain-reduction-rules" class="nav-link" data-scroll-target="#domain-reduction-rules"><span class="header-section-number">6</span> Domain reduction rules</a>
+  <ul class="collapse">
+  <li><a href="#example-propagating-xy" id="toc-example-propagating-xy" class="nav-link" data-scroll-target="#example-propagating-xy"><span class="header-section-number">6.1</span> Example: propagating <span class="math inline">\(X&lt;Y\)</span></a></li>
+  </ul></li>
+  <li><a href="#transformation-rules" id="toc-transformation-rules" class="nav-link" data-scroll-target="#transformation-rules"><span class="header-section-number">7</span> Transformation rules</a></li>
+  <li><a href="#introduction-rules" id="toc-introduction-rules" class="nav-link" data-scroll-target="#introduction-rules"><span class="header-section-number">8</span> Introduction rules</a>
+  <ul class="collapse">
+  <li><a href="#example-over-the-real-numbers" id="toc-example-over-the-real-numbers" class="nav-link" data-scroll-target="#example-over-the-real-numbers"><span class="header-section-number">8.1</span> Example over the real numbers</a></li>
+  </ul></li>
+  <li><a href="#propagation-derivations-and-outcomes" id="toc-propagation-derivations-and-outcomes" class="nav-link" data-scroll-target="#propagation-derivations-and-outcomes"><span class="header-section-number">9</span> Propagation derivations and outcomes</a></li>
+  <li><a href="#local-consistency" id="toc-local-consistency" class="nav-link" data-scroll-target="#local-consistency"><span class="header-section-number">10</span> Local consistency</a></li>
+  <li><a href="#node-consistency" id="toc-node-consistency" class="nav-link" data-scroll-target="#node-consistency"><span class="header-section-number">11</span> Node consistency</a>
+  <ul class="collapse">
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples"><span class="header-section-number">11.1</span> Examples</a></li>
+  <li><a href="#achieving-node-consistency" id="toc-achieving-node-consistency" class="nav-link" data-scroll-target="#achieving-node-consistency"><span class="header-section-number">11.2</span> Achieving node consistency</a>
+  <ul class="collapse">
+  <li><a href="#complexity-of-achieving-node-consistency" id="toc-complexity-of-achieving-node-consistency" class="nav-link" data-scroll-target="#complexity-of-achieving-node-consistency"><span class="header-section-number">11.2.1</span> Complexity of achieving node consistency</a></li>
+  <li><a href="#why-the-process-terminates" id="toc-why-the-process-terminates" class="nav-link" data-scroll-target="#why-the-process-terminates"><span class="header-section-number">11.2.2</span> Why the process terminates</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#arc-consistency" id="toc-arc-consistency" class="nav-link" data-scroll-target="#arc-consistency"><span class="header-section-number">12</span> Arc consistency</a>
+  <ul class="collapse">
+  <li><a href="#example-a-consistent-but-non-arc-consistent-csp" id="toc-example-a-consistent-but-non-arc-consistent-csp" class="nav-link" data-scroll-target="#example-a-consistent-but-non-arc-consistent-csp"><span class="header-section-number">12.1</span> Example: a consistent but non-arc-consistent CSP</a></li>
+  <li><a href="#arc-consistency-does-not-imply-satisfiability" id="toc-arc-consistency-does-not-imply-satisfiability" class="nav-link" data-scroll-target="#arc-consistency-does-not-imply-satisfiability"><span class="header-section-number">12.2</span> Arc consistency does not imply satisfiability</a></li>
+  </ul></li>
+  <li><a href="#arc-consistency-filtering-rules" id="toc-arc-consistency-filtering-rules" class="nav-link" data-scroll-target="#arc-consistency-filtering-rules"><span class="header-section-number">13</span> Arc-consistency filtering rules</a></li>
+  <li><a href="#the-arc-consistency-fixpoint" id="toc-the-arc-consistency-fixpoint" class="nav-link" data-scroll-target="#the-arc-consistency-fixpoint"><span class="header-section-number">14</span> The arc-consistency fixpoint</a></li>
+  <li><a href="#arc-consistency-on-4-queens" id="toc-arc-consistency-on-4-queens" class="nav-link" data-scroll-target="#arc-consistency-on-4-queens"><span class="header-section-number">15</span> Arc consistency on 4-Queens</a>
+  <ul class="collapse">
+  <li><a href="#branch-x_11-propagation-detects-failure" id="toc-branch-x_11-propagation-detects-failure" class="nav-link" data-scroll-target="#branch-x_11-propagation-detects-failure"><span class="header-section-number">15.1</span> Branch <span class="math inline">\(X_1=1\)</span>: propagation detects failure</a></li>
+  <li><a href="#branch-x_12-propagation-reaches-a-solution" id="toc-branch-x_12-propagation-reaches-a-solution" class="nav-link" data-scroll-target="#branch-x_12-propagation-reaches-a-solution"><span class="header-section-number">15.2</span> Branch <span class="math inline">\(X_1=2\)</span>: propagation reaches a solution</a></li>
+  </ul></li>
+  <li><a href="#propagation-stress-example" id="toc-propagation-stress-example" class="nav-link" data-scroll-target="#propagation-stress-example"><span class="header-section-number">16</span> Propagation stress example</a></li>
+  <li><a href="#complexity-summary" id="toc-complexity-summary" class="nav-link" data-scroll-target="#complexity-summary"><span class="header-section-number">17</span> Complexity summary</a></li>
+  <li><a href="#sources" id="toc-sources" class="nav-link" data-scroll-target="#sources"><span class="header-section-number">18</span> Sources</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../02-automated-reasoning/index.html">Automated Reasoning</a></li><li class="breadcrumb-item"><a href="../../02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.html">Constraint Propagation and Local Consistency</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Constraint Propagation and Local Consistency</h1>
+<p class="subtitle lead">Lecture 3 - 7 October 2026</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="formal-definition-of-a-constraint-satisfaction-problem" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Formal definition of a Constraint Satisfaction Problem</h1>
+<p>A <strong>Constraint Satisfaction Problem</strong> (CSP) is a triple</p>
+<p><span class="math display">\[
+P=\langle V,D,C\rangle,
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(V=\{V_1,\ldots,V_n\}\)</span> is a finite set of variables;</li>
+<li><span class="math inline">\(D=\{D_1,\ldots,D_n\}\)</span> associates domain <span class="math inline">\(D_i\)</span> with variable <span class="math inline">\(V_i\)</span>;</li>
+<li><span class="math inline">\(C\)</span> is a set of constraints.</li>
+</ul>
+<p>A constraint <span class="math inline">\(c\)</span> involving variables</p>
+<p><span class="math display">\[
+V_{i_1},\ldots,V_{i_m}
+\]</span></p>
+<p>is a relation over their domains:</p>
+<p><span class="math display">\[
+c\subseteq D_{i_1}\times\cdots\times D_{i_m}.
+\]</span></p>
+<p>Thus, a constraint is the set of tuples admitted for the variables in its scope. It normally contains only some tuples of the Cartesian product, not every possible tuple.</p>
+<p>An assignment is a mapping</p>
+<p><span class="math display">\[
+\sigma:V\to D_1\cup\cdots\cup D_n
+\]</span></p>
+<p>such that</p>
+<p><span class="math display">\[
+\sigma(V_i)\in D_i
+\]</span></p>
+<p>for every <span class="math inline">\(i\)</span>. The assignment is a <strong>solution</strong> when, for every constraint <span class="math inline">\(c\)</span> on variables <span class="math inline">\(V_{i_1},\ldots,V_{i_m}\)</span>,</p>
+<p><span class="math display">\[
+\bigl(\sigma(V_{i_1}),\ldots,\sigma(V_{i_m})\bigr)\in c.
+\]</span></p>
+<p>This definition is independent of the concrete syntax used to write constraints. When the context is clear, one can write a familiar expression such as</p>
+<p><span class="math display">\[
+X\neq Y
+\]</span></p>
+<p>instead of explicitly listing the corresponding relation.</p>
+<p>A Constraint Optimization Problem additionally contains an objective function to minimise or maximise. The feasible assignments are still the solutions of the underlying CSP; optimisation selects the best feasible solution according to the objective.</p>
+<section id="solutions-consistency-and-free-variables" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="solutions-consistency-and-free-variables"><span class="header-section-number">1.1</span> Solutions, consistency, and free variables</h2>
+<p>The set of solutions of a CSP <span class="math inline">\(P\)</span> is denoted by</p>
+<p><span class="math display">\[
+\operatorname{Sol}(P).
+\]</span></p>
+<p>The problem is <strong>consistent</strong> or <strong>satisfiable</strong> if</p>
+<p><span class="math display">\[
+\operatorname{Sol}(P)\neq\varnothing.
+\]</span></p>
+<p>It is <strong>inconsistent</strong> or <strong>unsatisfiable</strong> if</p>
+<p><span class="math display">\[
+\operatorname{Sol}(P)=\varnothing.
+\]</span></p>
+<p>The same notation may be applied to a single constraint or a subset of constraints. For a constraint <span class="math inline">\(c\)</span>, or a set of constraints <span class="math inline">\(C\)</span>, the notation</p>
+<p><span class="math display">\[
+FV(C)
+\]</span></p>
+<p>denotes the variables occurring in <span class="math inline">\(C\)</span>.</p>
+</section>
+</section>
+<section id="relational-interpretation-of-4-queens-constraints" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Relational interpretation of 4-Queens constraints</h1>
+<p>For the 4-Queens problem, use variables</p>
+<p><span class="math display">\[
+V=\{X_1,X_2,X_3,X_4\}
+\]</span></p>
+<p>with identical domains</p>
+<p><span class="math display">\[
+D_1=D_2=D_3=D_4=\{1,2,3,4\}.
+\]</span></p>
+<p>The value <span class="math inline">\(X_i=j\)</span> means that the queen in column <span class="math inline">\(i\)</span> occupies row <span class="math inline">\(j\)</span>.</p>
+<section id="horizontal-constraints-as-relations" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="horizontal-constraints-as-relations"><span class="header-section-number">2.1</span> Horizontal constraints as relations</h2>
+<p>For two columns <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>, the condition</p>
+<p><span class="math display">\[
+X_i\neq X_j
+\]</span></p>
+<p>stands for the binary relation</p>
+<p><span class="math display">\[
+\begin{aligned}
+\{&amp;(1,2),(1,3),(1,4),
+(2,1),(2,3),(2,4),\\
+&amp;(3,1),(3,2),(3,4),
+(4,1),(4,2),(4,3)\}.
+\end{aligned}
+\]</span></p>
+<p>Every tuple with distinct row values is admitted. The four tuples</p>
+<p><span class="math display">\[
+(1,1),(2,2),(3,3),(4,4)
+\]</span></p>
+<p>are excluded because they place two queens on the same row.</p>
+</section>
+<section id="diagonal-constraints-as-relations" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="diagonal-constraints-as-relations"><span class="header-section-number">2.2</span> Diagonal constraints as relations</h2>
+<p>For <span class="math inline">\(i&lt;j\)</span>, the diagonal condition is</p>
+<p><span class="math display">\[
+|X_j-X_i|\neq j-i.
+\]</span></p>
+<p>For example, if <span class="math inline">\(i=2\)</span> and <span class="math inline">\(j=4\)</span>, the horizontal distance is <span class="math inline">\(2\)</span>. Therefore, row pairs at distance <span class="math inline">\(2\)</span> are not admitted. In particular,</p>
+<p><span class="math display">\[
+(2,4)
+\]</span></p>
+<p>is excluded because</p>
+<p><span class="math display">\[
+|4-2|=4-2=2.
+\]</span></p>
+<p>The tuple <span class="math inline">\((2,2)\)</span> is also not admitted in the full queens model because it violates the horizontal constraint.</p>
+</section>
+</section>
+<section id="constraint-solving" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Constraint solving</h1>
+<p>Constraint solving follows the general structure already encountered in DPLL. It alternates:</p>
+<ol type="1">
+<li>deterministic <strong>constraint propagation</strong>;</li>
+<li>selection of a variable or decision;</li>
+<li>a non-deterministic assignment or branch;</li>
+<li>further propagation;</li>
+<li>backtracking when a branch fails.</li>
+</ol>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+    P["Current CSP"] --&gt; CP["Constraint propagation"]
+    CP --&gt; Q{"Result?"}
+    Q --&gt;|"solved"| S["Return solution"]
+    Q --&gt;|"fail"| B["Backtrack"]
+    Q --&gt;|"stable but unsolved"| V["Select variable and value"]
+    V --&gt; L["Create a search branch"]
+    L --&gt; P
+    B --&gt; V
+</pre>
+</div>
+<p></p><figcaption> The propagation-and-search loop used in constraint solving.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>The situation is more general than SAT because domains need not be Boolean and constraints can have many different meanings and arities.</p>
+</section>
+<section id="constraint-propagation" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Constraint propagation</h1>
+<p>Constraint propagation transforms a CSP <span class="math inline">\(P\)</span> into a simplified CSP <span class="math inline">\(P'\)</span> while preserving the solutions for the original variables.</p>
+<p>Its objectives include:</p>
+<ul>
+<li>removing values that cannot belong to any solution;</li>
+<li>simplifying or replacing constraints;</li>
+<li>adding logically implied constraints that enable stronger reasoning;</li>
+<li>detecting failure when a domain becomes empty.</li>
+</ul>
+<p>Propagation is applied repeatedly at search-tree nodes, so it must be fast. Since CSPs often encode NP-complete or harder problems, one cannot expect a polynomial propagation procedure to solve every instance completely. Propagation therefore reasons locally, usually over one constraint or a small group of constraints.</p>
+<section id="proof-rules" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="proof-rules"><span class="header-section-number">4.1</span> Proof rules</h2>
+<p>A propagator is based on repeated applications of proof rules of the form</p>
+<p><span class="math display">\[
+\frac{\phi}{\psi},
+\]</span></p>
+<p>where <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\psi\)</span> are CSPs. The lower CSP may contain new variables that do not occur in the upper CSP.</p>
+<p>A rule is <strong>equivalence preserving</strong> when</p>
+<p><span class="math display">\[
+\operatorname{Sol}(\phi)
+=
+\operatorname{Sol}(\psi)\big|_{FV(\phi)}.
+\]</span></p>
+<p>The restriction is essential because <span class="math inline">\(\psi\)</span> may introduce auxiliary variables. The transformed CSP can therefore have assignments over a larger variable set, while its projections onto the original variables must coincide with the original solutions.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    A["Solutions of phi"] --&gt; O["Assignments on original variables"]
+    B["Solutions of psi"] --&gt; R["Restrict to FV(phi)"]
+    R --&gt; O
+</pre>
+</div>
+<p></p><figcaption> Meaning of an equivalence-preserving propagation rule.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="families-of-propagation-rules" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Families of propagation rules</h1>
+<p>The lecture classifies proof rules into three families:</p>
+<ol type="1">
+<li>domain reduction rules;</li>
+<li>transformation rules;</li>
+<li>introduction rules.</li>
+</ol>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rule family</th>
+<th>Main operation</th>
+<th style="text-align: right;">Existing domains reduced?</th>
+<th style="text-align: right;">New variables possible?</th>
+<th style="text-align: right;">New constraints possible?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Domain reduction</td>
+<td>Remove unsupported values</td>
+<td style="text-align: right;">Yes</td>
+<td style="text-align: right;">No</td>
+<td style="text-align: right;">Constraints are restricted or simplified</td>
+</tr>
+<tr class="even">
+<td>Transformation</td>
+<td>Replace constraints by an equivalent formulation</td>
+<td style="text-align: right;">No, by this rule family</td>
+<td style="text-align: right;">Yes</td>
+<td style="text-align: right;">Yes</td>
+</tr>
+<tr class="odd">
+<td>Introduction</td>
+<td>Add an implied constraint</td>
+<td style="text-align: right;">No</td>
+<td style="text-align: right;">Not required</td>
+<td style="text-align: right;">Yes</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="domain-reduction-rules" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Domain reduction rules</h1>
+<p>A domain reduction rule exploits the constraints to shrink variable domains. Write</p>
+<p><span class="math display">\[
+\phi=\langle C;D\rangle
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\psi=\langle C';D'\rangle.
+\]</span></p>
+<p>If</p>
+<p><span class="math display">\[
+D=\{X_1\in D_1,\ldots,X_k\in D_k\}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+D'=\{X_1\in D'_1,\ldots,X_k\in D'_k\},
+\]</span></p>
+<p>then</p>
+<p><span class="math display">\[
+D'_i\subseteq D_i
+\]</span></p>
+<p>for every <span class="math inline">\(i\)</span>. The constraints in <span class="math inline">\(C'\)</span> are restrictions of the original constraints to the smaller domains.</p>
+<p>A constraint may become redundant after filtering and can then be removed. For example, after a domain has been restricted, a constraint may simplify to something that is always true on the remaining values. If every constraint becomes redundant, the domains alone represent all remaining solutions.</p>
+<p>If some domain becomes empty,</p>
+<p><span class="math display">\[
+D'_i=\varnothing,
+\]</span></p>
+<p>then the transformed CSP is</p>
+<p><span class="math display">\[
+\mathit{fail}.
+\]</span></p>
+<section id="example-propagating-xy" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="example-propagating-xy"><span class="header-section-number">6.1</span> Example: propagating <span class="math inline">\(X&lt;Y\)</span></h2>
+<p>Start with</p>
+<p><span class="math display">\[
+\langle X&lt;Y;
+X\in5..15,
+Y\in0..10\rangle.
+\]</span></p>
+<p>For <span class="math inline">\(X\)</span> to have a supporting value in <span class="math inline">\(Y\)</span>’s domain, <span class="math inline">\(X\)</span> cannot exceed <span class="math inline">\(9\)</span>. For <span class="math inline">\(Y\)</span> to have a supporting value in <span class="math inline">\(X\)</span>’s domain, <span class="math inline">\(Y\)</span> must be at least <span class="math inline">\(6\)</span>. Propagation therefore yields</p>
+<p><span class="math display">\[
+\langle X&lt;Y;
+X\in5..9,
+Y\in6..10\rangle.
+\]</span></p>
+<p>The relation represented by the remaining values is</p>
+<p><span class="math display">\[
+\begin{aligned}
+\{&amp;(5,6),(5,7),(5,8),(5,9),(5,10),\\
+&amp;(6,7),(6,8),(6,9),(6,10),\\
+&amp;(7,8),(7,9),(7,10),\\
+&amp;(8,9),(8,10),(9,10)\}.
+\end{aligned}
+\]</span></p>
+<p>Every retained value participates in at least one admitted pair.</p>
+</section>
+</section>
+<section id="transformation-rules" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Transformation rules</h1>
+<p>Transformation rules replace or simplify constraints without reducing the domains of existing variables. They may introduce new variables with non-empty domains, and they may detect failure.</p>
+<p>A representative transformation is</p>
+<p><span class="math display">\[
+\langle e_1\neq e_2;D\rangle
+\quad\longrightarrow\quad
+\langle X=e_1,\ X\neq e_2;
+D,\ X\in\mathbb Z\rangle.
+\]</span></p>
+<p>The auxiliary variable <span class="math inline">\(X\)</span> names expression <span class="math inline">\(e_1\)</span>. The new formulation has a larger variable set, so equivalence is stated after restricting solutions back to the original variables.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Why equivalence preserving is the correct notion">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why equivalence preserving is the correct notion
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The transformed CSP need not be literally identical to the original CSP and may contain additional variables. What must remain unchanged is the set of solutions observed on the variables of the original problem.</p>
+</div>
+</div>
+</section>
+<section id="introduction-rules" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Introduction rules</h1>
+<p>An introduction rule adds a new constraint that is already logically implied by the current problem:</p>
+<p><span class="math display">\[
+\langle C;D\rangle
+\quad\longrightarrow\quad
+\langle C,c;D\rangle.
+\]</span></p>
+<p>The new constraint does not change the solution set, but a simpler implied constraint may make subsequent domain filtering more effective.</p>
+<section id="example-over-the-real-numbers" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="example-over-the-real-numbers"><span class="header-section-number">8.1</span> Example over the real numbers</h2>
+<p>Consider</p>
+<p><span class="math display">\[
+X^2-2XY+Y^2&lt;5,
+\qquad
+X&gt;0,
+\qquad
+Y&gt;0.
+\]</span></p>
+<p>Since</p>
+<p><span class="math display">\[
+X^2-2XY+Y^2=(X-Y)^2,
+\]</span></p>
+<p>we have</p>
+<p><span class="math display">\[
+(X-Y)^2&lt;5.
+\]</span></p>
+<p>The lecture adds the weaker but simpler implied constraint</p>
+<p><span class="math display">\[
+X-Y&lt;3.
+\]</span></p>
+<p>This does not add new semantic information, because it follows from the original inequality, but the simpler constraint can help later propagation.</p>
+</section>
+</section>
+<section id="propagation-derivations-and-outcomes" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Propagation derivations and outcomes</h1>
+<p>Repeated application of domain reduction, transformation, and introduction rules is called <strong>constraint propagation</strong>.</p>
+<p>A <strong>derivation</strong> is a sequence of rule applications, with suitable renaming when rules introduce fresh variables.</p>
+<p>A finite derivation is:</p>
+<ul>
+<li><strong>failing</strong> if its final CSP is <span class="math inline">\(\mathit{fail}\)</span>;</li>
+<li><strong>stable</strong> if it does not fail and no rule can further change the final CSP;</li>
+<li><strong>successful</strong> if it is stable and the final constraints are in solved form.</li>
+</ul>
+<p>As a meta-requirement, propagation must be computationally efficient, normally polynomial time with a low degree. Its role is to simplify the problem repeatedly, not to perform an unrestricted exponential search at every node.</p>
+</section>
+<section id="local-consistency" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Local consistency</h1>
+<p>Local consistency properties describe limited forms of consistency that can be checked efficiently. Achieving a local consistency property can rule out many impossible values, but it does not necessarily decide whether the complete CSP has a solution.</p>
+</section>
+<section id="node-consistency" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> Node consistency</h1>
+<p>A CSP is <strong>node consistent</strong> if, for every variable <span class="math inline">\(X\)</span>, every unary constraint on <span class="math inline">\(X\)</span> has already been incorporated into the domain of <span class="math inline">\(X\)</span>.</p>
+<section id="examples" class="level2" data-number="11.1">
+<h2 data-number="11.1" class="anchored" data-anchor-id="examples"><span class="header-section-number">11.1</span> Examples</h2>
+<p>The CSP</p>
+<p><span class="math display">\[
+\langle X_1\geq0,
+X_2\geq0;
+X_1\in\mathbb N,
+X_2\in\mathbb N\rangle
+\]</span></p>
+<p>is node consistent because the natural-number domains already satisfy the unary lower bounds.</p>
+<p>The CSP</p>
+<p><span class="math display">\[
+\langle X_1\geq5,
+X_2\geq1;
+X_1\in\mathbb N,
+X_2\in\mathbb N\rangle
+\]</span></p>
+<p>is not node consistent, although it is consistent: it admits solutions, but the domains have not yet been restricted to the unary constraints.</p>
+<p>The CSP</p>
+<p><span class="math display">\[
+\langle X_1\neq X_2,
+X_1=0,
+X_2=0;
+X_1\in0..0,
+X_2\in0..0\rangle
+\]</span></p>
+<p>is node consistent because the unary equalities coincide with the singleton domains. Nevertheless, it is inconsistent because the binary disequality cannot be satisfied.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="Local consistency is not global consistency">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Local consistency is not global consistency
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Node consistency considers unary constraints only. A node-consistent CSP may still be unsatisfiable because a binary or higher-arity constraint produces a contradiction.</p>
+</div>
+</div>
+</section>
+<section id="achieving-node-consistency" class="level2" data-number="11.2">
+<h2 data-number="11.2" class="anchored" data-anchor-id="achieving-node-consistency"><span class="header-section-number">11.2</span> Achieving node consistency</h2>
+<p>To achieve node consistency, each unary constraint must be incorporated into the domain of the variable on which it is defined.</p>
+<p>Let (u) be a unary constraint on variable (X), and let (D_X) be the current domain of (X). The corresponding domain-reduction rule is</p>
+<p><span class="math display">\[
+\langle u; X\in D_X\rangle
+\quad\longrightarrow\quad
+\langle u; X\in D_X\cap u\rangle.
+\]</span></p>
+<p>Here, the unary constraint (u) can be viewed as the set of values that it permits. Therefore,</p>
+<p><span class="math display">\[
+D_X\cap u
+\]</span></p>
+<p>contains exactly the values that:</p>
+<ol type="1">
+<li>already belong to the current domain (D_X); and</li>
+<li>satisfy the unary constraint (u).</li>
+</ol>
+<p>For example, consider</p>
+<p><span class="math display">\[
+X\in\{1,2,3,4,5\}
+\]</span></p>
+<p>and the unary constraint</p>
+<p><span class="math display">\[
+X\geq3.
+\]</span></p>
+<p>The constraint admits the values</p>
+<p><span class="math display">\[
+u=\{3,4,5,\ldots\}.
+\]</span></p>
+<p>After intersecting the domain with the constraint, we obtain</p>
+<p><span class="math display">\[
+D_X\cap u
+=
+\{1,2,3,4,5\}\cap\{3,4,5,\ldots\}
+=
+\{3,4,5\}.
+\]</span></p>
+<p>The values (1) and (2) are removed because they cannot satisfy the unary constraint.</p>
+<section id="complexity-of-achieving-node-consistency" class="level3" data-number="11.2.1">
+<h3 data-number="11.2.1" class="anchored" data-anchor-id="complexity-of-achieving-node-consistency"><span class="header-section-number">11.2.1</span> Complexity of achieving node consistency</h3>
+<p>Let</p>
+<p><span class="math display">\[
+c=|C|
+\]</span></p>
+<p>be the total number of constraints in the CSP, and let</p>
+<p><span class="math display">\[
+d=\max_i |D_i|
+\]</span></p>
+<p>be the size of the largest variable domain.</p>
+<p>The notation</p>
+<p><span class="math display">\[
+O(cd)
+\]</span></p>
+<p>is an asymptotic upper bound on the running time. It means that, in the worst case, the amount of work grows proportionally to the product of:</p>
+<ul>
+<li>the number (c) of constraints that must be examined; and</li>
+<li>the maximum number (d) of domain values that may need to be checked for each constraint.</li>
+</ul>
+<p>For one unary constraint on a variable (X), the algorithm may need to inspect every value in (D_X) to determine whether that value satisfies the constraint. Since</p>
+<p><span class="math display">\[
+|D_X|\leq d,
+\]</span></p>
+<p>processing one unary constraint requires at most (d) value checks. Its worst-case cost is therefore</p>
+<p><span class="math display">\[
+O(d).
+\]</span></p>
+<p>If there are at most (c) constraints to examine, and each one may require up to (d) checks, the total number of checks is bounded by</p>
+<p><span class="math display">\[
+c\cdot d.
+\]</span></p>
+<p>Therefore, the overall worst-case running time is</p>
+<p><span class="math display">\[
+\boxed{O(cd)}.
+\]</span></p>
+<p>For example, if the CSP contains (c=10) unary constraints and every domain contains at most (d=20) values, a direct implementation performs at most approximately</p>
+<p><span class="math display">\[
+10\cdot20=200
+\]</span></p>
+<p>constraint-value checks, ignoring constant implementation costs.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Meaning of big-O notation">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Meaning of big-O notation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The expression (O(cd)) does not mean that the algorithm always performs exactly (cd) operations. It describes how the worst-case running time grows as the input becomes larger.</p>
+<p>Constant factors and lower-order terms are omitted. For example, running times such as</p>
+<p><span class="math display">\[
+2cd,\qquad 5cd+c,\qquad cd+3d
+\]</span></p>
+<p>are all represented asymptotically as</p>
+<p><span class="math display">\[
+O(cd),
+\]</span></p>
+<p>because the product (cd) determines the dominant growth when the numbers of constraints and domain values increase.</p>
+</div>
+</div>
+</section>
+<section id="why-the-process-terminates" class="level3" data-number="11.2.2">
+<h3 data-number="11.2.2" class="anchored" data-anchor-id="why-the-process-terminates"><span class="header-section-number">11.2.2</span> Why the process terminates</h3>
+<p>Node-consistency rules only remove values from domains:</p>
+<p><span class="math display">\[
+D'_X\subseteq D_X.
+\]</span></p>
+<p>They never reintroduce a value that has already been removed. Domain reduction is therefore <strong>monotone</strong>.</p>
+<p>Since every domain is finite, only finitely many values can be removed. The process must eventually reach a state in which no unary constraint can remove any additional value. At that point, the CSP is node consistent.</p>
+<p>Because each unary constraint acts only on the domain of its own variable, the order in which the node-consistency rules are applied does not affect the final reduced domains.</p>
+</section>
+</section>
+</section>
+<section id="arc-consistency" class="level1" data-number="12">
+<h1 data-number="12"><span class="header-section-number">12</span> Arc consistency</h1>
+<p>Let <span class="math inline">\(c\)</span> be a binary constraint on variables <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> with domains <span class="math inline">\(D_X\)</span> and <span class="math inline">\(D_Y\)</span>. The constraint is <strong>arc consistent</strong> if both directions have support:</p>
+<ol type="1">
+<li>for every <span class="math inline">\(a\in D_X\)</span>, there exists <span class="math inline">\(b\in D_Y\)</span> such that <span class="math inline">\((a,b)\in c\)</span>;</li>
+<li>for every <span class="math inline">\(b\in D_Y\)</span>, there exists <span class="math inline">\(a\in D_X\)</span> such that <span class="math inline">\((a,b)\in c\)</span>.</li>
+</ol>
+<p>A value that has such a matching value is said to have a <strong>support</strong> in the neighbouring domain. A CSP is arc consistent if all its binary constraints are arc consistent.</p>
+<p>The terminology comes from the constraint graph:</p>
+<ul>
+<li>nodes represent variables;</li>
+<li>an edge or pair of directed arcs represents a binary constraint.</li>
+</ul>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    X["X with domain DX"] --&gt;|"every a needs support b"| Y["Y with domain DY"]
+    Y --&gt;|"every b needs support a"| X
+</pre>
+</div>
+<p></p><figcaption> A binary constraint gives two support directions in the constraint graph.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<section id="example-a-consistent-but-non-arc-consistent-csp" class="level2" data-number="12.1">
+<h2 data-number="12.1" class="anchored" data-anchor-id="example-a-consistent-but-non-arc-consistent-csp"><span class="header-section-number">12.1</span> Example: a consistent but non-arc-consistent CSP</h2>
+<p>Consider</p>
+<p><span class="math display">\[
+\langle X&lt;Y;
+X\in5..10,
+Y\in3..7\rangle.
+\]</span></p>
+<p>The CSP is consistent because, for example, <span class="math inline">\((5,6)\)</span> is a solution. It is not arc consistent:</p>
+<ul>
+<li><span class="math inline">\(X=7,8,9,10\)</span> have no larger supporting value in <span class="math inline">\(D_Y\)</span>;</li>
+<li><span class="math inline">\(Y=3,4,5\)</span> have no smaller supporting value in <span class="math inline">\(D_X\)</span>.</li>
+</ul>
+<p>Arc-consistency filtering reduces the domains to</p>
+<p><span class="math display">\[
+X\in5..6,
+\qquad
+Y\in6..7.
+\]</span></p>
+</section>
+<section id="arc-consistency-does-not-imply-satisfiability" class="level2" data-number="12.2">
+<h2 data-number="12.2" class="anchored" data-anchor-id="arc-consistency-does-not-imply-satisfiability"><span class="header-section-number">12.2</span> Arc consistency does not imply satisfiability</h2>
+<p>Consider</p>
+<p><span class="math display">\[
+X\neq Y,
+\qquad
+Y\neq Z,
+\qquad
+X\neq Z
+\]</span></p>
+<p>with</p>
+<p><span class="math display">\[
+X,Y,Z\in\{0,1\}.
+\]</span></p>
+<p>Each binary disequality is arc consistent: every value has the opposite value as support in the neighbouring domain. However, three variables cannot be pairwise different using only two values. The complete CSP is therefore inconsistent.</p>
+<p>This example shows that arc consistency is local to individual binary constraints. It does not detect every global contradiction.</p>
+</section>
+</section>
+<section id="arc-consistency-filtering-rules" class="level1" data-number="13">
+<h1 data-number="13"><span class="header-section-number">13</span> Arc-consistency filtering rules</h1>
+<p>For a binary constraint <span class="math inline">\(c\)</span> on <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>, define</p>
+<p><span class="math display">\[
+D'_X
+=
+\{a\in D_X:\exists b\in D_Y\text{ such that }(a,b)\in c\}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+D'_Y
+=
+\{b\in D_Y:\exists a\in D_X\text{ such that }(a,b)\in c\}.
+\]</span></p>
+<p>The two filtering rules are:</p>
+<p><span class="math display">\[
+\text{(AC1)}
+\qquad
+\langle c;X\in D_X,Y\in D_Y\rangle
+\longrightarrow
+\langle c;X\in D'_X,Y\in D_Y\rangle,
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\text{(AC2)}
+\qquad
+\langle c;X\in D_X,Y\in D_Y\rangle
+\longrightarrow
+\langle c;X\in D_X,Y\in D'_Y\rangle.
+\]</span></p>
+<p>Without specialised semantic information about <span class="math inline">\(c\)</span>, checking support for every value of one domain may require scanning the other domain. A single filtering operation for one binary constraint therefore costs</p>
+<p><span class="math display">\[
+O(d^2).
+\]</span></p>
+</section>
+<section id="the-arc-consistency-fixpoint" class="level1" data-number="14">
+<h1 data-number="14"><span class="header-section-number">14</span> The arc-consistency fixpoint</h1>
+<p>Filtering one domain can invalidate supports that were previously available elsewhere. Arc-consistency rules must therefore be repeated until no domain changes.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+    P["Current CSP P"] --&gt; F["Apply all AC filtering rules"]
+    F --&gt; P2["Obtain P prime"]
+    P2 --&gt; E{"Any domain changed?"}
+    E --&gt;|"yes"| F
+    E --&gt;|"no"| S["Arc-consistency fixpoint"]
+    F --&gt; Q{"Empty domain?"}
+    Q --&gt;|"yes"| FAIL["fail"]
+    Q --&gt;|"no"| P2
+</pre>
+</div>
+<p></p><figcaption> Fixpoint procedure for arc-consistency filtering.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>The slides use:</p>
+<ul>
+<li><span class="math inline">\(n\)</span> variables;</li>
+<li><span class="math inline">\(c\)</span> constraints;</li>
+<li>maximum domain size <span class="math inline">\(d\)</span>.</li>
+</ul>
+<p>One full filtering pass costs on the order of</p>
+<p><span class="math display">\[
+O(cd^2).
+\]</span></p>
+<p>At most <span class="math inline">\(nd\)</span> individual domain values can be removed. Using this as an upper bound on the number of effective cycles gives the coarse bound</p>
+<p><span class="math display">\[
+O(nd\cdot cd^2)
+=
+O(cnd^3).
+\]</span></p>
+<p>The bound is deliberately conservative. Its purpose is to show that the fixpoint computation remains polynomial.</p>
+<p>Because arc-consistency rules only remove values, domain evolution is monotone. Independent of the order in which valid filtering rules are scheduled, the repeated process reaches the same fixpoint.</p>
+</section>
+<section id="arc-consistency-on-4-queens" class="level1" data-number="15">
+<h1 data-number="15"><span class="header-section-number">15</span> Arc consistency on 4-Queens</h1>
+<p>The lecture applies arc consistency to the 4-Queens CSP:</p>
+<p><span class="math display">\[
+X_1,\ldots,X_4,
+\qquad
+D(X_i)=\{1,2,3,4\},
+\]</span></p>
+<p>with horizontal and diagonal constraints</p>
+<p><span class="math display">\[
+X_i\neq X_j,
+\qquad
+|X_i-X_j|\neq j-i
+\qquad(i&lt;j).
+\]</span></p>
+<p>The repeated animation frames show domain changes during propagation and should be read as successive states of one reasoning process.</p>
+<section id="branch-x_11-propagation-detects-failure" class="level2" data-number="15.1">
+<h2 data-number="15.1" class="anchored" data-anchor-id="branch-x_11-propagation-detects-failure"><span class="header-section-number">15.1</span> Branch <span class="math inline">\(X_1=1\)</span>: propagation detects failure</h2>
+<p>After choosing</p>
+<p><span class="math display">\[
+D(X_1)=\{1\},
+\]</span></p>
+<p>propagation first removes values attacked by the queen at column <span class="math inline">\(1\)</span>, row <span class="math inline">\(1\)</span>:</p>
+<p><span class="math display">\[
+D(X_2)=\{3,4\},
+\qquad
+D(X_3)=\{2,4\},
+\qquad
+D(X_4)=\{2,3\}.
+\]</span></p>
+<p>Further support checks force</p>
+<p><span class="math display">\[
+D(X_2)=\{4\}
+\]</span></p>
+<p>and then</p>
+<p><span class="math display">\[
+D(X_3)=\{2\}.
+\]</span></p>
+<p>At this point, the remaining constraints remove the last support for <span class="math inline">\(X_3\)</span>, yielding</p>
+<p><span class="math display">\[
+D(X_3)=\varnothing.
+\]</span></p>
+<p>The branch becomes <span class="math inline">\(\mathit{fail}\)</span> before a complete assignment is generated.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Propagation stage</th>
+<th><span class="math inline">\(D(X_1)\)</span></th>
+<th><span class="math inline">\(D(X_2)\)</span></th>
+<th><span class="math inline">\(D(X_3)\)</span></th>
+<th><span class="math inline">\(D(X_4)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>After decision</td>
+<td><span class="math inline">\(\{1\}\)</span></td>
+<td><span class="math inline">\(\{1,2,3,4\}\)</span></td>
+<td><span class="math inline">\(\{1,2,3,4\}\)</span></td>
+<td><span class="math inline">\(\{1,2,3,4\}\)</span></td>
+</tr>
+<tr class="even">
+<td>Initial filtering</td>
+<td><span class="math inline">\(\{1\}\)</span></td>
+<td><span class="math inline">\(\{3,4\}\)</span></td>
+<td><span class="math inline">\(\{2,4\}\)</span></td>
+<td><span class="math inline">\(\{2,3\}\)</span></td>
+</tr>
+<tr class="odd">
+<td>Further propagation</td>
+<td><span class="math inline">\(\{1\}\)</span></td>
+<td><span class="math inline">\(\{4\}\)</span></td>
+<td><span class="math inline">\(\{2,4\}\)</span></td>
+<td><span class="math inline">\(\{2,3\}\)</span></td>
+</tr>
+<tr class="even">
+<td>More propagation</td>
+<td><span class="math inline">\(\{1\}\)</span></td>
+<td><span class="math inline">\(\{4\}\)</span></td>
+<td><span class="math inline">\(\{2\}\)</span></td>
+<td><span class="math inline">\(\{2,3\}\)</span></td>
+</tr>
+<tr class="odd">
+<td>Failure</td>
+<td><span class="math inline">\(\{1\}\)</span></td>
+<td><span class="math inline">\(\{4\}\)</span></td>
+<td><span class="math inline">\(\varnothing\)</span></td>
+<td><span class="math inline">\(\{2,3\}\)</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="branch-x_12-propagation-reaches-a-solution" class="level2" data-number="15.2">
+<h2 data-number="15.2" class="anchored" data-anchor-id="branch-x_12-propagation-reaches-a-solution"><span class="header-section-number">15.2</span> Branch <span class="math inline">\(X_1=2\)</span>: propagation reaches a solution</h2>
+<p>Now choose</p>
+<p><span class="math display">\[
+D(X_1)=\{2\}.
+\]</span></p>
+<p>Arc-consistency filtering produces</p>
+<p><span class="math display">\[
+D(X_2)=\{4\},
+\qquad
+D(X_3)=\{1,3\},
+\qquad
+D(X_4)=\{1,3,4\}.
+\]</span></p>
+<p>Further propagation removes unsupported values:</p>
+<p><span class="math display">\[
+D(X_3)=\{1\},
+\qquad
+D(X_4)=\{3,4\},
+\]</span></p>
+<p>and finally</p>
+<p><span class="math display">\[
+D(X_4)=\{3\}.
+\]</span></p>
+<p>All domains are singleton, so the solved assignment is</p>
+<p><span class="math display">\[
+(X_1,X_2,X_3,X_4)=(2,4,1,3).
+\]</span></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Propagation stage</th>
+<th><span class="math inline">\(D(X_1)\)</span></th>
+<th><span class="math inline">\(D(X_2)\)</span></th>
+<th><span class="math inline">\(D(X_3)\)</span></th>
+<th><span class="math inline">\(D(X_4)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>After decision</td>
+<td><span class="math inline">\(\{2\}\)</span></td>
+<td><span class="math inline">\(\{1,2,3,4\}\)</span></td>
+<td><span class="math inline">\(\{1,2,3,4\}\)</span></td>
+<td><span class="math inline">\(\{1,2,3,4\}\)</span></td>
+</tr>
+<tr class="even">
+<td>Initial filtering</td>
+<td><span class="math inline">\(\{2\}\)</span></td>
+<td><span class="math inline">\(\{4\}\)</span></td>
+<td><span class="math inline">\(\{1,3\}\)</span></td>
+<td><span class="math inline">\(\{1,3,4\}\)</span></td>
+</tr>
+<tr class="odd">
+<td>Further propagation</td>
+<td><span class="math inline">\(\{2\}\)</span></td>
+<td><span class="math inline">\(\{4\}\)</span></td>
+<td><span class="math inline">\(\{1\}\)</span></td>
+<td><span class="math inline">\(\{3,4\}\)</span></td>
+</tr>
+<tr class="even">
+<td>Solved form</td>
+<td><span class="math inline">\(\{2\}\)</span></td>
+<td><span class="math inline">\(\{4\}\)</span></td>
+<td><span class="math inline">\(\{1\}\)</span></td>
+<td><span class="math inline">\(\{3\}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The two branches demonstrate why propagation is useful:</p>
+<ul>
+<li>an impossible choice can be rejected without enumerating complete continuations;</li>
+<li>a promising choice can cause a chain of deterministic reductions that constructs the solution.</li>
+</ul>
+</section>
+</section>
+<section id="propagation-stress-example" class="level1" data-number="16">
+<h1 data-number="16"><span class="header-section-number">16</span> Propagation stress example</h1>
+<p>The lecture finally considers</p>
+<p><span class="math display">\[
+X_1&lt;X_2&lt;X_3&lt;X_4&lt;X_5&lt;X_6&lt;X_7
+\]</span></p>
+<p>with</p>
+<p><span class="math display">\[
+D(X_i)=1..7.
+\]</span></p>
+<p>Repeated local filtering gradually tightens lower and upper bounds. Information must travel through the chain one constraint at a time, so several passes are needed before reaching the fixpoint</p>
+<p><span class="math display">\[
+D(X_i)=\{i\}
+\]</span></p>
+<p>for every <span class="math inline">\(i=1,\ldots,7\)</span>.</p>
+<p>The example stresses two points:</p>
+<ol type="1">
+<li>even simple local rules may need repeated scheduling before information reaches distant variables;</li>
+<li>propagation can nonetheless solve the whole instance without branching when the constraints determine a unique assignment.</li>
+</ol>
+<p>The deck then proposes observing the same behaviour in MiniZinc. No MiniZinc source file was supplied with this lecture, so the chapter does not invent or claim execution of a model.</p>
+</section>
+<section id="complexity-summary" class="level1" data-number="17">
+<h1 data-number="17"><span class="header-section-number">17</span> Complexity summary</h1>
+<p>Using <span class="math inline">\(n\)</span> variables, <span class="math inline">\(c\)</span> constraints, and maximum domain size <span class="math inline">\(d\)</span>, the lecture summarises:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 40%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Property</th>
+<th style="text-align: right;">Stated complexity</th>
+<th>Main effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Node consistency</td>
+<td style="text-align: right;"><span class="math inline">\(O(cd)\)</span></td>
+<td>Incorporate unary constraints into domains</td>
+</tr>
+<tr class="even">
+<td>Arc consistency</td>
+<td style="text-align: right;"><span class="math inline">\(O(cnd^3)\)</span></td>
+<td>Repeatedly remove unsupported values from binary constraints</td>
+</tr>
+</tbody>
+</table>
+<p>Arc-consistency rules only reduce domains. The order of rule application is therefore immaterial, and repeated application reaches a unique fixpoint.</p>
+</section>
+<section id="sources" class="level1" data-number="18">
+<h1 data-number="18"><span class="header-section-number">18</span> Sources</h1>
+<ul>
+<li>Original and annotated slide deck: <em>03 - 07-10-2026.pdf</em>.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/rikypara04\.github\.io\/uniud-ai-cybersecurity-notes\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Operational Semantics and Time Complexity of Turing Machines – MSc Artificial Intelligence &amp; Cybersecurity</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b626d73c4c936ccc3cb08be7d45d1df6.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-30c69b05bb77ed3e47d95fc04249e286.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">MSc Artificial Intelligence &amp; Cybersecurity</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/index.html">Complexity and Information Theory</a></li><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html">Operational Semantics and Time Complexity of Turing Machines</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../01-complexity-information-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Complexity and Information Theory</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/01-introduction-to-information-theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Information Theory</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/02-information-probability-and-random-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Information, Probability, and Random Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/03-properties-of-entropy-and-conditional-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Properties of Entropy and Conditional Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/04-mutual-information-relative-entropy-and-source-coding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mutual Information, Relative Entropy, and Source Coding</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefix Codes and the Kraft-McMillan Inequality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/06-shannon-codes-huffman-codes-and-asymptotic-optimality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Shannon Codes, Huffman Codes, and Asymptotic Optimality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/07-lz77-and-kolmogorov-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">LZ77 Compression and Kolmogorov Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Kolmogorov Complexity and Its Relation to Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/09-computational-complexity-models-and-cost-criteria.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Computational Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Operational Semantics and Time Complexity of Turing Machines</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/11-multitape-simulation-time-speedup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multitape Simulation, Time Complexity, and Linear Speed-Up</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/12-time-and-space-complexity-classes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Time and Space Complexity Classes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../02-automated-reasoning/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Automated Reasoning</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Automated Reasoning and Constraint Programming</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/02-sat-encodings-and-dpll.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SAT Encodings and DPLL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Propagation and Local Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/04-bounds-hyper-arc-and-path-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bounds, Hyper-Arc, and Path Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Search Annotations and Constraint Modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/06-minizinc-modeling-examples-and-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Modelling through Classical Constraint Problems</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scheduling Models, Hamming Codes, and Timetabling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/08-constraint-optimization-local-search-and-bioinformatics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Optimization, Large Neighbourhood Search, and Bioinformatics Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/09-global-constraints-matching-and-cumulative-scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Global Constraints, Matching-Based Filtering, and Cumulative Scheduling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/10-syntax-and-definite-clause-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Syntax of Logic Programming and Definite-Clause Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/11-semantics-of-logic-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Semantics of Logic Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Unification, SLD Resolution, and the Limits of Computation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../03-foundations-cybersecurity-ethics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Foundations of Cybersecurity and Ethics</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Formal Verification and Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classical Logics: Propositional Logic, QBF, and First-Order Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Games in Logic and First-Order Definability</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learning Automata and Sequential Transducers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/05-uppaal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling and Verification in UPPAAL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Symbolic Verification of Security Protocols with Tamarin</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#why-polynomial-time-is-model-independent" id="toc-why-polynomial-time-is-model-independent" class="nav-link active" data-scroll-target="#why-polynomial-time-is-model-independent"><span class="header-section-number">1</span> Why polynomial time is model-independent</a></li>
+  <li><a href="#deterministic-turing-machines" id="toc-deterministic-turing-machines" class="nav-link" data-scroll-target="#deterministic-turing-machines"><span class="header-section-number">2</span> Deterministic Turing machines</a></li>
+  <li><a href="#operational-semantics" id="toc-operational-semantics" class="nav-link" data-scroll-target="#operational-semantics"><span class="header-section-number">3</span> Operational semantics</a>
+  <ul class="collapse">
+  <li><a href="#configurations" id="toc-configurations" class="nav-link" data-scroll-target="#configurations"><span class="header-section-number">3.1</span> Configurations</a></li>
+  <li><a href="#one-computation-step" id="toc-one-computation-step" class="nav-link" data-scroll-target="#one-computation-step"><span class="header-section-number">3.2</span> One computation step</a></li>
+  <li><a href="#final-configurations-and-computation-shapes" id="toc-final-configurations-and-computation-shapes" class="nav-link" data-scroll-target="#final-configurations-and-computation-shapes"><span class="header-section-number">3.3</span> Final configurations and computation shapes</a></li>
+  </ul></li>
+  <li><a href="#time-complexity" id="toc-time-complexity" class="nav-link" data-scroll-target="#time-complexity"><span class="header-section-number">4</span> Time complexity</a></li>
+  <li><a href="#worked-example-deciding-binary-palindromes-on-one-tape" id="toc-worked-example-deciding-binary-palindromes-on-one-tape" class="nav-link" data-scroll-target="#worked-example-deciding-binary-palindromes-on-one-tape"><span class="header-section-number">5</span> Worked example: deciding binary palindromes on one tape</a>
+  <ul class="collapse">
+  <li><a href="#counting-the-steps" id="toc-counting-the-steps" class="nav-link" data-scroll-target="#counting-the-steps"><span class="header-section-number">5.1</span> Counting the steps</a></li>
+  </ul></li>
+  <li><a href="#turing-machines-with-multiple-tapes" id="toc-turing-machines-with-multiple-tapes" class="nav-link" data-scroll-target="#turing-machines-with-multiple-tapes"><span class="header-section-number">6</span> Turing machines with multiple tapes</a></li>
+  <li><a href="#palindromes-on-a-multi-tape-machine" id="toc-palindromes-on-a-multi-tape-machine" class="nav-link" data-scroll-target="#palindromes-on-a-multi-tape-machine"><span class="header-section-number">7</span> Palindromes on a multi-tape machine</a></li>
+  <li><a href="#sources" id="toc-sources" class="nav-link" data-scroll-target="#sources"><span class="header-section-number">8</span> Sources</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/index.html">Complexity and Information Theory</a></li><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html">Operational Semantics and Time Complexity of Turing Machines</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Operational Semantics and Time Complexity of Turing Machines</h1>
+<p class="subtitle lead">Lecture 10 - 3 November 2026</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<style>
+.theorem-box {
+  border: 2px solid #b02a37;
+  border-left: 0.55rem solid #b02a37;
+  border-radius: 0.45rem;
+  padding: 1rem 1.15rem 0.85rem;
+  margin: 1.25rem 0;
+  background: rgba(176, 42, 55, 0.07);
+}
+.theorem-box > :first-child { margin-top: 0; }
+.theorem-box > :last-child { margin-bottom: 0; }
+.theorem-title {
+  color: #b02a37;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+@media (prefers-color-scheme: dark) {
+  .theorem-box {
+    background: rgba(255, 107, 122, 0.10);
+    border-color: #ff6b7a;
+  }
+  .theorem-title { color: #ff8a96; }
+}
+
+.tape-figure { margin: 1.15rem 0; overflow-x: auto; }
+.tape-row { display: flex; align-items: flex-start; min-width: max-content; padding-top: 2.2rem; }
+.tape-cell { position: relative; width: 3.25rem; min-width: 3.25rem; height: 3rem; display: grid; place-items: center; border: 1.5px solid #46637f; border-right: 0; background: rgba(47,111,159,.08); font-family: ui-monospace,monospace; font-size: 1.05rem; }
+.tape-cell:last-child { border-right: 1.5px solid #46637f; }
+.tape-cell.head { background: rgba(176,42,55,.12); border-color: #b02a37; border-right: 1.5px solid #b02a37; }
+.tape-cell.head::before { content: "▼"; position: absolute; top: -1.8rem; color: #b02a37; font-size: 1.2rem; }
+.tape-cell.head::after { content: attr(data-state); position: absolute; top: -3.1rem; color: #b02a37; font-weight: 700; white-space: nowrap; }
+.tape-label { font-weight: 700; margin: .7rem 0 .2rem; }
+.tape-caption { margin-top: .55rem; font-size: .94rem; color: #52606d; }
+@media (prefers-color-scheme: dark) {
+  .tape-cell { border-color: #8ab4d5; background: rgba(90,160,210,.11); }
+  .tape-cell.head { border-color: #ff6b7a; background: rgba(255,107,122,.13); }
+  .tape-cell.head::before, .tape-cell.head::after { color: #ff8a96; }
+  .tape-caption { color: #b9c2cc; }
+}
+</style>
+<section id="why-polynomial-time-is-model-independent" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Why polynomial time is model-independent</h1>
+<p>The lecture begins by recalling three points from the preceding discussion:</p>
+<ul>
+<li>the logarithmic and uniform cost criteria;</li>
+<li>the restriction to decision problems;</li>
+<li>the Extended Church–Turing Thesis.</li>
+</ul>
+<p>The logarithmic cost criterion is necessary for computational models whose primitive operations may manipulate values whose size grows during the computation. Charging every such operation one unit could hide the cost of handling increasingly long representations. For a Turing machine, however, one transition reads and modifies only one tape symbol, so the uniform and logarithmic criteria coincide at the level considered here.</p>
+<p>A <strong>decision problem</strong> asks for a yes/no answer. Equivalently, it is represented by a language <span class="math inline">\(L \subseteq \Sigma^*\)</span>: the strings in <span class="math inline">\(L\)</span> are precisely the yes-instances.</p>
+<p>The class <span class="math inline">\(\mathrm{P}\)</span>, also called <span class="math inline">\(\mathrm{PTIME}\)</span>, contains the decision problems solvable in polynomial time by a deterministic Turing machine. Its importance is not simply that every polynomial is practically small. For example, an <span class="math inline">\(n^{100}\)</span> algorithm is polynomial but already infeasible for modest <span class="math inline">\(n\)</span>. The deeper point is invariance under a change of reasonable deterministic computational model.</p>
+<div class="theorem-box">
+<div class="theorem-title">
+Extended Church–Turing Thesis and the invariance of P
+</div>
+<p>All reasonable deterministic models of computation are polynomially related. Consequently, changing from deterministic Turing machines to another reasonable deterministic model, such as a URM or an ordinary programming language, does not change the class <span class="math inline">\(\mathrm{P}\)</span>.</p>
+</div>
+<p>The thesis is a statement about the relationship among reasonable models, not a theorem derived from the formal definitions in this lecture. Its consequence is nevertheless central: <span class="math inline">\(\mathrm{P}\)</span> lets us discuss polynomial-time solvability without fixing every detail of the machine model.</p>
+<p>A narrower class, such as the problems solvable in time <span class="math inline">\(n^3\)</span> on one chosen model, need not be invariant. A simulation on another model may introduce overhead and move the same problem outside that exact bound. The union over all polynomial bounds is stable even when individual bounds are not.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  A[Deterministic Turing machine] --&gt;|polynomial simulation| B[URM or program model]
+  B --&gt;|polynomial simulation| A
+  A --&gt; C[Polynomial-time problems]
+  B --&gt; C
+  classDef model fill:#2f6f9f,color:#fff,stroke:#173f5f
+  classDef classNode fill:#8f3f71,color:#fff,stroke:#5d2549
+  class A,B model
+  class C classNode
+</pre>
+</div>
+<p></p><figcaption> Changing a reasonable deterministic model may alter a precise polynomial bound, but not membership in P.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>This part of complexity theory is especially relevant to symbolic AI, automated reasoning, and verification. Rule-based procedures can establish that a property holds for every possible execution of a system, but the algorithms needed to prove such guarantees may be computationally expensive. This contrasts with the earlier information-theoretic material, which is particularly relevant to sub-symbolic AI such as machine learning and neural networks.</p>
+</section>
+<section id="deterministic-turing-machines" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Deterministic Turing machines</h1>
+<p>A deterministic Turing machine is written</p>
+<p><span class="math display">\[
+M=(K,\Sigma,\delta,s),
+\]</span></p>
+<p>where:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Symbol</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(K\)</span></td>
+<td>finite set of internal states, including the halting states <span class="math inline">\(\mathsf{yes}\)</span>, <span class="math inline">\(\mathsf{no}\)</span>, and possibly <span class="math inline">\(\mathsf{halt}\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\Sigma\)</span></td>
+<td>tape alphabet, containing the left-end marker <span class="math inline">\(\triangleright\)</span> and blank symbol <span class="math inline">\(\sqcup\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\delta\)</span></td>
+<td>transition function</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s\)</span></td>
+<td>initial internal state</td>
+</tr>
+</tbody>
+</table>
+<p>Using moves <span class="math inline">\(\leftarrow\)</span>, <span class="math inline">\(\rightarrow\)</span>, and <span class="math inline">\(-\)</span> for left, right, and stay, respectively, the transition function has the form</p>
+<p><span class="math display">\[
+\delta:K\times\Sigma
+\longrightarrow
+\bigl(K\cup\{\mathsf{yes},\mathsf{no},\mathsf{halt}\}\bigr)
+\times\Sigma\times\{\leftarrow,\rightarrow,-\}.
+\]</span></p>
+<p>The left-end marker is permanent. It cannot be overwritten, and the head cannot move to its left. The notes record the representative condition</p>
+<p><span class="math display">\[
+\delta(q,\triangleright)=(q',\triangleright,\rightarrow).
+\]</span></p>
+<p>Allowing the head to remain temporarily on <span class="math inline">\(\triangleright\)</span> would not add computational power, because a useful computation must eventually move right.</p>
+</section>
+<section id="operational-semantics" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Operational semantics</h1>
+<p>The tuple defining <span class="math inline">\(M\)</span> gives its syntax. To describe how it evolves step by step, we need an <strong>operational semantics</strong>. Operational semantics represents computation as a directed graph:</p>
+<ul>
+<li>nodes are complete configurations of the machine;</li>
+<li>edges are individual computation steps.</li>
+</ul>
+<p>This viewpoint extends beyond Turing machines. For a program, a node might contain the control location and current variable values. In verification, the resulting graph represents all possible behaviours, and temporal properties describe what must hold along its paths. By contrast, denotational semantics associates a system with the mathematical function it computes rather than with its step-by-step execution graph.</p>
+<section id="configurations" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="configurations"><span class="header-section-number">3.1</span> Configurations</h2>
+<p>A configuration must contain all information required to determine the next step. For a one-tape Turing machine it is a triple</p>
+<p><span class="math display">\[
+(q,x,y),
+\]</span></p>
+<p>where <span class="math inline">\(q\)</span> is the current internal state and <span class="math inline">\(x,y\in\Sigma^*\)</span>. The string <span class="math inline">\(x\)</span> contains the tape from the left-end marker through the cell currently scanned; therefore its last symbol is under the head. The string <span class="math inline">\(y\)</span> is the significant tape content strictly to the right of the head. Unwritten trailing cells are implicitly blank, and the first symbol of <span class="math inline">\(x\)</span> is <span class="math inline">\(\triangleright\)</span>.</p>
+<div class="tape-figure" role="img" aria-label="One-tape Turing-machine configuration">
+  <div class="tape-row">
+    <div class="tape-cell">▷</div><div class="tape-cell">x₁</div><div class="tape-cell">…</div><div class="tape-cell head" data-state="q">xⱼ</div><div class="tape-cell">y₁</div><div class="tape-cell">…</div><div class="tape-cell">yₖ</div><div class="tape-cell">□</div><div class="tape-cell">□</div>
+  </div>
+  <div class="tape-caption">The head scans the last symbol of the left component.</div>
+</div>
+<p>Configuration <span class="math inline">\((q,x,y)\)</span>, where <span class="math inline">\(x=\triangleright x_1\cdots x_j\)</span> and <span class="math inline">\(y=y_1\cdots y_k\)</span>. The head scans the last symbol of <span class="math inline">\(x\)</span>.</p>
+<p>The initial configuration on input <span class="math inline">\(w\in\Sigma^*\)</span> is</p>
+<p><span class="math display">\[
+(s,\triangleright,w).
+\]</span></p>
+<p>Initially the head scans <span class="math inline">\(\triangleright\)</span>, the machine is in state <span class="math inline">\(s\)</span>, and the input lies to the right.</p>
+</section>
+<section id="one-computation-step" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="one-computation-step"><span class="header-section-number">3.2</span> One computation step</h2>
+<p>Write</p>
+<p><span class="math display">\[
+(q,x,y)\longrightarrow_M(q',x',y')
+\]</span></p>
+<p>when <span class="math inline">\(M\)</span> transforms the first configuration into the second in one transition. The relation is defined by cases according to <span class="math inline">\(\delta\)</span> and the head movement.</p>
+<p>The lecture develops the right-move case. Suppose</p>
+<p><span class="math display">\[
+x=x_1\cdots x_j,\qquad y=y_1\cdots y_k,
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\delta(q,x_j)=(q',z,\rightarrow).
+\]</span></p>
+<p>The machine replaces the scanned symbol <span class="math inline">\(x_j\)</span> by <span class="math inline">\(z\)</span>, moves right, and enters <span class="math inline">\(q'\)</span>. Hence</p>
+<p><span class="math display">\[
+(q,x,y)\longrightarrow_M(q',x',y'),
+\]</span></p>
+<p>with</p>
+<p><span class="math display">\[
+x'=x_1\cdots x_{j-1}zy_1,
+\qquad
+y'=y_2\cdots y_k.
+\]</span></p>
+<p>The symbol <span class="math inline">\(y_1\)</span> moves into the left component because it becomes the newly scanned symbol. The left-move and stay cases are defined analogously, with separate boundary cases when the significant right suffix is empty.</p>
+<p>The same step can be read directly in the parenthesised notation used in the notes. If</p>
+<p><span class="math display">\[
+\delta(q,0)=(q',1,\rightarrow),
+\]</span></p>
+<p>then</p>
+<p><span class="math display">\[
+(q,\triangleright 10,011)
+\longrightarrow_M
+(q',\triangleright 110,11).
+\]</span></p>
+<p>The scanned <span class="math inline">\(0\)</span> is replaced by <span class="math inline">\(1\)</span>; after the right move, the first symbol of the former right part becomes the scanned symbol and therefore joins the new left part.</p>
+<div class="tape-figure" role="img" aria-label="Right-moving transition before and after one step">
+  <div class="tape-label">Before the transition</div>
+  <div class="tape-row"><div class="tape-cell">▷</div><div class="tape-cell">1</div><div class="tape-cell head" data-state="q">0</div><div class="tape-cell">0</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell">□</div></div>
+  <div class="tape-label">After the transition</div>
+  <div class="tape-row"><div class="tape-cell">▷</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell head" data-state="q′">0</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell">□</div></div>
+  <div class="tape-caption">The machine writes 1, moves right and changes state.</div>
+</div>
+<p>Before the transition, the configuration is <span class="math inline">\((q,\triangleright 10,011)\)</span>. After the transition, it is <span class="math inline">\((q',\triangleright 110,11)\)</span>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The lecture distinguishes the <strong>internal state</strong> <span class="math inline">\(q\)</span> from the complete <strong>configuration</strong> <span class="math inline">\((q,x,y)\)</span>. In broader operational-semantics terminology, the full configuration may also be called the state of the transition system.</p>
+</div>
+</div>
+</section>
+<section id="final-configurations-and-computation-shapes" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="final-configurations-and-computation-shapes"><span class="header-section-number">3.3</span> Final configurations and computation shapes</h2>
+<p>A final configuration has the form</p>
+<p><span class="math display">\[
+(h,x,y),
+\qquad
+h\in\{\mathsf{yes},\mathsf{no},\mathsf{halt}\}.
+\]</span></p>
+<p>No transition is defined from a halting state. For a decision problem, the relevant outcomes are <span class="math inline">\(\mathsf{yes}\)</span> and <span class="math inline">\(\mathsf{no}\)</span>.</p>
+<p>Because <span class="math inline">\(M\)</span> is deterministic, each non-final configuration has at most one successor. Starting from a fixed input, the reachable computation therefore has no branching. Three shapes are possible:</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TB
+  I[Initial configuration] --&gt; Q{Evolution}
+  Q --&gt;|finite| H[Halting configuration]
+  Q --&gt;|repeated configuration| L[Infinite loop]
+  Q --&gt;|always new configurations| D[Infinite divergence]
+  classDef start fill:#2f6f9f,color:#fff,stroke:#173f5f
+  classDef halt fill:#347a4a,color:#fff,stroke:#20512f
+  classDef nonterm fill:#8f3f71,color:#fff,stroke:#5d2549
+  class I,Q start
+  class H halt
+  class L,D nonterm
+</pre>
+</div>
+<p></p><figcaption> A deterministic computation either halts, repeats a configuration, or continues forever through new configurations.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Case</th>
+<th>Shape</th>
+<th>What can be concluded?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Termination</td>
+<td>A finite path reaches <span class="math inline">\(\mathsf{yes}\)</span>, <span class="math inline">\(\mathsf{no}\)</span>, or <span class="math inline">\(\mathsf{halt}\)</span></td>
+<td>The computation has a finite running time.</td>
+</tr>
+<tr class="even">
+<td>Repeating loop</td>
+<td>A configuration already seen is reached again</td>
+<td>Determinism forces the same future behaviour, so the loop is infinite and detectable once repetition occurs.</td>
+</tr>
+<tr class="odd">
+<td>Divergence without repetition</td>
+<td>Every reached configuration is new</td>
+<td>The run is infinite, but no finite observation certifies that it will never halt.</td>
+</tr>
+</tbody>
+</table>
+<p>The course restricts attention to machines proved to halt on every input. No general algorithm can inspect an arbitrary Turing machine and decide whether it always terminates. For decision problems, a terminating machine decides a language <span class="math inline">\(L\subseteq\Sigma^*\)</span> by satisfying</p>
+<p><span class="math display">\[
+M(w)=\mathsf{yes}\Longleftrightarrow w\in L,
+\qquad
+M(w)=\mathsf{no}\Longleftrightarrow w\notin L.
+\]</span></p>
+</section>
+</section>
+<section id="time-complexity" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Time complexity</h1>
+<p>We say that <span class="math inline">\(M\)</span> on input <span class="math inline">\(w\)</span> <strong>takes time <span class="math inline">\(t\)</span></strong> if there is a computation</p>
+<p><span class="math display">\[
+(s,\triangleright,w)
+\longrightarrow_M^{\,t}
+(h,x',y'),
+\qquad
+h\in\{\mathsf{yes},\mathsf{no}\},
+\]</span></p>
+<p>where exactly <span class="math inline">\(t\)</span> computation steps, equivalently <span class="math inline">\(t\)</span> graph edges, are traversed.</p>
+<p>We say that <span class="math inline">\(M\)</span> <strong>works in time <span class="math inline">\(f(n)\)</span></strong> if, for every <span class="math inline">\(w\in\Sigma^*\)</span> with <span class="math inline">\(|w|=n\)</span>, the computation of <span class="math inline">\(M\)</span> on <span class="math inline">\(w\)</span> terminates after at most <span class="math inline">\(f(n)\)</span> steps:</p>
+<p><span class="math display">\[
+\forall w\in\Sigma^*,\quad |w|=n
+\Longrightarrow
+\operatorname{time}_M(w)\le f(n).
+\]</span></p>
+<p>The phrase “at most” makes <span class="math inline">\(f\)</span> a worst-case upper bound over all inputs of length <span class="math inline">\(n\)</span>. At this stage the definition uses an explicit function, not yet asymptotic notation. Thus a machine whose exact running time is below <span class="math inline">\(100n^2\)</span> legitimately works in time <span class="math inline">\(100n^2\)</span>, even if that bound is loose.</p>
+</section>
+<section id="worked-example-deciding-binary-palindromes-on-one-tape" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Worked example: deciding binary palindromes on one tape</h1>
+<p>Consider</p>
+<p><span class="math display">\[
+\mathcal{L}_{\mathrm{PAL}}
+=
+\left\{w\in\{0,1\}^*\mid w=w^{\mathrm{rev}}\right\},
+\]</span></p>
+<p>where <span class="math inline">\(w^{\mathrm{rev}}\)</span> denotes the reversal of <span class="math inline">\(w\)</span>.</p>
+<p>The one-tape algorithm repeatedly compares the two outermost unprocessed symbols:</p>
+<ol type="1">
+<li>Read the leftmost unprocessed symbol and remember it in the internal state, using <span class="math inline">\(q_0\)</span> or <span class="math inline">\(q_1\)</span>.</li>
+<li>Replace that leftmost symbol with the boundary symbol <span class="math inline">\(\triangleright\)</span>.</li>
+<li>Move right to the first blank cell <span class="math inline">\(\sqcup\)</span>, then move one step left.</li>
+<li>Compare the rightmost unprocessed symbol with the symbol stored in the state.</li>
+<li>If they differ, enter <span class="math inline">\(\mathsf{no}\)</span>. If they agree, replace the rightmost symbol with <span class="math inline">\(\sqcup\)</span>.</li>
+<li>Move left until the new boundary symbol <span class="math inline">\(\triangleright\)</span> is reached, then repeat on the shorter substring.</li>
+<li>If no unprocessed symbol remains, enter <span class="math inline">\(\mathsf{yes}\)</span>.</li>
+</ol>
+<p>Thus the machine does <strong>not</strong> use an auxiliary symbol <span class="math inline">\(X\)</span>. The processed prefix is absorbed into an expanding sequence of <span class="math inline">\(\triangleright\)</span> symbols, while the processed suffix becomes blank.</p>
+<p>For input <span class="math inline">\(0110\)</span>, the configurations at the end of each complete comparison round are</p>
+<p><span class="math display">\[
+(s,\triangleright,0110)
+\longrightarrow_M^*
+(q,\triangleright\triangleright,11)
+\longrightarrow_M^*
+(\mathsf{yes},\triangleright\triangleright\triangleright,\varepsilon).
+\]</span></p>
+<p>The first round remembers the initial <span class="math inline">\(0\)</span>, writes <span class="math inline">\(\triangleright\)</span> over it, verifies the final <span class="math inline">\(0\)</span>, and replaces that final symbol with <span class="math inline">\(\sqcup\)</span>. The remaining unprocessed word is therefore <span class="math inline">\(11\)</span>. The second round performs the same operations on the two <span class="math inline">\(1\)</span> symbols. Here <span class="math inline">\(\longrightarrow_M^*\)</span> abbreviates all one-step scans within a complete round.</p>
+<div class="tape-figure" role="img" aria-label="Selected configurations of the palindrome machine on input 0110">
+  <div class="tape-label">Initial configuration</div>
+  <div class="tape-row"><div class="tape-cell head" data-state="s">▷</div><div class="tape-cell">0</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell">0</div><div class="tape-cell">□</div></div>
+  <div class="tape-label">After matching the outer pair</div>
+  <div class="tape-row"><div class="tape-cell">▷</div><div class="tape-cell head" data-state="q">▷</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell">□</div><div class="tape-cell">□</div></div>
+  <div class="tape-label">Accepting configuration</div>
+  <div class="tape-row"><div class="tape-cell">▷</div><div class="tape-cell">▷</div><div class="tape-cell head" data-state="yes">▷</div><div class="tape-cell">□</div><div class="tape-cell">□</div><div class="tape-cell">□</div></div>
+  <div class="tape-caption">At each round, the left symbol becomes a boundary marker and the matching right symbol becomes blank.</div>
+</div>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+  A[Read leftmost unprocessed symbol] --&gt; B[Store 0 or 1 in the state]
+  B --&gt; C[Write the boundary symbol]
+  C --&gt; D[Scan right to the first blank]
+  D --&gt; E[Move left and compare]
+  E --&gt;|different| N[Enter no]
+  E --&gt;|equal| F[Write blank]
+  F --&gt; G[Return to the boundary]
+  G --&gt; H{Symbols remain?}
+  H --&gt;|yes| A
+  H --&gt;|no| Y[Enter yes]
+  classDef action fill:#2f6f9f,color:#fff,stroke:#173f5f
+  classDef test fill:#8f3f71,color:#fff,stroke:#5d2549
+  classDef accept fill:#347a4a,color:#fff,stroke:#20512f
+  classDef reject fill:#a33a3a,color:#fff,stroke:#6d2424
+  class A,B,C,D,F,G action
+  class E,H test
+  class Y accept
+  class N reject
+</pre>
+</div>
+<p></p><figcaption> The one-tape palindrome decider replaces the left symbol with the boundary marker and erases the matching right symbol.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>The transition function is written directly as a list of rules, exactly in the parenthesised form used in the lecture notes. Each rule has the form</p>
+<p><span class="math display">\[
+\delta(\text{current state},\text{read symbol})
+=
+(\text{next state},\text{written symbol},\text{head movement}).
+\]</span></p>
+<p>For the palindrome machine, the rules recorded in the lecture are:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\delta(s,\triangleright) &amp;= (q,\triangleright,\rightarrow),\\
+\delta(q,0) &amp;= (q_0,\triangleright,\rightarrow),\\
+\delta(q,1) &amp;= (q_1,\triangleright,\rightarrow),\\
+\delta(q_0,0) &amp;= (q_0,0,\rightarrow),\\
+\delta(q_0,1) &amp;= (q_0,1,\rightarrow),\\
+\delta(q_1,0) &amp;= (q_1,0,\rightarrow),\\
+\delta(q_1,1) &amp;= (q_1,1,\rightarrow),\\
+\delta(q_0,\sqcup) &amp;= (r_0,\sqcup,\leftarrow),\\
+\delta(q_1,\sqcup) &amp;= (r_1,\sqcup,\leftarrow),\\
+\delta(r_0,1) &amp;= (\mathsf{no},1,-),\\
+\delta(r_1,0) &amp;= (\mathsf{no},0,-),\\
+\delta(r_0,0) &amp;= (\ell,\sqcup,\leftarrow),\\
+\delta(r_1,1) &amp;= (\ell,\sqcup,\leftarrow),\\
+\delta(\ell,0) &amp;= (\ell,0,\leftarrow),\\
+\delta(\ell,1) &amp;= (\ell,1,\leftarrow),\\
+\delta(\ell,\triangleright) &amp;= (q,\triangleright,\rightarrow).
+\end{aligned}
+\]</span></p>
+<p>The states <span class="math inline">\(q_0\)</span> and <span class="math inline">\(q_1\)</span> remember whether the leftmost unprocessed symbol was <span class="math inline">\(0\)</span> or <span class="math inline">\(1\)</span>. The states <span class="math inline">\(r_0\)</span> and <span class="math inline">\(r_1\)</span> perform the comparison at the right end, while <span class="math inline">\(\ell\)</span> returns the head to the current left boundary. Acceptance occurs when the main state <span class="math inline">\(q\)</span> finds no unprocessed symbol after the boundary; the exact acceptance rule depends on the empty-word and one-symbol boundary cases adopted in the machine definition.</p>
+<section id="counting-the-steps" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="counting-the-steps"><span class="header-section-number">5.1</span> Counting the steps</h2>
+<p>For an unprocessed substring of length <span class="math inline">\(n\)</span>:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Phase</th>
+<th style="text-align: right;">Steps recorded in the lecture</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Scan from left to right and reach the boundary</td>
+<td style="text-align: right;"><span class="math inline">\(n+2\)</span></td>
+</tr>
+<tr class="even">
+<td>Return from right to left</td>
+<td style="text-align: right;"><span class="math inline">\(n\)</span></td>
+</tr>
+<tr class="odd">
+<td>Recurse on the remaining substring</td>
+<td style="text-align: right;"><span class="math inline">\(T(n-2)\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The notes state the recurrence, up to a possible additive constant that the lecturer explicitly flagged for checking,</p>
+<p><span class="math display">\[
+T(n)=
+\begin{cases}
+2, &amp; n=0,\\
+2n+2+T(n-2), &amp; n&gt;0.
+\end{cases}
+\]</span></p>
+<p>Repeated substitution adds a decreasing arithmetic sequence:</p>
+<p><span class="math display">\[
+T(n)
+=
+(2n+2)+(2(n-2)+2)+(2(n-4)+2)+\cdots.
+\]</span></p>
+<p>There are about <span class="math inline">\(n/2\)</span> iterations, and the sum of the linear terms is quadratic. Therefore the solution has the form</p>
+<p><span class="math display">\[
+T(n)=an^2+bn+c,
+\]</span></p>
+<p>for suitable constants <span class="math inline">\(a,b,c\)</span>, and consequently the machine has quadratic running time. The lecture intentionally postpones the formal introduction of asymptotic notation, so the key conclusion here is the explicit quadratic form rather than a formal <span class="math inline">\(\Theta\)</span>-classification.</p>
+</section>
+</section>
+<section id="turing-machines-with-multiple-tapes" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Turing machines with multiple tapes</h1>
+<p>A <span class="math inline">\(k\)</span>-tape Turing machine has a fixed number <span class="math inline">\(k\)</span> of tapes. The number of tapes is part of the machine definition and cannot grow with the input length. In one step, the transition may read the symbols under all <span class="math inline">\(k\)</span> heads, change one symbol on each tape, move each head independently, and update the common internal state.</p>
+<p>A configuration is</p>
+<p><span class="math display">\[
+(q,x_1,y_1,x_2,y_2,\ldots,x_k,y_k),
+\]</span></p>
+<p>where <span class="math inline">\(x_i,y_i\in\Sigma^*\)</span> describe tape <span class="math inline">\(i\)</span> exactly as <span class="math inline">\(x,y\)</span> described the one-tape machine. Each <span class="math inline">\(x_i\)</span> begins with <span class="math inline">\(\triangleright\)</span>.</p>
+<p>For input <span class="math inline">\(w\)</span>, the initial configuration is</p>
+<p><span class="math display">\[
+(s,\triangleright,w,\triangleright,\varepsilon,\ldots,
+\triangleright,\varepsilon),
+\]</span></p>
+<p>where <span class="math inline">\(\varepsilon\)</span> is the empty string. The first tape contains the input, while every other tape is blank. Since the representation stores only significant nonblank content, an empty right component represents an infinite blank suffix.</p>
+<p>For a three-tape machine on input <span class="math inline">\(0110\)</span>, the initial configuration is</p>
+<p><span class="math display">\[
+(s,\triangleright,0110,\triangleright,\varepsilon,\triangleright,\varepsilon).
+\]</span></p>
+<div class="tape-figure" role="img" aria-label="Initial configuration of a three-tape Turing machine">
+  <div class="tape-label">Tape 1</div><div class="tape-row"><div class="tape-cell head" data-state="s">▷</div><div class="tape-cell">0</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell">0</div><div class="tape-cell">□</div></div>
+  <div class="tape-label">Tape 2</div><div class="tape-row"><div class="tape-cell head" data-state="head 2">▷</div><div class="tape-cell">□</div><div class="tape-cell">□</div></div>
+  <div class="tape-label">Tape 3</div><div class="tape-row"><div class="tape-cell head" data-state="head 3">▷</div><div class="tape-cell">□</div><div class="tape-cell">□</div></div>
+  <div class="tape-caption">Each tape has its own head and its own left and right components.</div>
+</div>
+<p>Each tape contributes a pair <span class="math inline">\((x_i,y_i)\)</span> to the configuration tuple.</p>
+<p>A computation step has the form</p>
+<p><span class="math display">\[
+(q,x_1,y_1,\ldots,x_k,y_k)
+\longrightarrow_M
+(q',x_1',y_1',\ldots,x_k',y_k'),
+\]</span></p>
+<p>and is again defined case by case from the transition function. Final configurations are those whose internal state is <span class="math inline">\(\mathsf{yes}\)</span> or <span class="math inline">\(\mathsf{no}\)</span> for a decision problem.</p>
+<p>The running-time definition is unchanged: a <span class="math inline">\(k\)</span>-tape machine works in time <span class="math inline">\(f(n)\)</span> if every input of length <span class="math inline">\(n\)</span> leads to a final configuration within at most <span class="math inline">\(f(n)\)</span> multi-tape steps.</p>
+</section>
+<section id="palindromes-on-a-multi-tape-machine" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Palindromes on a multi-tape machine</h1>
+<p>Multiple tapes allow the palindrome language to be decided more efficiently:</p>
+<ol type="1">
+<li>Copy the input from tape 1 to tape 2.</li>
+<li>Return one head to the left while leaving the other at the right end.</li>
+<li>Move the two heads in opposite directions and compare corresponding symbols.</li>
+<li>Reject at the first mismatch; accept if all comparisons agree.</li>
+</ol>
+<p>There is no need to know the midpoint in advance. Comparing all positions is simpler and remains linear.</p>
+<p>After copying <span class="math inline">\(0110\)</span> to tape 2 and positioning the two heads at opposite ends, the comparison configuration is</p>
+<p><span class="math display">\[
+(q_{\mathrm{cmp}},\triangleright 0,110,\triangleright 0110,\varepsilon).
+\]</span></p>
+<p>After the two scanned zeroes agree, the heads move in opposite directions:</p>
+<p><span class="math display">\[
+(q_{\mathrm{cmp}},\triangleright 0,110,\triangleright 0110,\varepsilon)
+\longrightarrow_M
+(q_{\mathrm{cmp}},\triangleright 01,10,\triangleright 011,0).
+\]</span></p>
+<div class="tape-figure" role="img" aria-label="Two-tape palindrome comparison from opposite ends">
+  <div class="tape-label">Tape 1, head moving right</div><div class="tape-row"><div class="tape-cell">▷</div><div class="tape-cell head" data-state="qcmp">0</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell">0</div><div class="tape-cell">□</div></div>
+  <div class="tape-label">Tape 2, head moving left</div><div class="tape-row"><div class="tape-cell">▷</div><div class="tape-cell">0</div><div class="tape-cell">1</div><div class="tape-cell">1</div><div class="tape-cell head" data-state="qcmp">0</div><div class="tape-cell">□</div></div>
+  <div class="tape-caption">The heads compare symmetric positions in a single pass.</div>
+</div>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  A[Copy input to a work tape] --&gt; B[Place heads at opposite ends]
+  B --&gt; C[Move inward and compare]
+  C --&gt;|mismatch| N[Enter no]
+  C --&gt;|all equal| Y[Enter yes]
+  classDef action fill:#2f6f9f,color:#fff,stroke:#173f5f
+  classDef test fill:#8f3f71,color:#fff,stroke:#5d2549
+  classDef accept fill:#347a4a,color:#fff,stroke:#20512f
+  classDef reject fill:#a33a3a,color:#fff,stroke:#6d2424
+  class A,B action
+  class C test
+  class Y accept
+  class N reject
+</pre>
+</div>
+<p></p><figcaption> With two working views of the input, the machine can compare symbols from opposite ends without repeated full-tape scans.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>The lecture’s count is:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Phase</th>
+<th style="text-align: right;">Steps</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Copy the input</td>
+<td style="text-align: right;"><span class="math inline">\(n+2\)</span></td>
+</tr>
+<tr class="even">
+<td>Move a head back to the required end</td>
+<td style="text-align: right;"><span class="math inline">\(n+2\)</span></td>
+</tr>
+<tr class="odd">
+<td>Compare the symbols</td>
+<td style="text-align: right;"><span class="math inline">\(n+1\)</span></td>
+</tr>
+<tr class="even">
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong><span class="math inline">\(3n+5\)</span></strong></td>
+</tr>
+</tbody>
+</table>
+<p>Thus the multi-tape construction is linear in the input length, while the one-tape construction developed earlier is quadratic.</p>
+<div class="theorem-box">
+<div class="theorem-title">
+Comparison reached in this lecture
+</div>
+<p>For the palindrome language, the constructions considered here use quadratic time on one tape and linear time on multiple tapes. The lecture concludes by announcing that the quadratic slowdown is the worst possible loss when a multi-tape deterministic Turing machine is simulated by a one-tape deterministic Turing machine. The proof is deferred.</p>
+</div>
+<p>This example motivates the next question: although exact running times depend on the machine model, are the models polynomially related? The announced quadratic simulation bound answers yes and explains, in this concrete setting, why polynomial-time solvability is robust under a change of reasonable deterministic model.</p>
+</section>
+<section id="sources" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Sources</h1>
+<ul>
+<li>Goodnotes lecture notes: <em>10 - 03-11-2026.pdf</em>.</li>
+<li>Official lecture transcript: <em>2026-11-03 Complexity and Information theory.txt</em>.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/rikypara04\.github\.io\/uniud-ai-cybersecurity-notes\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

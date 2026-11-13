@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Prefix Codes and the Kraft-McMillan Inequality – MSc Artificial Intelligence &amp; Cybersecurity</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b626d73c4c936ccc3cb08be7d45d1df6.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-30c69b05bb77ed3e47d95fc04249e286.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-a69135c17c846eee28d2bd1af39dfe86.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">MSc Artificial Intelligence &amp; Cybersecurity</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/index.html">Complexity and Information Theory</a></li><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html">Prefix Codes and the Kraft-McMillan Inequality</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../01-complexity-information-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Complexity and Information Theory</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/01-introduction-to-information-theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Information Theory</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/02-information-probability-and-random-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Information, Probability, and Random Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/03-properties-of-entropy-and-conditional-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Properties of Entropy and Conditional Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/04-mutual-information-relative-entropy-and-source-coding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mutual Information, Relative Entropy, and Source Coding</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Prefix Codes and the Kraft-McMillan Inequality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/06-shannon-codes-huffman-codes-and-asymptotic-optimality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Shannon Codes, Huffman Codes, and Asymptotic Optimality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/07-lz77-and-kolmogorov-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">LZ77 Compression and Kolmogorov Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Kolmogorov Complexity and Its Relation to Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/09-computational-complexity-models-and-cost-criteria.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Computational Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Operational Semantics and Time Complexity of Turing Machines</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/11-multitape-simulation-time-speedup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multitape Simulation, Time Complexity, and Linear Speed-Up</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/12-time-and-space-complexity-classes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Time and Space Complexity Classes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../02-automated-reasoning/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Automated Reasoning</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Automated Reasoning and Constraint Programming</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/02-sat-encodings-and-dpll.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SAT Encodings and DPLL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Propagation and Local Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/04-bounds-hyper-arc-and-path-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bounds, Hyper-Arc, and Path Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Search Annotations and Constraint Modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/06-minizinc-modeling-examples-and-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Modelling through Classical Constraint Problems</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scheduling Models, Hamming Codes, and Timetabling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/08-constraint-optimization-local-search-and-bioinformatics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Optimization, Large Neighbourhood Search, and Bioinformatics Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/09-global-constraints-matching-and-cumulative-scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Global Constraints, Matching-Based Filtering, and Cumulative Scheduling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/10-syntax-and-definite-clause-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Syntax of Logic Programming and Definite-Clause Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/11-semantics-of-logic-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Semantics of Logic Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Unification, SLD Resolution, and the Limits of Computation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../03-foundations-cybersecurity-ethics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Foundations of Cybersecurity and Ethics</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Formal Verification and Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classical Logics: Propositional Logic, QBF, and First-Order Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Games in Logic and First-Order Definability</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learning Automata and Sequential Transducers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/05-uppaal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling and Verification in UPPAAL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Symbolic Verification of Security Protocols with Tamarin</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#decoding-delay-and-uniquely-decodable-codes" id="toc-decoding-delay-and-uniquely-decodable-codes" class="nav-link active" data-scroll-target="#decoding-delay-and-uniquely-decodable-codes"><span class="header-section-number">1</span> Decoding delay and uniquely decodable codes</a>
+  <ul class="collapse">
+  <li><a href="#decoding-delay" id="toc-decoding-delay" class="nav-link" data-scroll-target="#decoding-delay"><span class="header-section-number">1.1</span> Decoding delay</a></li>
+  </ul></li>
+  <li><a href="#prefix-codes" id="toc-prefix-codes" class="nav-link" data-scroll-target="#prefix-codes"><span class="header-section-number">2</span> Prefix codes</a>
+  <ul class="collapse">
+  <li><a href="#why-a-prefix-code-can-be-decoded-immediately" id="toc-why-a-prefix-code-can-be-decoded-immediately" class="nav-link" data-scroll-target="#why-a-prefix-code-can-be-decoded-immediately"><span class="header-section-number">2.1</span> Why a prefix code can be decoded immediately</a></li>
+  <li><a href="#every-prefix-code-is-uniquely-decodable" id="toc-every-prefix-code-is-uniquely-decodable" class="nav-link" data-scroll-target="#every-prefix-code-is-uniquely-decodable"><span class="header-section-number">2.2</span> Every prefix code is uniquely decodable</a></li>
+  <li><a href="#tree-representation" id="toc-tree-representation" class="nav-link" data-scroll-target="#tree-representation"><span class="header-section-number">2.3</span> Tree representation</a>
+  <ul class="collapse">
+  <li><a href="#example-of-a-binary-prefix-tree" id="toc-example-of-a-binary-prefix-tree" class="nav-link" data-scroll-target="#example-of-a-binary-prefix-tree"><span class="header-section-number">2.3.1</span> Example of a binary prefix tree</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#taxonomy-of-codes" id="toc-taxonomy-of-codes" class="nav-link" data-scroll-target="#taxonomy-of-codes"><span class="header-section-number">3</span> Taxonomy of codes</a>
+  <ul class="collapse">
+  <li><a href="#block-to-block-codes" id="toc-block-to-block-codes" class="nav-link" data-scroll-target="#block-to-block-codes"><span class="header-section-number">3.1</span> Block-to-block codes</a></li>
+  <li><a href="#block-to-variable-length-codes" id="toc-block-to-variable-length-codes" class="nav-link" data-scroll-target="#block-to-variable-length-codes"><span class="header-section-number">3.2</span> Block-to-variable-length codes</a></li>
+  <li><a href="#variable-to-variable-length-codes" id="toc-variable-to-variable-length-codes" class="nav-link" data-scroll-target="#variable-to-variable-length-codes"><span class="header-section-number">3.3</span> Variable-to-variable-length codes</a></li>
+  </ul></li>
+  <li><a href="#codeword-lengths" id="toc-codeword-lengths" class="nav-link" data-scroll-target="#codeword-lengths"><span class="header-section-number">4</span> Codeword lengths</a></li>
+  <li><a href="#kraft-mcmillan-theorems" id="toc-kraft-mcmillan-theorems" class="nav-link" data-scroll-target="#kraft-mcmillan-theorems"><span class="header-section-number">5</span> Kraft-McMillan theorems</a></li>
+  <li><a href="#inverse-theorem-every-uniquely-decodable-code-satisfies-the-inequality" id="toc-inverse-theorem-every-uniquely-decodable-code-satisfies-the-inequality" class="nav-link" data-scroll-target="#inverse-theorem-every-uniquely-decodable-code-satisfies-the-inequality"><span class="header-section-number">6</span> Inverse theorem: every uniquely decodable code satisfies the inequality</a>
+  <ul class="collapse">
+  <li><a href="#why-very-short-lengths-can-be-impossible" id="toc-why-very-short-lengths-can-be-impossible" class="nav-link" data-scroll-target="#why-very-short-lengths-can-be-impossible"><span class="header-section-number">6.1</span> Why very short lengths can be impossible</a></li>
+  </ul></li>
+  <li><a href="#first-proof-of-the-inverse-theorem-the-prefix-code-case" id="toc-first-proof-of-the-inverse-theorem-the-prefix-code-case" class="nav-link" data-scroll-target="#first-proof-of-the-inverse-theorem-the-prefix-code-case"><span class="header-section-number">7</span> First proof of the inverse theorem: the prefix-code case</a>
+  <ul class="collapse">
+  <li><a href="#a-concrete-tree-satisfying-equality" id="toc-a-concrete-tree-satisfying-equality" class="nav-link" data-scroll-target="#a-concrete-tree-satisfying-equality"><span class="header-section-number">7.1</span> A concrete tree satisfying equality</a></li>
+  </ul></li>
+  <li><a href="#second-proof-of-the-inverse-theorem-the-general-uniquely-decodable-case" id="toc-second-proof-of-the-inverse-theorem-the-general-uniquely-decodable-case" class="nav-link" data-scroll-target="#second-proof-of-the-inverse-theorem-the-general-uniquely-decodable-case"><span class="header-section-number">8</span> Second proof of the inverse theorem: the general uniquely decodable case</a>
+  <ul class="collapse">
+  <li><a href="#why-nmhleq-dh" id="toc-why-nmhleq-dh" class="nav-link" data-scroll-target="#why-nmhleq-dh"><span class="header-section-number">8.1</span> Why <span class="math inline">\(N(m,h)\leq D^h\)</span></a></li>
+  <li><a href="#expanding-the-kraft-sum" id="toc-expanding-the-kraft-sum" class="nav-link" data-scroll-target="#expanding-the-kraft-sum"><span class="header-section-number">8.2</span> Expanding the Kraft sum</a></li>
+  </ul></li>
+  <li><a href="#direct-theorem-constructing-a-prefix-code-from-valid-lengths" id="toc-direct-theorem-constructing-a-prefix-code-from-valid-lengths" class="nav-link" data-scroll-target="#direct-theorem-constructing-a-prefix-code-from-valid-lengths"><span class="header-section-number">9</span> Direct theorem: constructing a prefix code from valid lengths</a>
+  <ul class="collapse">
+  <li><a href="#tree-interpretation-of-the-direct-theorem" id="toc-tree-interpretation-of-the-direct-theorem" class="nav-link" data-scroll-target="#tree-interpretation-of-the-direct-theorem"><span class="header-section-number">9.1</span> Tree interpretation of the direct theorem</a></li>
+  </ul></li>
+  <li><a href="#combined-consequence" id="toc-combined-consequence" class="nav-link" data-scroll-target="#combined-consequence"><span class="header-section-number">10</span> Combined consequence</a></li>
+  <li><a href="#sources" id="toc-sources" class="nav-link" data-scroll-target="#sources"><span class="header-section-number">11</span> Sources</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/index.html">Complexity and Information Theory</a></li><li class="breadcrumb-item"><a href="../../01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html">Prefix Codes and the Kraft-McMillan Inequality</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Prefix Codes and the Kraft-McMillan Inequality</h1>
+<p class="subtitle lead">Lecture 5 - 15 October 2026</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="decoding-delay-and-uniquely-decodable-codes" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Decoding delay and uniquely decodable codes</h1>
+<p>Let</p>
+<p><span class="math display">\[
+\mathcal A=\{a_1,\ldots,a_k\}
+\]</span></p>
+<p>be the source alphabet and</p>
+<p><span class="math display">\[
+\mathcal B=\{b_1,\ldots,b_D\}
+\]</span></p>
+<p>be an output alphabet of size <span class="math inline">\(D\)</span>. A code assigns every source symbol a finite output string:</p>
+<p><span class="math display">\[
+\varphi:\mathcal A\to\mathcal B^*.
+\]</span></p>
+<p>The code extends to complete source messages through concatenation. If</p>
+<p><span class="math display">\[
+m=a_{i_1}a_{i_2}\cdots a_{i_n},
+\]</span></p>
+<p>then</p>
+<p><span class="math display">\[
+\varphi(m)
+=
+\varphi(a_{i_1})\varphi(a_{i_2})\cdots\varphi(a_{i_n}).
+\]</span></p>
+<p>A code is <strong>uniquely decodable</strong> when two different source messages can never produce the same encoded string. Equivalently, the extended mapping</p>
+<p><span class="math display">\[
+\varphi:\mathcal A^*\to\mathcal B^*
+\]</span></p>
+<p>must be injective.</p>
+<p>Unique decodability guarantees that the complete encoded message has one source interpretation. It does not necessarily guarantee that each source symbol can be decoded immediately while the encoded sequence is still arriving.</p>
+<section id="decoding-delay" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="decoding-delay"><span class="header-section-number">1.1</span> Decoding delay</h2>
+<p>The <strong>decoding delay</strong> is the amount of future encoded data that must be read before the decoder can determine the current source symbol.</p>
+<p>A uniquely decodable code may require the decoder to postpone a decision. The decoder may have read a valid codeword but still be unable to know whether that codeword should be accepted immediately or whether the received symbols are the beginning of a longer codeword.</p>
+<p>This motivates a stronger class of codes for which a source symbol can be recognised as soon as its codeword ends.</p>
+</section>
+</section>
+<section id="prefix-codes" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Prefix codes</h1>
+<p>A code <span class="math inline">\(\varphi:\mathcal A\to\mathcal B^*\)</span> is a <strong>prefix code</strong> when no codeword is a prefix of another codeword:</p>
+<p><span class="math display">\[
+\forall a,b\in\mathcal A,
+\quad
+a\neq b
+\Longrightarrow
+\varphi(a)\text{ is not a prefix of }\varphi(b).
+\]</span></p>
+<p>A string <span class="math inline">\(u\)</span> is a prefix of a string <span class="math inline">\(v\)</span> if there exists a string <span class="math inline">\(z\)</span> such that</p>
+<p><span class="math display">\[
+v=uz.
+\]</span></p>
+<p>The prefix is <strong>proper</strong> when <span class="math inline">\(z\)</span> is non-empty. Thus, the prefix condition says that a complete codeword can never also be the initial part of a different, longer codeword.</p>
+<section id="why-a-prefix-code-can-be-decoded-immediately" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="why-a-prefix-code-can-be-decoded-immediately"><span class="header-section-number">2.1</span> Why a prefix code can be decoded immediately</h2>
+<p>Suppose the encoded string is read from left to right. As soon as the symbols read so far form a complete codeword, the decoder may output the corresponding source symbol.</p>
+<p>There is no need to inspect future symbols, because the prefix property guarantees that the current codeword cannot be the beginning of any other codeword. The decoder can therefore remove the recognised codeword and repeat the same procedure on the remaining suffix.</p>
+<p>Prefix codes are consequently also called <strong>instantaneous codes</strong>. Their decoding delay is zero.</p>
+</section>
+<section id="every-prefix-code-is-uniquely-decodable" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="every-prefix-code-is-uniquely-decodable"><span class="header-section-number">2.2</span> Every prefix code is uniquely decodable</h2>
+<p>The instantaneous procedure also proves the following proposition.</p>
+<blockquote class="blockquote">
+<p>If <span class="math inline">\(\varphi\)</span> is a prefix code, then <span class="math inline">\(\varphi\)</span> is uniquely decodable.</p>
+</blockquote>
+<p>To see why, assume that an encoded string is produced by the code. Its first codeword is determined uniquely: two different codewords cannot both match the beginning of the string, because then the shorter one would be a prefix of the longer one. After removing the first codeword, the same argument determines the second codeword, and the process continues until the entire encoded string has been consumed.</p>
+<p>Hence the encoded sequence has one unique segmentation into codewords and therefore one unique source message.</p>
+<p>The converse is false: a uniquely decodable code need not be a prefix code. Prefix codes form a particularly convenient subclass of uniquely decodable codes because they permit instantaneous decoding.</p>
+</section>
+<section id="tree-representation" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="tree-representation"><span class="header-section-number">2.3</span> Tree representation</h2>
+<p>A <span class="math inline">\(D\)</span>-ary rooted tree gives a useful representation of a code over an alphabet with <span class="math inline">\(D\)</span> output symbols:</p>
+<ul>
+<li>the root represents the empty string;</li>
+<li>each edge is labelled by one output symbol;</li>
+<li>a node at depth <span class="math inline">\(h\)</span> represents a string of length <span class="math inline">\(h\)</span>;</li>
+<li>the path from the root to a node spells the represented string.</li>
+</ul>
+<p>A set of codewords is prefix-free exactly when no selected codeword node is an ancestor of another selected codeword node. Codewords may therefore be placed at leaves of the pruned code tree.</p>
+<p>This tree interpretation explains instantaneous decoding. Reading one output symbol corresponds to following one edge. Reaching a codeword leaf identifies the current source symbol; no codeword continues below that leaf.</p>
+<section id="example-of-a-binary-prefix-tree" class="level3" data-number="2.3.1">
+<h3 data-number="2.3.1" class="anchored" data-anchor-id="example-of-a-binary-prefix-tree"><span class="header-section-number">2.3.1</span> Example of a binary prefix tree</h3>
+<p>Consider the binary prefix code</p>
+<p><span class="math display">\[
+\varphi(a)=0,
+\qquad
+\varphi(b)=10,
+\qquad
+\varphi(c)=11.
+\]</span></p>
+<p>The corresponding tree is:</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+    R((root))
+    A["a: 0"]
+    N1(("1"))
+    B["b: 10"]
+    C["c: 11"]
+
+    R --&gt;|0| A
+    R --&gt;|1| N1
+    N1 --&gt;|0| B
+    N1 --&gt;|1| C
+
+    classDef codeword fill:#dff3e4,stroke:#27864a,stroke-width:2px;
+    classDef internal fill:#eef3f8,stroke:#5b6b7a;
+    class A,B,C codeword;
+    class R,N1 internal;
+</pre>
+</div>
+<p></p><figcaption> Binary prefix tree for the code a -&gt; 0, b -&gt; 10, c -&gt; 11.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>The tree should be read from the root downward:</p>
+<ul>
+<li>following edge <span class="math inline">\(0\)</span> reaches the leaf for <span class="math inline">\(a\)</span>;</li>
+<li>following edges <span class="math inline">\(1,0\)</span> reaches the leaf for <span class="math inline">\(b\)</span>;</li>
+<li>following edges <span class="math inline">\(1,1\)</span> reaches the leaf for <span class="math inline">\(c\)</span>.</li>
+</ul>
+<p>No codeword leaf has descendants. In particular, <span class="math inline">\(0\)</span> is not the beginning of either <span class="math inline">\(10\)</span> or <span class="math inline">\(11\)</span>, and neither <span class="math inline">\(10\)</span> nor <span class="math inline">\(11\)</span> is the beginning of another codeword. Consequently, as soon as the decoder reaches one of the green leaves, one source symbol has been identified.</p>
+<p>For example, the encoded string</p>
+<p><span class="math display">\[
+01011
+\]</span></p>
+<p>is decoded by traversing the tree repeatedly:</p>
+<p><span class="math display">\[
+0\mid10\mid11
+\quad\longrightarrow\quad
+abc.
+\]</span></p>
+</section>
+</section>
+</section>
+<section id="taxonomy-of-codes" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Taxonomy of codes</h1>
+<p>The lecture distinguishes codes according to whether the source and output are processed in fixed-size or variable-size blocks.</p>
+<section id="block-to-block-codes" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="block-to-block-codes"><span class="header-section-number">3.1</span> Block-to-block codes</h2>
+<p>A <strong>block-to-block</strong> code maps source blocks of one fixed length to output blocks of another fixed length. All input blocks have the same number of source symbols and all output codewords have the same number of output symbols.</p>
+<p>Because the output block length is known, codeword boundaries occur at fixed positions.</p>
+</section>
+<section id="block-to-variable-length-codes" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="block-to-variable-length-codes"><span class="header-section-number">3.2</span> Block-to-variable-length codes</h2>
+<p>A <strong>block-to-variable-length</strong> code maps fixed-length source blocks to output codewords of different lengths.</p>
+<p>Shannon-Fano and Huffman codes are examples of this category. Variable codeword lengths make it possible to assign shorter codewords to more probable source blocks and longer codewords to less probable blocks.</p>
+</section>
+<section id="variable-to-variable-length-codes" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="variable-to-variable-length-codes"><span class="header-section-number">3.3</span> Variable-to-variable-length codes</h2>
+<p>A <strong>variable-to-variable-length</strong> code maps variable-length source phrases to variable-length output strings. Lempel-Ziv methods belong to this category.</p>
+<p>The categories describe the form of the input and output blocks. Properties such as prefix-freeness and unique decodability are separate requirements.</p>
+</section>
+</section>
+<section id="codeword-lengths" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Codeword lengths</h1>
+<p>For each source symbol <span class="math inline">\(a_i\)</span>, define</p>
+<p><span class="math display">\[
+l_i=|\varphi(a_i)|,
+\]</span></p>
+<p>where <span class="math inline">\(l_i\)</span> is the length of the codeword assigned to <span class="math inline">\(a_i\)</span>.</p>
+<p>The question developed in the remainder of the lecture is:</p>
+<blockquote class="blockquote">
+<p>Which integer length sequences <span class="math inline">\(l_1,\ldots,l_k\)</span> can occur in a uniquely decodable or prefix code over a <span class="math inline">\(D\)</span>-symbol output alphabet?</p>
+</blockquote>
+<p>The answer is expressed by the Kraft-McMillan inequality.</p>
+</section>
+<section id="kraft-mcmillan-theorems" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Kraft-McMillan theorems</h1>
+<p>The lecture presents the Kraft-McMillan result in <strong>two directions</strong>.</p>
+<ul>
+<li>The <strong>inverse theorem</strong> starts from an existing uniquely decodable code and derives a necessary condition on its codeword lengths.</li>
+<li>The <strong>direct theorem</strong> starts from a sequence of positive integer lengths satisfying that condition and constructs a prefix code with exactly those lengths.</li>
+</ul>
+<p>Together, the two theorems characterise precisely which codeword-length sequences are feasible.</p>
+</section>
+<section id="inverse-theorem-every-uniquely-decodable-code-satisfies-the-inequality" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Inverse theorem: every uniquely decodable code satisfies the inequality</h1>
+<div class="callout callout-style-default callout-important callout-titled" title="Kraft-McMillan inverse theorem">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Kraft-McMillan inverse theorem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Let</p>
+<p><span class="math display">\[
+\mathcal A=\{a_1,\ldots,a_k\}
+\]</span></p>
+<p>and let</p>
+<p><span class="math display">\[
+\varphi:\mathcal A\to\mathcal B^*
+\]</span></p>
+<p>be a uniquely decodable code over an output alphabet</p>
+<p><span class="math display">\[
+\mathcal B=\{b_1,\ldots,b_D\}.
+\]</span></p>
+<p>If</p>
+<p><span class="math display">\[
+l_i=|\varphi(a_i)|
+\]</span></p>
+<p>is the length of the codeword assigned to <span class="math inline">\(a_i\)</span>, then</p>
+<p><span class="math display">\[
+\boxed{
+\sum_{i=1}^{k}D^{-l_i}\leq1
+}.
+\]</span></p>
+</div>
+</div>
+<p>The theorem is called the <strong>inverse theorem</strong> because the code is assumed to exist already. Starting from the code, the theorem infers a restriction that its lengths must satisfy.</p>
+<p>For a binary code, <span class="math inline">\(D=2\)</span>, so the condition becomes</p>
+<p><span class="math display">\[
+\sum_{i=1}^{k}2^{-l_i}\leq1.
+\]</span></p>
+<p>Each term <span class="math inline">\(D^{-l_i}\)</span> can be interpreted as the fraction of the available <span class="math inline">\(D\)</span>-ary tree capacity consumed by a codeword of length <span class="math inline">\(l_i\)</span>. A shorter codeword consumes a larger fraction because it blocks a larger subtree.</p>
+<section id="why-very-short-lengths-can-be-impossible" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="why-very-short-lengths-can-be-impossible"><span class="header-section-number">6.1</span> Why very short lengths can be impossible</h2>
+<p>Consider a binary output alphabet and three source symbols. If all three codeword lengths were equal to one, then</p>
+<p><span class="math display">\[
+2^{-1}+2^{-1}+2^{-1}
+=
+\frac32
+&gt;
+1.
+\]</span></p>
+<p>Such a code cannot exist: a binary tree has only the two length-one strings <span class="math inline">\(0\)</span> and <span class="math inline">\(1\)</span>, but three source symbols would require three distinct length-one codewords.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+    R((root))
+    Z["available word: 0"]
+    O["available word: 1"]
+
+    R --&gt;|0| Z
+    R --&gt;|1| O
+
+    classDef available fill:#fff2cc,stroke:#b58b00,stroke-width:2px;
+    classDef internal fill:#eef3f8,stroke:#5b6b7a;
+    class Z,O available;
+    class R internal;
+</pre>
+</div>
+<p></p><figcaption> At depth 1, a binary tree has only two available leaves.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>The value</p>
+<p><span class="math display">\[
+3\cdot2^{-1}=\frac32
+\]</span></p>
+<p>means that the requested codewords would consume one and a half times the available depth-one capacity.</p>
+<p>The lecture gives two proofs of the inverse theorem. The first proves the inequality for the special case of a prefix code by using its tree representation. The second proves the full statement for every uniquely decodable code by a counting argument.</p>
+</section>
+</section>
+<section id="first-proof-of-the-inverse-theorem-the-prefix-code-case" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> First proof of the inverse theorem: the prefix-code case</h1>
+<p>Assume first that <span class="math inline">\(\varphi\)</span> is not only uniquely decodable but also a prefix code. Define</p>
+<p><span class="math display">\[
+L=\max_{1\leq i\leq k}l_i.
+\]</span></p>
+<p>At depth <span class="math inline">\(L\)</span>, the complete <span class="math inline">\(D\)</span>-ary tree contains exactly</p>
+<p><span class="math display">\[
+D^L
+\]</span></p>
+<p>nodes.</p>
+<p>A codeword of length <span class="math inline">\(l_i\)</span> is represented by a node at depth <span class="math inline">\(l_i\)</span>. Below that node there are</p>
+<p><span class="math display">\[
+D^{L-l_i}
+\]</span></p>
+<p>descendants at depth <span class="math inline">\(L\)</span>, because there are <span class="math inline">\(L-l_i\)</span> remaining edge positions and each position has <span class="math inline">\(D\)</span> possible labels.</p>
+<p>Because the code is prefix-free, the depth-<span class="math inline">\(L\)</span> descendant sets belonging to different codewords are disjoint. If two such sets overlapped, one selected codeword node would lie above the other selected codeword node, meaning that one codeword was a prefix of the other.</p>
+<p>Therefore, the total number of committed depth-<span class="math inline">\(L\)</span> nodes cannot exceed the <span class="math inline">\(D^L\)</span> nodes available in the complete tree:</p>
+<p><span class="math display">\[
+\sum_{i=1}^{k}D^{L-l_i}\leq D^L.
+\]</span></p>
+<p>Dividing by <span class="math inline">\(D^L\)</span> gives</p>
+<p><span class="math display">\[
+\sum_{i=1}^{k}\frac{D^{L-l_i}}{D^L}
+=
+\sum_{i=1}^{k}D^{-l_i}
+\leq1.
+\]</span></p>
+<p>This proves the inverse theorem for prefix codes.</p>
+<section id="a-concrete-tree-satisfying-equality" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="a-concrete-tree-satisfying-equality"><span class="header-section-number">7.1</span> A concrete tree satisfying equality</h2>
+<p>Consider the binary lengths</p>
+<p><span class="math display">\[
+l_1=1,
+\qquad
+l_2=2,
+\qquad
+l_3=l_4=3.
+\]</span></p>
+<p>Their Kraft sum is</p>
+<p><span class="math display">\[
+2^{-1}+2^{-2}+2^{-3}+2^{-3}
+=
+\frac12+\frac14+\frac18+\frac18
+=1.
+\]</span></p>
+<p>One prefix code with these lengths is</p>
+<p><span class="math display">\[
+\varphi(a)=0,
+\qquad
+\varphi(b)=10,
+\qquad
+\varphi(c)=110,
+\qquad
+\varphi(d)=111.
+\]</span></p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+    R((root))
+    A["a: 0 (length 1)"]
+    N1(("1"))
+    B["b: 10 (length 2)"]
+    N11(("11"))
+    C["c: 110 (length 3)"]
+    D["d: 111 (length 3)"]
+
+    R --&gt;|0| A
+    R --&gt;|1| N1
+    N1 --&gt;|0| B
+    N1 --&gt;|1| N11
+    N11 --&gt;|0| C
+    N11 --&gt;|1| D
+
+    classDef codeword fill:#dff3e4,stroke:#27864a,stroke-width:2px;
+    classDef internal fill:#eef3f8,stroke:#5b6b7a;
+    class A,B,C,D codeword;
+    class R,N1,N11 internal;
+</pre>
+</div>
+<p></p><figcaption> A complete binary prefix tree with lengths 1, 2, 3, and 3.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>At the common depth <span class="math inline">\(L=3\)</span>:</p>
+<ul>
+<li>codeword <span class="math inline">\(0\)</span> commits <span class="math inline">\(2^{3-1}=4\)</span> leaves;</li>
+<li>codeword <span class="math inline">\(10\)</span> commits <span class="math inline">\(2^{3-2}=2\)</span> leaves;</li>
+<li>codewords <span class="math inline">\(110\)</span> and <span class="math inline">\(111\)</span> commit one leaf each.</li>
+</ul>
+<p>Thus</p>
+<p><span class="math display">\[
+4+2+1+1=8=2^3,
+\]</span></p>
+<p>and, after normalisation by <span class="math inline">\(2^3\)</span>,</p>
+<p><span class="math display">\[
+\frac48+\frac28+\frac18+\frac18=1.
+\]</span></p>
+<p>The equality means that this prefix tree is complete: all available depth-three capacity is committed.</p>
+</section>
+</section>
+<section id="second-proof-of-the-inverse-theorem-the-general-uniquely-decodable-case" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Second proof of the inverse theorem: the general uniquely decodable case</h1>
+<p>The tree proof cannot be applied directly to an arbitrary uniquely decodable code, because a uniquely decodable code need not be prefix-free. The second proof uses only unique decodability and a counting argument.</p>
+<p>Let</p>
+<p><span class="math display">\[
+l_{\max}=\max_i l_i.
+\]</span></p>
+<p>For integers <span class="math inline">\(m\geq1\)</span> and <span class="math inline">\(h\geq0\)</span>, define</p>
+<p><span class="math display">\[
+N(m,h)
+\]</span></p>
+<p>as the number of source strings in <span class="math inline">\(\mathcal A^m\)</span> whose encoded strings have output length <span class="math inline">\(h\)</span>.</p>
+<section id="why-nmhleq-dh" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="why-nmhleq-dh"><span class="header-section-number">8.1</span> Why <span class="math inline">\(N(m,h)\leq D^h\)</span></h2>
+<p>There are exactly <span class="math inline">\(D^h\)</span> different strings of length <span class="math inline">\(h\)</span> over the output alphabet <span class="math inline">\(\mathcal B\)</span>.</p>
+<p>Because the code is uniquely decodable, different source strings must produce different encoded strings. Therefore, the number of <span class="math inline">\(m\)</span>-symbol source strings encoded with length <span class="math inline">\(h\)</span> cannot exceed the number of available output strings of length <span class="math inline">\(h\)</span>:</p>
+<p><span class="math display">\[
+N(m,h)\leq D^h.
+\]</span></p>
+<p>This is exactly where unique decodability is used. Without it, two or more source strings could share the same encoded string, and the bound would not follow.</p>
+</section>
+<section id="expanding-the-kraft-sum" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="expanding-the-kraft-sum"><span class="header-section-number">8.2</span> Expanding the Kraft sum</h2>
+<p>Let</p>
+<p><span class="math display">\[
+S=\sum_{i=1}^{k}D^{-l_i}.
+\]</span></p>
+<p>Consider its <span class="math inline">\(m\)</span>-th power:</p>
+<p><span class="math display">\[
+S^m
+=
+\left(
+\sum_{i=1}^{k}D^{-l_i}
+\right)^m.
+\]</span></p>
+<p>Expanding this product means choosing one source symbol from each of the <span class="math inline">\(m\)</span> factors. A source string</p>
+<p><span class="math display">\[
+a_{i_1}a_{i_2}\cdots a_{i_m}
+\]</span></p>
+<p>contributes</p>
+<p><span class="math display">\[
+D^{-(l_{i_1}+l_{i_2}+\cdots+l_{i_m})}.
+\]</span></p>
+<p>The exponent is the negative of the total length of the encoded source string. Grouping source strings according to their encoded length <span class="math inline">\(h\)</span> gives</p>
+<p><span class="math display">\[
+S^m
+=
+\sum_hN(m,h)D^{-h}.
+\]</span></p>
+<p>Since each of the <span class="math inline">\(m\)</span> source symbols has codeword length at most <span class="math inline">\(l_{\max}\)</span>, the total encoded length satisfies</p>
+<p><span class="math display">\[
+h\leq ml_{\max}.
+\]</span></p>
+<p>Using <span class="math inline">\(N(m,h)\leq D^h\)</span>,</p>
+<p><span class="math display">\[
+\begin{aligned}
+S^m
+&amp;=\sum_hN(m,h)D^{-h}\\
+&amp;\leq\sum_{h=1}^{ml_{\max}}D^hD^{-h}\\
+&amp;=\sum_{h=1}^{ml_{\max}}1\\
+&amp;=ml_{\max}.
+\end{aligned}
+\]</span></p>
+<p>The right-hand side grows only linearly with <span class="math inline">\(m\)</span>.</p>
+<p>If <span class="math inline">\(S&gt;1\)</span>, then <span class="math inline">\(S^m\)</span> grows exponentially with <span class="math inline">\(m\)</span>. For sufficiently large <span class="math inline">\(m\)</span>, an exponentially growing quantity cannot remain bounded by the linear quantity <span class="math inline">\(ml_{\max}\)</span>. Therefore <span class="math inline">\(S&gt;1\)</span> is impossible, and</p>
+<p><span class="math display">\[
+S\leq1.
+\]</span></p>
+<p>Hence</p>
+<p><span class="math display">\[
+\boxed{
+\sum_{i=1}^{k}D^{-l_i}\leq1
+}.
+\]</span></p>
+<p>This completes the second proof and establishes the inverse theorem for every uniquely decodable code.</p>
+</section>
+</section>
+<section id="direct-theorem-constructing-a-prefix-code-from-valid-lengths" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Direct theorem: constructing a prefix code from valid lengths</h1>
+<div class="callout callout-style-default callout-important callout-titled" title="Kraft-McMillan direct theorem">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Kraft-McMillan direct theorem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Let</p>
+<p><span class="math display">\[
+\mathcal A=\{a_1,\ldots,a_k\}
+\]</span></p>
+<p>and let <span class="math inline">\(l_1,\ldots,l_k\)</span> be positive integers. If</p>
+<p><span class="math display">\[
+\sum_{i=1}^{k}D^{-l_i}\leq1,
+\]</span></p>
+<p>then there exists a <span class="math inline">\(D\)</span>-ary prefix code</p>
+<p><span class="math display">\[
+\varphi:\mathcal A\to\mathcal B^*
+\]</span></p>
+<p>such that</p>
+<p><span class="math display">\[
+|\varphi(a_i)|=l_i
+\]</span></p>
+<p>for every <span class="math inline">\(i\in\{1,\ldots,k\}\)</span>.</p>
+</div>
+</div>
+<p>The theorem is called the <strong>direct theorem</strong> because it starts from the numerical condition on the desired lengths and directly guarantees the existence of a code. It gives more than unique decodability: it guarantees a prefix code, and every prefix code is uniquely decodable.</p>
+<section id="tree-interpretation-of-the-direct-theorem" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="tree-interpretation-of-the-direct-theorem"><span class="header-section-number">9.1</span> Tree interpretation of the direct theorem</h2>
+<p>Order the desired lengths so that</p>
+<p><span class="math display">\[
+l_1\leq l_2\leq\cdots\leq l_k.
+\]</span></p>
+<p>In the full <span class="math inline">\(D\)</span>-ary tree, a codeword of length <span class="math inline">\(l_i\)</span> must be placed at depth <span class="math inline">\(l_i\)</span>. Once a node is selected as a codeword, none of its descendants may be selected, otherwise the chosen word would be a prefix of another codeword.</p>
+<p>At a common depth <span class="math inline">\(L\geq\max_i l_i\)</span>, selecting a codeword of length <span class="math inline">\(l_i\)</span> commits</p>
+<p><span class="math display">\[
+D^{L-l_i}
+\]</span></p>
+<p>of the <span class="math inline">\(D^L\)</span> depth-<span class="math inline">\(L\)</span> leaves. Its normalised tree cost is therefore</p>
+<p><span class="math display">\[
+\frac{D^{L-l_i}}{D^L}=D^{-l_i}.
+\]</span></p>
+<p>The hypothesis</p>
+<p><span class="math display">\[
+\sum_{i=1}^{k}D^{-l_i}\leq1
+\]</span></p>
+<p>states that the total requested cost does not exceed the capacity of the tree.</p>
+<p>A constructive procedure chooses codeword nodes from the shortest requested depth to the longest, always avoiding subtrees already committed by earlier codewords. The inequality guarantees that enough uncommitted capacity remains to place all requested codewords. The selected nodes form a prefix-free set, so the resulting code is a prefix code with exactly the prescribed lengths.</p>
+</section>
+</section>
+<section id="combined-consequence" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Combined consequence</h1>
+<p>The inverse and direct theorems together give the exact characterisation:</p>
+<p><span class="math display">\[
+\boxed{
+\begin{array}{c}
+\text{A sequence }l_1,\ldots,l_k\text{ is realised by a uniquely decodable}\
+\text{$D$-ary code if and only if }\displaystyle\sum_{i=1}^{k}D^{-l_i}\leq1.
+\end{array}
+}
+\]</span></p>
+<p>Furthermore, whenever a uniquely decodable code exists with lengths <span class="math inline">\(l_1,\ldots,l_k\)</span>, the direct theorem guarantees a prefix code with the same lengths.</p>
+<p>This does <strong>not</strong> mean that every uniquely decodable code is itself prefix-free. It means that uniquely decodable codes and prefix codes admit exactly the same possible codeword-length sequences.</p>
+</section>
+<section id="sources" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> Sources</h1>
+<ul>
+<li>Goodnotes lecture notes: <em>05 - 15-10-2026.pdf</em>.</li>
+<li>Thomas M. Cover and Joy A. Thomas, <em>Elements of Information Theory</em>, used to verify the standard formulation and counting proof of the Kraft-McMillan inequality already presented in the lecture.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/rikypara04\.github\.io\/uniud-ai-cybersecurity-notes\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
