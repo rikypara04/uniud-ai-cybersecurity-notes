@@ -1,0 +1,449 @@
+---
+title: "Reachability, Proper Complexity Bounds, and Complements"
+subtitle: "Lecture 14 - 17 November 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+```{=html}
+<style>
+.theorem-box {
+  border: 2px solid #b02a37;
+  border-left: 0.55rem solid #b02a37;
+  border-radius: 0.45rem;
+  padding: 1rem 1.15rem 0.85rem;
+  margin: 1.25rem 0;
+  background: rgba(176, 42, 55, 0.07);
+}
+.theorem-box > :first-child { margin-top: 0; }
+.theorem-box > :last-child { margin-bottom: 0; }
+.theorem-title {
+  color: #b02a37;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+.machine-figure {
+  margin: 1.25rem 0;
+  padding: 1rem;
+  border: 1px solid rgba(108,117,125,.45);
+  border-radius: .55rem;
+  overflow-x: auto;
+}
+.tape-row {
+  display: flex;
+  align-items: stretch;
+  width: max-content;
+  min-width: 100%;
+  margin: .55rem 0;
+}
+.tape-label {
+  width: 8.5rem;
+  flex: 0 0 8.5rem;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+}
+.tape-cell {
+  min-width: 2.8rem;
+  height: 2.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #495057;
+  border-right: 0;
+  background: rgba(13,110,253,.08);
+  font-family: var(--bs-font-monospace, monospace);
+}
+.tape-cell:last-child { border-right: 1.5px solid #495057; }
+.tape-cell.work { background: rgba(111,66,193,.10); }
+.tape-cell.output { background: rgba(25,135,84,.10); }
+.figure-caption-local { margin-top: .9rem; color: #6c757d; font-size: .92rem; }
+@media (prefers-color-scheme: dark) {
+  .theorem-box { background: rgba(255,107,122,.10); border-color: #ff6b7a; }
+  .theorem-title { color: #ff8a96; }
+  .tape-cell { border-color: #adb5bd; background: rgba(77,171,247,.14); }
+  .tape-cell:last-child { border-right-color: #adb5bd; }
+  .tape-cell.work { background: rgba(177,151,252,.14); }
+  .tape-cell.output { background: rgba(81,207,102,.14); }
+}
+</style>
+```
+
+# Relations among time and space classes
+
+The lecture begins by collecting the consequences of the deterministic and nondeterministic simulations introduced previously. For a suitable time bound $f(n)$, deterministic computation is a special case of nondeterministic computation, and a computation using at most $f(n)$ steps cannot visit more than $O(f(n))$ tape cells. Therefore,
+
+$$
+\operatorname{TIME}(f(n))
+\subseteq
+\operatorname{NTIME}(f(n))
+$$
+
+and
+
+$$
+\operatorname{TIME}(f(n))
+\subseteq
+\operatorname{SPACE}(f(n)).
+$$
+
+The same deterministic-as-nondeterministic observation yields
+
+$$
+\operatorname{SPACE}(f(n))
+\subseteq
+\operatorname{NSPACE}(f(n)).
+$$
+
+The previous lecture established that a nondeterministic machine running in time $f(n)$ can be simulated deterministically in time exponential in $f(n)$. When the bound is polynomial, this gives the class-level containment
+
+$$
+\mathrm{P}
+\subseteq
+\mathrm{NP}
+\subseteq
+\mathrm{EXP}.
+$$
+
+Combining the time-to-space observation with the definitions of the aggregate classes also gives
+
+$$
+\mathrm{P}
+\subseteq
+\mathrm{PSPACE}
+\subseteq
+\mathrm{NPSPACE}.
+$$
+
+```{mermaid}
+%%| fig-cap: "The introductory deterministic and nondeterministic classes are related by simulation and by the fact that time bounds space."
+flowchart LR
+  P["P"] --> NP["NP"]
+  NP --> EXP["EXP"]
+  P --> PSP["PSPACE"]
+  PSP --> NPSP["NPSPACE"]
+  classDef det fill:#0d6efd,color:#ffffff,stroke:#084298
+  classDef nondet fill:#6f42c1,color:#ffffff,stroke:#432874
+  class P,PSP,EXP det
+  class NP,NPSP nondet
+```
+
+The lecture uses these containments as a bridge from general definitions to the concrete reachability problem.
+
+# Directed reachability
+
+For a directed graph $G=(V,E)$ and two vertices $u,v\in V$, the reachability decision problem asks whether a directed path from $u$ to $v$ exists. As a language,
+
+$$
+\mathrm{REACHABILITY}
+=
+\left\{
+\langle G,u,v\rangle
+\ \middle|\
+\text{there is a directed path from }u\text{ to }v\text{ in }G
+\right\}.
+$$
+
+Standard graph-search algorithms show that reachability is in $\mathrm{P}$. A breadth-first or depth-first search is polynomial on ordinary programming models, and those models are polynomially related to Turing machines. A conventional search, however, stores visited vertices to prevent repeated exploration, so its straightforward space consumption is polynomial rather than logarithmic.
+
+## A nondeterministic logarithmic-space algorithm
+
+A nondeterministic machine can decide reachability without storing the complete set of visited vertices. The machine keeps only:
+
+- the current vertex $w$;
+- a nondeterministically generated candidate successor $w'$;
+- a counter recording how many edges have been traversed.
+
+The procedure is:
+
+1. store $u$ as the current vertex;
+2. if the current vertex is $v$, accept;
+3. nondeterministically generate a vertex $w'$;
+4. scan the read-only graph encoding and verify that $(w,w')\in E$;
+5. if the edge does not exist, reject that branch;
+6. otherwise replace $w$ by $w'$, increment the counter, and repeat;
+7. reject the branch once the counter exceeds $|V|-1$.
+
+```{mermaid}
+%%| fig-cap: "The nondeterministic reachability algorithm guesses one adjacent vertex at a time and uses a counter to guarantee termination."
+flowchart TD
+  S["Current vertex u"] --> T{"Current vertex is v?"}
+  T -->|"yes"| A["Accept"]
+  T -->|"no"| G["Guess a vertex u prime"]
+  G --> E{"Edge exists?"}
+  E -->|"no"| R["Reject branch"]
+  E -->|"yes"| C["Increment counter"]
+  C --> B{"Counter below vertex bound?"}
+  B -->|"yes"| U["Set current vertex to u prime"]
+  U --> T
+  B -->|"no"| R
+  classDef data fill:#0d6efd,color:#ffffff,stroke:#084298
+  classDef process fill:#6f42c1,color:#ffffff,stroke:#432874
+  classDef accept fill:#198754,color:#ffffff,stroke:#0f5132
+  classDef reject fill:#6c757d,color:#ffffff,stroke:#495057
+  class S,G,C,U,T,E,B process
+  class A accept
+  class R reject
+```
+
+The counter is essential. Without it, a branch could repeatedly traverse a cycle and never halt. If a path from $u$ to $v$ exists, a simple path exists as well, and a simple path contains at most $|V|-1$ edges. Hence stopping after this many traversals does not remove every accepting branch.
+
+A vertex name requires
+
+$$
+O(\log |V|)
+$$
+
+bits, because vertices can be numbered from $1$ to $|V|$. The counter up to $|V|-1$ has the same asymptotic size. Only a constant number of such quantities is stored.
+
+::: {.theorem-box}
+<div class="theorem-title">Reachability in nondeterministic logarithmic space</div>
+
+Directed reachability can be decided using nondeterministic logarithmic working space:
+
+$$
+\mathrm{REACHABILITY}\in\mathrm{NSPACE}(\log n)=\mathrm{NL},
+$$
+
+where $n$ is the length of the graph encoding.
+:::
+
+The lecture leaves the best deterministic-space algorithm as a problem to reason about separately.
+
+# Encoding a graph and measuring its input size
+
+Complexity is measured against the length $n$ of the input encoding, not directly against the informal quantity $|V|+|E|$. The lecture therefore makes the relationship explicit.
+
+Assume that
+
+$$
+V=\{1,2,\ldots,|V|\}.
+$$
+
+An adjacency-list-style binary encoding may contain:
+
+1. a binary representation of $|V|$;
+2. separators;
+3. for each edge $(i,j)\in E$, the binary encodings of $i$ and $j$.
+
+Up to separators and constant factors, its length is
+
+$$
+n
+=
+O\!\left(\log |V|+2|E|\log |V|\right).
+$$
+
+Since a directed graph has at most $|V|^2$ edges,
+
+$$
+n
+=
+O\!\left(|V|^2\log |V|\right).
+$$
+
+Conversely, the encoding explicitly contains vertex identifiers, so $\log |V|$ is bounded by the input length. This is why the working-space estimate $O(\log |V|)$ may also be written as $O(\log n)$ for the representation under discussion.
+
+| Representation | Approximate size | Appropriate case |
+|---|---:|---|
+| List of encoded edges | $O(|E|\log |V|)$ | Sparse graphs |
+| Adjacency matrix | $\Theta(|V|^2)$ bits | Dense graphs |
+
+An adjacency matrix places its Boolean rows consecutively on the tape. The two encodings are polynomially related, but practical space and access costs differ. For example, an empty graph has an extremely short edge-list representation, while an adjacency matrix still contains $|V|^2$ zero entries.
+
+# Why complexity bounds require restrictions
+
+The lecture then moves from Chapter 2 to the study of hierarchy results. Earlier definitions treated a function $f$ as a time or space bound with very few restrictions. This raises a fundamental question: **which functions are reasonable resource bounds?**
+
+A non-computable function is clearly unsuitable. It would be strange to classify terminating computations using a bound whose value cannot itself be computed. Computability alone is still insufficient, however. Pathological computable bounds can create large gaps in which increasing the apparent resource bound does not enlarge the corresponding complexity class. This motivates restricting attention to **proper functions**.
+
+The lecture previews two contrasting phenomena:
+
+- gap results can make two apparently different bounds define the same time class for specially constructed functions;
+- hierarchy results show strict increases between suitable bounds when the bounds satisfy the properness conditions.
+
+For familiar proper bounds, this leads to an infinite hierarchy rather than a collapse at one fixed polynomial degree. In particular, no fixed $k$ can satisfy
+
+$$
+\mathrm{P}=\operatorname{TIME}(n^k),
+$$
+
+because a larger polynomial time bound yields languages outside that particular level while still remaining inside $\mathrm{P}$.
+
+# Proper functions
+
+A proper function is required not only to be computable, but to be computable within resources comparable to the value that it will later serve as a bound for.
+
+Let
+
+$$
+f:\mathbb{N}\to\mathbb{N}.
+$$
+
+The first requirement is monotonicity:
+
+$$
+n\le m
+\quad\Longrightarrow\quad
+f(n)\le f(m).
+$$
+
+The second requirement is witnessed by a deterministic I/O Turing machine $M_f$ that computes $f(n)$ from any input of length $n$. The output is written in unary, so the final output tape contains a distinguished symbol repeated exactly $f(n)$ times.
+
+```{=html}
+<figure class="machine-figure" aria-labelledby="proper-caption">
+  <div class="tape-row" aria-label="Input tape">
+    <div class="tape-label">Input tape</div>
+    <div class="tape-cell">▷</div><div class="tape-cell">x₁</div><div class="tape-cell">…</div><div class="tape-cell">xₙ</div><div class="tape-cell">□</div>
+  </div>
+  <div class="tape-row" aria-label="Working tapes cleared at termination">
+    <div class="tape-label">Working tapes</div>
+    <div class="tape-cell work">▷</div><div class="tape-cell work">□</div><div class="tape-cell work">□</div><div class="tape-cell work">…</div>
+  </div>
+  <div class="tape-row" aria-label="Unary output of f of n">
+    <div class="tape-label">Output tape</div>
+    <div class="tape-cell output">▷</div><div class="tape-cell output">1</div><div class="tape-cell output">1</div><div class="tape-cell output">…</div><div class="tape-cell output">1</div><div class="tape-cell output">□</div>
+  </div>
+  <figcaption id="proper-caption" class="figure-caption-local">At termination, the output contains exactly f(n) unary marks, while every working tape has been cleared.</figcaption>
+</figure>
+```
+
+::: {.theorem-box}
+<div class="theorem-title">Proper function</div>
+
+A function $f:\mathbb{N}\to\mathbb{N}$ is proper when:
+
+1. $f$ is non-decreasing;
+2. there exists a deterministic $k$-tape I/O Turing machine $M_f$ such that, on every input $x$ of length $n$:
+   - $M_f$ writes $f(n)$ in unary on its output tape;
+   - all working tapes are blank again at termination;
+   - its running time is $O(f(n)+n)$;
+   - the space used on each working tape is $O(f(n))$;
+   - the exact time and working-space usage depend only on $n$, not on the particular string $x$.
+:::
+
+The term $+n$ in the time bound is necessary because the machine may need to read an input of length $n$. It is especially important when the same definition is used for sublinear space bounds such as $\log n$. The function $\log n$ should qualify as a proper space bound even though the input still requires linear time to scan.
+
+Writing $f(n)$ in unary also has a purpose: the output acts as a **yardstick** containing exactly one mark per unit of the bound. A later simulation can erase one mark for every simulated step.
+
+The familiar bounds mentioned in the lecture are proper, including constants, logarithms, polynomials, exponentials with polynomial exponents, and factorial-type functions. Proper functions are also stable under the common arithmetic operations and compositions used to build standard bounds.
+
+# Precise machines
+
+A machine with a worst-case time bound may use different amounts of time on different inputs of the same length. For example, insertion sort has linear best-case time and quadratic worst-case time. The lecture introduces **precise machines** to eliminate this input-dependent variation.
+
+::: {.theorem-box}
+<div class="theorem-title">Precise I/O Turing machine</div>
+
+A $k$-tape I/O Turing machine $M$ is precise if there exist functions $t$ and $s$ such that, for every input $x$, the machine performs exactly
+
+$$
+t(|x|)
+$$
+
+steps and uses exactly
+
+$$
+s(|x|)
+$$
+
+working space. These quantities depend only on the input length, not on the particular input contents.
+:::
+
+::: {.theorem-box}
+<div class="theorem-title">Precision from a proper time bound</div>
+
+If an I/O Turing machine decides a language in at most $f(n)$ steps and $f$ is proper, then there is a precise I/O Turing machine deciding the same language in
+
+$$
+f'(n)\in O(f(n))
+$$
+
+steps.
+:::
+
+## Unary padding idea
+
+Run the machine $M_f$ for the proper bound and obtain $f(n)$ unary marks. Then simulate the language decider $M$, erasing one mark for each simulated step. If $M$ terminates early, erase the remaining marks before halting. This second phase therefore always lasts exactly $f(n)$ steps, independently of the input contents.
+
+```{mermaid}
+%%| fig-cap: "Unary output from the proper-function machine is used as a clock that pads every computation to the same length-dependent duration."
+flowchart LR
+  X["Input of length n"] --> F["Compute unary f(n)"]
+  F --> S["Simulate the decider"]
+  S --> E["Erase one mark per step"]
+  E --> P["Erase remaining marks"]
+  P --> H["Halt with the decider answer"]
+  classDef data fill:#0d6efd,color:#ffffff,stroke:#084298
+  classDef process fill:#6f42c1,color:#ffffff,stroke:#432874
+  class X data
+  class F,S,E,P,H process
+```
+
+The lecture explicitly notes a technical caveat: the padding argument directly makes the running time precise, but the simultaneous space-precision requirement needs an additional adjustment. This missing space detail is not developed further in the lesson.
+
+# Complements of complexity classes
+
+For a language $L\subseteq\Sigma^*$, its complement is
+
+$$
+\overline{L}=\Sigma^*\setminus L.
+$$
+
+In a deterministic decider, complementing the language is straightforward: exchange the final answers $\mathrm{yes}$ and $\mathrm{no}$. The machine uses the same time and space, so deterministic time and space classes are closed under complement:
+
+$$
+L\in\operatorname{TIME}(f(n))
+\quad\Longrightarrow\quad
+\overline{L}\in\operatorname{TIME}(f(n)),
+$$
+
+and
+
+$$
+L\in\operatorname{SPACE}(f(n))
+\quad\Longrightarrow\quad
+\overline{L}\in\operatorname{SPACE}(f(n)).
+$$
+
+The same argument does **not** work for nondeterministic machines. A nondeterministic machine accepts when there exists at least one accepting branch:
+
+$$
+N(x)=\mathrm{yes}
+\quad\Longleftrightarrow\quad
+\exists\text{ an accepting branch on }x.
+$$
+
+Negating this statement gives a universal condition:
+
+$$
+N(x)\ne\mathrm{yes}
+\quad\Longleftrightarrow\quad
+\forall\text{ branches, the final answer is no}.
+$$
+
+If a computation tree for $x\in L$ contains both a `yes` leaf and a `no` leaf, swapping all leaf labels still leaves a `yes` leaf. The complemented machine would therefore accept $x$ even though $x\notin\overline{L}$.
+
+```{mermaid}
+%%| fig-cap: "Swapping yes and no leaves does not complement existential nondeterministic acceptance when a tree contains mixed outcomes."
+flowchart LR
+  O["Original leaves: yes and no"] --> S["Swap leaf labels"]
+  S --> C["New leaves: no and yes"]
+  O --> A1["Original machine accepts"]
+  C --> A2["Swapped machine also accepts"]
+  classDef tree fill:#6f42c1,color:#ffffff,stroke:#432874
+  classDef warning fill:#b02a37,color:#ffffff,stroke:#7a1d27
+  class O,S,C tree
+  class A1,A2 warning
+```
+
+::: {.theorem-box}
+<div class="theorem-title">Key distinction for nondeterministic complements</div>
+
+Existential acceptance cannot be complemented merely by exchanging `yes` and `no` leaves. The negation of “there exists an accepting branch” is “every branch rejects,” not “there exists a rejecting branch.”
+:::
+
+This observation motivates the separate study of complements of nondeterministic complexity classes, but the lecture stops after identifying why the deterministic complementation trick fails.

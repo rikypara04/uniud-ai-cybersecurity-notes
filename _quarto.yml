@@ -58,6 +58,12 @@ website:
           - href: 01-complexity-information-theory/notes/12-time-and-space-complexity-classes.qmd
             text: "Time and Space Complexity Classes"
 
+          - href: 01-complexity-information-theory/notes/13-random-access-machines-and-nondeterministic-complexity.qmd
+            text: "Random-Access Machines and Nondeterministic Complexity"
+
+          - href: 01-complexity-information-theory/notes/14-reachability-proper-functions-and-complements.qmd
+            text: "Reachability, Proper Complexity Bounds, and Complements"
+
       - section: "Automated Reasoning"
         contents:
           - href: 02-automated-reasoning/index.qmd
