@@ -49,7 +49,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-332d664621be278c8eee1e9fc881da0b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../../site_libs/bootstrap/bootstrap-dark-989f7f9e76a8fd2ad6dcfc64f2689a90.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-c4a13e8d11fc0b01aa72aacbcfb1a674.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <link href="../../../site_libs/bootstrap/bootstrap-332d664621be278c8eee1e9fc881da0b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
@@ -113,6 +113,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="../../../styles.css">
 </head>
 
 <body class="nav-sidebar docked nav-fixed quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a><script id="quarto-html-before-body" type="application/javascript">
@@ -597,7 +598,6 @@ window.Quarto = {
   <li><a href="#functional-hankel-matrix-and-learning" id="toc-functional-hankel-matrix-and-learning" class="nav-link" data-scroll-target="#functional-hankel-matrix-and-learning"><span class="header-section-number">7.3</span> Functional Hankel matrix and learning</a></li>
   </ul></li>
   <li><a href="#generalisations-and-the-final-application" id="toc-generalisations-and-the-final-application" class="nav-link" data-scroll-target="#generalisations-and-the-final-application"><span class="header-section-number">8</span> Generalisations and the final application</a></li>
-  <li><a href="#sources" id="toc-sources" class="nav-link" data-scroll-target="#sources"><span class="header-section-number">9</span> Sources</a></li>
   </ul>
 </nav>
     </div>
@@ -1038,13 +1038,6 @@ u\approx_{f_0,T}v
 </ul>
 <p>These are presented as generalisations of the central language and transducer constructions, not developed as complete theories in this deck.</p>
 <p>The final proposed application is to infer regular expressions automatically from positive and negative examples. Date-time strings such as <code>01/01/2000</code> and <code>18/10/1985</code> provide positive examples, while malformed strings such as <code>ab/01/2000</code> or <code>18/10/200x</code> provide negative examples. A learning procedure first infers a regular language consistent with the observations and then translates the learned automaton into a regular expression. The long regular expression displayed in the slide illustrates the kind of pattern that humans can write but that an automata learner could derive from systematic interaction.</p>
-</section>
-<section id="sources" class="level1" data-number="9">
-<h1 data-number="9"><span class="header-section-number">9</span> Sources</h1>
-<ul>
-<li><em>4_Learning automata.pdf</em>, primary slide deck.</li>
-<li><em>Introduction to Automata Theory, Languages, and Computations</em>, consulted to confirm standard DFA, Myhill-Nerode, and state-equivalence terminology.</li>
-</ul>
 
 
 </section>

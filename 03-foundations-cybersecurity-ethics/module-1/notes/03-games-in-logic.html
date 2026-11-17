@@ -49,7 +49,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-332d664621be278c8eee1e9fc881da0b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../../site_libs/bootstrap/bootstrap-dark-989f7f9e76a8fd2ad6dcfc64f2689a90.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-c4a13e8d11fc0b01aa72aacbcfb1a674.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <link href="../../../site_libs/bootstrap/bootstrap-332d664621be278c8eee1e9fc881da0b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
@@ -113,6 +113,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="../../../styles.css">
 </head>
 
 <body class="nav-sidebar docked nav-fixed quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a><script id="quarto-html-before-body" type="application/javascript">
@@ -593,7 +594,6 @@ window.Quarto = {
   <li><a href="#variants-of-the-game-method" id="toc-variants-of-the-game-method" class="nav-link" data-scroll-target="#variants-of-the-game-method"><span class="header-section-number">7</span> Variants of the game method</a></li>
   <li><a href="#games-and-synthesis" id="toc-games-and-synthesis" class="nav-link" data-scroll-target="#games-and-synthesis"><span class="header-section-number">8</span> Games and synthesis</a></li>
   <li><a href="#fo-logic-over-finite-words" id="toc-fo-logic-over-finite-words" class="nav-link" data-scroll-target="#fo-logic-over-finite-words"><span class="header-section-number">9</span> FO logic over finite words</a></li>
-  <li><a href="#sources" id="toc-sources" class="nav-link" data-scroll-target="#sources"><span class="header-section-number">10</span> Sources</a></li>
   </ul>
 </nav>
     </div>
@@ -1047,13 +1047,6 @@ L_\varphi=\{w_S\in\Sigma^*:S\models\varphi\}.
 </div>
 <p>It defines <span class="math inline">\(A^*B^*\)</span>, subject to the endpoint convention used for the represented word. A local adjacency condition defines the alternating language <span class="math inline">\((AB)^*\)</span> by requiring each <span class="math inline">\(A\)</span> to be followed by <span class="math inline">\(B\)</span> and each <span class="math inline">\(B\)</span> to be preceded by <span class="math inline">\(A\)</span>, together with the needed boundary conditions.</p>
 <p>The deck closes by asking whether FO can define <span class="math inline">\(A^*BA^*\)</span> and <span class="math inline">\((AA)^*\)</span>. The first means that exactly one position carries <span class="math inline">\(B\)</span> and all others carry <span class="math inline">\(A\)</span>, and is FO-definable. The second requires even word length over the one-letter alphabet and returns to the parity obstruction: bounded-rank FO formulas cannot distinguish sufficiently long words whose lengths differ by one. This question prepares the transition from games to logics and automata over words without importing the later material into this chapter.</p>
-</section>
-<section id="sources" class="level1" data-number="10">
-<h1 data-number="10"><span class="header-section-number">10</span> Sources</h1>
-<ul>
-<li><em>3_Games.pdf</em>, primary slide deck.</li>
-<li><em>Lecture notes on Mathematical Logics by Alberto Marcone (LM INF).pdf</em>, consulted to confirm terminology concerning elementary equivalence, structures, satisfaction, and first-order semantics.</li>
-</ul>
 
 
 </section>

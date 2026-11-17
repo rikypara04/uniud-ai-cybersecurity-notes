@@ -676,18 +676,7 @@
     "href": "03-foundations-cybersecurity-ethics/index.html",
     "title": "Foundations of Cybersecurity and Ethics",
     "section": "",
-    "text": "The course is divided into three modules and concludes with a comprehensive oral examination.\n\nModule 1: currently available\nModule 2: structure not yet available\nModule 3: structure not yet available\n\nThe note-generation instructions below apply specifically to Module 1. Modules 2 and 3 will receive separate instructions after their actual materials and organisation become available.",
-    "crumbs": [
-      "Home",
-      "Foundations of Cybersecurity and Ethics"
-    ]
-  },
-  {
-    "objectID": "03-foundations-cybersecurity-ethics/index.html#organisation",
-    "href": "03-foundations-cybersecurity-ethics/index.html#organisation",
-    "title": "Foundations of Cybersecurity and Ethics",
-    "section": "2.1 Organisation",
-    "text": "2.1 Organisation\n\nmodule-1/notes: processed Quarto notes\nmodule-1/source-material/slides: original lecture slides\nmodule-1/source-material/books: books provided for the module",
+    "text": "MSc Artificial Intelligence & Cybersecurity\n\n\n\nLectures (6)\n\n\n\nIntroduction to Formal Verification and Logic\n\n\nClassical Logics: Propositional Logic, QBF, and First-Order Logic\n\n\nGames in Logic and First-Order Definability\n\n\nLearning Automata and Sequential Transducers\n\n\nModelling and Verification in UPPAAL\n\n\nSymbolic Verification of Security Protocols with Tamarin",
     "crumbs": [
       "Home",
       "Foundations of Cybersecurity and Ethics"
@@ -1319,18 +1308,7 @@
     "href": "02-automated-reasoning/index.html",
     "title": "Automated Reasoning",
     "section": "",
-    "text": "This section contains the processed notes, original slide decks, annotated slide decks, exercises and MiniZinc material for Automated Reasoning.\n\n\n\nnotes: processed Quarto notes\nsource-material/slides: original slide decks\nsource-material/annotated-slides: the same slides annotated during lectures\nsource-material/minizinc: original MiniZinc programs and data files\nexercises: theoretical and programming exercises",
-    "crumbs": [
-      "Home",
-      "Automated Reasoning"
-    ]
-  },
-  {
-    "objectID": "02-automated-reasoning/index.html#organisation",
-    "href": "02-automated-reasoning/index.html#organisation",
-    "title": "Automated Reasoning",
-    "section": "",
-    "text": "notes: processed Quarto notes\nsource-material/slides: original slide decks\nsource-material/annotated-slides: the same slides annotated during lectures\nsource-material/minizinc: original MiniZinc programs and data files\nexercises: theoretical and programming exercises",
+    "text": "MSc Artificial Intelligence & Cybersecurity\n\n\n\nLectures (12)\n\n\n\nIntroduction to Automated Reasoning and Constraint Programming\n\n\nSAT Encodings and DPLL\n\n\nConstraint Propagation and Local Consistency\n\n\nBounds, Hyper-Arc, and Path Consistency\n\n\nMiniZinc Search Annotations and Constraint Modelling\n\n\nMiniZinc Modelling through Classical Constraint Problems\n\n\nScheduling Models, Hamming Codes, and Timetabling\n\n\nConstraint Optimization, Large Neighbourhood Search, and Bioinformatics Models\n\n\nGlobal Constraints, Matching-Based Filtering, and Cumulative Scheduling\n\n\nSyntax of Logic Programming and Definite-Clause Programs\n\n\nSemantics of Logic Programs\n\n\nUnification, SLD Resolution, and the Limits of Computation",
     "crumbs": [
       "Home",
       "Automated Reasoning"
@@ -4197,18 +4175,7 @@
     "href": "01-complexity-information-theory/index.html",
     "title": "Complexity and Information Theory",
     "section": "",
-    "text": "This section contains the processed lecture notes and source materials for Complexity and Information Theory.\n\n\n\nnotes: processed lecture notes in Quarto format;\nsource-material/goodnotes: original handwritten Goodnotes exports;\nsource-material/teams: official material distributed through Teams;\nsource-material/external: additional relevant material;\nreferences: academic references provided for the course.",
-    "crumbs": [
-      "Home",
-      "Complexity and Information Theory"
-    ]
-  },
-  {
-    "objectID": "01-complexity-information-theory/index.html#organisation",
-    "href": "01-complexity-information-theory/index.html#organisation",
-    "title": "Complexity and Information Theory",
-    "section": "",
-    "text": "notes: processed lecture notes in Quarto format;\nsource-material/goodnotes: original handwritten Goodnotes exports;\nsource-material/teams: official material distributed through Teams;\nsource-material/external: additional relevant material;\nreferences: academic references provided for the course.",
+    "text": "MSc Artificial Intelligence & Cybersecurity\n\n\n\nLectures (12)\n\n\n\nIntroduction to Information Theory\n\n\nInformation, Probability, and Random Variables\n\n\nProperties of Entropy and Conditional Entropy\n\n\nMutual Information, Relative Entropy, and Source Coding\n\n\nPrefix Codes and the Kraft-McMillan Inequality\n\n\nShannon Codes, Huffman Codes, and Asymptotic Optimality\n\n\nLZ77 Compression and Kolmogorov Complexity\n\n\nKolmogorov Complexity and Its Relation to Entropy\n\n\nComputational Complexity, Machine Models, and Cost Criteria\n\n\nOperational Semantics and Time Complexity of Turing Machines\n\n\nMultitape Simulation, Time Complexity, and Linear Speed-Up\n\n\nTime and Space Complexity Classes",
     "crumbs": [
       "Home",
       "Complexity and Information Theory"
@@ -4219,28 +4186,7 @@
     "href": "index.html",
     "title": "MSc Artificial Intelligence & Cybersecurity",
     "section": "",
-    "text": "Notes based on handwritten lecture notes, official course material and the academic references provided for the course.\n\n\n\nCourse notes and related material. The internal structure will be defined after analysing the actual lectures and source material.\n\n\n\nCourse notes and related material. The internal structure will be defined after analysing the actual lectures and source material."
-  },
-  {
-    "objectID": "index.html#complexity-and-information-theory",
-    "href": "index.html#complexity-and-information-theory",
-    "title": "MSc Artificial Intelligence & Cybersecurity",
-    "section": "",
-    "text": "Notes based on handwritten lecture notes, official course material and the academic references provided for the course."
-  },
-  {
-    "objectID": "index.html#automated-reasoning",
-    "href": "index.html#automated-reasoning",
-    "title": "MSc Artificial Intelligence & Cybersecurity",
-    "section": "",
-    "text": "Course notes and related material. The internal structure will be defined after analysing the actual lectures and source material."
-  },
-  {
-    "objectID": "index.html#foundations-of-cybersecurity-and-ethics",
-    "href": "index.html#foundations-of-cybersecurity-and-ethics",
-    "title": "MSc Artificial Intelligence & Cybersecurity",
-    "section": "",
-    "text": "Course notes and related material. The internal structure will be defined after analysing the actual lectures and source material."
+    "text": "University of Udine | MSc programme\n\n\nArtificial Intelligence & Cybersecurity\n\n\nStructured lecture notes designed for study, revision, and clear oral explanation.\n\n\n\n\n3courses\n\n\n30lectures\n\n\n\n\n\n\n\nCourse\n\n\nComplexity and Information Theory\n\n\nInformation measures, coding, computability, and complexity.\n\n\n\n\nAvailable lectures (12)\n\n\n\nIntroduction to Information Theory\n\n\nInformation, Probability, and Random Variables\n\n\nProperties of Entropy and Conditional Entropy\n\n\nMutual Information, Relative Entropy, and Source Coding\n\n\nPrefix Codes and the Kraft-McMillan Inequality\n\n\nShannon Codes, Huffman Codes, and Asymptotic Optimality\n\n\nLZ77 Compression and Kolmogorov Complexity\n\n\nKolmogorov Complexity and Its Relation to Entropy\n\n\nComputational Complexity, Machine Models, and Cost Criteria\n\n\nOperational Semantics and Time Complexity of Turing Machines\n\n\nMultitape Simulation, Time Complexity, and Linear Speed-Up\n\n\nTime and Space Complexity Classes\n\n\n\n\n\n\n\nCourse\n\n\nAutomated Reasoning\n\n\nConstraint solving, logic programming, semantics, and reasoning methods.\n\n\n\n\nAvailable lectures (12)\n\n\n\nIntroduction to Automated Reasoning and Constraint Programming\n\n\nSAT Encodings and DPLL\n\n\nConstraint Propagation and Local Consistency\n\n\nBounds, Hyper-Arc, and Path Consistency\n\n\nMiniZinc Search Annotations and Constraint Modelling\n\n\nMiniZinc Modelling through Classical Constraint Problems\n\n\nScheduling Models, Hamming Codes, and Timetabling\n\n\nConstraint Optimization, Large Neighbourhood Search, and Bioinformatics Models\n\n\nGlobal Constraints, Matching-Based Filtering, and Cumulative Scheduling\n\n\nSyntax of Logic Programming and Definite-Clause Programs\n\n\nSemantics of Logic Programs\n\n\nUnification, SLD Resolution, and the Limits of Computation\n\n\n\n\n\n\n\nCourse\n\n\nFoundations of Cybersecurity and Ethics\n\n\nFormal verification, logic, automata, and symbolic security analysis.\n\n\n\n\nAvailable lectures (6)\n\n\n\nIntroduction to Formal Verification and Logic\n\n\nClassical Logics: Propositional Logic, QBF, and First-Order Logic\n\n\nGames in Logic and First-Order Definability\n\n\nLearning Automata and Sequential Transducers\n\n\nModelling and Verification in UPPAAL\n\n\nSymbolic Verification of Security Protocols with Tamarin"
   },
   {
     "objectID": "03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html",
