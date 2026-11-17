@@ -1,0 +1,487 @@
+---
+title: "Random-Access Machines and Nondeterministic Complexity"
+subtitle: "Lecture 13 - 12 November 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+```{=html}
+<style>
+.theorem-box {
+  border: 2px solid #b02a37;
+  border-left: 0.55rem solid #b02a37;
+  border-radius: 0.45rem;
+  padding: 1rem 1.15rem 0.85rem;
+  margin: 1.25rem 0;
+  background: rgba(176, 42, 55, 0.07);
+}
+.theorem-box > :first-child { margin-top: 0; }
+.theorem-box > :last-child { margin-bottom: 0; }
+.theorem-title {
+  color: #b02a37;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+.register-figure {
+  margin: 1.25rem 0;
+  padding: 1rem;
+  border: 1px solid rgba(108, 117, 125, 0.45);
+  border-radius: 0.55rem;
+  overflow-x: auto;
+}
+.register-row {
+  display: flex;
+  align-items: stretch;
+  width: max-content;
+  min-width: 100%;
+}
+.register-cell {
+  min-width: 5.5rem;
+  border: 1.5px solid #495057;
+  border-right: 0;
+  text-align: center;
+  background: rgba(13, 110, 253, 0.08);
+}
+.register-cell:last-child { border-right: 1.5px solid #495057; }
+.register-name {
+  display: block;
+  padding: 0.3rem 0.55rem;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(73, 80, 87, 0.55);
+}
+.register-value {
+  display: block;
+  padding: 0.55rem;
+  font-family: var(--bs-font-monospace, monospace);
+}
+.figure-caption-local {
+  margin-top: 0.85rem;
+  color: #6c757d;
+  font-size: 0.92rem;
+}
+@media (prefers-color-scheme: dark) {
+  .theorem-box {
+    background: rgba(255, 107, 122, 0.10);
+    border-color: #ff6b7a;
+  }
+  .theorem-title { color: #ff8a96; }
+  .register-cell { border-color: #adb5bd; background: rgba(77, 171, 247, 0.14); }
+  .register-cell:last-child { border-right-color: #adb5bd; }
+}
+</style>
+```
+
+# Random-access machines
+
+The lecture first returns briefly to **random-access machines** (RAMs), a register-based computational model similar to the unlimited register machine introduced earlier in the course. A RAM has an unbounded sequence of registers
+
+$$
+R_0,R_1,R_2,\ldots,
+$$
+
+each capable of storing a non-negative integer. Its instruction set is richer than that of a basic register machine and includes both direct and indirect access.
+
+## Direct and indirect addressing
+
+A direct instruction identifies the register explicitly. For example,
+
+$$
+\operatorname{ADD}(i)
+$$
+
+has the effect
+
+$$
+R_0 \mathrel{:=} R_0+R_i.
+$$
+
+An indirect instruction instead treats the content of a register as an address. An instruction of the form
+
+$$
+\operatorname{ADD}(*i)
+$$
+
+has the effect
+
+$$
+R_0 \mathrel{:=} R_0+R_{R_i}.
+$$
+
+The difference is important: $i$ is the address used by the direct instruction, whereas the indirect instruction first reads the value stored in $R_i$ and then uses that value as the address of a second register.
+
+```{=html}
+<figure class="register-figure" aria-labelledby="indirect-caption">
+  <div class="register-row" aria-label="Example RAM registers">
+    <div class="register-cell"><span class="register-name">R₀</span><span class="register-value">100</span></div>
+    <div class="register-cell"><span class="register-name">R₁</span><span class="register-value">5</span></div>
+    <div class="register-cell"><span class="register-name">R₂</span><span class="register-value">0</span></div>
+    <div class="register-cell"><span class="register-name">⋯</span><span class="register-value">⋯</span></div>
+    <div class="register-cell"><span class="register-name">R₅</span><span class="register-value">30</span></div>
+  </div>
+  <figcaption id="indirect-caption" class="figure-caption-local">For the indirect instruction ADD(*1), register R₁ contains the address 5, so the value in R₅ is added to R₀.</figcaption>
+</figure>
+```
+
+In the example,
+
+$$
+R_0=100,
+\qquad
+R_1=5,
+\qquad
+R_5=30.
+$$
+
+Executing $\operatorname{ADD}(*1)$ therefore produces
+
+$$
+R_0=100+30=130.
+$$
+
+## Uniform-cost criterion
+
+The input size $n$ is the number of bits needed to encode the input. However, under the **uniform-cost criterion**, every RAM instruction costs one unit, independently of the sizes of the integers manipulated by that instruction.
+
+This convention is deliberately strong. A single RAM instruction may operate on an integer occupying many bits, while a Turing machine must process the representation bit by bit. The simulation results below show that, despite this difference, the two models remain polynomially related for the instruction set considered in the lecture.
+
+::: {.theorem-box}
+<div class="theorem-title">Turing-machine simulation by a RAM</div>
+
+A Turing machine performing at most $f(n)$ steps can be simulated by a RAM performing
+
+$$
+O(f(n))
+$$
+
+steps.
+:::
+
+The simulation uses RAM registers as cells of the simulated tape. Since RAM access is direct, the current head position identifies the register containing the currently scanned symbol.
+
+::: {.theorem-box}
+<div class="theorem-title">RAM simulation by a multitape Turing machine</div>
+
+Under the uniform-cost criterion used in the lecture, a RAM performing at most $f(n)$ steps can be simulated by a seven-tape Turing machine performing
+
+$$
+O\!\left((f(n))^3\right)
+$$
+
+steps.
+:::
+
+## Why the RAM simulation is polynomial
+
+Two size observations control the simulation.
+
+1. **Size of each value.** An addition can increase the bit length of its result by at most one relative to the longer operand. Starting from an $n$-bit input, after at most $f(n)$ instructions, every value that occurs has length at most
+   $$
+   n+f(n).
+   $$
+2. **Number of touched registers.** One instruction can introduce at most a constant number of previously untouched registers. Hence at most $O(f(n))$ registers are relevant after $f(n)$ instructions.
+
+The simulated memory can therefore be stored as a sequence of address-value pairs:
+
+$$
+\langle i_1,R_{i_1}\rangle,
+\langle i_2,R_{i_2}\rangle,
+\ldots,
+\langle i_m,R_{i_m}\rangle,
+$$
+
+where $m=O(f(n))$. Since each address and value has $O(n+f(n))$ bits and the standing complexity setting assumes $f(n)\ge n$, the memory representation has length
+
+$$
+O\!\left((f(n))^2\right).
+$$
+
+A simulated RAM instruction may require a constant number of scans across this memory tape. Thus one RAM step costs $O((f(n))^2)$ Turing-machine steps, and simulating all $f(n)$ RAM steps costs
+
+$$
+f(n)\cdot O\!\left((f(n))^2\right)
+=
+O\!\left((f(n))^3\right).
+$$
+
+| Quantity after at most $f(n)$ RAM steps | Bound |
+|---|---:|
+| Bit length of one stored value | $O(n+f(n))=O(f(n))$ |
+| Number of touched registers | $O(f(n))$ |
+| Length of the encoded memory | $O((f(n))^2)$ |
+| Cost of simulating one RAM instruction | $O((f(n))^2)$ |
+| Total simulation time | $O((f(n))^3)$ |
+
+The two simulations show that RAMs and Turing machines are polynomially related. They therefore satisfy the extended Church--Turing thesis in the sense used in the course, even though their elementary cost criteria differ.
+
+# Nondeterministic Turing machines
+
+The lecture then introduces a computational model that is mathematically well defined but is not intended as a description of a physically existing machine: the **nondeterministic Turing machine**.
+
+A deterministic $k$-tape Turing machine has a transition function. Given the current state and the $k$ scanned symbols, exactly one next action is determined. Nondeterminism replaces this function with a finite transition relation.
+
+Let $K$ be a finite set of states and $\Gamma$ a finite tape alphabet. A $k$-tape nondeterministic Turing machine is described by
+
+$$
+N=(K,\Gamma,\Delta,s),
+$$
+
+where $s\in K$ is the initial state and
+
+$$
+\Delta
+\subseteq
+\left(K\times\Gamma^k\right)
+\times
+\left(K\times\Gamma^k\times\{\leftarrow,-,\rightarrow\}^k\right)
+$$
+
+is the transition relation.
+
+For one current state and one tuple of scanned symbols, $\Delta$ may contain several possible next actions. The number of alternatives remains finite because $K$, $\Gamma$, and the relation $\Delta$ are finite.
+
+## From one computation path to a branching computation
+
+For a deterministic machine and a fixed input, every non-halting configuration has one successor. Its computation is therefore a single path, possibly ending in a halting configuration or entering a loop.
+
+For a nondeterministic machine, one configuration may have several successors. The resulting computation is naturally a directed graph. Two distinct branches may even reach the same configuration, so the graph is not necessarily a tree. Nevertheless, it is normally **unfolded** into a computation tree by duplicating a configuration whenever different branches reach it.
+
+```{mermaid}
+%%| fig-cap: "A nondeterministic computation branches into several possible successor configurations; converging configurations can be duplicated in the tree representation."
+flowchart TD
+  C0["Initial configuration"] --> C1["Configuration 1"]
+  C0 --> C2["Configuration 2"]
+  C1 --> C3A["Configuration 3"]
+  C2 --> C3B["Configuration 3"]
+  C1 --> N1["no"]
+  C3A --> Y1["yes"]
+  C3B --> N2["no"]
+  classDef config fill:#0d6efd,color:#ffffff,stroke:#084298
+  classDef accept fill:#198754,color:#ffffff,stroke:#0f5132
+  classDef reject fill:#6c757d,color:#ffffff,stroke:#495057
+  class C0,C1,C2,C3A,C3B config
+  class Y1 accept
+  class N1,N2 reject
+```
+
+In this lecture, only nondeterministic machines that halt on every branch are considered. Consequently, the unfolded computation tree is finite and has no infinite branch.
+
+## Nondeterminism is not ordinary parallelism
+
+A computation tree may suggest that every branch is executed by a different processor. This analogy is misleading for two reasons.
+
+- If the maximum branching factor is $d$ and the tree height is $h$, the last level may contain as many as $d^h$ branches. A physical parallel machine has a finite number of processors, whereas the required number here grows exponentially with the computation depth.
+- Different nondeterministic branches evolve independently. They do not communicate or share intermediate results.
+
+Nondeterminism is therefore a mathematical acceptance mechanism, not a conventional parallel architecture.
+
+# Acceptance and decision
+
+::: {.theorem-box}
+<div class="theorem-title">Acceptance by a nondeterministic machine</div>
+
+Given a nondeterministic machine $N$ and an input $x$, the input is accepted, written
+
+$$
+N(x)=\mathrm{yes},
+$$
+
+if there exists at least one computation branch of $N$ on $x$ that terminates in the state $\mathrm{yes}$.
+:::
+
+The existential condition is the defining choice. Other conventions could be imagined, such as requiring every branch to accept or requiring a majority of the branches to accept, but those conventions define different computational models.
+
+A nondeterministic machine $N$ **decides** a language $L\subseteq\Sigma^*$ when:
+
+1. every computation branch of $N$ halts on every input;
+2. for every $x\in\Sigma^*$,
+   $$
+   x\in L
+   \quad\Longleftrightarrow\quad
+   N(x)=\mathrm{yes}.
+   $$
+
+Thus:
+
+- if $x\in L$, at least one leaf of the computation tree is labelled $\mathrm{yes}$;
+- if $x\notin L$, every leaf is labelled $\mathrm{no}$.
+
+```{mermaid}
+%%| fig-cap: "Membership requires one accepting branch, whereas non-membership requires all branches to reject."
+flowchart LR
+  IN["x belongs to L"] --> SOME["At least one yes leaf"]
+  OUT["x does not belong to L"] --> ALL["All leaves are no"]
+  classDef member fill:#198754,color:#ffffff,stroke:#0f5132
+  classDef nonmember fill:#6c757d,color:#ffffff,stroke:#495057
+  class IN,SOME member
+  class OUT,ALL nonmember
+```
+
+# Nondeterministic time and space
+
+## Time as the height of the computation tree
+
+A nondeterministic computation contains many branches, so several measures might appear plausible: the number of nodes, the length of an accepting branch, or the time needed to explore the complete tree. The convention adopted in complexity theory is different.
+
+::: {.theorem-box}
+<div class="theorem-title">Nondeterministic time on an input</div>
+
+The time complexity of a nondeterministic machine $N$ on input $x$ is the length of the longest computation branch of $N$ on $x$. Equivalently, it is the height of the computation tree.
+:::
+
+This definition considers the longest branch even if an accepting branch is much shorter. A language is decided by $N$ in time $f(n)$ if $N$ decides the language and every computation tree on an input $x$ has height at most $f(|x|)$.
+
+## Space as the maximum over all branches
+
+Space is defined by the same worst-branch principle. For an I/O nondeterministic Turing machine, only working-tape occupancy is counted, exactly as in the deterministic I/O model.
+
+::: {.theorem-box}
+<div class="theorem-title">Nondeterministic space on an input</div>
+
+The space complexity of $N$ on input $x$ is the maximum number of working-tape cells occupied by any configuration occurring on any computation branch of $N$ on $x$.
+:::
+
+The read-only input tape and write-only output tape are excluded from the measure.
+
+# Nondeterministic complexity classes
+
+The time and space classes introduced in the lecture are
+
+$$
+\operatorname{NTIME}(f(n))
+=
+\left\{
+L
+\ \middle|\
+L\text{ is decided by a nondeterministic Turing machine in time }f(n)
+\right\},
+$$
+
+and
+
+$$
+\operatorname{NSPACE}(f(n))
+=
+\left\{
+L
+\ \middle|\
+L\text{ is decided by a nondeterministic I/O Turing machine in space }f(n)
+\right\}.
+$$
+
+The aggregate classes recorded in the notes are
+
+$$
+\mathrm{NP}
+=
+\bigcup_{k\in\mathbb{N}}
+\operatorname{NTIME}(n^k),
+$$
+
+$$
+\mathrm{NPSPACE}
+=
+\bigcup_{k\in\mathbb{N}}
+\operatorname{NSPACE}(n^k),
+$$
+
+and
+
+$$
+\mathrm{NL}
+=
+\operatorname{NSPACE}(\log n).
+$$
+
+Every deterministic transition function is a special case of a transition relation. Consequently,
+
+$$
+\operatorname{TIME}(f(n))
+\subseteq
+\operatorname{NTIME}(f(n))
+$$
+
+and
+
+$$
+\operatorname{SPACE}(f(n))
+\subseteq
+\operatorname{NSPACE}(f(n)).
+$$
+
+# Deterministic simulation of nondeterminism
+
+Although nondeterminism changes the complexity measure, it does not change which languages are computable. A deterministic machine can explore the nondeterministic computation tree.
+
+Let $d$ be the **degree of nondeterminism** of $N$: the maximum number of possible transitions available for any fixed state and tuple of scanned symbols. Formally,
+
+$$
+d
+=
+\max_{q\in K,\,\vec\sigma\in\Gamma^k}
+\left|
+\left\{
+\tau
+\ \middle|\
+((q,\vec\sigma),\tau)\in\Delta
+\right\}
+\right|.
+$$
+
+Because $K$, $\Gamma$, and $\Delta$ are finite, $d$ is a finite constant depending only on the machine, not on the particular input.
+
+If $N$ runs in time $f(n)$, its computation tree has height at most $f(n)$. A tree with branching factor at most $d$ and height at most $f(n)$ contains at most exponentially many nodes, bounded up to a constant factor by
+
+$$
+1+d+d^2+\cdots+d^{f(n)}
+=
+O\!\left(d^{f(n)}\right).
+$$
+
+::: {.theorem-box}
+<div class="theorem-title">Deterministic simulation of nondeterministic time</div>
+
+If a nondeterministic Turing machine $N$ decides a language in time $f(n)$, then there is a deterministic Turing machine $M$ deciding the same language in time
+
+$$
+O\!\left(c^{f(n)}\right),
+$$
+
+where $c>1$ is a constant depending on $N$.
+:::
+
+The deterministic simulator explores the branches systematically. It may encode a prospective branch by a sequence of choices
+
+$$
+(c_1,c_2,\ldots,c_\ell),
+\qquad
+1\le c_i\le d,
+\qquad
+\ell\le f(n).
+$$
+
+For each sequence, the simulator follows the corresponding transitions from the initial configuration. If a simulated branch reaches $\mathrm{yes}$, the simulator accepts. If every possible branch ends in $\mathrm{no}$, it rejects.
+
+```{mermaid}
+%%| fig-cap: "A deterministic simulator enumerates finite sequences of nondeterministic choices and accepts when one sequence reaches a yes leaf."
+flowchart LR
+  X["Input x"] --> E["Enumerate choice sequences"]
+  E --> S["Simulate one branch"]
+  S --> Y{"yes reached?"}
+  Y -->|"yes"| A["Accept"]
+  Y -->|"no"| M["More sequences?"]
+  M -->|"yes"| E
+  M -->|"no"| R["Reject"]
+  classDef data fill:#0d6efd,color:#ffffff,stroke:#084298
+  classDef process fill:#6f42c1,color:#ffffff,stroke:#432874
+  classDef accept fill:#198754,color:#ffffff,stroke:#0f5132
+  classDef reject fill:#6c757d,color:#ffffff,stroke:#495057
+  class X data
+  class E,S,Y,M process
+  class A accept
+  class R reject
+```
+
+The exponential overhead comes from the number of possible choice sequences. This proves that nondeterministic and deterministic Turing machines have the same expressive power, while leaving open how much nondeterminism can reduce the resources needed to decide a language.
