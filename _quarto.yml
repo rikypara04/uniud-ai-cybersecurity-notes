@@ -16,7 +16,7 @@ website:
   sidebar:
     style: docked
     search: true
-    collapse-level: 1
+    collapse-level: 0
     contents:
       - section: "Complexity and Information Theory"
         href: 01-complexity-information-theory/index.qmd
@@ -57,8 +57,8 @@ website:
           - href: 01-complexity-information-theory/notes/12-time-and-space-complexity-classes.qmd
             text: "Time and Space Complexity Classes"
 
-      - href: 02-automated-reasoning/index.qmd
-        text: "Automated Reasoning"
+      - section: "Automated Reasoning"
+        href: 02-automated-reasoning/index.qmd
         contents:
           - href: 02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.qmd
             text: "Introduction to Automated Reasoning and Constraint Programming"
@@ -96,8 +96,8 @@ website:
           - href: 02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.qmd
             text: "Unification, SLD Resolution, and the Limits of Computation"
 
-      - href: 03-foundations-cybersecurity-ethics/index.qmd
-        text: "Foundations of Cybersecurity and Ethics"
+      - section: "Foundations of Cybersecurity and Ethics"
+        href: 03-foundations-cybersecurity-ethics/index.qmd
         contents:
           - href: 03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.qmd
             text: "Introduction to Formal Verification and Logic"
