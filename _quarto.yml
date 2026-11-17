@@ -19,8 +19,9 @@ website:
     collapse-level: 0
     contents:
       - section: "Complexity and Information Theory"
-        href: 01-complexity-information-theory/index.qmd
         contents:
+          - href: 01-complexity-information-theory/index.qmd
+            text: "Course overview"
           - href: 01-complexity-information-theory/notes/01-introduction-to-information-theory.qmd
             text: "Introduction to Information Theory"
 
@@ -58,8 +59,9 @@ website:
             text: "Time and Space Complexity Classes"
 
       - section: "Automated Reasoning"
-        href: 02-automated-reasoning/index.qmd
         contents:
+          - href: 02-automated-reasoning/index.qmd
+            text: "Course overview"
           - href: 02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.qmd
             text: "Introduction to Automated Reasoning and Constraint Programming"
 
@@ -97,8 +99,9 @@ website:
             text: "Unification, SLD Resolution, and the Limits of Computation"
 
       - section: "Foundations of Cybersecurity and Ethics"
-        href: 03-foundations-cybersecurity-ethics/index.qmd
         contents:
+          - href: 03-foundations-cybersecurity-ethics/index.qmd
+            text: "Course overview"
           - href: 03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.qmd
             text: "Introduction to Formal Verification and Logic"
 
