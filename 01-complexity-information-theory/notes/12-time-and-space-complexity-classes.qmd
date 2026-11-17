@@ -484,7 +484,3 @@ flowchart LR
 ```
 
 The example illustrates the meaning of membership in $\mathrm{P}$: the algorithm's $O(|V|+|E|)$ cost is polynomial in the size of the chosen graph representation.
-
-# Sources
-
-- Goodnotes lecture PDF: *12 - 10-11-2026.pdf*, Lecture 12, 10 November 2026.

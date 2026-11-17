@@ -914,7 +914,3 @@ Using $n$ variables, $c$ constraints, and maximum domain size $d$, the lecture s
 | Arc consistency | $O(cnd^3)$ | Repeatedly remove unsupported values from binary constraints |
 
 Arc-consistency rules only reduce domains. The order of rule application is therefore immaterial, and repeated application reaches a unique fixpoint.
-
-# Sources
-
-- Original and annotated slide deck: *03 - 07-10-2026.pdf*.

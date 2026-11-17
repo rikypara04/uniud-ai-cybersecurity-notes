@@ -604,7 +604,3 @@ $$
 The forward direction holds because $M_P$ is a model of $P$. The reverse direction holds because $M_P$ is contained in every Herbrand model: any atom in $M_P$ is true in every Herbrand model and, by the fundamental theorem, is a logical consequence of $P$.
 
 The lecture ends at the next computational question: the semantics $M_P$ always exists and is unique for a definite program, but how can $M_P$ be computed?
-
-# Sources
-
-- Original and annotated lecture deck: *11 - 11-11-2026.pdf*, “Semantics of Logic Programs,” Automated Reasoning, University of Udine, 2026.

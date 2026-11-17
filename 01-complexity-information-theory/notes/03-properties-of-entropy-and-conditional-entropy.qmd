@@ -831,9 +831,3 @@ H(X\mid Y)
 $$
 
 The no-alert observation reduces uncertainty enough to compensate for the increase caused by the alert observation.
-
-# Sources
-
-- Goodnotes lecture notes: *03 - 08-10-2026.pdf*.
-- Official Teams material: *CIT_Notes_Part2_Information_Measures (1).pdf*, used to verify the entropy properties, Jensen argument, joint and conditional entropy calculations, chain rule, and introductory mutual-information interpretation.
-- Thomas M. Cover and Joy A. Thomas, *Elements of Information Theory*, used only to verify the standard entropy identities and the interpretation of conditional entropy already present in the lecture.

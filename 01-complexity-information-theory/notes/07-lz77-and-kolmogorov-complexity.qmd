@@ -392,7 +392,3 @@ is not computable.
 :::
 
 A particular string always has a finite Kolmogorov complexity because a program can always contain the string literally and print it. What is impossible is a general procedure that always finds and certifies the shortest such program.
-
-# Sources
-
-- Goodnotes lecture notes: *07 - 22-10-2026.pdf*.

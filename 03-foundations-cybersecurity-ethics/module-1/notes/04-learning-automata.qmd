@@ -382,8 +382,3 @@ The deck closes by listing domains in which the same Hankel-style learning princ
 These are presented as generalisations of the central language and transducer constructions, not developed as complete theories in this deck.
 
 The final proposed application is to infer regular expressions automatically from positive and negative examples. Date-time strings such as `01/01/2000` and `18/10/1985` provide positive examples, while malformed strings such as `ab/01/2000` or `18/10/200x` provide negative examples. A learning procedure first infers a regular language consistent with the observations and then translates the learned automaton into a regular expression. The long regular expression displayed in the slide illustrates the kind of pattern that humans can write but that an automata learner could derive from systematic interaction.
-
-# Sources
-
-- *4_Learning automata.pdf*, primary slide deck.
-- *Introduction to Automata Theory, Languages, and Computations*, consulted to confirm standard DFA, Myhill-Nerode, and state-equivalence terminology.

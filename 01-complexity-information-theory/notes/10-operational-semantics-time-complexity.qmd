@@ -557,8 +557,3 @@ For the palindrome language, the constructions considered here use quadratic tim
 :::
 
 This example motivates the next question: although exact running times depend on the machine model, are the models polynomially related? The announced quadratic simulation bound answers yes and explains, in this concrete setting, why polynomial-time solvability is robust under a change of reasonable deterministic model.
-
-# Sources
-
-- Goodnotes lecture notes: *10 - 03-11-2026.pdf*.
-- Official lecture transcript: *2026-11-03 Complexity and Information theory.txt*.

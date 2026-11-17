@@ -458,7 +458,3 @@ flowchart LR
 ::: {.callout-important title="There is almost never a unique encoding"}
 Different choices of variables, domains, and constraints can represent the same real problem. These encodings can behave very differently under propagation and search. Modelling is therefore a creative activity that improves with experience; search tuning should not substitute for checking the quality and correctness of the model itself.
 :::
-
-# Sources
-
-- Annotated lecture slide deck: `05 - 14-10-2026.pdf`, 23 slides. The supplied PDF was used for the slide order, formal material, diagrams, examples, and handwritten annotations.

@@ -436,9 +436,3 @@ $$
 $$
 
 Often $L_2$ is a fragment of $L_1$ with better algorithmic complexity. A positive answer means that the property expressed by $\varphi_1$ does not require the full expressive power of $L_1$ and can be transferred to the more tractable formalism. This connects definability directly with the earlier trade-off among expressiveness, succinctness, and efficiency.
-
-# Sources
-
-- *0.1_Introduction.pdf*, course-introduction slide deck.
-- *1_An_introduction_to_logic.pdf*, primary slide deck for this chapter.
-- *0_Outline.pdf*, consulted only to identify the course structure and the position of the deck.

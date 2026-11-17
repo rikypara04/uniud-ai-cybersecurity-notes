@@ -444,9 +444,3 @@ flowchart LR
 ```
 
 This final step connects the deck's earlier algorithmic notion of reduction with definability. A logical interpretation does not merely assert that a reduction exists; it explains how the vocabulary and relations of the source problem are represented in the target structure.
-
-# Sources
-
-- *2_Classical_logics.pdf*, primary slide deck.
-- *Introduction to Automata Theory, Languages, and Computations*, consulted only for background confirmation on finite-state representations and formal encodings.
-- *Handbook of Theoretical Computer Science, Volume B: Formal Models and Semantics*, consulted only for background confirmation on automata, formal structures, and logical decision problems.

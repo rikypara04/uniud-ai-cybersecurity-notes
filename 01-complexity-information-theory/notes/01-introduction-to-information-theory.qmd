@@ -246,9 +246,3 @@ The importance of Shannon's result is that communication has mathematical limits
 - a noisy channel cannot transmit information reliably at an arbitrarily high rate.
 
 The first lecture introduces these limits conceptually. Their precise mathematical formulations and the quantities used to express them are not developed here, because those belong to later parts of the course.
-
-# Sources
-
-- Goodnotes lecture notes: *01 - 01-10-2026.pdf*.
-- Claude E. Shannon, “A Mathematical Theory of Communication,” 1948.
-- Thomas M. Cover and Joy A. Thomas, *Elements of Information Theory*, used only to clarify the logarithmic information measure and the introductory interpretation of compression limits.

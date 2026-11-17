@@ -423,8 +423,3 @@ The slide cites the result that deciding whether an HP sequence on the two-dimen
 | protein folding | HP amino-acid sequence | self-avoiding lattice conformation | minimise contact energy |
 
 Both problems require selecting a discrete hidden explanation from a combinatorially large set. Both also contain strong constraints that eliminate most naïve assignments before optimisation.
-
-# Sources
-
-- Original lecture slide deck: `08 - 23-10-2026.pdf`. Progressive animation pages were merged into their final logical explanations. Used for the COP definition, branch-and-bound example, local and Large Neighbourhood Search, historical MiniZinc interfaces, haplotype inference, and the HP protein-folding model.
-- References explicitly listed in the slide deck: Shaw's 1998 LNS work; Van Hentenryck and Michel on constraint-based local search; the cited work on solver-independent LNS and constraint-based local-search backends; Crescenzi et al. on protein-folding complexity; and the bioinformatics references on the closing slide. These are reported only where the deck invokes them; no additional theory from those works was introduced.

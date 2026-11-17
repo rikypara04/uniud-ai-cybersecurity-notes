@@ -520,10 +520,3 @@ P(T=1)=\frac34.
 $$
 
 This illustrates why joint distributions are needed: correctness depends simultaneously on the real state and on the sensor output, so it cannot be computed from only one marginal distribution.
-
-# Sources
-
-- Goodnotes lecture notes: *02 - 06-10-2026.pdf*.
-- Official Teams material: *CIT_Notes_Part1_Probability_Review (1).pdf*, used to verify probability notation, conditional distributions, Bayes' rule, independence, and the indicator-variable interpretation.
-- Official Teams material: *CIT_Notes_Part2_Information_Measures (1).pdf*, used only for the definitions and interpretations of surprisal and entropy already introduced in this lecture.
-- Thomas M. Cover and Joy A. Thomas, *Elements of Information Theory*, used only to verify the introductory entropy notation and the distinction between the information of one outcome and average entropy.

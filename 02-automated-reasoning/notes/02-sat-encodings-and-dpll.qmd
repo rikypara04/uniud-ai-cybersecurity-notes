@@ -794,7 +794,3 @@ The lecture proposes the following practical tasks:
 2. write a program that produces the DIMACS encoding of $n$-Queens;
 3. run a SAT solver on the generated instance;
 4. optionally write a post-processor that reconstructs and prints the board.
-
-# Sources
-
-- Original and annotated slide deck: *02 - 02-10-2026.pdf*.

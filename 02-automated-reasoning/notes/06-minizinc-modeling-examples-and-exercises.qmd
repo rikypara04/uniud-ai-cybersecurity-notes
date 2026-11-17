@@ -688,8 +688,3 @@ The exercise explicitly asks for a declarative model rather than a specialised a
 ## Personal modelling problem
 
 Choose a problem or game connected to personal experience, formalise it, and encode it in MiniZinc. The assessment is therefore not only whether MiniZinc accepts the syntax, but whether the variables, domains, constraints, and objective accurately capture the informal rules.
-
-# Sources
-
-- Original lecture slide deck: `06 - 16-10-2026.pdf`, six logical slides plus one progressive duplicate of the modelling slide. Used for lecture order, the list of MiniZinc examples, and the eight exercises.
-- Combined MiniZinc source collection: `output.txt`. Used as the authoritative source for the professor-supplied models and comments discussed in this chapter. Because the individual files were concatenated without filename separators, the chapter refers to models by their internal problem names rather than inventing original filenames.

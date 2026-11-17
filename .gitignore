@@ -35,3 +35,13 @@ Thumbs.db
 
 # PDF documents
 *.pdf
+# Private authoring material: never publish
+**/*reusable*prompt*.qmd
+**/*lecture*prompt*.qmd
+**/private/**
+
+
+
+
+# Local private authoring material
+.private/

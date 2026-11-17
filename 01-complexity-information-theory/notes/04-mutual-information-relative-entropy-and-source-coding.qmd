@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Mutual Information, Relative Entropy, and Source Coding"
 subtitle: "Lecture 4 - 13 October 2026"
 format:
@@ -911,11 +911,3 @@ $$
 The receiver therefore obtains one unique sequence of source symbols.
 
 :::
-
-# Sources
-
-- Goodnotes lecture notes: *04 - 13-10-2026.pdf*.
-- Official Teams material: *CIT_Notes_Part2_Information_Measures (1).pdf*, used to verify mutual information, relative entropy, feature impurity, and cross-entropy identities already present in the lecture.
-- Thomas M. Cover and Joy A. Thomas, *Elements of Information Theory*, used to verify the standard KL-divergence identities and the source-code terminology introduced in the lecture.
-
-

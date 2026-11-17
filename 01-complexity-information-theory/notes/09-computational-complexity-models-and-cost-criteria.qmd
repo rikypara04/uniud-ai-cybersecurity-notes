@@ -424,8 +424,3 @@ The practical conclusion of the lecture is:
 - a constant number of ordinary arithmetic operations generally does not create the repeated-growth phenomenon used in the counterexample;
 - when an input-dependent number of products produces exponentially growing intermediate values, logarithmic cost or bit complexity must be used;
 - on a Turing machine, each primitive transition reads and modifies only a constant number of tape symbols, so uniform cost already operates at bit level and coincides with bit-cost accounting.
-
-# Sources
-
-- **Goodnotes lecture PDF:** `09 - 29-10-2026.pdf`.
-- **Supporting lecture transcript:** `2026-10-29 complexity and information theory.txt`.

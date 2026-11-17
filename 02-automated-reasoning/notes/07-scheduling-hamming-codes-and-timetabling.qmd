@@ -358,7 +358,3 @@ flowchart LR
 ```
 
 The important modelling difficulty is that team formation and scheduling cannot be solved independently: changing a team's members changes that team's feasible periods.
-
-# Sources
-
-- Original lecture slide deck: `07 - 21-10-2026.pdf`. Used for the lecture sequence, three scheduling representations, Telethon specification, Hamming examples and rule, Hamming-code CSP, timetabling data, and tournament exercise.

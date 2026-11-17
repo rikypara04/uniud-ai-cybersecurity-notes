@@ -867,20 +867,3 @@ H_D(p)+\varepsilon.
 $$
 
 The result does not claim that a finite block necessarily reaches entropy exactly. It states that the average rate per source symbol can be made arbitrarily close to entropy by increasing the block length.
-
-# Sources
-
-- Goodnotes lecture notes: *06 - 20-10-2026.pdf*.
-- Thomas M. Cover and Joy A. Thomas, *Elements of Information Theory*, used to verify the expected-length lower bound, Shannon-code construction, Huffman-code interpretation, and block-coding bound already developed in the lecture.
-
-
-
-
-
-
-
-
-
-
-
-

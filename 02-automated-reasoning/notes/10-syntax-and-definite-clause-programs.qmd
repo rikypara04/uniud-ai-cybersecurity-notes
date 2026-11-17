@@ -427,7 +427,3 @@ The lecture closes by separating two situations.
 Top-down methods can manage an infinite collection without constructing the entire collection in advance: answers may be produced one at a time. However, the deck warns that these methods behave poorly when negation is required. For definite clauses, Prolog can sometimes manage infiniteness. For programs used in knowledge representation with negation, the course instead imposes finiteness and moves to ASP.
 
 This final distinction sets the practical boundary of the lecture: the chapter has introduced the syntax and expressive examples, while detailed Prolog examples follow afterward.
-
-# Sources
-
-- Annotated lecture slide deck: *10 - 06-11-2026.pdf*, “Syntax of Logic Programming,” Automated Reasoning, University of Udine, 2026.

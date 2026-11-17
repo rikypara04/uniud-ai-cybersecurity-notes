@@ -1384,7 +1384,3 @@ The source says “domino,” but the data and drawings use pieces with three ce
 # Invited-talk interlude
 
 The deck contains an invited-talk announcement between the two portions of the `all_different` lecture. The announcement reports a thesis on automated algorithm design through code evolution and lists two related publications. It does not introduce additional formal material used by the matching-based propagator, so it remains an interlude rather than a new technical section.
-
-# Sources
-
-- Original lecture slide deck: `09 - 28-10-2026.pdf`, 44 exported pages corresponding to 37 numbered slides plus progressive animation frames. Used for the complete lecture order, definitions, proofs, graph examples, algorithms, MiniZinc constraint lists, cumulative-scheduling instance, and the three-cell tile exercise.

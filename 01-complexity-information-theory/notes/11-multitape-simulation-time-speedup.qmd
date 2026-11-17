@@ -432,7 +432,3 @@ f'(n)
 $$
 
 The result concerns constant-factor speed-up. The extra $n+2$ term remains because the input must still be read and reorganised before the grouped simulation begins.
-
-# Sources
-
-- Goodnotes lecture PDF: *11 - 05-11-2026.pdf*, Lecture 11, 5 November 2026.

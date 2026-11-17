@@ -606,8 +606,3 @@ $$
 Furthermore, whenever a uniquely decodable code exists with lengths $l_1,\ldots,l_k$, the direct theorem guarantees a prefix code with the same lengths.
 
 This does **not** mean that every uniquely decodable code is itself prefix-free. It means that uniquely decodable codes and prefix codes admit exactly the same possible codeword-length sequences.
-
-# Sources
-
-- Goodnotes lecture notes: *05 - 15-10-2026.pdf*.
-- Thomas M. Cover and Joy A. Thomas, *Elements of Information Theory*, used to verify the standard formulation and counting proof of the Kraft-McMillan inequality already presented in the lecture.

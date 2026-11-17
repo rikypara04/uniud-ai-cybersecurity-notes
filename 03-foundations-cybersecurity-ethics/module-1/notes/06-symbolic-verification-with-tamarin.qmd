@@ -434,7 +434,3 @@ In the illustrated example, the procedure reaches a solved system and therefore 
 ::: {.callout-important}
 A successful Tamarin proof is relative to the symbolic model, equational theory, compromise rules, and guarded property supplied. A counterexample is a trace admitted by that model. The model assumptions are therefore part of the security claim.
 :::
-
-# Sources
-
-- *6_Tamarin.pdf*, primary slide deck. The six local figures are unmodified extractions from this lecturer-supplied deck.

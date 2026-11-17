@@ -382,8 +382,3 @@ $$
 It defines $A^*B^*$, subject to the endpoint convention used for the represented word. A local adjacency condition defines the alternating language $(AB)^*$ by requiring each $A$ to be followed by $B$ and each $B$ to be preceded by $A$, together with the needed boundary conditions.
 
 The deck closes by asking whether FO can define $A^*BA^*$ and $(AA)^*$. The first means that exactly one position carries $B$ and all others carry $A$, and is FO-definable. The second requires even word length over the one-letter alphabet and returns to the parity obstruction: bounded-rank FO formulas cannot distinguish sufficiently long words whose lengths differ by one. This question prepares the transition from games to logics and automata over words without importing the later material into this chapter.
-
-# Sources
-
-- *3_Games.pdf*, primary slide deck.
-- *Lecture notes on Mathematical Logics by Alberto Marcone (LM INF).pdf*, consulted to confirm terminology concerning elementary equivalence, structures, satisfaction, and first-order semantics.

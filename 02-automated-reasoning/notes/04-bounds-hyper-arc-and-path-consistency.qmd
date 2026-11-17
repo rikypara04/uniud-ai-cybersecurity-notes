@@ -701,7 +701,3 @@ The important conclusion is comparative rather than the exact constant: path con
 The final slide mentions **$k$-consistency** as the generalisation of the preceding notions. Informally, a CSP is $k$-consistent when every consistent assignment to $k-1$ variables can be extended to any $k$th variable.
 
 The deck explicitly postpones this topic, so no further development is included in this chapter.
-
-# Sources
-
-- Original and annotated slide deck: *04 - 09-10-2026.pdf*.

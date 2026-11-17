@@ -231,7 +231,3 @@ The final model adds clock control to the transient stage. Clock $y$ is reset wh
 ::: {.callout-note}
 The two counterexamples expose different errors. Unbounded delay in `granting` breaks safety because acknowledgement can occur too late. Unbounded delay in `transient` breaks liveness because lowering may never be issued. The first is repaired with urgency; the second with a finite time bound.
 :::
-
-# Sources
-
-- *5_UPPAAL.pdf*, primary slide deck. The six local figures are unmodified extractions from this lecturer-supplied deck.

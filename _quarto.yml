@@ -1,4 +1,4 @@
-﻿project:
+project:
   type: website
   output-dir: _site
 
@@ -119,9 +119,10 @@ website:
 
 format:
   html:
+    css: styles.css
     theme:
       light: cosmo
-      dark: darklyAnalizza. C'è scri
+      dark: darkly
     toc: true
     toc-depth: 3
     number-sections: true
