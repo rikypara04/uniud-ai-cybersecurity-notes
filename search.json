@@ -679,7 +679,8 @@
     "text": "MSc Artificial Intelligence & Cybersecurity\n\n\n\nLectures (6)\n\n\n\nIntroduction to Formal Verification and Logic\n\n\nClassical Logics: Propositional Logic, QBF, and First-Order Logic\n\n\nGames in Logic and First-Order Definability\n\n\nLearning Automata and Sequential Transducers\n\n\nModelling and Verification in UPPAAL\n\n\nSymbolic Verification of Security Protocols with Tamarin",
     "crumbs": [
       "Home",
-      "Foundations of Cybersecurity and Ethics"
+      "Foundations of Cybersecurity and Ethics",
+      "Course overview"
     ]
   },
   {
@@ -1311,7 +1312,8 @@
     "text": "MSc Artificial Intelligence & Cybersecurity\n\n\n\nLectures (12)\n\n\n\nIntroduction to Automated Reasoning and Constraint Programming\n\n\nSAT Encodings and DPLL\n\n\nConstraint Propagation and Local Consistency\n\n\nBounds, Hyper-Arc, and Path Consistency\n\n\nMiniZinc Search Annotations and Constraint Modelling\n\n\nMiniZinc Modelling through Classical Constraint Problems\n\n\nScheduling Models, Hamming Codes, and Timetabling\n\n\nConstraint Optimization, Large Neighbourhood Search, and Bioinformatics Models\n\n\nGlobal Constraints, Matching-Based Filtering, and Cumulative Scheduling\n\n\nSyntax of Logic Programming and Definite-Clause Programs\n\n\nSemantics of Logic Programs\n\n\nUnification, SLD Resolution, and the Limits of Computation",
     "crumbs": [
       "Home",
-      "Automated Reasoning"
+      "Automated Reasoning",
+      "Course overview"
     ]
   },
   {
@@ -4178,7 +4180,8 @@
     "text": "MSc Artificial Intelligence & Cybersecurity\n\n\n\nLectures (12)\n\n\n\nIntroduction to Information Theory\n\n\nInformation, Probability, and Random Variables\n\n\nProperties of Entropy and Conditional Entropy\n\n\nMutual Information, Relative Entropy, and Source Coding\n\n\nPrefix Codes and the Kraft-McMillan Inequality\n\n\nShannon Codes, Huffman Codes, and Asymptotic Optimality\n\n\nLZ77 Compression and Kolmogorov Complexity\n\n\nKolmogorov Complexity and Its Relation to Entropy\n\n\nComputational Complexity, Machine Models, and Cost Criteria\n\n\nOperational Semantics and Time Complexity of Turing Machines\n\n\nMultitape Simulation, Time Complexity, and Linear Speed-Up\n\n\nTime and Space Complexity Classes",
     "crumbs": [
       "Home",
-      "Complexity and Information Theory"
+      "Complexity and Information Theory",
+      "Course overview"
     ]
   },
   {
