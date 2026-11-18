@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bottom-Up Semantics and Fixpoint Computation – MSc Artificial Intelligence &amp; Cybersecurity</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-447e42e69aaa9833c0ba1b986f430b20.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-332d664621be278c8eee1e9fc881da0b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-c4a13e8d11fc0b01aa72aacbcfb1a674.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-332d664621be278c8eee1e9fc881da0b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          toggle.setAttribute("aria-checked", alternate ? "true" : "false");
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455).
+    // Not run on load: stylesheets are set before first paint there, and
+    // scrolling would undo the scroll to a URL fragment (#14973).
+    // The one pixel nudge keeps the reader where they were.
+    const refreshSafariScrollbar = () => {
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        const scrollY = window.scrollY;
+        window.scrollTo(0, scrollY > 0 ? scrollY - 1 : 1);
+        setTimeout(() => {
+          window.scrollTo(0, scrollY);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      refreshSafariScrollbar();
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">MSc Artificial Intelligence &amp; Cybersecurity</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <button type="button" role="switch" aria-checked="false" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode" aria-label="Toggle dark mode"><i class="bi"></i></button>
+</div>
+            <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" aria-label="Toolbar">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../02-automated-reasoning/index.html">Automated Reasoning</a></li><li class="breadcrumb-item"><a href="../../02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html">Bottom-Up Semantics and Fixpoint Computation</a></li></ol></nav>
+        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto" aria-label="Section">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-1-label">Complexity and Information Theory</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Course overview</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/01-introduction-to-information-theory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Information Theory</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/02-information-probability-and-random-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Information, Probability, and Random Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/03-properties-of-entropy-and-conditional-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Properties of Entropy and Conditional Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/04-mutual-information-relative-entropy-and-source-coding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mutual Information, Relative Entropy, and Source Coding</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefix Codes and the Kraft-McMillan Inequality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/06-shannon-codes-huffman-codes-and-asymptotic-optimality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Shannon Codes, Huffman Codes, and Asymptotic Optimality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/07-lz77-and-kolmogorov-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">LZ77 Compression and Kolmogorov Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Kolmogorov Complexity and Its Relation to Entropy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/09-computational-complexity-models-and-cost-criteria.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Computational Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Operational Semantics and Time Complexity of Turing Machines</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/11-multitape-simulation-time-speedup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multitape Simulation, Time Complexity, and Linear Speed-Up</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/12-time-and-space-complexity-classes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Time and Space Complexity Classes</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/13-random-access-machines-and-nondeterministic-complexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Random-Access Machines and Nondeterministic Complexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../01-complexity-information-theory/notes/14-reachability-proper-functions-and-complements.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Reachability, Proper Complexity Bounds, and Complements</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-controls="quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-2-label">Automated Reasoning</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-2" aria-labelledby="quarto-sidebar-section-2-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Course overview</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Automated Reasoning and Constraint Programming</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/02-sat-encodings-and-dpll.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SAT Encodings and DPLL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Propagation and Local Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/04-bounds-hyper-arc-and-path-consistency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bounds, Hyper-Arc, and Path Consistency</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Search Annotations and Constraint Modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/06-minizinc-modeling-examples-and-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MiniZinc Modelling through Classical Constraint Problems</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scheduling Models, Hamming Codes, and Timetabling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/08-constraint-optimization-local-search-and-bioinformatics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Constraint Optimization, Large Neighbourhood Search, and Bioinformatics Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/09-global-constraints-matching-and-cumulative-scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Global Constraints, Matching-Based Filtering, and Cumulative Scheduling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/10-syntax-and-definite-clause-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Syntax of Logic Programming and Definite-Clause Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/11-semantics-of-logic-programs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Semantics of Logic Programs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Unification, SLD Resolution, and the Limits of Computation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Bottom-Up Semantics and Fixpoint Computation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-controls="quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-3-label">Foundations of Cybersecurity and Ethics</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-3" aria-labelledby="quarto-sidebar-section-3-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Course overview</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Formal Verification and Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classical Logics: Propositional Logic, QBF, and First-Order Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Games in Logic and First-Order Definability</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learning Automata and Sequential Transducers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/05-uppaal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling and Verification in UPPAAL</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Symbolic Verification of Security Protocols with Tamarin</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#from-logical-consequences-to-bottom-up-computation" id="toc-from-logical-consequences-to-bottom-up-computation" class="nav-link active" data-scroll-target="#from-logical-consequences-to-bottom-up-computation"><span class="header-section-number">1</span> From logical consequences to bottom-up computation</a></li>
+  <li><a href="#grounding-a-definite-program" id="toc-grounding-a-definite-program" class="nav-link" data-scroll-target="#grounding-a-definite-program"><span class="header-section-number">2</span> Grounding a definite program</a>
+  <ul class="collapse">
+  <li><a href="#finite-grounding" id="toc-finite-grounding" class="nav-link" data-scroll-target="#finite-grounding"><span class="header-section-number">2.1</span> Finite grounding</a></li>
+  <li><a href="#infinite-grounding" id="toc-infinite-grounding" class="nav-link" data-scroll-target="#infinite-grounding"><span class="header-section-number">2.2</span> Infinite grounding</a></li>
+  </ul></li>
+  <li><a href="#the-immediate-consequence-operator" id="toc-the-immediate-consequence-operator" class="nav-link" data-scroll-target="#the-immediate-consequence-operator"><span class="header-section-number">3</span> The immediate-consequence operator</a>
+  <ul class="collapse">
+  <li><a href="#a-finite-bottom-up-computation" id="toc-a-finite-bottom-up-computation" class="nav-link" data-scroll-target="#a-finite-bottom-up-computation"><span class="header-section-number">3.1</span> A finite bottom-up computation</a></li>
+  </ul></li>
+  <li><a href="#top-down-and-bottom-up-behaviour" id="toc-top-down-and-bottom-up-behaviour" class="nav-link" data-scroll-target="#top-down-and-bottom-up-behaviour"><span class="header-section-number">4</span> Top-down and bottom-up behaviour</a>
+  <ul class="collapse">
+  <li><a href="#a-looping-top-down-derivation" id="toc-a-looping-top-down-derivation" class="nav-link" data-scroll-target="#a-looping-top-down-derivation"><span class="header-section-number">4.1</span> A looping top-down derivation</a></li>
+  <li><a href="#finite-query-infinite-bottom-up-construction" id="toc-finite-query-infinite-bottom-up-construction" class="nav-link" data-scroll-target="#finite-query-infinite-bottom-up-construction"><span class="header-section-number">4.2</span> Finite query, infinite bottom-up construction</a></li>
+  </ul></li>
+  <li><a href="#models-characterized-by-the-immediate-consequence-operator" id="toc-models-characterized-by-the-immediate-consequence-operator" class="nav-link" data-scroll-target="#models-characterized-by-the-immediate-consequence-operator"><span class="header-section-number">5</span> Models characterized by the immediate-consequence operator</a>
+  <ul class="collapse">
+  <li><a href="#a-pre-fixpoint-is-a-model" id="toc-a-pre-fixpoint-is-a-model" class="nav-link" data-scroll-target="#a-pre-fixpoint-is-a-model"><span class="header-section-number">5.1</span> A pre-fixpoint is a model</a></li>
+  <li><a href="#failure-of-containment-exposes-a-violated-rule" id="toc-failure-of-containment-exposes-a-violated-rule" class="nav-link" data-scroll-target="#failure-of-containment-exposes-a-violated-rule"><span class="header-section-number">5.2</span> Failure of containment exposes a violated rule</a></li>
+  </ul></li>
+  <li><a href="#monotonicity" id="toc-monotonicity" class="nav-link" data-scroll-target="#monotonicity"><span class="header-section-number">6</span> Monotonicity</a></li>
+  <li><a href="#upward-continuity" id="toc-upward-continuity" class="nav-link" data-scroll-target="#upward-continuity"><span class="header-section-number">7</span> Upward continuity</a>
+  <ul class="collapse">
+  <li><a href="#left-to-right-inclusion" id="toc-left-to-right-inclusion" class="nav-link" data-scroll-target="#left-to-right-inclusion"><span class="header-section-number">7.1</span> Left-to-right inclusion</a></li>
+  <li><a href="#right-to-left-inclusion" id="toc-right-to-left-inclusion" class="nav-link" data-scroll-target="#right-to-left-inclusion"><span class="header-section-number">7.2</span> Right-to-left inclusion</a></li>
+  </ul></li>
+  <li><a href="#computing-the-least-fixpoint" id="toc-computing-the-least-fixpoint" class="nav-link" data-scroll-target="#computing-the-least-fixpoint"><span class="header-section-number">8</span> Computing the least fixpoint</a></li>
+  <li><a href="#greatest-fixpoints-and-downward-iteration" id="toc-greatest-fixpoints-and-downward-iteration" class="nav-link" data-scroll-target="#greatest-fixpoints-and-downward-iteration"><span class="header-section-number">9</span> Greatest fixpoints and downward iteration</a>
+  <ul class="collapse">
+  <li><a href="#example-why-descending-iteration-may-require-more-than-omega" id="toc-example-why-descending-iteration-may-require-more-than-omega" class="nav-link" data-scroll-target="#example-why-descending-iteration-may-require-more-than-omega"><span class="header-section-number">9.1</span> Example: why descending iteration may require more than <span class="math inline">\(\omega\)</span></a></li>
+  </ul></li>
+  <li><a href="#practical-interpretation" id="toc-practical-interpretation" class="nav-link" data-scroll-target="#practical-interpretation"><span class="header-section-number">10</span> Practical interpretation</a></li>
+  <li><a href="#exercise-direction" id="toc-exercise-direction" class="nav-link" data-scroll-target="#exercise-direction"><span class="header-section-number">11</span> Exercise direction</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../02-automated-reasoning/index.html">Automated Reasoning</a></li><li class="breadcrumb-item"><a href="../../02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html">Bottom-Up Semantics and Fixpoint Computation</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Bottom-Up Semantics and Fixpoint Computation</h1>
+<p class="subtitle lead">Lecture 13 - 18 November 2026</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="from-logical-consequences-to-bottom-up-computation" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> From logical consequences to bottom-up computation</h1>
+<p>For a definite-clause program <span class="math inline">\(P\)</span>, let <span class="math inline">\(B_P\)</span> denote its Herbrand base and <span class="math inline">\(M_P\)</span> its minimum Herbrand model. The preceding lecture established the central equivalence</p>
+<p><span class="math display">\[
+P \models A
+\quad\Longleftrightarrow\quad
+A\in M_P
+\]</span></p>
+<p>for every ground atom <span class="math inline">\(A\in B_P\)</span>.</p>
+<p>The test <span class="math inline">\(A\in M_P\)</span> can be approached <strong>top-down</strong> by SLD resolution. A successful SLD derivation not only establishes that <span class="math inline">\(A\)</span> is a logical consequence of <span class="math inline">\(P\)</span>, but also explains which program clauses justify the conclusion. This explanatory derivation is relevant to explainable artificial intelligence: the proof structure records why the answer follows.</p>
+<p>The present lecture develops the complementary <strong>bottom-up</strong> method. Instead of starting from a query, bottom-up evaluation starts from known facts and repeatedly derives every immediate consequence until a fixpoint is reached.</p>
+</section>
+<section id="grounding-a-definite-program" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Grounding a definite program</h1>
+<p>Let <span class="math inline">\(H_P\)</span> be the Herbrand universe of a program <span class="math inline">\(P\)</span>. The <strong>grounding</strong> of a rule is the set of all instances obtained by replacing every variable with every possible ground term from <span class="math inline">\(H_P\)</span>. The grounding of the complete program is denoted by</p>
+<p><span class="math display">\[
+\operatorname{ground}(P).
+\]</span></p>
+<p>It may be finite or infinite, depending on the Herbrand universe.</p>
+<section id="finite-grounding" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="finite-grounding"><span class="header-section-number">2.1</span> Finite grounding</h2>
+<p>Suppose</p>
+<p><span class="math display">\[
+H_P=\{a,b\}
+\]</span></p>
+<p>and the program contains the rule</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode prolog code-with-copy"><code class="sourceCode prolog"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>q(<span class="dt">X</span>) <span class="kw">:-</span> r(<span class="dt">X</span><span class="kw">,</span><span class="dt">Y</span>)<span class="kw">,</span> p(<span class="dt">Y</span>)<span class="kw">.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Every pair of substitutions for <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> produces one ground instance:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode prolog code-with-copy"><code class="sourceCode prolog"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>q(a) <span class="kw">:-</span> r(a<span class="kw">,</span>a)<span class="kw">,</span> p(a)<span class="kw">.</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>q(a) <span class="kw">:-</span> r(a<span class="kw">,</span>b)<span class="kw">,</span> p(b)<span class="kw">.</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>q(b) <span class="kw">:-</span> r(b<span class="kw">,</span>a)<span class="kw">,</span> p(a)<span class="kw">.</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>q(b) <span class="kw">:-</span> r(b<span class="kw">,</span>b)<span class="kw">,</span> p(b)<span class="kw">.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The grounding contains four rules because each of the two variables has two possible ground values.</p>
+</section>
+<section id="infinite-grounding" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="infinite-grounding"><span class="header-section-number">2.2</span> Infinite grounding</h2>
+<p>If</p>
+<p><span class="math display">\[
+H_P=\{0,s(0),s(s(0)),\ldots\},
+\]</span></p>
+<p>then the rule</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode prolog code-with-copy"><code class="sourceCode prolog"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>num(s(<span class="dt">X</span>)) <span class="kw">:-</span> num(<span class="dt">X</span>)<span class="kw">.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>has infinitely many ground instances:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode prolog code-with-copy"><code class="sourceCode prolog"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>num(s(<span class="dv">0</span>))       <span class="kw">:-</span> num(<span class="dv">0</span>)<span class="kw">.</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>num(s(s(<span class="dv">0</span>)))    <span class="kw">:-</span> num(s(<span class="dv">0</span>))<span class="kw">.</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>num(s(s(s(<span class="dv">0</span>)))) <span class="kw">:-</span> num(s(s(<span class="dv">0</span>)))<span class="kw">.</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>...</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The syntactic program is finite, but its grounding can be infinite because function symbols generate infinitely many ground terms.</p>
+</section>
+</section>
+<section id="the-immediate-consequence-operator" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> The immediate-consequence operator</h1>
+<p>Let <span class="math inline">\(P\)</span> be a definite-clause program and let <span class="math inline">\(I\subseteq B_P\)</span> be a Herbrand interpretation. The <strong>immediate-consequence operator</strong> <span class="math inline">\(T_P\)</span> returns all rule heads whose bodies are already true in <span class="math inline">\(I\)</span>:</p>
+<p><span class="math display">\[
+T_P(I)
+=
+\left\{
+a
+\ \middle|\
+\begin{array}{l}
+a\leftarrow b_1,\ldots,b_n\in\operatorname{ground}(P),\\
+\{b_1,\ldots,b_n\}\subseteq I
+\end{array}
+\right\}.
+\]</span></p>
+<p>For a fact, <span class="math inline">\(n=0\)</span>. Its body is empty and is therefore satisfied by every interpretation, including <span class="math inline">\(\varnothing\)</span>. Consequently, all facts of <span class="math inline">\(P\)</span> belong to <span class="math inline">\(T_P(\varnothing)\)</span>.</p>
+<p>The operator is called <em>immediate</em> because it applies the program rules once. Consequences that require several rule applications appear through repeated iterations of <span class="math inline">\(T_P\)</span>.</p>
+<section id="a-finite-bottom-up-computation" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="a-finite-bottom-up-computation"><span class="header-section-number">3.1</span> A finite bottom-up computation</h2>
+<p>Consider</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode prolog code-with-copy"><code class="sourceCode prolog"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>r(a)<span class="kw">.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>r(b)<span class="kw">.</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>p(a)<span class="kw">.</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>q(<span class="dt">X</span>) <span class="kw">:-</span> r(<span class="dt">X</span>)<span class="kw">,</span> p(<span class="dt">X</span>)<span class="kw">.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Starting from the empty interpretation:</p>
+<p><span class="math display">\[
+T_P(\varnothing)
+=
+\{r(a),r(b),p(a)\}.
+\]</span></p>
+<p>The ground instance</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode prolog code-with-copy"><code class="sourceCode prolog"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>q(a) <span class="kw">:-</span> r(a)<span class="kw">,</span> p(a)<span class="kw">.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>now has its complete body in the interpretation, so the next application also derives <span class="math inline">\(q(a)\)</span>:</p>
+<p><span class="math display">\[
+T_P\bigl(\{r(a),r(b),p(a)\}\bigr)
+=
+\{q(a),r(a),r(b),p(a)\}.
+\]</span></p>
+<p>A further application produces no change:</p>
+<p><span class="math display">\[
+T_P\bigl(\{q(a),r(a),r(b),p(a)\}\bigr)
+=
+\{q(a),r(a),r(b),p(a)\}.
+\]</span></p>
+<p>The computation has reached a fixpoint.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Iteration</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><span class="math inline">\(0\)</span></td>
+<td><span class="math inline">\(\varnothing\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><span class="math inline">\(1\)</span></td>
+<td><span class="math inline">\(\{r(a),r(b),p(a)\}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><span class="math inline">\(2\)</span></td>
+<td><span class="math inline">\(\{q(a),r(a),r(b),p(a)\}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><span class="math inline">\(3\)</span></td>
+<td>unchanged, hence a fixpoint</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="top-down-and-bottom-up-behaviour" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Top-down and bottom-up behaviour</h1>
+<p>The two strategies compute the same declarative semantics, but their operational behaviour can differ substantially.</p>
+<section id="a-looping-top-down-derivation" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="a-looping-top-down-derivation"><span class="header-section-number">4.1</span> A looping top-down derivation</h2>
+<p>Consider</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode prolog code-with-copy"><code class="sourceCode prolog"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>p(a)<span class="kw">.</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>q(<span class="dt">X</span>) <span class="kw">:-</span> q(<span class="dt">X</span>)<span class="kw">.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A top-down attempt to prove <code>q(a)</code> may repeatedly select the recursive rule:</p>
+<p><span class="math display">\[
+\leftarrow q(a)
+\Longrightarrow
+\leftarrow q(a)
+\Longrightarrow
+\leftarrow q(a)
+\Longrightarrow\cdots
+\]</span></p>
+<p>At each step a fresh variable is introduced and unified with <span class="math inline">\(a\)</span>, but the selected goal remains <code>q(a)</code>. SLD resolution may therefore loop.</p>
+<p>Bottom-up evaluation terminates immediately:</p>
+<p><span class="math display">\[
+T_P(\varnothing)=\{p(a)\},
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+T_P(\{p(a)\})=\{p(a)\}.
+\]</span></p>
+<p>The atom <span class="math inline">\(q(a)\)</span> is never derived. The fixpoint is simply <span class="math inline">\(\{p(a)\}\)</span>.</p>
+</section>
+<section id="finite-query-infinite-bottom-up-construction" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="finite-query-infinite-bottom-up-construction"><span class="header-section-number">4.2</span> Finite query, infinite bottom-up construction</h2>
+<p>Now consider</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode prolog code-with-copy"><code class="sourceCode prolog"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>nat(<span class="dv">0</span>)<span class="kw">.</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>nat(s(<span class="dt">X</span>)) <span class="kw">:-</span> nat(<span class="dt">X</span>)<span class="kw">.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A top-down derivation for the specific query</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode prolog code-with-copy"><code class="sourceCode prolog"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">?-</span> nat(s(s(s(<span class="dv">0</span>))))<span class="kw">.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>is finite. Each resolution step removes one outer occurrence of <span class="math inline">\(s\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\leftarrow \operatorname{nat}(s(s(s(0))))
+&amp;\Longrightarrow \leftarrow \operatorname{nat}(s(s(0)))\\
+&amp;\Longrightarrow \leftarrow \operatorname{nat}(s(0))\\
+&amp;\Longrightarrow \leftarrow \operatorname{nat}(0)\\
+&amp;\Longrightarrow \square.
+\end{aligned}
+\]</span></p>
+<p>The bottom-up construction instead enumerates the complete infinite model:</p>
+<p><span class="math display">\[
+\begin{aligned}
+T_P(\varnothing)
+&amp;=\{\operatorname{nat}(0)\},\\
+T_P^2(\varnothing)
+&amp;=\{\operatorname{nat}(0),\operatorname{nat}(s(0))\},\\
+T_P^3(\varnothing)
+&amp;=\{\operatorname{nat}(0),\operatorname{nat}(s(0)),
+\operatorname{nat}(s(s(0)))\},\\
+&amp;\hspace{1em}\vdots
+\end{aligned}
+\]</span></p>
+<p>No finite iteration contains every natural-number atom. The limit is</p>
+<p><span class="math display">\[
+\{\operatorname{nat}(0),\operatorname{nat}(s(0)),
+\operatorname{nat}(s(s(0))),\ldots\}.
+\]</span></p>
+<p>Thus, in practice, naive bottom-up execution may continue forever even though the semantic limit is well defined.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Program and request</th>
+<th>Top-down behaviour</th>
+<th>Bottom-up behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>q(X) :- q(X)</code> with query <code>q(a)</code></td>
+<td>May loop on the recursive goal</td>
+<td>Immediately reaches <span class="math inline">\(\{p(a)\}\)</span></td>
+</tr>
+<tr class="even">
+<td>Naturals with one ground query</td>
+<td>Finite derivation for a fixed numeral</td>
+<td>Enumerates an infinite ascending chain</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="models-characterized-by-the-immediate-consequence-operator" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Models characterized by the immediate-consequence operator</h1>
+<p>Interpretations are ordered by inclusion in the complete lattice</p>
+<p><span class="math display">\[
+\left\langle\mathcal P(B_P),\subseteq\right\rangle.
+\]</span></p>
+<p>The operator <span class="math inline">\(T_P\)</span> provides a direct characterization of Herbrand models.</p>
+<section id="a-pre-fixpoint-is-a-model" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="a-pre-fixpoint-is-a-model"><span class="header-section-number">5.1</span> A pre-fixpoint is a model</h2>
+<p>Suppose</p>
+<p><span class="math display">\[
+T_P(I)\subseteq I.
+\]</span></p>
+<p>Take any ground rule</p>
+<p><span class="math display">\[
+a\leftarrow b_1,\ldots,b_n
+\]</span></p>
+<p>in <span class="math inline">\(\operatorname{ground}(P)\)</span>. If the body is not contained in <span class="math inline">\(I\)</span>, the implication is satisfied because its antecedent is false. If</p>
+<p><span class="math display">\[
+\{b_1,\ldots,b_n\}\subseteq I,
+\]</span></p>
+<p>then <span class="math inline">\(a\in T_P(I)\)</span>. By the hypothesis <span class="math inline">\(T_P(I)\subseteq I\)</span>, it follows that <span class="math inline">\(a\in I\)</span>. Hence the rule is satisfied. Since this holds for every ground rule, <span class="math inline">\(I\)</span> is a model of <span class="math inline">\(P\)</span>.</p>
+</section>
+<section id="failure-of-containment-exposes-a-violated-rule" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="failure-of-containment-exposes-a-violated-rule"><span class="header-section-number">5.2</span> Failure of containment exposes a violated rule</h2>
+<p>Conversely, suppose</p>
+<p><span class="math display">\[
+T_P(I)\setminus I\ne\varnothing.
+\]</span></p>
+<p>Choose <span class="math inline">\(a\in T_P(I)\setminus I\)</span>. By the definition of <span class="math inline">\(T_P\)</span>, some ground rule</p>
+<p><span class="math display">\[
+a\leftarrow b_1,\ldots,b_n
+\]</span></p>
+<p>has its body contained in <span class="math inline">\(I\)</span>, while its head <span class="math inline">\(a\)</span> is absent from <span class="math inline">\(I\)</span>. That rule is false in <span class="math inline">\(I\)</span>, so <span class="math inline">\(I\)</span> is not a model.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Model characterization
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For every Herbrand interpretation <span class="math inline">\(I\)</span>,</p>
+<p><span class="math display">\[
+I\text{ is a model of }P
+\quad\Longleftrightarrow\quad
+T_P(I)\subseteq I.
+\]</span></p>
+<p>Every fixpoint <span class="math inline">\(T_P(I)=I\)</span> is therefore a model, although a model need not be a fixpoint.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="monotonicity" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Monotonicity</h1>
+<p>The operator <span class="math inline">\(T_P\)</span> is monotone on <span class="math inline">\(\langle\mathcal P(B_P),\subseteq\rangle\)</span>:</p>
+<p><span class="math display">\[
+I\subseteq J
+\quad\Longrightarrow\quad
+T_P(I)\subseteq T_P(J).
+\]</span></p>
+<p>To prove this, take any <span class="math inline">\(a\in T_P(I)\)</span>. Some ground rule</p>
+<p><span class="math display">\[
+a\leftarrow b_1,\ldots,b_n
+\]</span></p>
+<p>has</p>
+<p><span class="math display">\[
+\{b_1,\ldots,b_n\}\subseteq I.
+\]</span></p>
+<p>Since <span class="math inline">\(I\subseteq J\)</span>, the same body is contained in <span class="math inline">\(J\)</span>. Therefore <span class="math inline">\(a\in T_P(J)\)</span>.</p>
+<p>Monotonicity ensures that iteration from the bottom produces an ascending chain:</p>
+<p><span class="math display">\[
+\varnothing
+\subseteq
+T_P(\varnothing)
+\subseteq
+T_P^2(\varnothing)
+\subseteq
+T_P^3(\varnothing)
+\subseteq\cdots
+\]</span></p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+
+<pre class="mermaid mermaid-js">flowchart LR
+  I0["Empty interpretation"] --&gt; I1["T_P at stage 1"]
+  I1 --&gt; I2["T_P at stage 2"]
+  I2 --&gt; I3["T_P at stage 3"]
+  I3 --&gt; IL["Limit at omega"]
+  classDef stage fill:#0d6efd,color:#ffffff,stroke:#084298
+  class I0,I1,I2,I3,IL stage
+</pre>
+</div>
+<p></p><figcaption> Repeated application of the monotone immediate-consequence operator builds an ascending chain from the empty interpretation.</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<p>At any finite stage there are two possibilities:</p>
+<ul>
+<li>if <span class="math inline">\(T_P^{n+1}(\varnothing)=T_P^n(\varnothing)\)</span>, a fixpoint has been reached;</li>
+<li>if the inclusion is strict, the current interpretation is not yet a model because <span class="math inline">\(T_P(I)\nsubseteq I\)</span>.</li>
+</ul>
+</section>
+<section id="upward-continuity" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Upward continuity</h1>
+<p>Monotonicity alone guarantees preservation of order. The lecture proves the stronger property of <strong>upward continuity</strong>.</p>
+<p>Let</p>
+<p><span class="math display">\[
+I_0\subseteq I_1\subseteq I_2\subseteq\cdots
+\]</span></p>
+<p>be an ascending chain. Then</p>
+<p><span class="math display">\[
+T_P\left(\bigcup_{i\ge 0} I_i\right)
+=
+\bigcup_{i\ge 0}T_P(I_i).
+\]</span></p>
+<section id="left-to-right-inclusion" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="left-to-right-inclusion"><span class="header-section-number">7.1</span> Left-to-right inclusion</h2>
+<p>Suppose</p>
+<p><span class="math display">\[
+a\in T_P\left(\bigcup_{i\ge0}I_i\right).
+\]</span></p>
+<p>Then there is a ground rule</p>
+<p><span class="math display">\[
+a\leftarrow b_1,\ldots,b_n
+\]</span></p>
+<p>whose body atoms all belong to the union. For each <span class="math inline">\(b_j\)</span>, choose an index <span class="math inline">\(k_j\)</span> such that <span class="math inline">\(b_j\in I_{k_j}\)</span>. Because the body is finite, the maximum</p>
+<p><span class="math display">\[
+k=\max\{k_1,\ldots,k_n\}
+\]</span></p>
+<p>exists. Since the chain is ascending, every body atom belongs to <span class="math inline">\(I_k\)</span>. Hence</p>
+<p><span class="math display">\[
+a\in T_P(I_k)
+\subseteq
+\bigcup_{i\ge0}T_P(I_i).
+\]</span></p>
+<p>The finiteness of rule bodies is crucial here: finitely many witnessing stages can be replaced by one largest stage.</p>
+</section>
+<section id="right-to-left-inclusion" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="right-to-left-inclusion"><span class="header-section-number">7.2</span> Right-to-left inclusion</h2>
+<p>Suppose</p>
+<p><span class="math display">\[
+a\in\bigcup_{i\ge0}T_P(I_i).
+\]</span></p>
+<p>Then <span class="math inline">\(a\in T_P(I_k)\)</span> for some <span class="math inline">\(k\)</span>. A ground rule derives <span class="math inline">\(a\)</span> from body atoms contained in <span class="math inline">\(I_k\)</span>. Since</p>
+<p><span class="math display">\[
+I_k\subseteq\bigcup_{i\ge0}I_i,
+\]</span></p>
+<p>the same rule derives <span class="math inline">\(a\)</span> from the union. Thus</p>
+<p><span class="math display">\[
+a\in T_P\left(\bigcup_{i\ge0}I_i\right).
+\]</span></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Upward continuity of <span class="math inline">\(T_P\)</span>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For every ascending chain <span class="math inline">\(I_0\subseteq I_1\subseteq\cdots\)</span>,</p>
+<p><span class="math display">\[
+T_P\left(\bigcup_{i\ge0}I_i\right)
+=
+\bigcup_{i\ge0}T_P(I_i).
+\]</span></p>
+</div>
+</div>
+</section>
+</section>
+<section id="computing-the-least-fixpoint" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Computing the least fixpoint</h1>
+<p>Define the upward iterates of <span class="math inline">\(T_P\)</span> by</p>
+<p><span class="math display">\[
+T_P\uparrow 0=\varnothing,
+\]</span></p>
+<p><span class="math display">\[
+T_P\uparrow(n+1)=T_P(T_P\uparrow n),
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+T_P\uparrow\omega
+=
+\bigcup_{n\ge0}T_P\uparrow n.
+\]</span></p>
+<p>Upward continuity shows that the limit is a fixpoint:</p>
+<p><span class="math display">\[
+\begin{aligned}
+T_P(T_P\uparrow\omega)
+&amp;=T_P\left(\bigcup_{n\ge0}T_P\uparrow n\right)\\
+&amp;=\bigcup_{n\ge0}T_P(T_P\uparrow n)\\
+&amp;=\bigcup_{n\ge0}T_P\uparrow(n+1)\\
+&amp;=T_P\uparrow\omega.
+\end{aligned}
+\]</span></p>
+<p>Moreover, every model <span class="math inline">\(I\)</span> contains every stage of this construction. The proof is by induction:</p>
+<ul>
+<li><span class="math inline">\(T_P\uparrow0=\varnothing\subseteq I\)</span>;</li>
+<li>if <span class="math inline">\(T_P\uparrow n\subseteq I\)</span>, monotonicity gives <span class="math display">\[
+T_P\uparrow(n+1)=T_P(T_P\uparrow n)\subseteq T_P(I),
+\]</span> and because <span class="math inline">\(I\)</span> is a model, <span class="math inline">\(T_P(I)\subseteq I\)</span>.</li>
+</ul>
+<p>Therefore the union of all stages is contained in every model.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Bottom-up characterization of the minimum Herbrand model
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For every definite-clause program <span class="math inline">\(P\)</span>,</p>
+<p><span class="math display">\[
+T_P\uparrow\omega
+=
+M_P
+=
+T_P(T_P\uparrow\omega).
+\]</span></p>
+<p>Thus the bottom-up computation constructs exactly the minimum Herbrand model and therefore exactly the ground logical consequences of <span class="math inline">\(P\)</span>.</p>
+</div>
+</div>
+</section>
+<section id="greatest-fixpoints-and-downward-iteration" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Greatest fixpoints and downward iteration</h1>
+<p>The lecture also introduces the dual construction that starts from the complete Herbrand base:</p>
+<p><span class="math display">\[
+T_P\downarrow0=B_P,
+\]</span></p>
+<p><span class="math display">\[
+T_P\downarrow(n+1)=T_P(T_P\downarrow n),
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+T_P\downarrow\omega
+=
+\bigcap_{n\ge0}T_P\downarrow n.
+\]</span></p>
+<p>This descending iteration searches for the greatest fixpoint of <span class="math inline">\(T_P\)</span>.</p>
+<p>Since <span class="math inline">\(T_P\)</span> is monotone on the complete lattice <span class="math inline">\(\langle\mathcal P(B_P),\subseteq\rangle\)</span>, the Knaster–Tarski theorem guarantees both a least and a greatest fixpoint:</p>
+<p><span class="math display">\[
+\operatorname{lfp}(T_P)
+\qquad\text{and}\qquad
+\operatorname{gfp}(T_P).
+\]</span></p>
+<p>Because <span class="math inline">\(T_P\)</span> is upward continuous, Kleene’s fixpoint theorem gives</p>
+<p><span class="math display">\[
+\operatorname{lfp}(T_P)=T_P\uparrow\omega.
+\]</span></p>
+<p>The dual equality need not hold at <span class="math inline">\(\omega\)</span>. The operator is not necessarily downward continuous, so reaching the greatest fixpoint may require transfinite iteration beyond <span class="math inline">\(\omega\)</span>.</p>
+<section id="example-why-descending-iteration-may-require-more-than-omega" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="example-why-descending-iteration-may-require-more-than-omega"><span class="header-section-number">9.1</span> Example: why descending iteration may require more than <span class="math inline">\(\omega\)</span></h2>
+<p>Consider</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode prolog code-with-copy"><code class="sourceCode prolog"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>r(<span class="dv">0</span>) <span class="kw">:-</span> r(<span class="dv">0</span>)<span class="kw">.</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>p(<span class="dv">0</span>) <span class="kw">:-</span> q(<span class="dt">X</span>)<span class="kw">.</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>q(s(<span class="dt">X</span>)) <span class="kw">:-</span> q(<span class="dt">X</span>)<span class="kw">.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The upward construction derives nothing:</p>
+<p><span class="math display">\[
+T_P\uparrow\omega=\varnothing.
+\]</span></p>
+<p>For the descending construction, <span class="math inline">\(T_P\downarrow0=B_P\)</span> contains every ground atom over the predicates <span class="math inline">\(r\)</span>, <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>. The first stages are:</p>
+<p><span class="math display">\[
+\begin{aligned}
+T_P\downarrow1
+&amp;=\{r(0),p(0),q(s(0)),q(s(s(0))),\ldots\},\\
+T_P\downarrow2
+&amp;=\{r(0),p(0),q(s(s(0))),q(s(s(s(0)))),\ldots\},\\
+T_P\downarrow3
+&amp;=\{r(0),p(0),q(s(s(s(0)))),\ldots\}.
+\end{aligned}
+\]</span></p>
+<p>Each finite stage removes one more <span class="math inline">\(q\)</span>-atom from the beginning of the chain. Their intersection is</p>
+<p><span class="math display">\[
+T_P\downarrow\omega=\{r(0),p(0)\}.
+\]</span></p>
+<p>This set is not a fixpoint:</p>
+<p><span class="math display">\[
+T_P(\{r(0),p(0)\})=\{r(0)\}.
+\]</span></p>
+<p>Applying <span class="math inline">\(T_P\)</span> once more produces <span class="math inline">\(\{r(0)\}\)</span>, which is the greatest fixpoint. Hence the construction needs a stage after <span class="math inline">\(\omega\)</span>.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Stage</th>
+<th>Remaining atoms, schematically</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><span class="math inline">\(0\)</span></td>
+<td>all atoms in <span class="math inline">\(B_P\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><span class="math inline">\(1\)</span></td>
+<td><span class="math inline">\(r(0)\)</span>, <span class="math inline">\(p(0)\)</span>, and <span class="math inline">\(q\)</span>-atoms from <span class="math inline">\(q(s(0))\)</span> onward</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><span class="math inline">\(2\)</span></td>
+<td><span class="math inline">\(r(0)\)</span>, <span class="math inline">\(p(0)\)</span>, and <span class="math inline">\(q\)</span>-atoms from <span class="math inline">\(q(s(s(0)))\)</span> onward</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><span class="math inline">\(\omega\)</span></td>
+<td><span class="math inline">\(\{r(0),p(0)\}\)</span>, not a fixpoint</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><span class="math inline">\(\omega+1\)</span></td>
+<td><span class="math inline">\(\{r(0)\}\)</span>, the greatest fixpoint</td>
+</tr>
+</tbody>
+</table>
+<p>The asymmetry between the least and greatest fixpoints is therefore structural: upward continuity guarantees that the least fixpoint is reached at <span class="math inline">\(\omega\)</span>, while lack of downward continuity allows the greatest-fixpoint construction to continue beyond <span class="math inline">\(\omega\)</span>.</p>
+</section>
+</section>
+<section id="practical-interpretation" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Practical interpretation</h1>
+<p>For definite-clause logic programming, the declarative semantics used in the course is the minimum Herbrand model <span class="math inline">\(M_P\)</span>. It is the set of ground logical consequences and can be approached in two complementary ways:</p>
+<ul>
+<li><strong>top-down</strong>, by SLD resolution starting from a query;</li>
+<li><strong>bottom-up</strong>, by computing <span class="math inline">\(T_P\uparrow\omega\)</span>.</li>
+</ul>
+<p>Top-down derivations can supply compact explanations for individual consequences, but may loop because of clause selection and recursion. Bottom-up evaluation is independent of a particular query and computes consequences systematically, but may not terminate operationally when the minimum model is infinite.</p>
+<p>When the program has no function symbols, the Herbrand base is finite. In that case the ascending chain must stabilize after finitely many additions, and bottom-up evaluation reaches the minimum model in finite time.</p>
+<p>The greatest fixpoint is relevant to coinductive interpretations, but the lecture only introduces this direction and its asymmetry with the least-fixpoint semantics.</p>
+</section>
+<section id="exercise-direction" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> Exercise direction</h1>
+<p>The lecture concludes by asking for short definite-clause programs whose logical consequences are computed in either of two ways:</p>
+<ol type="1">
+<li>top-down through SLD resolution;</li>
+<li>bottom-up through repeated application of <span class="math inline">\(T_P\)</span>.</li>
+</ol>
+<p>For a finite example, a complete solution should identify the ground instances used, list successive interpretations, detect the first repeated interpretation, and compare the resulting fixpoint with the answers obtained from top-down derivations.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const toggle = window.document.createElement('button');
+      toggle.type = "button";
+      toggle.setAttribute("role", "switch");
+      toggle.setAttribute("aria-checked", "false");
+      toggle.classList.add('top-right');
+      toggle.classList.add('quarto-color-scheme-toggle');
+      toggle.setAttribute("aria-label", "Toggle dark mode");
+      toggle.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      toggle.appendChild(i);
+      // Put the toggle in a landmark of its own, so that landmark navigation
+      // can reach it.
+      //
+      // The container is always a fresh direct child of body, and the toggle is
+      // never moved into page furniture that the theme or the author controls.
+      // The toggle is positioned against the page, so any ancestor that
+      // establishes a containing block captures it: a positioned element or a
+      // grid for position: absolute, and transform, filter, will-change or
+      // contain for position: fixed. A direct child of body has none of these
+      // to inherit, and the shift when one appears is silent and visual.
+      //
+      // ARIA says a document should have at most one banner, and axe reports a
+      // duplicate whether or not the banners carry distinct labels. So use a
+      // header when the page has no banner yet, and a named region otherwise.
+      //
+      // A header is a banner wherever it sits, unless it is inside sectioning
+      // content, so this cannot just look at the children of body: a custom
+      // page layout wraps the title block header in a plain div. An explicit
+      // role="banner" always counts.
+      const sectioning = 'article, aside, main, nav, section, [role="article"], [role="complementary"], [role="main"], [role="navigation"], [role="region"]';
+      const hasBanner = Array.from(
+        window.document.querySelectorAll('header:not([role]), [role="banner"]')
+      ).some(function(el) {
+        return el.hasAttribute("role") || el.closest(sectioning) === null;
+      });
+      const container = window.document.createElement(hasBanner ? "div" : "header");
+      if (hasBanner) {
+        container.setAttribute("role", "region");
+        container.setAttribute("aria-label", "Toggle dark mode");
+      }
+      container.classList.add('quarto-color-scheme-toggle-container');
+      container.appendChild(toggle);
+      window.document.body.appendChild(container);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/rikypara04\.github\.io\/uniud-ai-cybersecurity-notes\/");
+      const newWindowLabel = "(opens in a new tab)";
+      const newWindowNoteId = "quarto-ext-newwindow-label";
+      // Links reference one hidden label through aria-describedby, so the
+      // announcement never changes their accessible name.
+      var describeNewWindow = (link) => {
+        if (!window.document.getElementById(newWindowNoteId)) {
+          var newWindowNote = window.document.createElement("span");
+          newWindowNote.id = newWindowNoteId;
+          newWindowNote.hidden = true;
+          newWindowNote.textContent = newWindowLabel;
+          window.document.body.appendChild(newWindowNote);
+        }
+        var describedBy = (link.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+        if (!describedBy.includes(newWindowNoteId)) {
+          describedBy.push(newWindowNoteId);
+          link.setAttribute("aria-describedby", describedBy.join(" "));
+        }
+      }
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            describeNewWindow(link);
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

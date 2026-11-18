@@ -1309,7 +1309,7 @@
     "href": "02-automated-reasoning/index.html",
     "title": "Automated Reasoning",
     "section": "",
-    "text": "MSc Artificial Intelligence & Cybersecurity\n\n\n\nLectures (12)\n\n\n\nIntroduction to Automated Reasoning and Constraint Programming\n\n\nSAT Encodings and DPLL\n\n\nConstraint Propagation and Local Consistency\n\n\nBounds, Hyper-Arc, and Path Consistency\n\n\nMiniZinc Search Annotations and Constraint Modelling\n\n\nMiniZinc Modelling through Classical Constraint Problems\n\n\nScheduling Models, Hamming Codes, and Timetabling\n\n\nConstraint Optimization, Large Neighbourhood Search, and Bioinformatics Models\n\n\nGlobal Constraints, Matching-Based Filtering, and Cumulative Scheduling\n\n\nSyntax of Logic Programming and Definite-Clause Programs\n\n\nSemantics of Logic Programs\n\n\nUnification, SLD Resolution, and the Limits of Computation",
+    "text": "MSc Artificial Intelligence & Cybersecurity\n\n\n\nLectures (13)\n\n\n\nIntroduction to Automated Reasoning and Constraint Programming\n\n\nSAT Encodings and DPLL\n\n\nConstraint Propagation and Local Consistency\n\n\nBounds, Hyper-Arc, and Path Consistency\n\n\nMiniZinc Search Annotations and Constraint Modelling\n\n\nMiniZinc Modelling through Classical Constraint Problems\n\n\nScheduling Models, Hamming Codes, and Timetabling\n\n\nConstraint Optimization, Large Neighbourhood Search, and Bioinformatics Models\n\n\nGlobal Constraints, Matching-Based Filtering, and Cumulative Scheduling\n\n\nSyntax of Logic Programming and Definite-Clause Programs\n\n\nSemantics of Logic Programs\n\n\nUnification, SLD Resolution, and the Limits of Computation\n\n\nBottom-Up Semantics and Fixpoint Computation",
     "crumbs": [
       "Home",
       "Automated Reasoning",
@@ -2586,6 +2586,138 @@
       "Home",
       "Automated Reasoning",
       "Introduction to Automated Reasoning and Constraint Programming"
+    ]
+  },
+  {
+    "objectID": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html",
+    "href": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html",
+    "title": "Bottom-Up Semantics and Fixpoint Computation",
+    "section": "",
+    "text": "For a definite-clause program \\(P\\), let \\(B_P\\) denote its Herbrand base and \\(M_P\\) its minimum Herbrand model. The preceding lecture established the central equivalence\n\\[\nP \\models A\n\\quad\\Longleftrightarrow\\quad\nA\\in M_P\n\\]\nfor every ground atom \\(A\\in B_P\\).\nThe test \\(A\\in M_P\\) can be approached top-down by SLD resolution. A successful SLD derivation not only establishes that \\(A\\) is a logical consequence of \\(P\\), but also explains which program clauses justify the conclusion. This explanatory derivation is relevant to explainable artificial intelligence: the proof structure records why the answer follows.\nThe present lecture develops the complementary bottom-up method. Instead of starting from a query, bottom-up evaluation starts from known facts and repeatedly derives every immediate consequence until a fixpoint is reached.",
+    "crumbs": [
+      "Home",
+      "Automated Reasoning",
+      "Bottom-Up Semantics and Fixpoint Computation"
+    ]
+  },
+  {
+    "objectID": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#finite-grounding",
+    "href": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#finite-grounding",
+    "title": "Bottom-Up Semantics and Fixpoint Computation",
+    "section": "2.1 Finite grounding",
+    "text": "2.1 Finite grounding\nSuppose\n\\[\nH_P=\\{a,b\\}\n\\]\nand the program contains the rule\nq(X) :- r(X,Y), p(Y).\nEvery pair of substitutions for \\(X\\) and \\(Y\\) produces one ground instance:\nq(a) :- r(a,a), p(a).\nq(a) :- r(a,b), p(b).\nq(b) :- r(b,a), p(a).\nq(b) :- r(b,b), p(b).\nThe grounding contains four rules because each of the two variables has two possible ground values.",
+    "crumbs": [
+      "Home",
+      "Automated Reasoning",
+      "Bottom-Up Semantics and Fixpoint Computation"
+    ]
+  },
+  {
+    "objectID": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#infinite-grounding",
+    "href": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#infinite-grounding",
+    "title": "Bottom-Up Semantics and Fixpoint Computation",
+    "section": "2.2 Infinite grounding",
+    "text": "2.2 Infinite grounding\nIf\n\\[\nH_P=\\{0,s(0),s(s(0)),\\ldots\\},\n\\]\nthen the rule\nnum(s(X)) :- num(X).\nhas infinitely many ground instances:\nnum(s(0))       :- num(0).\nnum(s(s(0)))    :- num(s(0)).\nnum(s(s(s(0)))) :- num(s(s(0))).\n...\nThe syntactic program is finite, but its grounding can be infinite because function symbols generate infinitely many ground terms.",
+    "crumbs": [
+      "Home",
+      "Automated Reasoning",
+      "Bottom-Up Semantics and Fixpoint Computation"
+    ]
+  },
+  {
+    "objectID": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#a-finite-bottom-up-computation",
+    "href": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#a-finite-bottom-up-computation",
+    "title": "Bottom-Up Semantics and Fixpoint Computation",
+    "section": "3.1 A finite bottom-up computation",
+    "text": "3.1 A finite bottom-up computation\nConsider\nr(a).\nr(b).\np(a).\nq(X) :- r(X), p(X).\nStarting from the empty interpretation:\n\\[\nT_P(\\varnothing)\n=\n\\{r(a),r(b),p(a)\\}.\n\\]\nThe ground instance\nq(a) :- r(a), p(a).\nnow has its complete body in the interpretation, so the next application also derives \\(q(a)\\):\n\\[\nT_P\\bigl(\\{r(a),r(b),p(a)\\}\\bigr)\n=\n\\{q(a),r(a),r(b),p(a)\\}.\n\\]\nA further application produces no change:\n\\[\nT_P\\bigl(\\{q(a),r(a),r(b),p(a)\\}\\bigr)\n=\n\\{q(a),r(a),r(b),p(a)\\}.\n\\]\nThe computation has reached a fixpoint.\n\n\n\nIteration\nInterpretation\n\n\n\n\n\\(0\\)\n\\(\\varnothing\\)\n\n\n\\(1\\)\n\\(\\{r(a),r(b),p(a)\\}\\)\n\n\n\\(2\\)\n\\(\\{q(a),r(a),r(b),p(a)\\}\\)\n\n\n\\(3\\)\nunchanged, hence a fixpoint",
+    "crumbs": [
+      "Home",
+      "Automated Reasoning",
+      "Bottom-Up Semantics and Fixpoint Computation"
+    ]
+  },
+  {
+    "objectID": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#a-looping-top-down-derivation",
+    "href": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#a-looping-top-down-derivation",
+    "title": "Bottom-Up Semantics and Fixpoint Computation",
+    "section": "4.1 A looping top-down derivation",
+    "text": "4.1 A looping top-down derivation\nConsider\np(a).\nq(X) :- q(X).\nA top-down attempt to prove q(a) may repeatedly select the recursive rule:\n\\[\n\\leftarrow q(a)\n\\Longrightarrow\n\\leftarrow q(a)\n\\Longrightarrow\n\\leftarrow q(a)\n\\Longrightarrow\\cdots\n\\]\nAt each step a fresh variable is introduced and unified with \\(a\\), but the selected goal remains q(a). SLD resolution may therefore loop.\nBottom-up evaluation terminates immediately:\n\\[\nT_P(\\varnothing)=\\{p(a)\\},\n\\]\nand\n\\[\nT_P(\\{p(a)\\})=\\{p(a)\\}.\n\\]\nThe atom \\(q(a)\\) is never derived. The fixpoint is simply \\(\\{p(a)\\}\\).",
+    "crumbs": [
+      "Home",
+      "Automated Reasoning",
+      "Bottom-Up Semantics and Fixpoint Computation"
+    ]
+  },
+  {
+    "objectID": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#finite-query-infinite-bottom-up-construction",
+    "href": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#finite-query-infinite-bottom-up-construction",
+    "title": "Bottom-Up Semantics and Fixpoint Computation",
+    "section": "4.2 Finite query, infinite bottom-up construction",
+    "text": "4.2 Finite query, infinite bottom-up construction\nNow consider\nnat(0).\nnat(s(X)) :- nat(X).\nA top-down derivation for the specific query\n?- nat(s(s(s(0)))).\nis finite. Each resolution step removes one outer occurrence of \\(s\\):\n\\[\n\\begin{aligned}\n\\leftarrow \\operatorname{nat}(s(s(s(0))))\n&\\Longrightarrow \\leftarrow \\operatorname{nat}(s(s(0)))\\\\\n&\\Longrightarrow \\leftarrow \\operatorname{nat}(s(0))\\\\\n&\\Longrightarrow \\leftarrow \\operatorname{nat}(0)\\\\\n&\\Longrightarrow \\square.\n\\end{aligned}\n\\]\nThe bottom-up construction instead enumerates the complete infinite model:\n\\[\n\\begin{aligned}\nT_P(\\varnothing)\n&=\\{\\operatorname{nat}(0)\\},\\\\\nT_P^2(\\varnothing)\n&=\\{\\operatorname{nat}(0),\\operatorname{nat}(s(0))\\},\\\\\nT_P^3(\\varnothing)\n&=\\{\\operatorname{nat}(0),\\operatorname{nat}(s(0)),\n\\operatorname{nat}(s(s(0)))\\},\\\\\n&\\hspace{1em}\\vdots\n\\end{aligned}\n\\]\nNo finite iteration contains every natural-number atom. The limit is\n\\[\n\\{\\operatorname{nat}(0),\\operatorname{nat}(s(0)),\n\\operatorname{nat}(s(s(0))),\\ldots\\}.\n\\]\nThus, in practice, naive bottom-up execution may continue forever even though the semantic limit is well defined.\n\n\n\n\n\n\n\n\nProgram and request\nTop-down behaviour\nBottom-up behaviour\n\n\n\n\nq(X) :- q(X) with query q(a)\nMay loop on the recursive goal\nImmediately reaches \\(\\{p(a)\\}\\)\n\n\nNaturals with one ground query\nFinite derivation for a fixed numeral\nEnumerates an infinite ascending chain",
+    "crumbs": [
+      "Home",
+      "Automated Reasoning",
+      "Bottom-Up Semantics and Fixpoint Computation"
+    ]
+  },
+  {
+    "objectID": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#a-pre-fixpoint-is-a-model",
+    "href": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#a-pre-fixpoint-is-a-model",
+    "title": "Bottom-Up Semantics and Fixpoint Computation",
+    "section": "5.1 A pre-fixpoint is a model",
+    "text": "5.1 A pre-fixpoint is a model\nSuppose\n\\[\nT_P(I)\\subseteq I.\n\\]\nTake any ground rule\n\\[\na\\leftarrow b_1,\\ldots,b_n\n\\]\nin \\(\\operatorname{ground}(P)\\). If the body is not contained in \\(I\\), the implication is satisfied because its antecedent is false. If\n\\[\n\\{b_1,\\ldots,b_n\\}\\subseteq I,\n\\]\nthen \\(a\\in T_P(I)\\). By the hypothesis \\(T_P(I)\\subseteq I\\), it follows that \\(a\\in I\\). Hence the rule is satisfied. Since this holds for every ground rule, \\(I\\) is a model of \\(P\\).",
+    "crumbs": [
+      "Home",
+      "Automated Reasoning",
+      "Bottom-Up Semantics and Fixpoint Computation"
+    ]
+  },
+  {
+    "objectID": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#failure-of-containment-exposes-a-violated-rule",
+    "href": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#failure-of-containment-exposes-a-violated-rule",
+    "title": "Bottom-Up Semantics and Fixpoint Computation",
+    "section": "5.2 Failure of containment exposes a violated rule",
+    "text": "5.2 Failure of containment exposes a violated rule\nConversely, suppose\n\\[\nT_P(I)\\setminus I\\ne\\varnothing.\n\\]\nChoose \\(a\\in T_P(I)\\setminus I\\). By the definition of \\(T_P\\), some ground rule\n\\[\na\\leftarrow b_1,\\ldots,b_n\n\\]\nhas its body contained in \\(I\\), while its head \\(a\\) is absent from \\(I\\). That rule is false in \\(I\\), so \\(I\\) is not a model.\n\n\n\n\n\n\nImportantModel characterization\n\n\n\nFor every Herbrand interpretation \\(I\\),\n\\[\nI\\text{ is a model of }P\n\\quad\\Longleftrightarrow\\quad\nT_P(I)\\subseteq I.\n\\]\nEvery fixpoint \\(T_P(I)=I\\) is therefore a model, although a model need not be a fixpoint.",
+    "crumbs": [
+      "Home",
+      "Automated Reasoning",
+      "Bottom-Up Semantics and Fixpoint Computation"
+    ]
+  },
+  {
+    "objectID": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#left-to-right-inclusion",
+    "href": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#left-to-right-inclusion",
+    "title": "Bottom-Up Semantics and Fixpoint Computation",
+    "section": "7.1 Left-to-right inclusion",
+    "text": "7.1 Left-to-right inclusion\nSuppose\n\\[\na\\in T_P\\left(\\bigcup_{i\\ge0}I_i\\right).\n\\]\nThen there is a ground rule\n\\[\na\\leftarrow b_1,\\ldots,b_n\n\\]\nwhose body atoms all belong to the union. For each \\(b_j\\), choose an index \\(k_j\\) such that \\(b_j\\in I_{k_j}\\). Because the body is finite, the maximum\n\\[\nk=\\max\\{k_1,\\ldots,k_n\\}\n\\]\nexists. Since the chain is ascending, every body atom belongs to \\(I_k\\). Hence\n\\[\na\\in T_P(I_k)\n\\subseteq\n\\bigcup_{i\\ge0}T_P(I_i).\n\\]\nThe finiteness of rule bodies is crucial here: finitely many witnessing stages can be replaced by one largest stage.",
+    "crumbs": [
+      "Home",
+      "Automated Reasoning",
+      "Bottom-Up Semantics and Fixpoint Computation"
+    ]
+  },
+  {
+    "objectID": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#right-to-left-inclusion",
+    "href": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#right-to-left-inclusion",
+    "title": "Bottom-Up Semantics and Fixpoint Computation",
+    "section": "7.2 Right-to-left inclusion",
+    "text": "7.2 Right-to-left inclusion\nSuppose\n\\[\na\\in\\bigcup_{i\\ge0}T_P(I_i).\n\\]\nThen \\(a\\in T_P(I_k)\\) for some \\(k\\). A ground rule derives \\(a\\) from body atoms contained in \\(I_k\\). Since\n\\[\nI_k\\subseteq\\bigcup_{i\\ge0}I_i,\n\\]\nthe same rule derives \\(a\\) from the union. Thus\n\\[\na\\in T_P\\left(\\bigcup_{i\\ge0}I_i\\right).\n\\]\n\n\n\n\n\n\nImportantUpward continuity of \\(T_P\\)\n\n\n\nFor every ascending chain \\(I_0\\subseteq I_1\\subseteq\\cdots\\),\n\\[\nT_P\\left(\\bigcup_{i\\ge0}I_i\\right)\n=\n\\bigcup_{i\\ge0}T_P(I_i).\n\\]",
+    "crumbs": [
+      "Home",
+      "Automated Reasoning",
+      "Bottom-Up Semantics and Fixpoint Computation"
+    ]
+  },
+  {
+    "objectID": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#example-why-descending-iteration-may-require-more-than-omega",
+    "href": "02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html#example-why-descending-iteration-may-require-more-than-omega",
+    "title": "Bottom-Up Semantics and Fixpoint Computation",
+    "section": "9.1 Example: why descending iteration may require more than \\(\\omega\\)",
+    "text": "9.1 Example: why descending iteration may require more than \\(\\omega\\)\nConsider\nr(0) :- r(0).\np(0) :- q(X).\nq(s(X)) :- q(X).\nThe upward construction derives nothing:\n\\[\nT_P\\uparrow\\omega=\\varnothing.\n\\]\nFor the descending construction, \\(T_P\\downarrow0=B_P\\) contains every ground atom over the predicates \\(r\\), \\(p\\) and \\(q\\). The first stages are:\n\\[\n\\begin{aligned}\nT_P\\downarrow1\n&=\\{r(0),p(0),q(s(0)),q(s(s(0))),\\ldots\\},\\\\\nT_P\\downarrow2\n&=\\{r(0),p(0),q(s(s(0))),q(s(s(s(0)))),\\ldots\\},\\\\\nT_P\\downarrow3\n&=\\{r(0),p(0),q(s(s(s(0)))),\\ldots\\}.\n\\end{aligned}\n\\]\nEach finite stage removes one more \\(q\\)-atom from the beginning of the chain. Their intersection is\n\\[\nT_P\\downarrow\\omega=\\{r(0),p(0)\\}.\n\\]\nThis set is not a fixpoint:\n\\[\nT_P(\\{r(0),p(0)\\})=\\{r(0)\\}.\n\\]\nApplying \\(T_P\\) once more produces \\(\\{r(0)\\}\\), which is the greatest fixpoint. Hence the construction needs a stage after \\(\\omega\\).\n\n\n\nStage\nRemaining atoms, schematically\n\n\n\n\n\\(0\\)\nall atoms in \\(B_P\\)\n\n\n\\(1\\)\n\\(r(0)\\), \\(p(0)\\), and \\(q\\)-atoms from \\(q(s(0))\\) onward\n\n\n\\(2\\)\n\\(r(0)\\), \\(p(0)\\), and \\(q\\)-atoms from \\(q(s(s(0)))\\) onward\n\n\n\\(\\omega\\)\n\\(\\{r(0),p(0)\\}\\), not a fixpoint\n\n\n\\(\\omega+1\\)\n\\(\\{r(0)\\}\\), the greatest fixpoint\n\n\n\nThe asymmetry between the least and greatest fixpoints is therefore structural: upward continuity guarantees that the least fixpoint is reached at \\(\\omega\\), while lack of downward continuity allows the greatest-fixpoint construction to continue beyond \\(\\omega\\).",
+    "crumbs": [
+      "Home",
+      "Automated Reasoning",
+      "Bottom-Up Semantics and Fixpoint Computation"
     ]
   },
   {
@@ -4321,7 +4453,7 @@
     "href": "index.html",
     "title": "MSc Artificial Intelligence & Cybersecurity",
     "section": "",
-    "text": "University of Udine | MSc programme\n\n\nArtificial Intelligence & Cybersecurity\n\n\nStructured lecture notes designed for study, revision, and clear oral explanation.\n\n\n\n\n3courses\n\n\n32lectures\n\n\n\n\n\n\n\nCourse\n\n\nComplexity and Information Theory\n\n\nInformation measures, coding, computability, and complexity.\n\n\n\n\nAvailable lectures (14)\n\n\n\nIntroduction to Information Theory\n\n\nInformation, Probability, and Random Variables\n\n\nProperties of Entropy and Conditional Entropy\n\n\nMutual Information, Relative Entropy, and Source Coding\n\n\nPrefix Codes and the Kraft-McMillan Inequality\n\n\nShannon Codes, Huffman Codes, and Asymptotic Optimality\n\n\nLZ77 Compression and Kolmogorov Complexity\n\n\nKolmogorov Complexity and Its Relation to Entropy\n\n\nComputational Complexity, Machine Models, and Cost Criteria\n\n\nOperational Semantics and Time Complexity of Turing Machines\n\n\nMultitape Simulation, Time Complexity, and Linear Speed-Up\n\n\nTime and Space Complexity Classes\n\n\nRandom-Access Machines and Nondeterministic Complexity\n\n\nReachability, Proper Complexity Bounds, and Complements\n\n\n\n\n\n\n\nCourse\n\n\nAutomated Reasoning\n\n\nConstraint solving, logic programming, semantics, and reasoning methods.\n\n\n\n\nAvailable lectures (12)\n\n\n\nIntroduction to Automated Reasoning and Constraint Programming\n\n\nSAT Encodings and DPLL\n\n\nConstraint Propagation and Local Consistency\n\n\nBounds, Hyper-Arc, and Path Consistency\n\n\nMiniZinc Search Annotations and Constraint Modelling\n\n\nMiniZinc Modelling through Classical Constraint Problems\n\n\nScheduling Models, Hamming Codes, and Timetabling\n\n\nConstraint Optimization, Large Neighbourhood Search, and Bioinformatics Models\n\n\nGlobal Constraints, Matching-Based Filtering, and Cumulative Scheduling\n\n\nSyntax of Logic Programming and Definite-Clause Programs\n\n\nSemantics of Logic Programs\n\n\nUnification, SLD Resolution, and the Limits of Computation\n\n\n\n\n\n\n\nCourse\n\n\nFoundations of Cybersecurity and Ethics\n\n\nFormal verification, logic, automata, and symbolic security analysis.\n\n\n\n\nAvailable lectures (6)\n\n\n\nIntroduction to Formal Verification and Logic\n\n\nClassical Logics: Propositional Logic, QBF, and First-Order Logic\n\n\nGames in Logic and First-Order Definability\n\n\nLearning Automata and Sequential Transducers\n\n\nModelling and Verification in UPPAAL\n\n\nSymbolic Verification of Security Protocols with Tamarin"
+    "text": "University of Udine | MSc programme\n\n\nArtificial Intelligence & Cybersecurity\n\n\nStructured lecture notes designed for study, revision, and clear oral explanation.\n\n\n\n\n3courses\n\n\n33lectures\n\n\n\n\n\n\n\nCourse\n\n\nComplexity and Information Theory\n\n\nInformation measures, coding, computability, and complexity.\n\n\n\n\nAvailable lectures (14)\n\n\n\nIntroduction to Information Theory\n\n\nInformation, Probability, and Random Variables\n\n\nProperties of Entropy and Conditional Entropy\n\n\nMutual Information, Relative Entropy, and Source Coding\n\n\nPrefix Codes and the Kraft-McMillan Inequality\n\n\nShannon Codes, Huffman Codes, and Asymptotic Optimality\n\n\nLZ77 Compression and Kolmogorov Complexity\n\n\nKolmogorov Complexity and Its Relation to Entropy\n\n\nComputational Complexity, Machine Models, and Cost Criteria\n\n\nOperational Semantics and Time Complexity of Turing Machines\n\n\nMultitape Simulation, Time Complexity, and Linear Speed-Up\n\n\nTime and Space Complexity Classes\n\n\nRandom-Access Machines and Nondeterministic Complexity\n\n\nReachability, Proper Complexity Bounds, and Complements\n\n\n\n\n\n\n\nCourse\n\n\nAutomated Reasoning\n\n\nConstraint solving, logic programming, semantics, and reasoning methods.\n\n\n\n\nAvailable lectures (13)\n\n\n\nIntroduction to Automated Reasoning and Constraint Programming\n\n\nSAT Encodings and DPLL\n\n\nConstraint Propagation and Local Consistency\n\n\nBounds, Hyper-Arc, and Path Consistency\n\n\nMiniZinc Search Annotations and Constraint Modelling\n\n\nMiniZinc Modelling through Classical Constraint Problems\n\n\nScheduling Models, Hamming Codes, and Timetabling\n\n\nConstraint Optimization, Large Neighbourhood Search, and Bioinformatics Models\n\n\nGlobal Constraints, Matching-Based Filtering, and Cumulative Scheduling\n\n\nSyntax of Logic Programming and Definite-Clause Programs\n\n\nSemantics of Logic Programs\n\n\nUnification, SLD Resolution, and the Limits of Computation\n\n\nBottom-Up Semantics and Fixpoint Computation\n\n\n\n\n\n\n\nCourse\n\n\nFoundations of Cybersecurity and Ethics\n\n\nFormal verification, logic, automata, and symbolic security analysis.\n\n\n\n\nAvailable lectures (6)\n\n\n\nIntroduction to Formal Verification and Logic\n\n\nClassical Logics: Propositional Logic, QBF, and First-Order Logic\n\n\nGames in Logic and First-Order Definability\n\n\nLearning Automata and Sequential Transducers\n\n\nModelling and Verification in UPPAAL\n\n\nSymbolic Verification of Security Protocols with Tamarin"
   },
   {
     "objectID": "03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html",
