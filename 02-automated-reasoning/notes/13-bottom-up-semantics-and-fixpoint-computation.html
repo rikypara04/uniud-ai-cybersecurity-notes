@@ -83,9 +83,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-332d664621be278c8eee1e9fc881da0b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-c4a13e8d11fc0b01aa72aacbcfb1a674.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-332d664621be278c8eee1e9fc881da0b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-3082eec3e79281681b14d846b97bad40.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-059dca92c57e5918a295c76b33e7f3f7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-3082eec3e79281681b14d846b97bad40.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -641,16 +641,28 @@ window.Quarto = {
   </ul></li>
   <li><a href="#models-characterized-by-the-immediate-consequence-operator" id="toc-models-characterized-by-the-immediate-consequence-operator" class="nav-link" data-scroll-target="#models-characterized-by-the-immediate-consequence-operator"><span class="header-section-number">5</span> Models characterized by the immediate-consequence operator</a>
   <ul class="collapse">
-  <li><a href="#a-pre-fixpoint-is-a-model" id="toc-a-pre-fixpoint-is-a-model" class="nav-link" data-scroll-target="#a-pre-fixpoint-is-a-model"><span class="header-section-number">5.1</span> A pre-fixpoint is a model</a></li>
-  <li><a href="#failure-of-containment-exposes-a-violated-rule" id="toc-failure-of-containment-exposes-a-violated-rule" class="nav-link" data-scroll-target="#failure-of-containment-exposes-a-violated-rule"><span class="header-section-number">5.2</span> Failure of containment exposes a violated rule</a></li>
+  <li><a href="#proof" id="toc-proof" class="nav-link" data-scroll-target="#proof"><span class="header-section-number">5.1</span> Proof</a>
+  <ul class="collapse">
+  <li><a href="#if-t_pisubseteq-i-then-i-is-a-model" id="toc-if-t_pisubseteq-i-then-i-is-a-model" class="nav-link" data-scroll-target="#if-t_pisubseteq-i-then-i-is-a-model"><span class="header-section-number">5.1.1</span> If <span class="math inline">\(T_P(I)\subseteq I\)</span>, then <span class="math inline">\(I\)</span> is a model</a></li>
+  <li><a href="#if-i-is-a-model-then-t_pisubseteq-i" id="toc-if-i-is-a-model-then-t_pisubseteq-i" class="nav-link" data-scroll-target="#if-i-is-a-model-then-t_pisubseteq-i"><span class="header-section-number">5.1.2</span> If <span class="math inline">\(I\)</span> is a model, then <span class="math inline">\(T_P(I)\subseteq I\)</span></a></li>
   </ul></li>
-  <li><a href="#monotonicity" id="toc-monotonicity" class="nav-link" data-scroll-target="#monotonicity"><span class="header-section-number">6</span> Monotonicity</a></li>
+  </ul></li>
+  <li><a href="#monotonicity" id="toc-monotonicity" class="nav-link" data-scroll-target="#monotonicity"><span class="header-section-number">6</span> Monotonicity</a>
+  <ul class="collapse">
+  <li><a href="#proof-1" id="toc-proof-1" class="nav-link" data-scroll-target="#proof-1"><span class="header-section-number">6.1</span> Proof</a></li>
+  </ul></li>
   <li><a href="#upward-continuity" id="toc-upward-continuity" class="nav-link" data-scroll-target="#upward-continuity"><span class="header-section-number">7</span> Upward continuity</a>
   <ul class="collapse">
-  <li><a href="#left-to-right-inclusion" id="toc-left-to-right-inclusion" class="nav-link" data-scroll-target="#left-to-right-inclusion"><span class="header-section-number">7.1</span> Left-to-right inclusion</a></li>
-  <li><a href="#right-to-left-inclusion" id="toc-right-to-left-inclusion" class="nav-link" data-scroll-target="#right-to-left-inclusion"><span class="header-section-number">7.2</span> Right-to-left inclusion</a></li>
+  <li><a href="#proof-2" id="toc-proof-2" class="nav-link" data-scroll-target="#proof-2"><span class="header-section-number">7.1</span> Proof</a>
+  <ul class="collapse">
+  <li><a href="#left-to-right-inclusion" id="toc-left-to-right-inclusion" class="nav-link" data-scroll-target="#left-to-right-inclusion"><span class="header-section-number">7.1.1</span> Left-to-right inclusion</a></li>
+  <li><a href="#right-to-left-inclusion" id="toc-right-to-left-inclusion" class="nav-link" data-scroll-target="#right-to-left-inclusion"><span class="header-section-number">7.1.2</span> Right-to-left inclusion</a></li>
   </ul></li>
-  <li><a href="#computing-the-least-fixpoint" id="toc-computing-the-least-fixpoint" class="nav-link" data-scroll-target="#computing-the-least-fixpoint"><span class="header-section-number">8</span> Computing the least fixpoint</a></li>
+  </ul></li>
+  <li><a href="#computing-the-least-fixpoint" id="toc-computing-the-least-fixpoint" class="nav-link" data-scroll-target="#computing-the-least-fixpoint"><span class="header-section-number">8</span> Computing the least fixpoint</a>
+  <ul class="collapse">
+  <li><a href="#proof-3" id="toc-proof-3" class="nav-link" data-scroll-target="#proof-3"><span class="header-section-number">8.1</span> Proof</a></li>
+  </ul></li>
   <li><a href="#greatest-fixpoints-and-downward-iteration" id="toc-greatest-fixpoints-and-downward-iteration" class="nav-link" data-scroll-target="#greatest-fixpoints-and-downward-iteration"><span class="header-section-number">9</span> Greatest fixpoints and downward iteration</a>
   <ul class="collapse">
   <li><a href="#example-why-descending-iteration-may-require-more-than-omega" id="toc-example-why-descending-iteration-may-require-more-than-omega" class="nav-link" data-scroll-target="#example-why-descending-iteration-may-require-more-than-omega"><span class="header-section-number">9.1</span> Example: why descending iteration may require more than <span class="math inline">\(\omega\)</span></a></li>
@@ -684,6 +696,30 @@ window.Quarto = {
 </header>
 
 
+<style>
+.theorem-box {
+  border: 2px solid #b02a37;
+  border-left: 0.55rem solid #b02a37;
+  border-radius: 0.45rem;
+  padding: 1rem 1.15rem 0.85rem;
+  margin: 1.25rem 0;
+  background: rgba(176, 42, 55, 0.07);
+}
+.theorem-box > :first-child { margin-top: 0; }
+.theorem-box > :last-child { margin-bottom: 0; }
+.theorem-title {
+  color: #b02a37;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+@media (prefers-color-scheme: dark) {
+  .theorem-box {
+    background: rgba(255, 107, 122, 0.10);
+    border-color: #ff6b7a;
+  }
+  .theorem-title { color: #ff8a96; }
+}
+</style>
 <section id="from-logical-consequences-to-bottom-up-computation" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> From logical consequences to bottom-up computation</h1>
 <p>For a definite-clause program <span class="math inline">\(P\)</span>, let <span class="math inline">\(B_P\)</span> denote its Herbrand base and <span class="math inline">\(M_P\)</span> its minimum Herbrand model. The preceding lecture established the central equivalence</p>
@@ -906,8 +942,22 @@ T_P^3(\varnothing)
 \left\langle\mathcal P(B_P),\subseteq\right\rangle.
 \]</span></p>
 <p>The operator <span class="math inline">\(T_P\)</span> provides a direct characterization of Herbrand models.</p>
-<section id="a-pre-fixpoint-is-a-model" class="level2" data-number="5.1">
-<h2 data-number="5.1" class="anchored" data-anchor-id="a-pre-fixpoint-is-a-model"><span class="header-section-number">5.1</span> A pre-fixpoint is a model</h2>
+<div class="theorem-box">
+<div class="theorem-title">
+Theorem: Model characterization by <span class="math inline">\(T_P\)</span>
+</div>
+<p>For every Herbrand interpretation <span class="math inline">\(I\subseteq B_P\)</span>,</p>
+<p><span class="math display">\[
+I\text{ is a model of }P
+\quad\Longleftrightarrow\quad
+T_P(I)\subseteq I.
+\]</span></p>
+<p>Every fixpoint <span class="math inline">\(T_P(I)=I\)</span> is therefore a model of <span class="math inline">\(P\)</span>.</p>
+</div>
+<section id="proof" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="proof"><span class="header-section-number">5.1</span> Proof</h2>
+<section id="if-t_pisubseteq-i-then-i-is-a-model" class="level3" data-number="5.1.1">
+<h3 data-number="5.1.1" class="anchored" data-anchor-id="if-t_pisubseteq-i-then-i-is-a-model"><span class="header-section-number">5.1.1</span> If <span class="math inline">\(T_P(I)\subseteq I\)</span>, then <span class="math inline">\(I\)</span> is a model</h3>
 <p>Suppose</p>
 <p><span class="math display">\[
 T_P(I)\subseteq I.
@@ -922,9 +972,9 @@ a\leftarrow b_1,\ldots,b_n
 \]</span></p>
 <p>then <span class="math inline">\(a\in T_P(I)\)</span>. By the hypothesis <span class="math inline">\(T_P(I)\subseteq I\)</span>, it follows that <span class="math inline">\(a\in I\)</span>. Hence the rule is satisfied. Since this holds for every ground rule, <span class="math inline">\(I\)</span> is a model of <span class="math inline">\(P\)</span>.</p>
 </section>
-<section id="failure-of-containment-exposes-a-violated-rule" class="level2" data-number="5.2">
-<h2 data-number="5.2" class="anchored" data-anchor-id="failure-of-containment-exposes-a-violated-rule"><span class="header-section-number">5.2</span> Failure of containment exposes a violated rule</h2>
-<p>Conversely, suppose</p>
+<section id="if-i-is-a-model-then-t_pisubseteq-i" class="level3" data-number="5.1.2">
+<h3 data-number="5.1.2" class="anchored" data-anchor-id="if-i-is-a-model-then-t_pisubseteq-i"><span class="header-section-number">5.1.2</span> If <span class="math inline">\(I\)</span> is a model, then <span class="math inline">\(T_P(I)\subseteq I\)</span></h3>
+<p>We prove the contrapositive. Suppose</p>
 <p><span class="math display">\[
 T_P(I)\setminus I\ne\varnothing.
 \]</span></p>
@@ -933,36 +983,25 @@ T_P(I)\setminus I\ne\varnothing.
 a\leftarrow b_1,\ldots,b_n
 \]</span></p>
 <p>has its body contained in <span class="math inline">\(I\)</span>, while its head <span class="math inline">\(a\)</span> is absent from <span class="math inline">\(I\)</span>. That rule is false in <span class="math inline">\(I\)</span>, so <span class="math inline">\(I\)</span> is not a model.</p>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>Model characterization
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>For every Herbrand interpretation <span class="math inline">\(I\)</span>,</p>
-<p><span class="math display">\[
-I\text{ is a model of }P
-\quad\Longleftrightarrow\quad
-T_P(I)\subseteq I.
-\]</span></p>
-<p>Every fixpoint <span class="math inline">\(T_P(I)=I\)</span> is therefore a model, although a model need not be a fixpoint.</p>
-</div>
-</div>
+</section>
 </section>
 </section>
 <section id="monotonicity" class="level1" data-number="6">
 <h1 data-number="6"><span class="header-section-number">6</span> Monotonicity</h1>
-<p>The operator <span class="math inline">\(T_P\)</span> is monotone on <span class="math inline">\(\langle\mathcal P(B_P),\subseteq\rangle\)</span>:</p>
+<div class="theorem-box">
+<div class="theorem-title">
+Theorem: Monotonicity of <span class="math inline">\(T_P\)</span>
+</div>
+<p>For all Herbrand interpretations <span class="math inline">\(I,J\subseteq B_P\)</span>,</p>
 <p><span class="math display">\[
 I\subseteq J
 \quad\Longrightarrow\quad
 T_P(I)\subseteq T_P(J).
 \]</span></p>
-<p>To prove this, take any <span class="math inline">\(a\in T_P(I)\)</span>. Some ground rule</p>
+</div>
+<section id="proof-1" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="proof-1"><span class="header-section-number">6.1</span> Proof</h2>
+<p>Take any <span class="math inline">\(a\in T_P(I)\)</span>. Some ground rule</p>
 <p><span class="math display">\[
 a\leftarrow b_1,\ldots,b_n
 \]</span></p>
@@ -1007,21 +1046,29 @@ T_P^3(\varnothing)
 <li>if the inclusion is strict, the current interpretation is not yet a model because <span class="math inline">\(T_P(I)\nsubseteq I\)</span>.</li>
 </ul>
 </section>
+</section>
 <section id="upward-continuity" class="level1" data-number="7">
 <h1 data-number="7"><span class="header-section-number">7</span> Upward continuity</h1>
-<p>Monotonicity alone guarantees preservation of order. The lecture proves the stronger property of <strong>upward continuity</strong>.</p>
-<p>Let</p>
+<p>Monotonicity alone guarantees preservation of order. The following theorem establishes the stronger property used by the fixpoint construction.</p>
+<div class="theorem-box">
+<div class="theorem-title">
+Theorem: Upward continuity of <span class="math inline">\(T_P\)</span>
+</div>
+<p>For every ascending chain</p>
 <p><span class="math display">\[
-I_0\subseteq I_1\subseteq I_2\subseteq\cdots
+I_0\subseteq I_1\subseteq I_2\subseteq\cdots,
 \]</span></p>
-<p>be an ascending chain. Then</p>
+<p>we have</p>
 <p><span class="math display">\[
 T_P\left(\bigcup_{i\ge 0} I_i\right)
 =
 \bigcup_{i\ge 0}T_P(I_i).
 \]</span></p>
-<section id="left-to-right-inclusion" class="level2" data-number="7.1">
-<h2 data-number="7.1" class="anchored" data-anchor-id="left-to-right-inclusion"><span class="header-section-number">7.1</span> Left-to-right inclusion</h2>
+</div>
+<section id="proof-2" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="proof-2"><span class="header-section-number">7.1</span> Proof</h2>
+<section id="left-to-right-inclusion" class="level3" data-number="7.1.1">
+<h3 data-number="7.1.1" class="anchored" data-anchor-id="left-to-right-inclusion"><span class="header-section-number">7.1.1</span> Left-to-right inclusion</h3>
 <p>Suppose</p>
 <p><span class="math display">\[
 a\in T_P\left(\bigcup_{i\ge0}I_i\right).
@@ -1042,8 +1089,8 @@ a\in T_P(I_k)
 \]</span></p>
 <p>The finiteness of rule bodies is crucial here: finitely many witnessing stages can be replaced by one largest stage.</p>
 </section>
-<section id="right-to-left-inclusion" class="level2" data-number="7.2">
-<h2 data-number="7.2" class="anchored" data-anchor-id="right-to-left-inclusion"><span class="header-section-number">7.2</span> Right-to-left inclusion</h2>
+<section id="right-to-left-inclusion" class="level3" data-number="7.1.2">
+<h3 data-number="7.1.2" class="anchored" data-anchor-id="right-to-left-inclusion"><span class="header-section-number">7.1.2</span> Right-to-left inclusion</h3>
 <p>Suppose</p>
 <p><span class="math display">\[
 a\in\bigcup_{i\ge0}T_P(I_i).
@@ -1056,28 +1103,27 @@ I_k\subseteq\bigcup_{i\ge0}I_i,
 <p><span class="math display">\[
 a\in T_P\left(\bigcup_{i\ge0}I_i\right).
 \]</span></p>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>Upward continuity of <span class="math inline">\(T_P\)</span>
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>For every ascending chain <span class="math inline">\(I_0\subseteq I_1\subseteq\cdots\)</span>,</p>
-<p><span class="math display">\[
-T_P\left(\bigcup_{i\ge0}I_i\right)
-=
-\bigcup_{i\ge0}T_P(I_i).
-\]</span></p>
-</div>
-</div>
+</section>
 </section>
 </section>
 <section id="computing-the-least-fixpoint" class="level1" data-number="8">
 <h1 data-number="8"><span class="header-section-number">8</span> Computing the least fixpoint</h1>
+<div class="theorem-box">
+<div class="theorem-title">
+Theorem: Bottom-up characterization of the minimum Herbrand model
+</div>
+<p>For every definite-clause program <span class="math inline">\(P\)</span>,</p>
+<p><span class="math display">\[
+T_P\uparrow\omega
+=
+\operatorname{lfp}(T_P)
+=
+M_P.
+\]</span></p>
+<p>Thus the bottom-up construction yields exactly the ground logical consequences of <span class="math inline">\(P\)</span>.</p>
+</div>
+<section id="proof-3" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="proof-3"><span class="header-section-number">8.1</span> Proof</h2>
 <p>Define the upward iterates of <span class="math inline">\(T_P\)</span> by</p>
 <p><span class="math display">\[
 T_P\uparrow 0=\varnothing,
@@ -1109,27 +1155,7 @@ T_P\uparrow(n+1)=T_P(T_P\uparrow n)\subseteq T_P(I),
 \]</span> and because <span class="math inline">\(I\)</span> is a model, <span class="math inline">\(T_P(I)\subseteq I\)</span>.</li>
 </ul>
 <p>Therefore the union of all stages is contained in every model.</p>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>Bottom-up characterization of the minimum Herbrand model
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>For every definite-clause program <span class="math inline">\(P\)</span>,</p>
-<p><span class="math display">\[
-T_P\uparrow\omega
-=
-M_P
-=
-T_P(T_P\uparrow\omega).
-\]</span></p>
-<p>Thus the bottom-up computation constructs exactly the minimum Herbrand model and therefore exactly the ground logical consequences of <span class="math inline">\(P\)</span>.</p>
-</div>
-</div>
+</section>
 </section>
 <section id="greatest-fixpoints-and-downward-iteration" class="level1" data-number="9">
 <h1 data-number="9"><span class="header-section-number">9</span> Greatest fixpoints and downward iteration</h1>
@@ -1147,16 +1173,25 @@ T_P\downarrow\omega
 \bigcap_{n\ge0}T_P\downarrow n.
 \]</span></p>
 <p>This descending iteration searches for the greatest fixpoint of <span class="math inline">\(T_P\)</span>.</p>
-<p>Since <span class="math inline">\(T_P\)</span> is monotone on the complete lattice <span class="math inline">\(\langle\mathcal P(B_P),\subseteq\rangle\)</span>, the Knaster–Tarski theorem guarantees both a least and a greatest fixpoint:</p>
+<div class="theorem-box">
+<div class="theorem-title">
+Theorem: Knaster–Tarski and Kleene fixpoint consequences
+</div>
+<p>Since <span class="math inline">\(T_P\)</span> is monotone on the complete lattice</p>
+<p><span class="math display">\[
+\left\langle\mathcal P(B_P),\subseteq\right\rangle,
+\]</span></p>
+<p>the Knaster–Tarski theorem guarantees a least and a greatest fixpoint:</p>
 <p><span class="math display">\[
 \operatorname{lfp}(T_P)
 \qquad\text{and}\qquad
 \operatorname{gfp}(T_P).
 \]</span></p>
-<p>Because <span class="math inline">\(T_P\)</span> is upward continuous, Kleene’s fixpoint theorem gives</p>
+<p>Since <span class="math inline">\(T_P\)</span> is upward continuous, Kleene’s fixpoint theorem yields</p>
 <p><span class="math display">\[
 \operatorname{lfp}(T_P)=T_P\uparrow\omega.
 \]</span></p>
+</div>
 <p>The dual equality need not hold at <span class="math inline">\(\omega\)</span>. The operator is not necessarily downward continuous, so reaching the greatest fixpoint may require transfinite iteration beyond <span class="math inline">\(\omega\)</span>.</p>
 <section id="example-why-descending-iteration-may-require-more-than-omega" class="level2" data-number="9.1">
 <h2 data-number="9.1" class="anchored" data-anchor-id="example-why-descending-iteration-may-require-more-than-omega"><span class="header-section-number">9.1</span> Example: why descending iteration may require more than <span class="math inline">\(\omega\)</span></h2>
