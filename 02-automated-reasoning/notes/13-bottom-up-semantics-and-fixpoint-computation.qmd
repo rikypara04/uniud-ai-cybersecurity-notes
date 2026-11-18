@@ -8,6 +8,34 @@ format:
     number-sections: true
 ---
 
+
+```{=html}
+<style>
+.theorem-box {
+  border: 2px solid #b02a37;
+  border-left: 0.55rem solid #b02a37;
+  border-radius: 0.45rem;
+  padding: 1rem 1.15rem 0.85rem;
+  margin: 1.25rem 0;
+  background: rgba(176, 42, 55, 0.07);
+}
+.theorem-box > :first-child { margin-top: 0; }
+.theorem-box > :last-child { margin-bottom: 0; }
+.theorem-title {
+  color: #b02a37;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+@media (prefers-color-scheme: dark) {
+  .theorem-box {
+    background: rgba(255, 107, 122, 0.10);
+    border-color: #ff6b7a;
+  }
+  .theorem-title { color: #ff8a96; }
+}
+</style>
+```
+
 # From logical consequences to bottom-up computation
 
 For a definite-clause program $P$, let $B_P$ denote its Herbrand base and $M_P$ its minimum Herbrand model. The preceding lecture established the central equivalence
@@ -261,7 +289,23 @@ $$
 
 The operator $T_P$ provides a direct characterization of Herbrand models.
 
-## A pre-fixpoint is a model
+::: {.theorem-box}
+<div class="theorem-title">Theorem: Model characterization by $T_P$</div>
+
+For every Herbrand interpretation $I\subseteq B_P$,
+
+$$
+I\text{ is a model of }P
+\quad\Longleftrightarrow\quad
+T_P(I)\subseteq I.
+$$
+
+Every fixpoint $T_P(I)=I$ is therefore a model of $P$.
+:::
+
+## Proof
+
+### If $T_P(I)\subseteq I$, then $I$ is a model
 
 Suppose
 
@@ -283,9 +327,9 @@ $$
 
 then $a\in T_P(I)$. By the hypothesis $T_P(I)\subseteq I$, it follows that $a\in I$. Hence the rule is satisfied. Since this holds for every ground rule, $I$ is a model of $P$.
 
-## Failure of containment exposes a violated rule
+### If $I$ is a model, then $T_P(I)\subseteq I$
 
-Conversely, suppose
+We prove the contrapositive. Suppose
 
 $$
 T_P(I)\setminus I\ne\varnothing.
@@ -299,31 +343,24 @@ $$
 
 has its body contained in $I$, while its head $a$ is absent from $I$. That rule is false in $I$, so $I$ is not a model.
 
-::: {.callout-important}
-## Model characterization
-
-For every Herbrand interpretation $I$,
-
-$$
-I\text{ is a model of }P
-\quad\Longleftrightarrow\quad
-T_P(I)\subseteq I.
-$$
-
-Every fixpoint $T_P(I)=I$ is therefore a model, although a model need not be a fixpoint.
-:::
 
 # Monotonicity
 
-The operator $T_P$ is monotone on $\langle\mathcal P(B_P),\subseteq\rangle$:
+::: {.theorem-box}
+<div class="theorem-title">Theorem: Monotonicity of $T_P$</div>
+
+For all Herbrand interpretations $I,J\subseteq B_P$,
 
 $$
 I\subseteq J
 \quad\Longrightarrow\quad
 T_P(I)\subseteq T_P(J).
 $$
+:::
 
-To prove this, take any $a\in T_P(I)$. Some ground rule
+## Proof
+
+Take any $a\in T_P(I)$. Some ground rule
 
 $$
 a\leftarrow b_1,\ldots,b_n
@@ -368,23 +405,29 @@ At any finite stage there are two possibilities:
 
 # Upward continuity
 
-Monotonicity alone guarantees preservation of order. The lecture proves the stronger property of **upward continuity**.
+Monotonicity alone guarantees preservation of order. The following theorem establishes the stronger property used by the fixpoint construction.
 
-Let
+::: {.theorem-box}
+<div class="theorem-title">Theorem: Upward continuity of $T_P$</div>
+
+For every ascending chain
 
 $$
-I_0\subseteq I_1\subseteq I_2\subseteq\cdots
+I_0\subseteq I_1\subseteq I_2\subseteq\cdots,
 $$
 
-be an ascending chain. Then
+we have
 
 $$
 T_P\left(\bigcup_{i\ge 0} I_i\right)
 =
 \bigcup_{i\ge 0}T_P(I_i).
 $$
+:::
 
-## Left-to-right inclusion
+## Proof
+
+### Left-to-right inclusion
 
 Suppose
 
@@ -414,7 +457,7 @@ $$
 
 The finiteness of rule bodies is crucial here: finitely many witnessing stages can be replaced by one largest stage.
 
-## Right-to-left inclusion
+### Right-to-left inclusion
 
 Suppose
 
@@ -434,19 +477,26 @@ $$
 a\in T_P\left(\bigcup_{i\ge0}I_i\right).
 $$
 
-::: {.callout-important}
-## Upward continuity of $T_P$
-
-For every ascending chain $I_0\subseteq I_1\subseteq\cdots$,
-
-$$
-T_P\left(\bigcup_{i\ge0}I_i\right)
-=
-\bigcup_{i\ge0}T_P(I_i).
-$$
-:::
 
 # Computing the least fixpoint
+
+::: {.theorem-box}
+<div class="theorem-title">Theorem: Bottom-up characterization of the minimum Herbrand model</div>
+
+For every definite-clause program $P$,
+
+$$
+T_P\uparrow\omega
+=
+\operatorname{lfp}(T_P)
+=
+M_P.
+$$
+
+Thus the bottom-up construction yields exactly the ground logical consequences of $P$.
+:::
+
+## Proof
 
 Define the upward iterates of $T_P$ by
 
@@ -489,21 +539,6 @@ Moreover, every model $I$ contains every stage of this construction. The proof i
 
 Therefore the union of all stages is contained in every model.
 
-::: {.callout-important}
-## Bottom-up characterization of the minimum Herbrand model
-
-For every definite-clause program $P$,
-
-$$
-T_P\uparrow\omega
-=
-M_P
-=
-T_P(T_P\uparrow\omega).
-$$
-
-Thus the bottom-up computation constructs exactly the minimum Herbrand model and therefore exactly the ground logical consequences of $P$.
-:::
 
 # Greatest fixpoints and downward iteration
 
@@ -527,7 +562,16 @@ $$
 
 This descending iteration searches for the greatest fixpoint of $T_P$.
 
-Since $T_P$ is monotone on the complete lattice $\langle\mathcal P(B_P),\subseteq\rangle$, the Knaster--Tarski theorem guarantees both a least and a greatest fixpoint:
+::: {.theorem-box}
+<div class="theorem-title">Theorem: Knaster--Tarski and Kleene fixpoint consequences</div>
+
+Since $T_P$ is monotone on the complete lattice
+
+$$
+\left\langle\mathcal P(B_P),\subseteq\right\rangle,
+$$
+
+the Knaster--Tarski theorem guarantees a least and a greatest fixpoint:
 
 $$
 \operatorname{lfp}(T_P)
@@ -535,11 +579,13 @@ $$
 \operatorname{gfp}(T_P).
 $$
 
-Because $T_P$ is upward continuous, Kleene's fixpoint theorem gives
+Since $T_P$ is upward continuous, Kleene's fixpoint theorem yields
 
 $$
 \operatorname{lfp}(T_P)=T_P\uparrow\omega.
 $$
+:::
+
 
 The dual equality need not hold at $\omega$. The operator is not necessarily downward continuous, so reaching the greatest fixpoint may require transfinite iteration beyond $\omega$.
 
