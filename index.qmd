@@ -13,7 +13,7 @@ page-layout: full
 </div>
 <div class="home-hero__stats" aria-label="Site overview">
 <div><strong>3</strong><span>courses</span></div>
-<div><strong>32</strong><span>lectures</span></div>
+<div><strong>33</strong><span>lectures</span></div>
 </div>
 </div>
 
@@ -51,7 +51,7 @@ page-layout: full
 <p>Constraint solving, logic programming, semantics, and reasoning methods.</p>
 </div>
 <details class="lecture-list" open>
-<summary>Available lectures <span aria-hidden="true">(12)</span></summary>
+<summary>Available lectures <span aria-hidden="true">(13)</span></summary>
 <ul>
   <li><a href="02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.qmd">Introduction to Automated Reasoning and Constraint Programming</a></li>
   <li><a href="02-automated-reasoning/notes/02-sat-encodings-and-dpll.qmd">SAT Encodings and DPLL</a></li>
@@ -65,6 +65,7 @@ page-layout: full
   <li><a href="02-automated-reasoning/notes/10-syntax-and-definite-clause-programs.qmd">Syntax of Logic Programming and Definite-Clause Programs</a></li>
   <li><a href="02-automated-reasoning/notes/11-semantics-of-logic-programs.qmd">Semantics of Logic Programs</a></li>
   <li><a href="02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.qmd">Unification, SLD Resolution, and the Limits of Computation</a></li>
+  <li><a href="02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.qmd">Bottom-Up Semantics and Fixpoint Computation</a></li>
 </ul>
 </details>
 </section>

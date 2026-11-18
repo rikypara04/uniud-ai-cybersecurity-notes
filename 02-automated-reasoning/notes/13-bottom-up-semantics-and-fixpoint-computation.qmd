@@ -1,0 +1,619 @@
+---
+title: "Bottom-Up Semantics and Fixpoint Computation"
+subtitle: "Lecture 13 - 18 November 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# From logical consequences to bottom-up computation
+
+For a definite-clause program $P$, let $B_P$ denote its Herbrand base and $M_P$ its minimum Herbrand model. The preceding lecture established the central equivalence
+
+$$
+P \models A
+\quad\Longleftrightarrow\quad
+A\in M_P
+$$
+
+for every ground atom $A\in B_P$.
+
+The test $A\in M_P$ can be approached **top-down** by SLD resolution. A successful SLD derivation not only establishes that $A$ is a logical consequence of $P$, but also explains which program clauses justify the conclusion. This explanatory derivation is relevant to explainable artificial intelligence: the proof structure records why the answer follows.
+
+The present lecture develops the complementary **bottom-up** method. Instead of starting from a query, bottom-up evaluation starts from known facts and repeatedly derives every immediate consequence until a fixpoint is reached.
+
+# Grounding a definite program
+
+Let $H_P$ be the Herbrand universe of a program $P$. The **grounding** of a rule is the set of all instances obtained by replacing every variable with every possible ground term from $H_P$. The grounding of the complete program is denoted by
+
+$$
+\operatorname{ground}(P).
+$$
+
+It may be finite or infinite, depending on the Herbrand universe.
+
+## Finite grounding
+
+Suppose
+
+$$
+H_P=\{a,b\}
+$$
+
+and the program contains the rule
+
+```prolog
+q(X) :- r(X,Y), p(Y).
+```
+
+Every pair of substitutions for $X$ and $Y$ produces one ground instance:
+
+```prolog
+q(a) :- r(a,a), p(a).
+q(a) :- r(a,b), p(b).
+q(b) :- r(b,a), p(a).
+q(b) :- r(b,b), p(b).
+```
+
+The grounding contains four rules because each of the two variables has two possible ground values.
+
+## Infinite grounding
+
+If
+
+$$
+H_P=\{0,s(0),s(s(0)),\ldots\},
+$$
+
+then the rule
+
+```prolog
+num(s(X)) :- num(X).
+```
+
+has infinitely many ground instances:
+
+```prolog
+num(s(0))       :- num(0).
+num(s(s(0)))    :- num(s(0)).
+num(s(s(s(0)))) :- num(s(s(0))).
+...
+```
+
+The syntactic program is finite, but its grounding can be infinite because function symbols generate infinitely many ground terms.
+
+# The immediate-consequence operator
+
+Let $P$ be a definite-clause program and let $I\subseteq B_P$ be a Herbrand interpretation. The **immediate-consequence operator** $T_P$ returns all rule heads whose bodies are already true in $I$:
+
+$$
+T_P(I)
+=
+\left\{
+a
+\ \middle|\
+\begin{array}{l}
+a\leftarrow b_1,\ldots,b_n\in\operatorname{ground}(P),\\
+\{b_1,\ldots,b_n\}\subseteq I
+\end{array}
+\right\}.
+$$
+
+For a fact, $n=0$. Its body is empty and is therefore satisfied by every interpretation, including $\varnothing$. Consequently, all facts of $P$ belong to $T_P(\varnothing)$.
+
+The operator is called *immediate* because it applies the program rules once. Consequences that require several rule applications appear through repeated iterations of $T_P$.
+
+## A finite bottom-up computation
+
+Consider
+
+```prolog
+r(a).
+r(b).
+p(a).
+q(X) :- r(X), p(X).
+```
+
+Starting from the empty interpretation:
+
+$$
+T_P(\varnothing)
+=
+\{r(a),r(b),p(a)\}.
+$$
+
+The ground instance
+
+```prolog
+q(a) :- r(a), p(a).
+```
+
+now has its complete body in the interpretation, so the next application also derives $q(a)$:
+
+$$
+T_P\bigl(\{r(a),r(b),p(a)\}\bigr)
+=
+\{q(a),r(a),r(b),p(a)\}.
+$$
+
+A further application produces no change:
+
+$$
+T_P\bigl(\{q(a),r(a),r(b),p(a)\}\bigr)
+=
+\{q(a),r(a),r(b),p(a)\}.
+$$
+
+The computation has reached a fixpoint.
+
+| Iteration | Interpretation |
+|---:|---|
+| $0$ | $\varnothing$ |
+| $1$ | $\{r(a),r(b),p(a)\}$ |
+| $2$ | $\{q(a),r(a),r(b),p(a)\}$ |
+| $3$ | unchanged, hence a fixpoint |
+
+# Top-down and bottom-up behaviour
+
+The two strategies compute the same declarative semantics, but their operational behaviour can differ substantially.
+
+## A looping top-down derivation
+
+Consider
+
+```prolog
+p(a).
+q(X) :- q(X).
+```
+
+A top-down attempt to prove `q(a)` may repeatedly select the recursive rule:
+
+$$
+\leftarrow q(a)
+\Longrightarrow
+\leftarrow q(a)
+\Longrightarrow
+\leftarrow q(a)
+\Longrightarrow\cdots
+$$
+
+At each step a fresh variable is introduced and unified with $a$, but the selected goal remains `q(a)`. SLD resolution may therefore loop.
+
+Bottom-up evaluation terminates immediately:
+
+$$
+T_P(\varnothing)=\{p(a)\},
+$$
+
+and
+
+$$
+T_P(\{p(a)\})=\{p(a)\}.
+$$
+
+The atom $q(a)$ is never derived. The fixpoint is simply $\{p(a)\}$.
+
+## Finite query, infinite bottom-up construction
+
+Now consider
+
+```prolog
+nat(0).
+nat(s(X)) :- nat(X).
+```
+
+A top-down derivation for the specific query
+
+```prolog
+?- nat(s(s(s(0)))).
+```
+
+is finite. Each resolution step removes one outer occurrence of $s$:
+
+$$
+\begin{aligned}
+\leftarrow \operatorname{nat}(s(s(s(0))))
+&\Longrightarrow \leftarrow \operatorname{nat}(s(s(0)))\\
+&\Longrightarrow \leftarrow \operatorname{nat}(s(0))\\
+&\Longrightarrow \leftarrow \operatorname{nat}(0)\\
+&\Longrightarrow \square.
+\end{aligned}
+$$
+
+The bottom-up construction instead enumerates the complete infinite model:
+
+$$
+\begin{aligned}
+T_P(\varnothing)
+&=\{\operatorname{nat}(0)\},\\
+T_P^2(\varnothing)
+&=\{\operatorname{nat}(0),\operatorname{nat}(s(0))\},\\
+T_P^3(\varnothing)
+&=\{\operatorname{nat}(0),\operatorname{nat}(s(0)),
+\operatorname{nat}(s(s(0)))\},\\
+&\hspace{1em}\vdots
+\end{aligned}
+$$
+
+No finite iteration contains every natural-number atom. The limit is
+
+$$
+\{\operatorname{nat}(0),\operatorname{nat}(s(0)),
+\operatorname{nat}(s(s(0))),\ldots\}.
+$$
+
+Thus, in practice, naive bottom-up execution may continue forever even though the semantic limit is well defined.
+
+| Program and request | Top-down behaviour | Bottom-up behaviour |
+|---|---|---|
+| `q(X) :- q(X)` with query `q(a)` | May loop on the recursive goal | Immediately reaches $\{p(a)\}$ |
+| Naturals with one ground query | Finite derivation for a fixed numeral | Enumerates an infinite ascending chain |
+
+# Models characterized by the immediate-consequence operator
+
+Interpretations are ordered by inclusion in the complete lattice
+
+$$
+\left\langle\mathcal P(B_P),\subseteq\right\rangle.
+$$
+
+The operator $T_P$ provides a direct characterization of Herbrand models.
+
+## A pre-fixpoint is a model
+
+Suppose
+
+$$
+T_P(I)\subseteq I.
+$$
+
+Take any ground rule
+
+$$
+a\leftarrow b_1,\ldots,b_n
+$$
+
+in $\operatorname{ground}(P)$. If the body is not contained in $I$, the implication is satisfied because its antecedent is false. If
+
+$$
+\{b_1,\ldots,b_n\}\subseteq I,
+$$
+
+then $a\in T_P(I)$. By the hypothesis $T_P(I)\subseteq I$, it follows that $a\in I$. Hence the rule is satisfied. Since this holds for every ground rule, $I$ is a model of $P$.
+
+## Failure of containment exposes a violated rule
+
+Conversely, suppose
+
+$$
+T_P(I)\setminus I\ne\varnothing.
+$$
+
+Choose $a\in T_P(I)\setminus I$. By the definition of $T_P$, some ground rule
+
+$$
+a\leftarrow b_1,\ldots,b_n
+$$
+
+has its body contained in $I$, while its head $a$ is absent from $I$. That rule is false in $I$, so $I$ is not a model.
+
+::: {.callout-important}
+## Model characterization
+
+For every Herbrand interpretation $I$,
+
+$$
+I\text{ is a model of }P
+\quad\Longleftrightarrow\quad
+T_P(I)\subseteq I.
+$$
+
+Every fixpoint $T_P(I)=I$ is therefore a model, although a model need not be a fixpoint.
+:::
+
+# Monotonicity
+
+The operator $T_P$ is monotone on $\langle\mathcal P(B_P),\subseteq\rangle$:
+
+$$
+I\subseteq J
+\quad\Longrightarrow\quad
+T_P(I)\subseteq T_P(J).
+$$
+
+To prove this, take any $a\in T_P(I)$. Some ground rule
+
+$$
+a\leftarrow b_1,\ldots,b_n
+$$
+
+has
+
+$$
+\{b_1,\ldots,b_n\}\subseteq I.
+$$
+
+Since $I\subseteq J$, the same body is contained in $J$. Therefore $a\in T_P(J)$.
+
+Monotonicity ensures that iteration from the bottom produces an ascending chain:
+
+$$
+\varnothing
+\subseteq
+T_P(\varnothing)
+\subseteq
+T_P^2(\varnothing)
+\subseteq
+T_P^3(\varnothing)
+\subseteq\cdots
+$$
+
+```{mermaid}
+%%| fig-cap: "Repeated application of the monotone immediate-consequence operator builds an ascending chain from the empty interpretation."
+flowchart LR
+  I0["Empty interpretation"] --> I1["T_P at stage 1"]
+  I1 --> I2["T_P at stage 2"]
+  I2 --> I3["T_P at stage 3"]
+  I3 --> IL["Limit at omega"]
+  classDef stage fill:#0d6efd,color:#ffffff,stroke:#084298
+  class I0,I1,I2,I3,IL stage
+```
+
+At any finite stage there are two possibilities:
+
+- if $T_P^{n+1}(\varnothing)=T_P^n(\varnothing)$, a fixpoint has been reached;
+- if the inclusion is strict, the current interpretation is not yet a model because $T_P(I)\nsubseteq I$.
+
+# Upward continuity
+
+Monotonicity alone guarantees preservation of order. The lecture proves the stronger property of **upward continuity**.
+
+Let
+
+$$
+I_0\subseteq I_1\subseteq I_2\subseteq\cdots
+$$
+
+be an ascending chain. Then
+
+$$
+T_P\left(\bigcup_{i\ge 0} I_i\right)
+=
+\bigcup_{i\ge 0}T_P(I_i).
+$$
+
+## Left-to-right inclusion
+
+Suppose
+
+$$
+a\in T_P\left(\bigcup_{i\ge0}I_i\right).
+$$
+
+Then there is a ground rule
+
+$$
+a\leftarrow b_1,\ldots,b_n
+$$
+
+whose body atoms all belong to the union. For each $b_j$, choose an index $k_j$ such that $b_j\in I_{k_j}$. Because the body is finite, the maximum
+
+$$
+k=\max\{k_1,\ldots,k_n\}
+$$
+
+exists. Since the chain is ascending, every body atom belongs to $I_k$. Hence
+
+$$
+a\in T_P(I_k)
+\subseteq
+\bigcup_{i\ge0}T_P(I_i).
+$$
+
+The finiteness of rule bodies is crucial here: finitely many witnessing stages can be replaced by one largest stage.
+
+## Right-to-left inclusion
+
+Suppose
+
+$$
+a\in\bigcup_{i\ge0}T_P(I_i).
+$$
+
+Then $a\in T_P(I_k)$ for some $k$. A ground rule derives $a$ from body atoms contained in $I_k$. Since
+
+$$
+I_k\subseteq\bigcup_{i\ge0}I_i,
+$$
+
+the same rule derives $a$ from the union. Thus
+
+$$
+a\in T_P\left(\bigcup_{i\ge0}I_i\right).
+$$
+
+::: {.callout-important}
+## Upward continuity of $T_P$
+
+For every ascending chain $I_0\subseteq I_1\subseteq\cdots$,
+
+$$
+T_P\left(\bigcup_{i\ge0}I_i\right)
+=
+\bigcup_{i\ge0}T_P(I_i).
+$$
+:::
+
+# Computing the least fixpoint
+
+Define the upward iterates of $T_P$ by
+
+$$
+T_P\uparrow 0=\varnothing,
+$$
+
+$$
+T_P\uparrow(n+1)=T_P(T_P\uparrow n),
+$$
+
+and
+
+$$
+T_P\uparrow\omega
+=
+\bigcup_{n\ge0}T_P\uparrow n.
+$$
+
+Upward continuity shows that the limit is a fixpoint:
+
+$$
+\begin{aligned}
+T_P(T_P\uparrow\omega)
+&=T_P\left(\bigcup_{n\ge0}T_P\uparrow n\right)\\
+&=\bigcup_{n\ge0}T_P(T_P\uparrow n)\\
+&=\bigcup_{n\ge0}T_P\uparrow(n+1)\\
+&=T_P\uparrow\omega.
+\end{aligned}
+$$
+
+Moreover, every model $I$ contains every stage of this construction. The proof is by induction:
+
+- $T_P\uparrow0=\varnothing\subseteq I$;
+- if $T_P\uparrow n\subseteq I$, monotonicity gives
+  $$
+  T_P\uparrow(n+1)=T_P(T_P\uparrow n)\subseteq T_P(I),
+  $$
+  and because $I$ is a model, $T_P(I)\subseteq I$.
+
+Therefore the union of all stages is contained in every model.
+
+::: {.callout-important}
+## Bottom-up characterization of the minimum Herbrand model
+
+For every definite-clause program $P$,
+
+$$
+T_P\uparrow\omega
+=
+M_P
+=
+T_P(T_P\uparrow\omega).
+$$
+
+Thus the bottom-up computation constructs exactly the minimum Herbrand model and therefore exactly the ground logical consequences of $P$.
+:::
+
+# Greatest fixpoints and downward iteration
+
+The lecture also introduces the dual construction that starts from the complete Herbrand base:
+
+$$
+T_P\downarrow0=B_P,
+$$
+
+$$
+T_P\downarrow(n+1)=T_P(T_P\downarrow n),
+$$
+
+and
+
+$$
+T_P\downarrow\omega
+=
+\bigcap_{n\ge0}T_P\downarrow n.
+$$
+
+This descending iteration searches for the greatest fixpoint of $T_P$.
+
+Since $T_P$ is monotone on the complete lattice $\langle\mathcal P(B_P),\subseteq\rangle$, the Knaster--Tarski theorem guarantees both a least and a greatest fixpoint:
+
+$$
+\operatorname{lfp}(T_P)
+\qquad\text{and}\qquad
+\operatorname{gfp}(T_P).
+$$
+
+Because $T_P$ is upward continuous, Kleene's fixpoint theorem gives
+
+$$
+\operatorname{lfp}(T_P)=T_P\uparrow\omega.
+$$
+
+The dual equality need not hold at $\omega$. The operator is not necessarily downward continuous, so reaching the greatest fixpoint may require transfinite iteration beyond $\omega$.
+
+## Example: why descending iteration may require more than $\omega$
+
+Consider
+
+```prolog
+r(0) :- r(0).
+p(0) :- q(X).
+q(s(X)) :- q(X).
+```
+
+The upward construction derives nothing:
+
+$$
+T_P\uparrow\omega=\varnothing.
+$$
+
+For the descending construction, $T_P\downarrow0=B_P$ contains every ground atom over the predicates $r$, $p$ and $q$. The first stages are:
+
+$$
+\begin{aligned}
+T_P\downarrow1
+&=\{r(0),p(0),q(s(0)),q(s(s(0))),\ldots\},\\
+T_P\downarrow2
+&=\{r(0),p(0),q(s(s(0))),q(s(s(s(0)))),\ldots\},\\
+T_P\downarrow3
+&=\{r(0),p(0),q(s(s(s(0)))),\ldots\}.
+\end{aligned}
+$$
+
+Each finite stage removes one more $q$-atom from the beginning of the chain. Their intersection is
+
+$$
+T_P\downarrow\omega=\{r(0),p(0)\}.
+$$
+
+This set is not a fixpoint:
+
+$$
+T_P(\{r(0),p(0)\})=\{r(0)\}.
+$$
+
+Applying $T_P$ once more produces $\{r(0)\}$, which is the greatest fixpoint. Hence the construction needs a stage after $\omega$.
+
+| Stage | Remaining atoms, schematically |
+|---:|---|
+| $0$ | all atoms in $B_P$ |
+| $1$ | $r(0)$, $p(0)$, and $q$-atoms from $q(s(0))$ onward |
+| $2$ | $r(0)$, $p(0)$, and $q$-atoms from $q(s(s(0)))$ onward |
+| $\omega$ | $\{r(0),p(0)\}$, not a fixpoint |
+| $\omega+1$ | $\{r(0)\}$, the greatest fixpoint |
+
+The asymmetry between the least and greatest fixpoints is therefore structural: upward continuity guarantees that the least fixpoint is reached at $\omega$, while lack of downward continuity allows the greatest-fixpoint construction to continue beyond $\omega$.
+
+# Practical interpretation
+
+For definite-clause logic programming, the declarative semantics used in the course is the minimum Herbrand model $M_P$. It is the set of ground logical consequences and can be approached in two complementary ways:
+
+- **top-down**, by SLD resolution starting from a query;
+- **bottom-up**, by computing $T_P\uparrow\omega$.
+
+Top-down derivations can supply compact explanations for individual consequences, but may loop because of clause selection and recursion. Bottom-up evaluation is independent of a particular query and computes consequences systematically, but may not terminate operationally when the minimum model is infinite.
+
+When the program has no function symbols, the Herbrand base is finite. In that case the ascending chain must stabilize after finitely many additions, and bottom-up evaluation reaches the minimum model in finite time.
+
+The greatest fixpoint is relevant to coinductive interpretations, but the lecture only introduces this direction and its asymmetry with the least-fixpoint semantics.
+
+# Exercise direction
+
+The lecture concludes by asking for short definite-clause programs whose logical consequences are computed in either of two ways:
+
+1. top-down through SLD resolution;
+2. bottom-up through repeated application of $T_P$.
+
+For a finite example, a complete solution should identify the ground instances used, list successive interpretations, detect the first repeated interpretation, and compare the resulting fixpoint with the answers obtained from top-down derivations.

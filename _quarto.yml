@@ -104,6 +104,9 @@ website:
           - href: 02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.qmd
             text: "Unification, SLD Resolution, and the Limits of Computation"
 
+          - href: 02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.qmd
+            text: "Bottom-Up Semantics and Fixpoint Computation"
+
       - section: "Foundations of Cybersecurity and Ethics"
         contents:
           - href: 03-foundations-cybersecurity-ethics/index.qmd
