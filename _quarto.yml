@@ -113,6 +113,9 @@ website:
           - href: 02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.qmd
             text: "Bottom-Up Semantics and Fixpoint Computation"
 
+          - href: 02-automated-reasoning/notes/14-negation-program-completion-stable-models.qmd
+            text: "Negation, Program Completion, and Stable Models"
+
       - section: "Foundations of Cybersecurity and Ethics"
         contents:
           - href: 03-foundations-cybersecurity-ethics/index.qmd

@@ -1,0 +1,541 @@
+---
+title: "Negation, Program Completion, and Stable Models"
+subtitle: "Lecture 14 - 21 November 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# From definite programs to programs with negation
+
+The lecture begins by recalling the main properties of **definite clause programs**. For a definite program $P$, the minimum Herbrand model $M_P$ is the set of its logical consequences. It can be obtained in two complementary ways:
+
+- **Top down**, by SLD resolution, using unification and backtracking.
+- **Bottom up**, by iterating the immediate-consequence operator $T_P$ on the ground version of the program.
+
+The important property for what follows is monotonicity. If $I$ and $J$ are Herbrand interpretations and $I\subseteq J$, then
+
+$$
+T_P(I)\subseteq T_P(J).
+$$
+
+Intuitively, adding atoms to an interpretation cannot invalidate a consequence of a definite program. The lecture now asks what changes when rules are allowed to contain negated conditions.
+
+## General programs
+
+A rule in a **general program** has the form
+
+$$
+H\leftarrow B_1,\ldots,B_m,\ \operatorname{not} C_1,\ldots,\operatorname{not} C_n,
+\tag{1}
+$$
+
+where $H$, each $B_i$, and each $C_j$ are atoms, and $m,n\geq 0$. The notation `not` denotes *negation as failure* (NAF): a condition `not C` succeeds when $C$ cannot be established in the current reasoning process. It is not simply another positive atom.
+
+For a general program, an extended immediate-consequence operator can be defined on a Herbrand interpretation $I$ as
+
+$$
+T_P(I)=\left\{
+\begin{array}{ll}
+a\;\middle|\;&
+\begin{array}{l}
+a\leftarrow b_1,\ldots,b_m,\operatorname{not}c_1,\ldots,\operatorname{not}c_n
+\in\operatorname{ground}(P),\\
+\{b_1,\ldots,b_m\}\subseteq I,\\
+\{c_1,\ldots,c_n\}\cap I=\varnothing
+\end{array}
+\end{array}
+\right\}.
+$$
+
+Here, $\operatorname{ground}(P)$ is the set of ground instances of the rules of $P$. A ground rule contributes its head when all its positive body atoms belong to $I$ and none of the atoms tested by `not` belongs to $I$. This follows the usual rule intuition: when the body is true, the head should be true.
+
+The new negative condition is responsible for the loss of monotonicity.
+
+## A minimal counterexample to monotonicity
+
+Consider the one-rule program
+
+```prolog
+p(a) :- not p(b).
+```
+
+Under the classical truth-condition for an implication, this rule corresponds to
+
+$$
+\neg p(b)\rightarrow p(a),
+$$
+
+which is classically equivalent to the formula
+
+$$
+p(a)\lor p(b).
+$$
+
+There are two ground atoms, $p(a)$ and $p(b)$, and therefore four Herbrand interpretations:
+
+$$
+\varnothing,\qquad \{p(a)\},\qquad \{p(b)\},\qquad
+\{p(a),p(b)\}.
+$$
+
+The classical formula $p(a)\lor p(b)$ is true in three of these interpretations: $\{p(a)\}$, $\{p(b)\}$, and $\{p(a),p(b)\}$. The empty interpretation is not a model.
+
+```{mermaid}
+%%| fig-cap: "The four Herbrand interpretations ordered by set inclusion. The three non-empty interpretations are models of p(a) or p(b)."
+flowchart BT
+  E["∅"] --> A["{p(a)}"]
+  E --> B["{p(b)}"]
+  A --> AB["{p(a), p(b)}"]
+  B --> AB
+```
+
+The immediate-consequence operator gives
+
+$$
+T_P(\varnothing)=\{p(a)\},\qquad
+T_P(\{p(b)\})=\varnothing.
+$$
+
+But $\varnothing\subseteq\{p(b)\}$ while
+
+$$
+T_P(\varnothing)\nsubseteq T_P(\{p(b)\}).
+$$
+
+Thus $T_P$ is **not monotone**. Adding $p(b)$ makes the negative condition `not p(b)` fail and removes the consequence $p(a)$.
+
+There is a related model-theoretic difficulty. Both $\{p(a)\}$ and $\{p(b)\}$ are models, but their intersection is $\varnothing$, which is not a model. There is no least model under set inclusion, and there is no atom that is a logical consequence of the formula in every model. The minimum-model construction used for definite programs therefore does not carry over directly to general programs.
+
+# Why non-monotonicity matters
+
+The loss of monotonicity is not merely a technical property of the operator. It captures a familiar feature of reasoning with incomplete information: a conclusion based on what is currently unknown can have to be withdrawn when new information arrives.
+
+## Exam eligibility example
+
+Consider the following facts and rules:
+
+```prolog
+student(alberto).
+student(bruno).
+student(carlo).
+
+course(fondamenti).
+course(asd).
+
+studied(alberto, fondamenti).
+studied(bruno, fondamenti).
+studied(carlo, asd).
+
+can_participate_exam(S,E) :-
+    student(S), course(E), studied(S,E),
+    not fail_selftest(S,E).
+
+fail_selftest(S,E) :- test(S,E,VOTO), VOTO < 15.
+```
+
+A student can participate in the exam for a course if they are a student, the course exists, they studied that course, and failure of the self-test cannot be established. Failure is established when a recorded test mark is below 15.
+
+Initially, no `test` facts are given. Consequently, no `fail_selftest` fact can be derived for any of the three student-course pairs. The negative condition succeeds, so the program derives:
+
+- `can_participate_exam(alberto,fondamenti)`;
+- `can_participate_exam(bruno,fondamenti)`;
+- `can_participate_exam(carlo,asd)`.
+
+Now add the fact:
+
+```prolog
+test(carlo,asd,10).
+```
+
+The program can derive `fail_selftest(carlo,asd)`, because $10<15$. Therefore `not fail_selftest(carlo,asd)` no longer succeeds, and Carlo's eligibility conclusion is withdrawn. Alberto and Bruno remain eligible.
+
+If we also add
+
+```prolog
+test(alberto,fondamenti,5).
+```
+
+then Alberto's failure is derivable too. His eligibility conclusion is withdrawn, while Bruno's remains. This illustrates the central point: adding information can invalidate a conclusion that was previously supported by the absence of evidence for its opposite.
+
+## A changing conclusion: the London example
+
+The slides give a non-formal example of the same phenomenon:
+
+1. You want to spend Christmas in London.
+2. You have an Italian identity card and book the flight and hotel.
+3. You are happy with the plan.
+4. You discover that, after Brexit, you need a passport. You are no longer happy because the current plan is insufficient.
+5. You obtain the passport and become happy again.
+6. You discover that COVID restrictions from Friuli Venezia Giulia prevent you from travelling to London. You are no longer happy.
+
+A conclusion about the feasibility of the trip changes as new information is added. It can be withdrawn and later restored, then withdrawn again for a different reason. This is the intuitive behaviour that non-monotonic reasoning is intended to represent.
+
+## Negation as failure and commonsense assumptions
+
+The lecture considers the rule
+
+```prolog
+exit_without_umbrella :- not is_raining.
+```
+
+Its commonsense reading is: **if you cannot prove that it is raining, then leave without an umbrella**. The classical implication associated with the rule is
+
+$$
+\neg\operatorname{is\_raining}\rightarrow
+\operatorname{exit\_without\_umbrella},
+$$
+
+or equivalently,
+
+$$
+\operatorname{is\_raining}\lor
+\operatorname{exit\_without\_umbrella}.
+$$
+
+The slides then ask us to compare it with
+
+```prolog
+is_raining :- not exit_without_umbrella.
+```
+
+The latter has the same classical disjunction as its truth-condition, but its default reading is different: if leaving without an umbrella cannot be established, infer that it is raining. The example warns that the intuitive meaning of a rule containing NAF is not exhausted by its classical logical translation.
+
+Not every logical model is necessarily accepted by commonsense reasoning. The lecture emphasises that further semantic work is needed to distinguish models that fit the intended default reasoning from models that are merely classically compatible with the rules. For further examples of this issue, the slides point to C. Baral, *Knowledge Representation, Reasoning and Declarative Problem Solving* (2003), and M. Gelfond and Y. Kahl, *Knowledge Representation, Reasoning, and the Design of Intelligent Agents: The Answer-Set Programming Approach* (2014).
+
+# Program completion
+
+The lecture next introduces **program completion** as a way to associate a logical theory with a general program. The construction is illustrated on the following program:
+
+```prolog
+r(a,c).
+r(a,d).
+q(X) :- r(X,Y), not s(Y).
+p(a) :- not p(b).
+p(b) :- not p(a).
+```
+
+The first step is to normalize the program so that each rule defining a predicate has a variable tuple in its head and the particular head arguments are expressed as equalities in the body. For this program, the normalized form is
+
+```prolog
+r(X1,X2) :- X1 = a, X2 = c.
+r(X1,X2) :- X1 = a, X2 = d.
+q(X1) :- r(X1,Y), not s(Y).
+p(X1) :- X1 = a, not p(b).
+p(X1) :- X1 = b, not p(a).
+```
+
+The next step is to collect rules with equal heads, replace the group of implications by an equivalence (`iff`), and make the existential quantification in the body explicit. The resulting completion is
+
+$$
+\begin{aligned}
+r(X_1,X_2)\ &\leftrightarrow
+  (X_1=a\land X_2=c)\lor(X_1=a\land X_2=d),\\[2pt]
+q(X_1)\ &\leftrightarrow
+  \exists Y\,(r(X_1,Y)\land\neg s(Y)),\\[2pt]
+p(X_1)\ &\leftrightarrow
+  (X_1=a\land\neg p(b))\lor(X_1=b\land\neg p(a)),\\[2pt]
+s(X_1)\ &\leftrightarrow\ \mathrm{false}.
+\end{aligned}
+$$
+
+The displayed formulas are understood to hold for all values of their free variables. The existential quantifier in the definition of $q$ expresses that there must be some $Y$ related to $X_1$ by $r$ for which $s(Y)$ does not hold. The equation for $s$ is false because the program contains no rule defining $s$.
+
+The equivalence for a predicate is important: it says that the listed rule bodies are not merely sufficient conditions for the head; taken together, they describe exactly when the predicate holds according to the completed program.
+
+## Freeness axioms
+
+The completion is considered together with the **freeness axioms**, also called Clark's equality axioms. They constrain the interpretation of function symbols and terms:
+
+1. Equal terms with the same function symbol must have equal corresponding arguments:
+
+   $$
+f(X_1,\ldots,X_n)=f(Y_1,\ldots,Y_n)
+   \rightarrow X_1=Y_1\land\cdots\land X_n=Y_n.
+   $$
+
+2. Terms with different function symbols are unequal:
+
+   $$
+f(X_1,\ldots,X_n)\neq g(Y_1,\ldots,Y_m)
+   \qquad\text{if }f\neq g.
+   $$
+
+3. A term cannot be equal to one of its proper subterms:
+
+   $$
+X\neq t\qquad\text{if }X\text{ is a proper subterm of }t.
+   $$
+
+These axioms express the intended free-term behaviour: distinct constructors remain distinct, a constructor is injective in its arguments, and terms are not identified with their own proper components.
+
+## Herbrand interpretations of the completion
+
+For the example, the Herbrand universe consists of the four constants $a,b,c,d$. The completion therefore concerns 28 ground atoms:
+
+- 4 atoms for each unary predicate $s$, $p$, and $q$;
+- 16 atoms for the binary predicate $r$.
+
+In total,
+
+$$
+|B_P|=3\cdot 4+4^2=28.
+$$
+
+The slides examine the completion predicate by predicate. The resulting status of the ground atoms can be summarized as follows:
+
+| Predicate | Atoms true in every model | Atoms false in every model | Atoms that vary across models |
+|---|---|---|---|
+| $s$ | none | $s(a),s(b),s(c),s(d)$ | none |
+| $r$ | $r(a,c),r(a,d)$ | the other 14 ground $r$-atoms | none |
+| $q$ | $q(a)$ | $q(b),q(c),q(d)$ | none |
+| $p$ | none | $p(c),p(d)$ | $p(a),p(b)$ |
+
+The entries follow directly from the completion:
+
+- Since $s(X_1)$ is equivalent to false, all four ground $s$-atoms are false.
+- The definition of $r$ permits exactly the pairs $(a,c)$ and $(a,d)$, so $r(a,c)$ and $r(a,d)$ are true and every other ground $r$-atom is false.
+- Since $s$ is false everywhere, the existential condition for $q(a)$ is satisfied by either $r(a,c)$ or $r(a,d)$. No corresponding $r$-atom exists for first argument $b$, $c$, or $d$, so the other $q$-atoms are false.
+- The definition of $p$ makes $p(c)$ and $p(d)$ false. For the remaining two atoms, the completion gives
+
+  $$
+  p(a)\leftrightarrow\neg p(b),\qquad
+  p(b)\leftrightarrow\neg p(a).
+  $$
+
+  These equations allow two possibilities: $p(a)$ true and $p(b)$ false, or $p(a)$ false and $p(b)$ true. Neither atom is true in every model, and neither is false in every model.
+
+This analysis produces three groups of atoms: those true in all Herbrand models of the completion, those false in all such models, and those that are true in some models and false in others.
+
+## Fitting's three-valued semantics and the well-founded model
+
+The three groups suggest storing two sets:
+
+- $I^+$: atoms that are **always true** (true in every Herbrand model of the completion);
+- $I^-$: atoms that are **always false** (false in every Herbrand model of the completion).
+
+Atoms outside $I^+\cup I^-$ are **undefined**: their truth value changes between models. This representation is called **Fitting's three-valued semantics**.
+
+The well-founded model is the pair
+
+$$
+\langle I^+,I^-\rangle.
+$$
+
+For a ground program, the lecture states that this model is unique and computable in polynomial time in the size of the ground program. If
+
+$$
+I^+\cup I^-\neq B_P,
+$$
+
+then some atoms are undefined and the well-founded model is partial. If instead
+
+$$
+I^+\cup I^-=B_P,
+$$
+
+then every ground atom is classified as true or false; the lecture describes this total case as the unique minimum model.
+
+In the running completion example, $p(a)$ and $p(b)$ are undefined, while the other 26 atoms are classified as true or false. The pair records what is certain without arbitrarily choosing between the two possible interpretations of the mutually dependent $p$-atoms.
+
+# Stable models
+
+The well-founded model can leave atoms undefined when there are multiple plausible interpretations. The lecture next introduces **stable models**, also called **answer sets**, using a guess-and-verify construction.
+
+Consider first
+
+```prolog
+p :- not q.
+```
+
+The program has two minimal classical models, $\{p\}$ and $\{q\}$. The model $\{q\}$ does not express the intended commonsense reading: the program contains no information that supports believing $q$. The desired interpretation is the unique model $\{p\}$, which is also the well-founded model for this program.
+
+Now consider the pair of mutually dependent rules:
+
+```prolog
+p :- not q.
+q :- not p.
+```
+
+The well-founded model has $I^+=I^-=\varnothing$: neither atom is certainly true or certainly false. This reflects two independent plausible but not certain worlds, $\{p\}$ and $\{q\}$. Stable models retain these alternatives as two separate answer sets. The lecture situates the treatment of this issue in work from the 1980s and mentions Jack Minker, *Foundations of Deductive Databases and Logic Programming* (1988).
+
+## The Gelfond-Lifschitz reduct
+
+Let $P$ be a general program and let $S$ be a candidate model. The **reduct of $P$ with respect to $S$**, written $P^S$, is constructed in two steps:
+
+1. Remove every rule that contains a negative-as-failure literal `not L` in its body for which $L\in S$.
+2. From every remaining rule, remove all negative-as-failure literals from the body.
+
+The result $P^S$ is a definite program. Its minimum model can therefore be computed using the definite-program machinery recalled at the beginning of the lecture. Write this minimum model as $M_{P^S}$.
+
+::: {.callout-important title="Stable model test"}
+A candidate set $S$ is a **stable model** (or **answer set**) of $P$ exactly when
+
+$$
+M_{P^S}=S.
+$$
+
+The candidate is therefore verified by constructing its reduct and checking whether it is exactly the minimum model of that reduct.
+:::
+
+The procedure is a guess-and-verify method: propose a candidate interpretation, simplify the program according to that candidate, compute the resulting definite program's minimum model, and compare the result with the candidate.
+
+```{mermaid}
+%%| fig-cap: "The guess-and-verify procedure for checking whether S is a stable model of P."
+flowchart TD
+  G["Choose candidate set S"] --> R["Construct reduct P^S"]
+  R --> D["Obtain a definite program"]
+  D --> M["Compute minimum model M(P^S)"]
+  M --> C{"Is M(P^S) equal to S?"}
+  C -->|"Yes"| Y["S is a stable model"]
+  C -->|"No"| N["S is not a stable model"]
+```
+
+## Worked example: two answer sets
+
+Consider
+
+```prolog
+p :- a.
+a :- not b.
+b :- not a.
+```
+
+The Herbrand base is
+
+$$
+B_P=\{a,b,p\}.
+$$
+
+There are eight subsets of this base, and each is a possible candidate. For each candidate $S$, construct $P^S$ and calculate its minimum model.
+
+| Candidate $S$ | Reduct $P^S$ | Minimum model $M_{P^S}$ | Stable? |
+|---|---|---|---|
+| $\varnothing$ | $p\leftarrow a.$; $a.$; $b.$ | $\{a,b,p\}$ | No |
+| $\{a\}$ | $p\leftarrow a.$; $a.$ | $\{a,p\}$ | No |
+| $\{b\}$ | $p\leftarrow a.$; $b.$ | $\{b\}$ | **Yes** |
+| $\{p\}$ | $p\leftarrow a.$; $a.$; $b.$ | $\{a,b,p\}$ | No |
+| $\{a,b\}$ | $p\leftarrow a.$ | $\varnothing$ | No |
+| $\{a,p\}$ | $p\leftarrow a.$; $a.$ | $\{a,p\}$ | **Yes** |
+| $\{b,p\}$ | $p\leftarrow a.$; $b.$ | $\{b\}$ | No |
+| $\{a,b,p\}$ | $p\leftarrow a.$ | $\varnothing$ | No |
+
+For example, when $S=\{b\}$, the rule `a :- not b.` is removed because $b\in S$. The rule `b :- not a.` remains, and its negative literal is removed, giving the fact `b.`. Together with `p :- a.`, the reduct is
+
+```prolog
+p :- a.
+b.
+```
+
+Its minimum model is $\{b\}$, exactly the candidate. Thus $\{b\}$ is stable.
+
+For $S=\{a,p\}$, the rule `b :- not a.` is removed, while `a :- not b.` becomes the fact `a.`. The reduct is
+
+```prolog
+p :- a.
+a.
+```
+
+Its minimum model is $\{a,p\}$, again exactly the candidate. Thus $\{a,p\}$ is also stable.
+
+The other six candidates fail the equality test. In particular, the candidates $\{a,b\}$, $\{b,p\}$, and $\{a,b,p\}$ properly contain an answer set, such as $\{b\}$, and therefore cannot be answer sets themselves.
+
+::: {.callout-important title="Minimality of answer sets"}
+Every answer set of a general program is minimal with respect to set inclusion among the models of that program.
+:::
+
+The program consequently has exactly two answer sets:
+
+$$
+\boxed{\{b\}\quad\text{and}\quad\{a,p\}}.
+$$
+
+## A second reduct check
+
+Consider
+
+```prolog
+a :- not b.
+b :- not c.
+d.
+```
+
+The lecture checks two candidates.
+
+For
+
+$$
+S_1=\{b,d\},
+$$
+
+`a :- not b.` is removed because $b\in S_1$. The second rule remains and becomes the fact `b.`, while `d.` is already a fact. Thus
+
+```prolog
+b.
+d.
+```
+
+is the reduct, whose minimum model is $\{b,d\}=S_1$. Therefore $S_1$ is an answer set.
+
+For
+
+$$
+S_2=\{a,d\},
+$$
+
+neither $b$ nor $c$ belongs to $S_2$. Both rules remain after the negative literals are removed, producing
+
+```prolog
+a.
+b.
+d.
+```
+
+The minimum model is $\{a,b,d\}$, which is not $S_2$. Therefore $S_2$ is not an answer set.
+
+## A program with a classical model but no stable model
+
+The last example is
+
+```prolog
+p :- not p.
+d.
+```
+
+The interpretation $\{p,d\}$ is a classical logical model. Every model must contain $d$, because `d.` is a fact. Consequently, the two candidates that need to be checked for a stable model are
+
+$$
+S_1=\{d\},\qquad S_2=\{d,p\}.
+$$
+
+For $S_1=\{d\}$, the atom $p$ is not in the candidate. The rule `p :- not p.` therefore remains in the reduct and becomes the fact `p.`. The reduct is
+
+```prolog
+p.
+d.
+```
+
+Its minimum model is $\{p,d\}$, not $S_1$.
+
+For $S_2=\{d,p\}$, the rule is removed because its body contains `not p` and $p\in S_2$. The reduct consists only of
+
+```prolog
+d.
+```
+
+Its minimum model is $\{d\}$, not $S_2$.
+
+Neither candidate passes the stable-model test. Therefore this program **has a classical logical model but has no stable models**. Classical satisfiability alone does not guarantee the existence of an answer set.
+
+# Closing perspective
+
+The lecture's final points are:
+
+- Negated literals cause the loss of monotonicity.
+- Commonsense reasoning is not monotone: conclusions may have to be withdrawn when new information arrives.
+- The meaning of rules containing negation as failure is not captured completely by their classical logical meaning.
+- The default intuition is that, when there are no reasons or proofs for believing $q$, one may believe `not q`.
+- Stable models use a guess-and-verify construction to define and compute a suitable semantics for general programs.
+- A program can have several independent stable models, exactly one, or none.

@@ -68,6 +68,7 @@ page-layout: full
   <li><a href="02-automated-reasoning/notes/11-semantics-of-logic-programs.qmd">Semantics of Logic Programs</a></li>
   <li><a href="02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.qmd">Unification, SLD Resolution, and the Limits of Computation</a></li>
   <li><a href="02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.qmd">Bottom-Up Semantics and Fixpoint Computation</a></li>
+  <li><a href="02-automated-reasoning/notes/14-negation-program-completion-stable-models.qmd">Negation, Program Completion, and Stable Models</a></li>
 </ul>
 </details>
 </section>
