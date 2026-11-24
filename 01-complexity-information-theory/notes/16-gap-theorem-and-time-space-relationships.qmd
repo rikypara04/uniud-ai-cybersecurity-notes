@@ -1,0 +1,402 @@
+---
+title: "The Gap Theorem and Relationships Between Time and Space Complexity"
+subtitle: "Lecture 16 - 24 November 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+```{=html}
+<style>
+.theorem-box {
+  border: 2px solid #b02a37;
+  border-left: 0.55rem solid #b02a37;
+  border-radius: 0.45rem;
+  padding: 1rem 1.15rem 0.85rem;
+  margin: 1.25rem 0;
+  background: rgba(176, 42, 55, 0.07);
+}
+.theorem-box > :first-child { margin-top: 0; }
+.theorem-box > :last-child { margin-bottom: 0; }
+.theorem-title {
+  color: #b02a37;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+@media (prefers-color-scheme: dark) {
+  .theorem-box {
+    background: rgba(255, 107, 122, 0.10);
+    border-color: #ff6b7a;
+  }
+  .theorem-title { color: #ff8a96; }
+}
+</style>
+```
+
+# The Gap Theorem
+
+The deterministic time hierarchy theorem shows that suitable, sufficiently separated time bounds give different complexity classes. A natural question is whether this separation can always be obtained when one replaces a time bound by a much larger one. The Gap Theorem gives a surprising answer: for some computable functions, increasing the time bound from $f(n)$ to $2^{f(n)}$ does not enlarge the class at all.
+
+This is also a way to see why the condition that a time bound be *proper* matters in the hierarchy theorem. Mere computability is not enough.
+
+::: {.theorem-box}
+<div class="theorem-title">Gap Theorem</div>
+
+There exists a computable, increasing function $f:\mathbb{N}\to\mathbb{N}$ such that
+
+$$
+\operatorname{TIME}(f(n))=\operatorname{TIME}(2^{f(n)}).
+$$
+
+The function obtained by the construction below is not proper in the sense required by the deterministic time hierarchy theorem.
+:::
+
+## Enumerating Turing machines
+
+Fix an effective enumeration of all Turing machines:
+
+$$
+M_0,M_1,M_2,\ldots
+$$
+
+An enumeration is an algorithm that outputs the encodings of the machines one after another. It includes machines that do not halt on every input: deciding in advance which machines always halt is not possible. Let $\Sigma_j$ be the input alphabet of $M_j$.
+
+The proof constructs a function $f$ by looking, at each input length $i$, at the first $i+1$ machines and all their inputs of exactly that length.
+
+## A decidable predicate separating short and long halting times
+
+For natural numbers $i$ and $k$, define the predicate $P(i,k)$ by
+
+$$
+\begin{aligned}
+P(i,k)\ \Longleftrightarrow\ &\forall j\leq i\;\forall x\in\Sigma_j^i,\\
+&\bigl(M_j(x)\text{ halts in fewer than }k\text{ steps}\bigr)\\
+&\qquad\lor\bigl(M_j(x)\text{ does not halt within }2^k\text{ steps}\bigr).
+\end{aligned}
+$$
+
+The second alternative includes both possibilities in which the computation halts only after more than $2^k$ steps and in which it never halts. Equivalently, no computation considered by the predicate is allowed to halt at a time between $k$ and $2^k$, inclusive.
+
+**Why is $P(i,k)$ decidable?** There are finitely many machines $M_0,\ldots,M_i$ and finitely many inputs of length $i$ for each machine. For each machine-input pair, simulate the machine for at most $2^k$ steps:
+
+- if it halts before step $k$, that pair satisfies the predicate;
+- if it halts at a step between $k$ and $2^k$, the predicate is false;
+- if it has not halted after $2^k$ steps, that pair satisfies the second alternative.
+
+All these simulations have a finite bound. Therefore the truth of $P(i,k)$ can be decided, even though some of the simulated machines may run forever.
+
+For example, consider $P(10,3)$. We inspect $M_0,\ldots,M_{10}$ on every input of length $10$, and compare each halting time with $3$ and $2^3=8$. If one of these computations halts in $5$ steps, then $P(10,3)$ is false. A computation that has not halted within $8$ steps does not falsify the predicate.
+
+## Counting the machine-input pairs
+
+For a fixed $i$, the number of inputs of length $i$ over the alphabet of $M_j$ is $|\Sigma_j|^i$. Thus the total number of machine-input pairs under consideration is
+
+$$
+N(i)=\sum_{j=0}^{i}|\Sigma_j|^i.
+$$
+
+This counts one pair for each choice of a machine $M_j$, with $j\leq i$, and an input $x\in\Sigma_j^i$. Each such pair has at most one halting time: if its computation halts, it does so at one particular step; otherwise it has no halting time.
+
+## Constructing a gap in the halting times
+
+Assume that $f(i-1)$ has already been defined. Set the first endpoint to
+
+$$
+k_1=2^{f(i-1)},
+$$
+
+and define the subsequent endpoints recursively by
+
+$$
+k_{r+1}=2^{k_r}+1.
+$$
+
+These endpoints determine intervals of integer step counts
+
+$$
+[k_1,k_2),\ [k_2,k_3),\ldots.
+$$
+
+Consider the first $N(i)+1$ such intervals. There are $N(i)$ machine-input pairs but $N(i)+1$ intervals. Since each pair can have only one halting time, it can place a halting time in at most one interval. Consequently, at least one of the $N(i)+1$ intervals contains no halting time of any of the machines $M_0,\ldots,M_i$ on any input of length $i$.
+
+Suppose that the empty interval is $[k_r,k_{r+1})$. By construction,
+
+$$
+k_{r+1}=2^{k_r}+1.
+$$
+
+Therefore none of the considered computations halts at any integer step from $k_r$ through $2^{k_r}$. Every computation either halts before $k_r$ or has not halted within $2^{k_r}$ steps. Hence
+
+$$
+P(i,k_r)\text{ is true}.
+$$
+
+We can now define $f(i)$ as the left endpoint of the first interval in this sequence that contains no halting time, or equivalently as the first $k_r$ for which $P(i,k_r)$ is true:
+
+$$
+f(i)=k_r\quad\text{for the least }r\text{ such that }P(i,k_r)\text{ holds}.
+$$
+
+Choose a fixed positive starting value for $f(0)$. The use of $2^{f(i-1)}$ as the first endpoint makes the resulting function increasing.
+
+### Why the constructed function is computable
+
+To compute $f(i)$:
+
+1. Compute $f(0),f(1),\ldots,f(i-1)$ recursively, so that the first endpoint $k_1$ is known.
+2. Compute the finite number $N(i)$.
+3. Generate the endpoints $k_1,k_2,\ldots$ in order.
+4. Test $P(i,k_r)$ for each candidate, stopping at the first true value.
+
+Every predicate test is decidable. The pigeonhole argument proves that a successful candidate occurs among the first $N(i)+1$ intervals. Thus the search terminates, and $f$ is computable. The search may be extremely expensive; computability alone does not make the function proper.
+
+## Proving the equality of the two time classes
+
+We prove both inclusions.
+
+### From $\operatorname{TIME}(f(n))$ to $\operatorname{TIME}(2^{f(n)})$
+
+This direction is immediate. Since $f(n)\leq 2^{f(n)}$ for positive $f(n)$, a machine that runs in time $O(f(n))$ also runs in time $O(2^{f(n)})$. Therefore
+
+$$
+\operatorname{TIME}(f(n))\subseteq\operatorname{TIME}(2^{f(n)}).
+$$
+
+### From $\operatorname{TIME}(2^{f(n)})$ to $\operatorname{TIME}(f(n))$
+
+Let $L\in\operatorname{TIME}(2^{f(n)})$. There is a deterministic Turing machine $M_s$ that decides $L$ and halts on every input $x$ of length $n$ within at most $2^{f(n)}$ steps.
+
+Now take any $n\geq s$. The predicate $P(n,f(n))$ is true by the definition of $f(n)$. Since $s\leq n$, it applies to the machine $M_s$ and every input $x$ of length $n$. Thus, for each such input, one of the following must hold:
+
+- $M_s(x)$ halts in fewer than $f(n)$ steps;
+- $M_s(x)$ does not halt within $2^{f(n)}$ steps.
+
+The second possibility is excluded because $M_s$ is a decider that halts within at most $2^{f(n)}$ steps. Hence, for every input of length $n\geq s$, the machine actually halts in fewer than $f(n)$ steps.
+
+There are only finitely many strings whose lengths are smaller than $s$. The decision for these short inputs can be built into a modified machine using a finite lookup table (equivalently, a finite-state procedure for this finite set). This changes only finitely many input lengths and does not change the asymptotic time class. The proper-bound assumptions used for the time classes absorb this finite initial range.
+
+We have therefore obtained a machine deciding $L$ in time $O(f(n))$, so
+
+$$
+\operatorname{TIME}(2^{f(n)})\subseteq\operatorname{TIME}(f(n)).
+$$
+
+Combining the two inclusions proves the Gap Theorem.
+
+## Why the gap matters for proper functions
+
+The construction gives a computable function for which the two time classes coincide. If this function also satisfied the properness conditions required by the deterministic time hierarchy theorem, that theorem would force the corresponding time classes to be strictly different. This would contradict the equality just proved.
+
+Thus the construction establishes both points emphasized in the lecture:
+
+- there are computable functions that are not proper;
+- for one such function, even the exponential increase from $f(n)$ to $2^{f(n)}$ leaves the deterministic time class unchanged.
+
+The gap is not a claim that all time bounds behave this way. It shows why the hierarchy theorem needs its properness hypothesis.
+
+# Relationships Between Time and Space Complexity
+
+We now consider the standard relationships between deterministic and nondeterministic time and space. The statements below use the proper resource-bound assumptions made in the course. In particular, when $f(n)$ is used as a time bound, it is assumed to be at least linear. Space bounds may be smaller than $\log n$; this is relevant to the exponential bounds below.
+
+Here, $\operatorname{TIME}(f(n))$ and $\operatorname{SPACE}(f(n))$ refer to deterministic machines, while $\operatorname{NTIME}(f(n))$ and $\operatorname{NSPACE}(f(n))$ refer to nondeterministic machines. Constants in the exponential bounds are stated explicitly because they may depend on the machine.
+
+::: {.theorem-box}
+<div class="theorem-title">Time and Space Containments</div>
+
+For a proper resource bound $f(n)$, the following inclusions hold:
+
+1. $\operatorname{SPACE}(f(n))\subseteq\operatorname{NSPACE}(f(n))$.
+2. $\operatorname{TIME}(f(n))\subseteq\operatorname{NTIME}(f(n))$.
+3. $\operatorname{TIME}(f(n))\subseteq\operatorname{SPACE}(f(n))$.
+4. $\operatorname{SPACE}(f(n))\subseteq\operatorname{TIME}\!\left(c^{f(n)+\log n}\right)$.
+5. $\operatorname{NTIME}(f(n))\subseteq\operatorname{SPACE}(f(n))$.
+6. $\operatorname{NSPACE}(f(n))\subseteq\operatorname{TIME}\!\left(c^{f(n)+\log n}\right)$.
+
+In statements 4 and 6, $c>1$ is a constant that may depend on the machine (and hence on the language being decided). The class inclusion allows the appropriate constant for each machine.
+:::
+
+## The immediate inclusions
+
+The first three statements follow directly from the definitions.
+
+1. A deterministic machine is a special case of a nondeterministic machine: it simply has one possible next move at each step. Allowing nondeterministic choices cannot reduce the set of languages that can be decided within the same space bound. Hence
+   $$
+   \operatorname{SPACE}(f(n))\subseteq\operatorname{NSPACE}(f(n)).
+   $$
+2. The same reasoning applies to time. A deterministic computation is one possible form of a nondeterministic computation, so
+   $$
+   \operatorname{TIME}(f(n))\subseteq\operatorname{NTIME}(f(n)).
+   $$
+3. In $f(n)$ computation steps, a Turing machine cannot visit more than $O(f(n))$ tape cells: in one step, a head can move by at most one cell. Therefore a time bound also gives a space bound:
+   $$
+   \operatorname{TIME}(f(n))\subseteq\operatorname{SPACE}(f(n)).
+   $$
+
+## From nondeterministic time to deterministic space
+
+We prove inclusion 5:
+
+$$
+\operatorname{NTIME}(f(n))\subseteq\operatorname{SPACE}(f(n)).
+$$
+
+Let $L\in\operatorname{NTIME}(f(n))$. By definition, there is a nondeterministic Turing machine $N$ that decides $L$ and whose computation branches halt within at most $f(n)$ steps on inputs of length $n$.
+
+A computation of $N$ can be represented as a tree. Each node is a configuration, and its children are the configurations reachable by one of the possible nondeterministic moves. A deterministic machine can decide whether an accepting branch exists by exploring this tree depth first and backtracking when a branch does not accept.
+
+The deterministic simulation stores:
+
+- the current simulated configuration of $N$;
+- an additional record of the nondeterministic choices made along the current branch, so that it can return to a previous choice and try the next one.
+
+The number of choices on a branch is at most $f(n)$. Since the branching degree of the fixed machine is bounded by a constant, each choice requires only a constant number of bits, and the additional choice record uses $O(f(n))$ space. The simulated machine itself also uses at most $O(f(n))$ space, because a computation of at most $f(n)$ steps cannot visit more than that many tape cells.
+
+When a branch fails, the deterministic simulation changes the last available choice and replays the corresponding branch from its beginning. It reuses the same simulated working space; it does not keep a separate copy of the work tape for every branch. The total space is therefore still $O(f(n))$.
+
+```{mermaid}
+%%| fig-cap: "The nondeterministic computation branches; a deterministic depth-first simulation explores one branch at a time and backtracks to try alternatives."
+flowchart TD
+    S["Initial configuration"] --> A["Choice 1"]
+    S --> B["Choice 2"]
+    A --> A1["Choice 1.1"]
+    A --> A2["Choice 1.2"]
+    B --> B1["Choice 2.1"]
+    B --> B2["Choice 2.2"]
+    A1 --> Y["Accept"]
+    A2 --> R["Reject"]
+    B1 --> R
+    B2 --> Y
+```
+
+The simulation may take much more time than the original nondeterministic computation, because it can inspect many branches. The point of this argument is that it uses only $O(f(n))$ space. Consequently,
+
+$$
+L\in\operatorname{SPACE}(f(n)),
+$$
+
+which proves inclusion 5.
+
+## From nondeterministic space to deterministic time: reachability
+
+The sixth inclusion is proved by turning the computation into a finite directed graph and deciding a reachability problem on that graph. This is the reachability method emphasized in the lecture.
+
+Let $N$ be a nondeterministic Turing machine with input and output tapes and $k-2$ working tapes, using at most $f(n)$ space on inputs of length $n$. Assume that $N$ decides the language $L$.
+
+### Configurations of the machine
+
+Fix an input $x$ of length $n$. A configuration records the information needed to determine the next move:
+
+- the current state $q$;
+- the position $j$ of the head on the read-only input tape, where $1\leq j\leq n+1$;
+- the contents of the working tapes and the position of each working-tape head.
+
+For a working tape, its content can be represented by two strings: $u_r$ to the left of the head and $v_r$ at and to the right of the head. The configuration can therefore be written in the form
+
+$$
+C=(q,j,u_2,v_2,\ldots,u_{k-1},v_{k-1}).
+$$
+
+The input string itself is fixed, so it need not be copied into every configuration. The output tape is write-only: its contents cannot be read to influence future transitions. Since the machine is deciding a language, the output is not relevant to whether an accepting computation exists, and that tape can be omitted from the configuration description. The accepting and rejecting states are included as two distinguished states, denoted YES and NO.
+
+### Counting the configurations
+
+Let $\mathcal{K}$ be the set of ordinary states of $N$, and let $\Sigma$ be its tape alphabet. The number of choices for the state, including the two distinguished halting states, is $|\mathcal{K}|+2$. The input head has $n+1$ possible positions.
+
+Each of the $k-2$ working tapes is represented by two strings, each of length at most $f(n)$. The number of strings of length at most $f(n)$ over $\Sigma$ is
+
+$$
+\sum_{\ell=0}^{f(n)}|\Sigma|^\ell.
+$$
+
+It follows that the number $V$ of possible configurations is bounded by
+
+$$
+V\leq (|\mathcal{K}|+2)(n+1)
+\left(\sum_{\ell=0}^{f(n)}|\Sigma|^\ell\right)^{2(k-2)}.
+$$
+
+For a fixed machine, its state set, tape alphabet and number of tapes are constants. Their contribution can therefore be absorbed into a constant base $c>1$. The factor $n+1$ contributes the $\log n$ term in the exponent. Thus
+
+$$
+V\leq c^{f(n)+\log n}
+$$
+
+for a suitable machine-dependent constant $c$.
+
+The $\log n$ term is important. In a space-bounded computation, $f(n)$ may be smaller than $\log n$ (for example, it may be constant or $\log\log n$). Even then, the input head can occupy any of the $n+1$ positions, and these possibilities must be counted.
+
+### The configuration graph
+
+Define a directed graph $G_{N,x}$ as follows:
+
+- each node represents a possible configuration of $N$ on input $x$;
+- there is a directed edge from configuration $C$ to configuration $C'$ if one legal transition of $N$ can take $C$ to $C'$.
+
+The graph is finite because the space bound restricts the number of possible configurations. Its edges represent the possible nondeterministic moves. All accepting configurations can be identified with a single YES node, and all rejecting configurations with a single NO node. The initial configuration reaches YES if and only if at least one computation branch of $N$ accepts $x$.
+
+```{mermaid}
+%%| fig-cap: "The computation is represented as a directed graph; membership is equivalent to reachability of the accepting node from the initial configuration."
+flowchart LR
+    I["Initial configuration"] --> C1["Configuration 1"]
+    I --> C2["Configuration 2"]
+    C1 --> C3["Configuration 3"]
+    C2 --> C3
+    C2 --> R["NO"]
+    C3 --> A["YES"]
+```
+
+A deterministic algorithm can construct or explore this finite graph and solve the corresponding reachability problem. The graph has at most $V$ nodes, and each configuration has only a machine-dependent finite number of possible next moves. A standard graph search therefore takes time polynomial in the size of the graph. Since
+
+$$
+V\leq c^{f(n)+\log n},
+$$
+
+any fixed polynomial in $V$ can be absorbed by increasing the constant base. The resulting deterministic running time is bounded by
+
+$$
+ c'^{\,f(n)+\log n}
+$$
+
+for another constant $c'>1$ depending on the machine. Hence
+
+$$
+\operatorname{NSPACE}(f(n))
+\subseteq
+\operatorname{TIME}\!\left(c^{f(n)+\log n}\right).
+$$
+
+This proves inclusion 6.
+
+### Why the graph viewpoint is useful
+
+The graph construction illustrates a general way to reason about computations. A system is given an operational semantics that describes its possible steps; these steps define a directed graph whose nodes are system configurations. A property of the graph can then express a property of the system. Here, the property is reachability: does the initial configuration have a path to an accepting configuration?
+
+The same viewpoint applies whether the computation comes from a program or from a protocol in which components exchange messages. The graph may be very large, but for a fixed input and a fixed space bound it is finite. An infinite state graph in another setting does not, by itself, imply that every property of interest is undecidable; the relevant question is whether the property can be decided for the graph at hand.
+
+## The remaining containment
+
+The fourth inclusion follows immediately from the first and the sixth. By inclusion 1,
+
+$$
+\operatorname{SPACE}(f(n))\subseteq\operatorname{NSPACE}(f(n)),
+$$
+
+and by inclusion 6,
+
+$$
+\operatorname{NSPACE}(f(n))
+\subseteq
+\operatorname{TIME}\!\left(c^{f(n)+\log n}\right).
+$$
+
+Combining them gives
+
+$$
+\operatorname{SPACE}(f(n))
+\subseteq
+\operatorname{TIME}\!\left(c^{f(n)+\log n}\right),
+$$
+
+which is inclusion 4. Thus the two nontrivial arguments in this part of the lecture are the depth-first simulation for inclusion 5 and the configuration-graph reachability argument for inclusion 6; the other containments follow directly from the definitions or from these results.

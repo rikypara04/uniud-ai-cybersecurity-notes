@@ -64,6 +64,12 @@ website:
           - href: 01-complexity-information-theory/notes/14-reachability-proper-functions-and-complements.qmd
             text: "Reachability, Proper Complexity Bounds, and Complements"
 
+          - href: 01-complexity-information-theory/notes/15-deterministic-time-hierarchy.qmd
+            text: "The Deterministic Time Hierarchy Theorem"
+
+          - href: 01-complexity-information-theory/notes/16-gap-theorem-and-time-space-relationships.qmd
+            text: "The Gap Theorem and Relationships Between Time and Space Complexity"
+
       - section: "Automated Reasoning"
         contents:
           - href: 02-automated-reasoning/index.qmd

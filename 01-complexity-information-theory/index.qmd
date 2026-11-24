@@ -25,6 +25,8 @@ page-layout: full
   <li><a href="notes/12-time-and-space-complexity-classes.qmd">Time and Space Complexity Classes</a></li>
   <li><a href="notes/13-random-access-machines-and-nondeterministic-complexity.qmd">Random-Access Machines and Nondeterministic Complexity</a></li>
   <li><a href="notes/14-reachability-proper-functions-and-complements.qmd">Reachability, Proper Complexity Bounds, and Complements</a></li>
+  <li><a href="notes/15-deterministic-time-hierarchy.qmd">The Deterministic Time Hierarchy Theorem</a></li>
+  <li><a href="notes/16-gap-theorem-and-time-space-relationships.qmd">The Gap Theorem and Relationships Between Time and Space Complexity</a></li>
 </ul>
 </details>
 </div>

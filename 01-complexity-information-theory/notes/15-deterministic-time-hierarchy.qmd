@@ -1,0 +1,471 @@
+---
+title: "The Deterministic Time Hierarchy Theorem"
+subtitle: "Lecture 15 - 19 November 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+```{=html}
+<style>
+.theorem-box {
+  border: 2px solid #b02a37;
+  border-left: 0.55rem solid #b02a37;
+  border-radius: 0.45rem;
+  padding: 1rem 1.15rem 0.85rem;
+  margin: 1.25rem 0;
+  background: rgba(176, 42, 55, 0.07);
+}
+.theorem-box > :first-child { margin-top: 0; }
+.theorem-box > :last-child { margin-bottom: 0; }
+.theorem-title {
+  color: #b02a37;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+@media (prefers-color-scheme: dark) {
+  .theorem-box {
+    background: rgba(255, 107, 122, 0.10);
+    border-color: #ff6b7a;
+  }
+  .theorem-title { color: #ff8a96; }
+}
+.tape-figure {
+  border: 1px solid var(--bs-border-color, #888);
+  border-radius: 0.45rem;
+  padding: 0.8rem 1rem;
+  margin: 1rem 0 0.35rem;
+  background: var(--bs-tertiary-bg, rgba(127, 127, 127, 0.06));
+}
+.tape-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0.5rem 0;
+}
+.tape-label {
+  flex: 0 0 9rem;
+  font-weight: 600;
+}
+.tape-cells {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+.tape-cell {
+  display: inline-flex;
+  min-width: 3.6rem;
+  min-height: 2.1rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.45rem;
+  border: 1px solid var(--bs-border-color, #888);
+  background: var(--bs-body-bg, #fff);
+  color: var(--bs-body-color, #222);
+  font-family: var(--bs-font-monospace, monospace);
+}
+.tape-caption {
+  margin: 0.35rem 0 1rem;
+  color: var(--bs-secondary-color, #666);
+  font-size: 0.92rem;
+}
+@media (max-width: 600px) {
+  .tape-row { align-items: flex-start; flex-direction: column; gap: 0.25rem; }
+  .tape-label { flex-basis: auto; }
+}
+</style>
+```
+
+# From the Halting Theorem to a Time Hierarchy
+
+The lecture begins with a question about the usefulness of proper time bounds: could substantially different proper functions nevertheless define the same deterministic time class? The time hierarchy theorem gives a precise separation result. It does not say that every pair of distinct functions gives different classes; rather, it constructs a language that can be decided within one bound but cannot be decided within a sufficiently smaller one.
+
+> **Notation note.** The opening question includes an illustrative equality involving an exponential-looking time bound. The handwritten exponent is not unambiguous enough to reproduce as a formula, so the chapter preserves the question it motivates rather than guessing its exact expression.
+
+The starting point is the halting problem. Its undecidability is familiar, but its formulation through encoded Turing machines is also the model needed for the quantitative result.
+
+## Encoding a Turing machine
+
+Write a deterministic Turing machine as
+
+$$
+M=(K,\Sigma,\delta,s),
+$$
+
+where:
+
+- $K$ is the finite set of states;
+- $\Sigma$ is the tape alphabet;
+- $\delta$ is the transition function;
+- $s$ is the initial state.
+
+A machine can be represented by a finite binary string, denoted by $\langle M\rangle$. The lecture's encoding assigns distinct integer codes to the objects used by the machine. One possible assignment, following the notes, is:
+
+| Object | Assigned codes |
+|---|---|
+| Ordinary states | $1,2,\ldots,|K|$ |
+| Accepting and rejecting outcomes | $|K|+1$ and $|K|+2$ |
+| Tape symbols | $|K|+3,\ldots,|K|+|\Sigma|+2$ |
+| Moves right, left and stay | $|K|+|\Sigma|+3$, $|K|+|\Sigma|+4$ and $|K|+|\Sigma|+5$ |
+
+The transition function is encoded as a sequence of tuples. Each component of a tuple is replaced by its assigned integer code, and the resulting description is written in binary. The encoding therefore contains enough information to recover the states, tape symbols, head moves and transition rules of $M$.
+
+The exact integer codes are a convention. What matters is that the representation is finite, unambiguous and effectively decodable.
+
+## Universal simulation and the halting language
+
+A universal Turing machine $U$ takes an encoded machine and an input string. It simulates the encoded machine on that input:
+
+$$
+U(\langle M\rangle,x)\text{ simulates }M(x).
+$$
+
+In the simulation, one tape contains the description of $M$, another contains the input $x$, and working tape space is used to keep track of the current simulated configuration. A configuration records the current state, the tape contents and the head positions. To simulate one transition, the universal machine reads the current configuration, consults the encoded transition function $\delta$, and updates the configuration.
+
+The halting language is
+
+$$
+H=\{\langle M,x\rangle\mid M(x)\downarrow\},
+$$
+
+where $M(x)\downarrow$ means that $M$ eventually halts on $x$, either by accepting or by rejecting.
+
+::: {.theorem-box}
+<div class="theorem-title">Halting Theorem</div>
+
+The halting language $H$ is enumerable (Turing-recognizable), but it is not decidable.
+:::
+
+To recognize $H$, simulate $M$ on $x$ and accept as soon as the simulation halts. This procedure accepts every pair in $H$. If $M$ never halts, the simulation also continues forever, so it does not provide a decision procedure for non-members. The halting theorem states that no alternative Turing machine can decide all such pairs.
+
+This distinction motivates the next step. For an unbounded computation, a simulator may run forever. If a time limit is supplied, however, the simulator can stop when the limit is reached and return a negative answer. The bounded version is therefore decidable.
+
+# Proper Time Bounds and Bounded Acceptance
+
+For a function $f:\mathbb{N}\to\mathbb{N}$, the deterministic time class $\mathrm{TIME}(f(n))$ consists of the languages decidable by a deterministic Turing machine in $O(f(n))$ steps, where $n$ is the length of the input.
+
+The lecture assumes that $f$ is a **proper function** in the sense established earlier in the course. The properties used here are that $f$ can be computed effectively in unary with controlled resource usage and that
+
+$$
+f(n)\geq n.
+$$
+
+Computing the value in unary is useful because it gives the simulator an explicit representation of the number of steps it is allowed to perform. The lower bound $f(n)\geq n$ allows input-length and encoding overheads to be absorbed into the time bound.
+
+## The bounded halting language
+
+For a proper function $f$, define
+
+$$
+H_f=\left\{\langle M,x\rangle\;\middle|\;
+M(x)\text{ accepts within at most }f(|x|)+5|x|+4\text{ steps}\right\}.
+$$
+
+Here, acceptance means that the simulated machine enters its accepting, or **yes**, state within the stated number of transitions. A computation that rejects, does not halt before the limit, or accepts only after the limit does not put the pair in $H_f$.
+
+The input to the language is the encoded pair $\langle M,x\rangle$. When a time class is written for this language, its input length $n$ is the length of the whole pair encoding; the clock in the definition of $H_f$ is based on the length $|x|$ of the simulated input.
+
+The additive term $5|x|+4$ is a deliberate technical allowance. The diagonal machine constructed later has to copy its input in order to form a pair of the form $\langle M,M\rangle$. In the encoding used in the lecture, this copy takes at most $5|M|+4$ steps. The allowance makes the diagonal machine's own computation fit inside the acceptance bound. A different encoding or copying routine could require a different fixed linear overhead; the proof would then use that overhead consistently.
+
+A bounded simulator can decide $H_f$:
+
+```{mermaid}
+%%| fig-cap: "The bounded simulator stops when the simulated machine accepts, rejects, or reaches the prescribed time limit."
+flowchart TD
+  A["Input: encoded pair (M, x)"] --> B["Compute the step limit"]
+  B --> C["Write the initial configuration of M on x"]
+  C --> D["Simulate one transition of M"]
+  D --> E{"Has M accepted?"}
+  E -- "Yes" --> F["Accept the pair"]
+  E -- "No" --> G{"Has M rejected or reached the limit?"}
+  G -- "Yes" --> H["Reject the pair"]
+  G -- "No" --> D
+```
+
+The machine always halts: it either observes an accepting or rejecting configuration, or completes the prescribed number of simulated steps. This is exactly what was missing in the unbounded halting problem.
+
+# The Deterministic Time Hierarchy Theorem
+
+The language $H_f$ is the witness used to separate two time bounds. One part of the theorem shows that bounded acceptance can be decided within a cubic bound. The other shows that no machine running within the smaller bound can decide it.
+
+In the statement below, $n$ denotes the length of the encoded input pair.
+
+::: {.theorem-box}
+<div class="theorem-title">Deterministic Time Hierarchy Theorem — lecture form</div>
+
+Let $f:\mathbb{N}\to\mathbb{N}$ be a proper function with $f(n)\geq n$, and let
+
+$$
+H_f=\left\{\langle M,x\rangle\mid
+M(x)\text{ accepts within }f(|x|)+5|x|+4\text{ steps}\right\}.
+$$
+
+Then:
+
+1. $H_f\in\mathrm{TIME}(f(n)^3)$.
+2. $H_f\notin\mathrm{TIME}\bigl(f(\lfloor n/2\rfloor)\bigr)$.
+:::
+
+The two statements have different roles. Part 1 constructs a sufficiently efficient bounded simulator. Part 2 proves that no machine operating within the smaller time bound can decide the same language.
+
+## Corollary: a strict separation between time classes
+
+The theorem gives the following consequence, also recorded in the lecture:
+
+::: {.theorem-box}
+<div class="theorem-title">Corollary: strict time-class separation</div>
+
+For a proper function $f$ with $f(n)\geq n$,
+
+$$
+\mathrm{TIME}(f(n))\subsetneq
+\mathrm{TIME}\bigl((f(2n+1))^3\bigr).
+$$
+:::
+
+The idea is to apply the theorem to the rescaled proper function $g(n)=f(2n+1)$. Its upper bound is
+
+$$
+g(n)^3=(f(2n+1))^3,
+$$
+
+while its lower-bound exclusion is based on
+
+$$
+g(\lfloor n/2\rfloor)
+=f\bigl(2\lfloor n/2\rfloor+1\bigr).
+$$
+
+The argument of $f$ here is $n$ when $n$ is odd and $n+1$ when $n$ is even. Using the monotonicity of the proper bound, this is at least $f(n)$. Consequently, the witness supplied by the theorem is not in $\mathrm{TIME}(f(n))$, even though it belongs to the larger class with the cubic bound.
+
+# Consequences for P, NP and EXP
+
+Recall the standard definitions
+
+$$
+\mathrm{P}=\bigcup_{k\in\mathbb{N}}\mathrm{TIME}(n^k)
+$$
+
+and
+
+$$
+\mathrm{EXP}=\bigcup_{k\in\mathbb{N}}\mathrm{TIME}(2^{n^k}).
+$$
+
+Every fixed-degree polynomial is eventually bounded by $2^n$, so
+
+$$
+\mathrm{P}\subseteq\mathrm{TIME}(2^n).
+$$
+
+Apply the time-class separation corollary with $f(n)=2^n$. It gives
+
+$$
+\mathrm{TIME}(2^n)
+\subsetneq
+\mathrm{TIME}\bigl((2^{2n+1})^3\bigr)
+=
+\mathrm{TIME}(2^{6n+3}).
+$$
+
+The right-hand class is contained in $\mathrm{EXP}$, since an exponential with a linear exponent is bounded by an exponential of a polynomial exponent. Thus
+
+$$
+\mathrm{P}
+\subseteq\mathrm{TIME}(2^n)
+\subsetneq\mathrm{TIME}(2^{6n+3})
+\subseteq\mathrm{EXP},
+$$
+
+which proves the strict containment below.
+
+::: {.theorem-box}
+<div class="theorem-title">Polynomial time is strictly smaller than exponential time</div>
+
+$$
+\mathrm{P}\subsetneq\mathrm{EXP}.
+$$
+:::
+
+## What this says about P versus NP
+
+The inclusions established in earlier lectures are
+
+$$
+\mathrm{P}\subseteq\mathrm{NP}\subseteq\mathrm{EXP}.
+$$
+
+Together with $\mathrm{P}\neq\mathrm{EXP}$, they imply that at least one of the two inclusions must be strict:
+
+$$
+\mathrm{P}\neq\mathrm{NP}
+\qquad\text{or}\qquad
+\mathrm{NP}\neq\mathrm{EXP}.
+$$
+
+The “or” is not exclusive: both inequalities may hold. The time hierarchy theorem does **not** determine which inclusion is strict, and therefore does not settle whether $\mathrm{P}=\mathrm{NP}$.
+
+The lecture uses SAT to make the significance of the open question concrete. SAT is NP-complete. If a deterministic polynomial-time algorithm for SAT were found, then every language in NP could be decided in polynomial time by reducing it to SAT. This would imply
+
+$$
+\mathrm{P}=\mathrm{NP}.
+$$
+
+A faster-than-exponential algorithm is not necessarily a polynomial-time algorithm. The lecture's brief remark about the Exponential Time Hypothesis (ETH) and a claimed improvement for SAT is not recoverable unambiguously. The handwritten annotation says that ETH is false, but the adjoining sentence and the spoken explanation do not consistently establish whether SAT was said to be solvable or not solvable in less than an exponential bound. The chapter therefore does not present a refutation of ETH as an established fact. The point that can be retained without assuming a particular claim about its status is that being faster than an exponential-time bound does not, by itself, mean being polynomial-time, and therefore does not by itself imply $\mathrm{P}=\mathrm{NP}$.
+
+# Proof of the Time Hierarchy Theorem
+
+## Part 1: deciding $H_f$ in cubic time
+
+We construct a machine $M_f$ that decides $H_f$. On input $\langle M,x\rangle$, it performs the following steps:
+
+1. Copy the input data needed for the simulation.
+2. Compute the bound $f(|x|)+5|x|+4$ in unary.
+3. Store the initial configuration of $M$ on input $x$.
+4. Simulate at most that many transitions of $M$.
+5. Accept if the simulated machine reaches its yes state within the limit; otherwise reject.
+
+The initial configuration has the start state $s$, the input string $x$ on the appropriate tape, and blank symbols in the other tape cells. During the simulation, the working tape stores the current encoded configuration. At each **macro-step**, $M_f$ reads that configuration, consults the transition table encoded in $\langle M\rangle$, applies the corresponding change, and writes the next configuration.
+
+The tape organization is schematic: it distinguishes the fixed machine description, the simulated input and the working record of the simulated machine's configuration.
+
+<div class="tape-figure" role="group" aria-label="Schematic tapes used by the universal simulator">
+  <div class="tape-row">
+    <span class="tape-label">Description tape</span>
+    <div class="tape-cells"><span class="tape-cell">encoded M</span></div>
+  </div>
+  <div class="tape-row">
+    <span class="tape-label">Input tape</span>
+    <div class="tape-cells"><span class="tape-cell">x</span><span class="tape-cell">blank</span><span class="tape-cell">blank</span></div>
+  </div>
+  <div class="tape-row">
+    <span class="tape-label">Working tape</span>
+    <div class="tape-cells"><span class="tape-cell">current state</span><span class="tape-cell">tape contents</span><span class="tape-cell">head positions</span></div>
+  </div>
+</div>
+<p class="tape-caption">Schematic of the simulator's records. The working tape stores the encoded configuration that is updated at each macro-step.</p>
+
+### Counting the steps
+
+Let $n$ be the length of the encoded input pair. Since $|x|\leq n$, the number of simulated transitions is at most
+
+$$
+f(|x|)+5|x|+4=O(f(n)),
+$$
+
+using the growth condition $f(n)\geq n$ and the properness assumptions on $f$.
+
+It remains to count the cost of one macro-step. If $M$ has $k$ tapes, then during a computation of $O(f(n))$ transitions, each simulated tape can use at most $O(f(n))$ cells. The encoded configuration therefore has length
+
+$$
+O(k f(n)).
+$$
+
+The simulator may need to scan this record, as well as the encoded transition information, to find the appropriate transition and update the configuration. The number $k$ is not a fixed constant here: $M$ is part of the input, so the number of tapes of the machine being simulated may vary. Its encoding is part of the input of length $n$, and hence $k\leq n\leq f(n)$. Therefore, the cost of one macro-step is bounded by
+
+$$
+O(k f(n))=O(f(n)^2).
+$$
+
+There are $O(f(n))$ macro-steps, so the total simulation time is
+
+$$
+O(f(n))\cdot O(f(n)^2)=O(f(n)^3).
+$$
+
+The initial copying and the computation of the unary time limit fit within this bound. Thus
+
+$$
+H_f\in\mathrm{TIME}(f(n)^3).
+$$
+
+The cubic estimate is a convenient upper bound for this uniform simulation. The lecture notes that a more careful analysis can improve the estimate, but does not need a sharper bound for the hierarchy theorem.
+
+## Part 2: diagonalization
+
+We prove that
+
+$$
+H_f\notin\mathrm{TIME}\bigl(f(\lfloor n/2\rfloor)\bigr)
+$$
+
+by contradiction. Suppose that there is a deterministic machine $M_{H_f}$ deciding $H_f$ within at most $f(\lfloor n/2\rfloor)$ steps on inputs of length $n$.
+
+### Constructing the diagonal machine
+
+Construct a machine $D$ that, on input an encoded machine $M$:
+
+1. copies $M$ to form the pair $\langle M,M\rangle$;
+2. runs $M_{H_f}$ on this pair;
+3. returns the opposite answer.
+
+In particular,
+
+$$
+\begin{aligned}
+D(M)&=\text{yes} &&\Longleftrightarrow&& M_{H_f}(\langle M,M\rangle)=\text{no},\\
+D(M)&=\text{no}  &&\Longleftrightarrow&& M_{H_f}(\langle M,M\rangle)=\text{yes}.
+\end{aligned}
+$$
+
+The length of the encoded pair is $2|M|+1$ in the encoding used in the lecture. By the assumed time bound for $M_{H_f}$, its computation on this pair takes at most
+
+$$
+f\left(\left\lfloor\frac{2|M|+1}{2}\right\rfloor\right)
+=f(|M|)
+$$
+
+steps. Copying $M$ takes at most $5|M|+4$ steps. Consequently, the entire computation of $D(M)$ takes at most
+
+$$
+f(|M|)+5|M|+4
+$$
+
+steps. Since $M_{H_f}$ is assumed to be a decider, $D$ always halts.
+
+### Running $D$ on its own encoding
+
+Now consider the pair $\langle D,D\rangle$. By definition of $H_f$,
+
+$$
+M_{H_f}(\langle D,D\rangle)=\text{yes}
+$$
+
+if and only if $D(D)$ accepts within at most
+
+$$
+f(|D|)+5|D|+4
+$$
+
+steps. But the running-time calculation above shows that $D(D)$ always halts within precisely this allowed bound. Thus
+
+$$
+M_{H_f}(\langle D,D\rangle)=\text{yes}
+\quad\Longleftrightarrow\quad
+D(D)=\text{yes}.
+$$
+
+On the other hand, the construction of $D$ says that it returns the opposite of the answer of $M_{H_f}$ on the same pair. Therefore,
+
+$$
+D(D)=\text{yes}
+\quad\Longleftrightarrow\quad
+M_{H_f}(\langle D,D\rangle)=\text{no},
+$$
+
+which contradicts the preceding equivalence.
+
+The same contradiction can be seen by considering the two possible outputs:
+
+- If $D(D)=\text{no}$, then $M_{H_f}(\langle D,D\rangle)=\text{yes}$. The definition of $H_f$ would then say that $D(D)$ accepts within the allowed bound, contradicting its output.
+- If $D(D)=\text{yes}$, then $M_{H_f}(\langle D,D\rangle)=\text{no}$. This is impossible: $D(D)$ halts because $M_{H_f}$ is a decider; it does not reject; and it cannot accept after the allowed bound because its running time was shown to be at most that bound.
+
+Both possibilities lead to a contradiction. Hence no such decider $M_{H_f}$ exists, and
+
+$$
+H_f\notin\mathrm{TIME}\bigl(f(\lfloor n/2\rfloor)\bigr).
+$$
+
+This diagonal argument is the quantitative counterpart of the reasoning in the halting theorem: the constructed machine examines the answer of a purported decider on its own encoding and reverses that answer. Here, the additional time calculation ensures that the reversal takes place within the very time limit used to define $H_f$.
