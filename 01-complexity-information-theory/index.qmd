@@ -9,7 +9,7 @@ page-layout: full
 <p class="course-kicker">MSc Artificial Intelligence &amp; Cybersecurity</p>
 
 <details class="lecture-list" open>
-<summary>Lectures <span aria-hidden="true">(14)</span></summary>
+<summary>Lectures <span aria-hidden="true">(16)</span></summary>
 <ul>
   <li><a href="notes/01-introduction-to-information-theory.qmd">Introduction to Information Theory</a></li>
   <li><a href="notes/02-information-probability-and-random-variables.qmd">Information, Probability, and Random Variables</a></li>

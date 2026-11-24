@@ -13,7 +13,7 @@ page-layout: full
 </div>
 <div class="home-hero__stats" aria-label="Site overview">
 <div><strong>3</strong><span>courses</span></div>
-<div><strong>33</strong><span>lectures</span></div>
+<div><strong>36</strong><span>lectures</span></div>
 </div>
 </div>
 
@@ -25,7 +25,7 @@ page-layout: full
 <p>Information measures, coding, computability, and complexity.</p>
 </div>
 <details class="lecture-list" open>
-<summary>Available lectures <span aria-hidden="true">(14)</span></summary>
+<summary>Available lectures <span aria-hidden="true">(16)</span></summary>
 <ul>
   <li><a href="01-complexity-information-theory/notes/01-introduction-to-information-theory.qmd">Introduction to Information Theory</a></li>
   <li><a href="01-complexity-information-theory/notes/02-information-probability-and-random-variables.qmd">Information, Probability, and Random Variables</a></li>
@@ -53,7 +53,7 @@ page-layout: full
 <p>Constraint solving, logic programming, semantics, and reasoning methods.</p>
 </div>
 <details class="lecture-list" open>
-<summary>Available lectures <span aria-hidden="true">(13)</span></summary>
+<summary>Available lectures <span aria-hidden="true">(14)</span></summary>
 <ul>
   <li><a href="02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.qmd">Introduction to Automated Reasoning and Constraint Programming</a></li>
   <li><a href="02-automated-reasoning/notes/02-sat-encodings-and-dpll.qmd">SAT Encodings and DPLL</a></li>

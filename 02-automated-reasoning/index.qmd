@@ -9,7 +9,7 @@ page-layout: full
 <p class="course-kicker">MSc Artificial Intelligence &amp; Cybersecurity</p>
 
 <details class="lecture-list" open>
-<summary>Lectures <span aria-hidden="true">(13)</span></summary>
+<summary>Lectures <span aria-hidden="true">(14)</span></summary>
 <ul>
   <li><a href="notes/01-introduction-to-automated-reasoning-and-constraint-programming.qmd">Introduction to Automated Reasoning and Constraint Programming</a></li>
   <li><a href="notes/02-sat-encodings-and-dpll.qmd">SAT Encodings and DPLL</a></li>
