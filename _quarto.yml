@@ -115,6 +115,9 @@ website:
 
           - href: 02-automated-reasoning/notes/14-negation-program-completion-stable-models.qmd
             text: "Negation, Program Completion, and Stable Models"
+          
+          - href: 02-automated-reasoning/notes/15-stable-models-and-answer-set-programming.qmd
+            text: "Stable Models and Answer Set Programming"
 
       - section: "Foundations of Cybersecurity and Ethics"
         contents:
@@ -140,8 +143,8 @@ website:
             
       - section: "Module 2"
         contents:
-          - href: 03-foundations-cybersecurity-ethics/module-2/notes/01-verification-and-model-checking.qmd
-            text: "Verification and Validation Techniques: From Testing to Model Checking"
+          - href: 03-foundations-cybersecurity-ethics/module-2/notes/01-preliminaries-on-automata-theory.qmd
+            text: "Preliminaries on Automata Theory: Finite Words and Finite-State Automata"
 
 format:
   html:

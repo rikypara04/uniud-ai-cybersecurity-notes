@@ -1,0 +1,566 @@
+---
+title: "Stable Models and Answer Set Programming"
+subtitle: "Lecture 15 - 25 November 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+```{=html}
+<style>
+.formula-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  border: 1px solid #d0d7de;
+  border-radius: 0.5rem;
+  background: rgba(127,127,127,0.06);
+  -webkit-overflow-scrolling: touch;
+}
+.formula-scroll .MathJax_Display {
+  min-width: max-content;
+  margin: 0;
+}
+</style>
+```
+
+# Stable Models and Program Completion
+
+Stable-model semantics is introduced to give logic programs a meaning that supports non-monotonic, commonsense-style reasoning. A central difficulty is negation: adding information can invalidate a conclusion that was previously justified. In particular, the absence of a proof for an atom may be used as a reason to conclude its negation.
+
+This differs from monotonic reasoning, where adding premises cannot invalidate an earlier conclusion. The lecture highlights the following ideas:
+
+- Negated literals cause a loss of monotonicity.
+- Commonsense reasoning is generally non-monotone.
+- The meaning of a rule is not exhausted by reading it as a material logical implication.
+- Informally, when there are no reasons or proofs for believing an atom, one may adopt the opposite conclusion.
+- Stable-model semantics formalises this intuition through a guess-and-verify view of candidate models.
+
+The completion of a program is useful for identifying logical consequences and atoms that cannot belong to minimal models. The lecture states that stable models of a program are among the minimal models of its completion. The completion is therefore an important logical characterisation, but it does not by itself remove every non-minimal model.
+
+## A program and its completion
+
+Consider the program:
+
+```prolog
+p :- p.
+q :- p, not s.
+q :- not p, not s.
+s :- not q.
+```
+
+For an atom that occurs in rule heads, its completion expresses that the atom is true exactly when at least one of the bodies of the rules defining it is true. Applying this idea to the program gives:
+
+\[
+\begin{aligned}
+p &\leftrightarrow p,\\
+q &\leftrightarrow (p \land \neg s) \lor (\neg p \land \neg s),\\
+s &\leftrightarrow \neg q.
+\end{aligned}
+\]
+
+The first equivalence, \(p \leftrightarrow p\), imposes no restriction on the truth value of \(p\). The completion therefore permits models in which \(p\) is true even though the rule `p :- p.` does not provide an independent reason for introducing it.
+
+The slide identifies two minimal models of the completion, \(\{q\}\) and \(\{s\}\), and also points out that \(\{p,q\}\) is a model. The latter is not minimal because it has the proper subset \(\{q\}\), which is already a model. The example illustrates why minimality matters: satisfying the completion is not enough to guarantee that an atom is justified in the intended stable-model sense.
+
+| Set of atoms | Role in the example |
+|---|---|
+| \(\{q\}\) | A minimal model of the completion identified in the lecture. |
+| \(\{s\}\) | The other minimal model identified in the lecture. |
+| \(\{p,q\}\) | A model of the completion, but not a minimal one because \(\{q\}\subset\{p,q\}\). |
+
+The key point is not simply whether a set of atoms satisfies the completion. It is also whether the set is minimal with respect to set inclusion and whether its atoms have the support required by stable-model semantics.
+
+## Stable models among minimal models of the completion
+
+**Theorem.** Given a program \(P\), its stable models are among the minimal models of the completion of \(P\).
+
+In symbols, if \(\operatorname{Comp}(P)\) denotes the completion of \(P\), then every stable model of \(P\) is a minimal model of \(\operatorname{Comp}(P)\). The statement is a necessary relationship; it should not be read as saying that every model of the completion is stable.
+
+## Encoding the completion for a SAT solver
+
+A SAT solver can be used to find classical models of the formulas in the completion. The lecture considers a typical equivalence of the form
+
+\[
+H \leftrightarrow
+\left((\ell_1\land\cdots\land\ell_m)
+\lor
+(r_1\land\cdots\land r_n)\right),
+\]
+
+where the \(\ell_i\) and \(r_j\) are literals. To obtain a conjunctive normal form (CNF), the two directions of the equivalence are treated separately.
+
+Let
+
+\[
+L=\bigwedge_{i=1}^{m}\ell_i,
+\qquad
+R=\bigwedge_{j=1}^{n}r_j.
+\]
+
+The direction \(H\leftarrow(L\lor R)\), equivalently \((L\lor R)\to H\), becomes
+
+\[
+\left(H\lor\neg\ell_1\lor\cdots\lor\neg\ell_m\right)
+\land
+\left(H\lor\neg r_1\lor\cdots\lor\neg r_n\right).
+\]
+
+The other direction, \(H\to(L\lor R)\), becomes a conjunction containing one clause for each pair \((\ell_i,r_j)\):
+
+::: {.formula-scroll}
+\[
+\bigwedge_{i=1}^{m}\bigwedge_{j=1}^{n}
+\left(\neg H\lor\ell_i\lor r_j\right).
+\]
+:::
+
+Combining the two directions gives the following CNF representation:
+
+::: {.formula-scroll}
+\[
+\begin{aligned}
+&\left(H\lor\bigvee_{i=1}^{m}\neg\ell_i\right)
+\land
+\left(H\lor\bigvee_{j=1}^{n}\neg r_j\right)\\
+&\qquad\land
+\bigwedge_{i=1}^{m}\bigwedge_{j=1}^{n}
+\left(\neg H\lor\ell_i\lor r_j\right).
+\end{aligned}
+\]
+:::
+
+A SAT solver can find models of these CNF formulas. However, as the lecture emphasises, it can also return non-minimal models. The completion example above explains the distinction: a SAT solver may return a model such as \(\{p,q\}\), even though a smaller model \(\{q\}\) exists. Satisfiability of the completion and stable-model minimality are therefore different requirements.
+
+## A program with no stable models
+
+Consider:
+
+```prolog
+p :- not p, d.
+d.
+```
+
+The set \(\{p,d\}\) is a logical model when the rules are read as implications: the fact makes \(d\) true, while the body of the first rule is false when \(p\) is true. Nevertheless, the program has no stable models.
+
+Its completion is
+
+\[
+\begin{aligned}
+p &\leftrightarrow (\neg p\land d),\\
+d &\leftrightarrow \top.
+\end{aligned}
+\]
+
+The fact forces \(d\) to be true. The first equivalence then reduces to \(p\leftrightarrow\neg p\), which cannot be satisfied by either truth value of \(p\). Thus the completion has no classical model, and the program has no stable model.
+
+# Denials and Support
+
+A useful way to read the body of an ASP rule is as a justification for supporting the truth of its head. An atom belongs to an answer set only when it is supported by a rule whose body is true in that answer set. The lecture stresses one important exception: an occurrence of `not p` in a rule body cannot itself support the truth of `p`.
+
+For example:
+
+```prolog
+p :- not p, d.
+```
+
+The body does not provide support for `p`, because the only occurrence of `p` in the body is under default negation. The atom could still be supported by another rule with head `p`, if such a rule existed.
+
+## Replacing an unsupported self-negating rule with a denial
+
+If `p` does not occur as the head of any other rule in the program, the rule
+
+```prolog
+p :- not p, d.
+```
+
+has, from the answer-set point of view, the effect that `d` must be false. This can be expressed directly by a denial, also called a constraint:
+
+```prolog
+:- d.
+```
+
+A denial has no head. It rules out any candidate answer set in which its body is true. Thus `:- d.` rejects every candidate containing `d`.
+
+The lecture revisits this transformation with:
+
+```prolog
+a.
+p :- not p, a.
+```
+
+The fact makes `a` true, while the second rule does not provide support for `p`; the program has no stable models. The corresponding denial formulation is:
+
+```prolog
+a.
+:- a.
+```
+
+This is also inconsistent because the fact requires `a`, while the denial forbids it.
+
+A related question is obtained by replacing the fact with a choice:
+
+```prolog
+{a}.
+:- a.
+```
+
+The choice rule permits `a` to be selected or omitted, and the denial rejects every candidate that selects it. Consequently, the only permitted answer set is the empty set.
+
+# Stable Models, Answer Sets, and Non-deterministic Choices
+
+A program may have no stable models, exactly one stable model, or several stable models. The stable models of a program are also called its **answer sets**. Programming with the purpose of finding answer sets is called **Answer Set Programming (ASP)**.
+
+ASP is presented as a declarative programming paradigm for search problems. The lecture mentions applications in combinatorial optimisation, constraint satisfaction and artificial intelligence. Instead of specifying a sequence of computational steps, an ASP program describes choices and conditions that determine which answer sets are admissible.
+
+## Representing truth-tellers and liars
+
+Consider four students: Albert, Bob, Charlie and Dexter. The atom `a` represents that Albert tells the truth, while `na` represents that Albert is a liar. Exactly one of these two atoms is intended to be true. The same convention is used for Bob (`b`, `nb`), Charlie (`c`, `nc`) and Dexter (`d`, `nd`).
+
+| Student | Tells the truth | Is a liar |
+|---|---|---|
+| Albert | `a` | `na` |
+| Bob | `b` | `nb` |
+| Charlie | `c` | `nc` |
+| Dexter | `d` | `nd` |
+
+There are two alternatives for each of four students, so there are \(2^4=16\) possible worlds. The following pair of rules for Albert expresses the choice between the two alternatives:
+
+```prolog
+a  :- not na.
+na :- not a.
+```
+
+The complete program is:
+
+```prolog
+a  :- not na.    na :- not a.
+b  :- not nb.    nb :- not b.
+c  :- not nc.    nc :- not c.
+d  :- not nd.    nd :- not d.
+```
+
+Its answer sets contain exactly one atom from each pair:
+
+\[
+\{a,na\},\quad \{b,nb\},\quad
+\{c,nc\},\quad \{d,nd\}.
+\]
+
+There are therefore sixteen answer sets, one for each possible assignment of truth-teller/liar status to the four students.
+
+## Adding relationships between the choices
+
+The lecture then asks what happens if the following rules are added:
+
+```prolog
+a :- b.
+c :- nb.
+```
+
+The rules express two implications: if Bob tells the truth, Albert must tell the truth; if Bob is a liar, Charlie must tell the truth. They restrict which of the original sixteen combinations can remain answer sets. The slide poses this as a question and does not provide a solver enumeration, so no additional count of answer sets is assumed here.
+
+## Choice rules as syntactic sugar
+
+The pair
+
+```prolog
+a  :- not na.
+na :- not a.
+```
+
+can be written using the choice-rule notation:
+
+```prolog
+{a}.
+```
+
+This is the compact form presented in the lecture. It allows the atom `a` to be selected or not selected. The same shorthand can be used for the other individual choices in the truth-teller example.
+
+## Denials revisited with a choice rule
+
+The previous discussion of denials can be combined with a choice rule:
+
+```prolog
+{a}.
+:- a.
+```
+
+The choice rule generates the two possibilities concerning `a`; the denial removes the possibility in which `a` is present. The remaining answer set contains no `a`.
+
+# Complexity of Stable-Model Existence for Ground Programs
+
+The lecture next considers the computational complexity of deciding whether a program has at least one stable model.
+
+> **Theorem.** Given a ground program \(P\), deciding whether \(P\) admits an answer set (stable model) is **NP-complete**.
+
+A program is *ground* when its rules contain no variables. The proof of NP-completeness has two parts: membership in NP and NP-hardness.
+
+## Membership in NP
+
+A candidate stable model \(S\) needs to contain only atoms that occur in the ground program. Therefore, its size is bounded by the size of the program:
+
+\[
+|S|\leq |P|.
+\]
+
+The lecture's verification procedure is:
+
+1. Guess a candidate set of atoms \(S\).
+2. Compute the reduct \(P^S\) associated with the candidate.
+3. Compute the fixpoint model \(M_{P^S}\).
+4. Check whether \(S=M_{P^S}\).
+
+The computation of the reduct, the fixpoint computation and the final equality check are polynomial in \(|P|\). A candidate can therefore be guessed and verified in nondeterministic polynomial time, establishing membership in NP.
+
+## NP-hardness by reduction from 3SAT
+
+For hardness, the lecture considers the following 3CNF instance:
+
+\[
+\varphi=(A\lor\neg B\lor C)
+\land
+(\neg A\lor B\lor\neg C).
+\]
+
+Let the two clauses be denoted by \(c_1\) and \(c_2\). The program uses pairs of atoms to choose a truth value for each Boolean variable:
+
+```prolog
+a  :- not na.    na :- not a.
+b  :- not nb.    nb :- not b.
+c  :- not nc.    nc :- not c.
+```
+
+Here `a`, `b` and `c` represent the positive assignments, while `na`, `nb` and `nc` represent the corresponding negative assignments. Each answer set chooses exactly one atom from each pair.
+
+The clause atoms are derived from the literals that make the corresponding clause true:
+
+```prolog
+c1 :- a.
+c1 :- nb.
+c1 :- c.
+
+c2 :- na.
+c2 :- b.
+c2 :- nc.
+```
+
+Thus `c1` is supported when at least one of \(A\), \(\neg B\) or \(C\) is true. Similarly, `c2` is supported when at least one of \(\neg A\), \(B\) or \(\neg C\) is true.
+
+Finally, the program requires both clauses to be satisfied:
+
+```prolog
+satisfied :- c1, c2.
+:- not satisfied.
+```
+
+The first rule derives `satisfied` when both clause atoms hold. The denial rejects any answer set in which `satisfied` is absent. Consequently, the constructed program has a stable model if and only if the 3SAT instance is satisfiable.
+
+The construction can be computed in LOGSPACE, as stated in the lecture. This establishes NP-hardness. Together with membership in NP, it gives the NP-completeness result.
+
+# Answer Set Programming and Grounding
+
+ASP is used to encode search problems declaratively. The lecture emphasises that its expressive power is known in advance and that stable models provide the answer sets being searched for.
+
+The complexity result above applies to **ground** programs. ASP programs, however, are often written with variables. Before a conventional ASP solver can operate on the finite propositional program, a grounder instantiates those variables with values from the program's Herbrand universe.
+
+## The size of a grounding
+
+Let \(H_P\) be the Herbrand universe of a program \(P\). If \(H_P\) is infinite, then the grounding can be infinite as well. The lecture therefore considers the case in which \(H_P\) is finite and
+
+\[
+|H_P|=c.
+\]
+
+Suppose that \(P\) contains rules \(r_1,\ldots,r_n\), where \(n\leq |P|\). Let \(\alpha_i\) be the number of distinct variables occurring in rule \(r_i\). Each variable can be instantiated with one of the \(c\) elements of the Herbrand universe. The number of possible ground instances contributed by rule \(r_i\) is therefore bounded by \(c^{\alpha_i}\), and the total number of ground rule instances is bounded by
+
+\[
+\sum_{i=1}^{n} c^{\alpha_i}.
+\]
+
+Let
+
+\[
+k=\max_i\{\alpha_i\}
+\]
+
+and let \(h\) be the size of the largest rule. The lecture gives the following upper bound on the size of the ground program:
+
+\[
+|\operatorname{ground}(P)|\leq n h c^k.
+\]
+
+The bound makes the source of the growth explicit: the number of possible substitutions grows exponentially in the number \(k\) of distinct variables in a rule, when the domain size \(c\) is treated as a parameter greater than one.
+
+The slide also notes that \(c\) can be specified implicitly. For example, a range such as `p(1..1000)` represents many values without listing every value separately in the source. As a result, grounding may require exponential time with respect to the size of the compact input program. The lecture remarks that this is not necessarily bad news: intervals can also be used to encode problems outside NP.
+
+## Example: exponentially many ground instances
+
+Consider the program:
+
+```prolog
+bit(0).
+bit(1).
+
+exp(X1, X2, ..., Xn) :-
+    bit(X1), bit(X2), ..., bit(Xn).
+```
+
+Each variable \(X_i\) can be instantiated with either `0` or `1`. There are two possibilities for each of the \(n\) variables, so the rule has
+
+\[
+2^n
+\]
+
+possible ground instances. This example shows how a short non-ground rule can produce a very large ground program.
+
+# The ASP Solving Pipeline and Range Restrictions
+
+The usual ASP solving architecture separates grounding from search. The program is first transformed into a finite ground program; a solver then computes its answer sets.
+
+```{mermaid}
+%%| fig-cap: "The grounding and solving stages of the ASP pipeline"
+flowchart LR
+    P["Program P"] --> G["Grounder"]
+    G --> GP["Ground program ground(P)"]
+    GP --> S["Solver"]
+    S --> A["Answer set(s)"]
+```
+
+The ground program \(\operatorname{ground}(P)\) should be finite. To make this possible, the source program must satisfy appropriate range restrictions. The lecture compares this architecture with the MiniZinc pipeline:
+
+\[
+\text{MiniZinc}\;\longrightarrow\;\text{FlatZinc}\;\longrightarrow\;\text{Constraint Solver}.
+\]
+
+Two exceptions are mentioned: Asperix and GASP [DDPR09], which mix grounding and search. The slide notes that this approach has some advantages and many drawbacks, but does not elaborate on them in this lecture.
+
+## Domain predicates and strong range restriction
+
+The grounder must be able to determine a finite scope for the variables. The general rule introduced in the lecture is:
+
+> Every variable occurring in a rule must occur as an argument of a domain predicate that occurs positively in the body of that rule.
+
+A program satisfying this condition is called **strongly range restricted** in the lecture. The positive occurrence matters: a variable that appears only inside a default-negated literal is not bounded by that literal.
+
+Consider the examples:
+
+```prolog
+p(X).
+
+q(X,Y) :- r(X), not s(Y).
+```
+
+The fact `p(X).` has a variable in its head but no positive body predicate to restrict its values. In the second rule, `X` occurs in the positive body literal `r(X)` and can be bounded there if `r` is a domain predicate. However, `Y` occurs only in the default-negated literal `not s(Y)`, so it has no positive domain-predicate occurrence. The fact `p(X).` has no positive body at all. The two examples therefore fail the strong range-restriction condition.
+
+The lecture uses the following working definition of a **domain predicate**:
+
+- A predicate defined extensionally, by a set of ground facts, is a domain predicate.
+- A predicate defined by strongly range-restricted definite clauses is also a domain predicate.
+
+The lecturer explicitly recommends stopping at this notion for the course discussion, noting that a wider notion can be found in the literature. The chapter retains this restricted definition rather than importing the broader one.
+
+# ASP Tools and Clingo
+
+The lecture separates ASP tools into grounders and solvers.
+
+| Stage | Tools named in the lecture |
+|---|---|
+| Grounders (front ends) | LPARSE, DLV Grounder, GRINGO |
+| Solvers | SMODELS, CMODELS, DLV Solver, CLASP |
+
+The DLV system is mentioned together with its IDE, ASPIDE. The tool used in the course is **Clingo**, described in the slides as the combination of `gringo` and `clasp`:
+
+\[
+\text{Clingo}=\text{gringo}+\text{clasp}.
+\]
+
+The lecture identifies Clingo as developed at the University of Potsdam and describes it as the fastest tool. This is the characterisation given in the lecture, not a comparative benchmark established by this chapter. The implementation of the solvers is left for later analysis.
+
+## Installing Clingo
+
+The slide directs students to the official Clingo page:
+
+<https://potassco.org/clingo/>
+
+The installation procedure shown uses Anaconda. After installing Anaconda, open the Anaconda terminal and create and activate the environment:
+
+```bash
+conda create -n potassco -c conda-forge clingo
+conda activate potassco
+```
+
+The slide states that this procedure works on any operating system. It also mentions installing Clingo on Linux in the usual way, without giving further commands.
+
+## Executing an ASP program
+
+Assume that the program is stored in a file named `asp.lp`. The command shown in the lecture is:
+
+```bash
+clingo asp.lp n
+```
+
+The final argument `n` specifies how many stable models the solver should compute. The defaults described in the lecture are:
+
+- `n = 1`: compute one answer set (the default);
+- `n = 0`: compute all answer sets.
+
+The slides also show how to assign a value to a program constant, for example:
+
+```bash
+clingo -c n=15 asp.lp
+```
+
+To control which atoms are printed, a program can contain a `#show` directive. For example:
+
+```prolog
+#show p/2.
+```
+
+This asks Clingo to print atoms based on predicate `p` with arity two that hold in the answer set or sets. Without such a declaration, all atoms are printed.
+
+A later slide is titled “Play with Clingo”, indicating a practical experimentation phase. No specific program, execution transcript or solver output is included in the supplied lecture material, so no execution result is reproduced here.
+
+# Exercises
+
+The lecture concludes with three exercises. They are retained as tasks rather than replaced with worked solutions.
+
+## Reachability in a directed graph
+
+Assume the input is a directed graph represented by facts of the form:
+
+```prolog
+arc(a1,b1).
+arc(a2,b2).
+arc(a3,b3).
+% ...
+```
+
+The constants denote vertices. Define the predicate `reach/2` so that `reach(X,Y)` holds if and only if there is a path from vertex `X` to vertex `Y` in the graph. The exercise does not specify whether a path of length zero is included; that convention should be made explicit when formulating a solution.
+
+## Functions, injections, surjections and bijections
+
+Assume that `domain/1` and `range/1` are given extensionally and define, respectively, the domain \(A\) and range \(B\) of a function. Define a predicate `f/2` representing a function from \(A\) to \(B\), so that the answer sets return all such functions. Then define predicates for:
+
+- `inj`: a one-to-one (injective) function;
+- `surj`: an onto (surjective) function;
+- `bij`: a bijection, if one exists.
+
+The slide notes that `!=` is a built-in operator that may be used.
+
+## Finding a maximum
+
+Assume the input consists of facts of the form:
+
+```prolog
+p(n1).
+p(n2).
+p(n3).
+% ...
+```
+
+where each \(n_i\in\mathbb{N}\). Define a predicate `q` that holds for the maximum value \(n_i\) for which `p(n_i)` holds. The lecture notes that `<` is built in.
