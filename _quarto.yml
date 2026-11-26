@@ -137,6 +137,11 @@ website:
 
           - href: 03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.qmd
             text: "Symbolic Verification of Security Protocols with Tamarin"
+            
+      - section: "Module 2"
+        contents:
+          - href: 03-foundations-cybersecurity-ethics/module-2/notes/01-verification-and-model-checking.qmd
+            text: "Verification and Validation Techniques: From Testing to Model Checking"
 
 format:
   html:

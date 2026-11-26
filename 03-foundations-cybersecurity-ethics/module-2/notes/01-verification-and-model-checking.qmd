@@ -1,0 +1,93 @@
+---
+title: "Verification and Validation Techniques: From Testing to Model Checking"
+subtitle: "Module 2 - Lecture 1 - 1 October 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Why Testing May Not Be Enough
+
+The number of possible inputs to a program is sometimes infinite. In such cases, testing cannot simply try every possible input: a finite collection of tests can cover only a portion of the possible behaviours.
+
+This limitation is particularly relevant to **reactive systems**. A reactive system maintains an ongoing interaction with its environment rather than performing one isolated computation and then stopping. An office printer is a simple example: it receives print requests and other inputs, responds to them, and continues interacting with its environment over time.
+
+Some reactive systems are **safety-critical**. In these systems, failures may have serious consequences; the notes emphasise that human lives may depend on their correct behaviour. For such systems, relying on testing alone is not sufficient.
+
+The point is not that testing is useless. Rather, testing by itself cannot establish that every possible behaviour is correct when the system can receive an unbounded range of inputs or interact with its environment continuously.
+
+# Model Checking
+
+The lecture introduces **model checking** as an approach based on exhaustive algorithms for checking whether a model satisfies a specification.
+
+The central question is:
+
+> Do all infinite executions of the model satisfy the specification?
+
+This question brings together three elements:
+
+- **Model:** a representation of the system whose behaviour is to be analysed.
+- **Execution:** one possible behaviour of the model over time. The question explicitly concerns infinite executions.
+- **Specification:** the formal requirement against which the model's behaviour is checked.
+
+The word *all* is important. The question is universal: the specification must hold along every infinite execution represented by the model. It is not enough for the property to hold along only one possible execution. If an execution violates the specification, then the answer to this universal question is negative.
+
+Model checking is therefore presented as an exhaustive alternative to relying only on a selected set of tests. At this introductory point, the precise algorithms, model representations and specification languages have not yet been developed; the key idea is the exhaustive verification question itself.
+
+# Infinite Linear Time and Infinite Branching Time
+
+The notes distinguish between **infinite linear time** and **infinite branching time**. These labels describe two different ways of viewing the possible temporal behaviour of a system.
+
+In an infinite linear view, behaviour is represented as one continuing sequence of states or moments. In an infinite branching view, a point may have alternative continuations, so the structure represents more than one possible future.
+
+The following diagram is schematic: it illustrates the contrast between a single continuing sequence and a structure with alternative branches. It does not introduce a formal definition of either structure.
+
+```{mermaid}
+%%| fig-cap: "Schematic contrast between infinite linear time and infinite branching time"
+flowchart TB
+  subgraph L["Infinite linear time"]
+    L0["s0"] --> L1["s1"] --> L2["s2"] --> L3["..."]
+  end
+  subgraph B["Infinite branching time"]
+    B0["s0"] --> B1["s1"]
+    B0 --> B2["s2"]
+    B1 --> B3["..."]
+    B1 --> B4["..."]
+    B2 --> B5["..."]
+    B2 --> B6["..."]
+  end
+```
+
+The distinction matters for the model-checking question because a model may represent one or many possible continuations. The question written in the notes asks whether **all** infinite executions satisfy the specification. In a branching representation, this means that the requirement must hold for every possible infinite path represented by the model, not merely for one selected path.
+
+# Logic as a Language for Formal Properties
+
+To state precisely what a model should satisfy, the lecture introduces **logic**. Logic is compared to a programming language: it provides a language for expressing formal properties and also serves as a formal tool.
+
+The language has three fundamental aspects:
+
+| Aspect | Meaning | Role |
+|---|---|---|
+| **Vocabulary** | The symbols of the language | Supplies the basic elements from which expressions are built. |
+| **Syntax** | The rules for combining symbols | Determines which combinations form valid expressions or formulas. |
+| **Semantics** | The meaning of formulas | Explains what a formula expresses or means. |
+
+These aspects must be distinguished. Vocabulary identifies the available symbols; syntax governs how those symbols may be combined; semantics gives meaning to the resulting formulas. A sequence of symbols may use vocabulary from a language but still fail to be a valid formula if it does not follow the syntax. Conversely, knowing that an expression is syntactically valid does not by itself explain what it means: that is the role of semantics.
+
+The relationship between the elements introduced in the lecture can be represented as follows:
+
+```{mermaid}
+%%| fig-cap: "Logic as a language for expressing formal properties and as a formal tool"
+flowchart TD
+  L["Logic"] --> P["Language for expressing formal properties"]
+  L --> F["Formal tool"]
+  P --> V["Vocabulary: symbols"]
+  P --> S["Syntax: rules for combining symbols"]
+  P --> M["Semantics: meaning of formulas"]
+```
+
+In the context of model checking, logic provides the means to express the properties that the model is expected to satisfy. The model represents possible system behaviour; the specification states the required property; and the logic supplies a formal language in which that property can be expressed. The model-checking question can then be phrased as whether every relevant infinite execution of the model satisfies the specification.
+
+At this stage, the lecture introduces the role and basic components of logic, but does not yet specify a particular logic, its operators, or the detailed semantics used by a model-checking algorithm.

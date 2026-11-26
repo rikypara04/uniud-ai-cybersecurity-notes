@@ -9,7 +9,7 @@ page-layout: full
 <p class="course-kicker">MSc Artificial Intelligence &amp; Cybersecurity</p>
 
 <details class="lecture-list" open>
-<summary>Lectures <span aria-hidden="true">(6)</span></summary>
+<summary>Lectures <span aria-hidden="true">(7)</span></summary>
 <ul>
   <li><a href="module-1/notes/01-introduction-to-formal-verification-and-logic.qmd">Introduction to Formal Verification and Logic</a></li>
   <li><a href="module-1/notes/02-classical-logics.qmd">Classical Logics: Propositional Logic, QBF, and First-Order Logic</a></li>
@@ -17,6 +17,7 @@ page-layout: full
   <li><a href="module-1/notes/04-learning-automata.qmd">Learning Automata and Sequential Transducers</a></li>
   <li><a href="module-1/notes/05-uppaal.qmd">Modelling and Verification in UPPAAL</a></li>
   <li><a href="module-1/notes/06-symbolic-verification-with-tamarin.qmd">Symbolic Verification of Security Protocols with Tamarin</a></li>
+  <li><a href="module-2/notes/01-verification-and-model-checking.qmd">Verification and Validation Techniques: From Testing to Model Checking</a></li>
 </ul>
 </details>
 </div>
