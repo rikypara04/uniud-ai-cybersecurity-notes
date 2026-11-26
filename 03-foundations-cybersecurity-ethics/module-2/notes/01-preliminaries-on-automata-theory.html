@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Verification and Validation Techniques: From Testing to Model Checking – MSc Artificial Intelligence &amp; Cybersecurity</title>
+<title>Preliminaries on Automata Theory: Finite Words and Finite-State Automata – MSc Artificial Intelligence &amp; Cybersecurity</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -48,9 +48,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../site_libs/bootstrap/bootstrap-8b65b85e975d7f3f1568c6942320d45d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../../site_libs/bootstrap/bootstrap-dark-fde9458ef0b1e16825af5fd4e348d8e6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../../site_libs/bootstrap/bootstrap-8b65b85e975d7f3f1568c6942320d45d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-3082eec3e79281681b14d846b97bad40.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-059dca92c57e5918a295c76b33e7f3f7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-3082eec3e79281681b14d846b97bad40.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -79,9 +79,6 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
-<script src="../../../site_libs/quarto-diagram/mermaid.min.js"></script>
-<script src="../../../site_libs/quarto-diagram/mermaid-init.js"></script>
-<link href="../../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 <link rel="stylesheet" href="../../../styles.css">
@@ -290,7 +287,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/module-2/notes/01-verification-and-model-checking.html">Module 2</a></li><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/module-2/notes/01-verification-and-model-checking.html">Verification and Validation Techniques: From Testing to Model Checking</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/module-2/notes/01-preliminaries-on-automata-theory.html">Module 2</a></li><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/module-2/notes/01-preliminaries-on-automata-theory.html">Preliminaries on Automata Theory: Finite Words and Finite-State Automata</a></li></ol></nav>
         <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -516,6 +513,12 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Negation, Program Completion, and Stable Models</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../02-automated-reasoning/notes/15-stable-models-and-answer-set-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Stable Models and Answer Set Programming</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -576,8 +579,8 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" aria-labelledby="quarto-sidebar-section-4-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../../03-foundations-cybersecurity-ethics/module-2/notes/01-verification-and-model-checking.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Verification and Validation Techniques: From Testing to Model Checking</span></a>
+  <a href="../../../03-foundations-cybersecurity-ethics/module-2/notes/01-preliminaries-on-automata-theory.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Preliminaries on Automata Theory: Finite Words and Finite-State Automata</span></a>
   </div>
 </li>
       </ul>
@@ -592,10 +595,37 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#why-testing-may-not-be-enough" id="toc-why-testing-may-not-be-enough" class="nav-link active" data-scroll-target="#why-testing-may-not-be-enough"><span class="header-section-number">1</span> Why Testing May Not Be Enough</a></li>
-  <li><a href="#model-checking" id="toc-model-checking" class="nav-link" data-scroll-target="#model-checking"><span class="header-section-number">2</span> Model Checking</a></li>
-  <li><a href="#infinite-linear-time-and-infinite-branching-time" id="toc-infinite-linear-time-and-infinite-branching-time" class="nav-link" data-scroll-target="#infinite-linear-time-and-infinite-branching-time"><span class="header-section-number">3</span> Infinite Linear Time and Infinite Branching Time</a></li>
-  <li><a href="#logic-as-a-language-for-formal-properties" id="toc-logic-as-a-language-for-formal-properties" class="nav-link" data-scroll-target="#logic-as-a-language-for-formal-properties"><span class="header-section-number">4</span> Logic as a Language for Formal Properties</a></li>
+  <li><a href="#preliminaries-finite-words-and-languages" id="toc-preliminaries-finite-words-and-languages" class="nav-link active" data-scroll-target="#preliminaries-finite-words-and-languages"><span class="header-section-number">1</span> Preliminaries: finite words and languages</a>
+  <ul class="collapse">
+  <li><a href="#symbols-words-and-the-empty-word" id="toc-symbols-words-and-the-empty-word" class="nav-link" data-scroll-target="#symbols-words-and-the-empty-word"><span class="header-section-number">1.1</span> Symbols, words and the empty word</a></li>
+  <li><a href="#concatenation-of-words" id="toc-concatenation-of-words" class="nav-link" data-scroll-target="#concatenation-of-words"><span class="header-section-number">1.2</span> Concatenation of words</a></li>
+  <li><a href="#concatenation-of-sets-of-words" id="toc-concatenation-of-sets-of-words" class="nav-link" data-scroll-target="#concatenation-of-sets-of-words"><span class="header-section-number">1.3</span> Concatenation of sets of words</a></li>
+  <li><a href="#powers-of-a-set-and-kleene-closure" id="toc-powers-of-a-set-and-kleene-closure" class="nav-link" data-scroll-target="#powers-of-a-set-and-kleene-closure"><span class="header-section-number">1.4</span> Powers of a set and Kleene closure</a></li>
+  </ul></li>
+  <li><a href="#alphabets-and-languages" id="toc-alphabets-and-languages" class="nav-link" data-scroll-target="#alphabets-and-languages"><span class="header-section-number">2</span> Alphabets and languages</a>
+  <ul class="collapse">
+  <li><a href="#alphabets-and-words-over-an-alphabet" id="toc-alphabets-and-words-over-an-alphabet" class="nav-link" data-scroll-target="#alphabets-and-words-over-an-alphabet"><span class="header-section-number">2.1</span> Alphabets and words over an alphabet</a></li>
+  <li><a href="#languages" id="toc-languages" class="nav-link" data-scroll-target="#languages"><span class="header-section-number">2.2</span> Languages</a></li>
+  </ul></li>
+  <li><a href="#deterministic-finite-state-automata" id="toc-deterministic-finite-state-automata" class="nav-link" data-scroll-target="#deterministic-finite-state-automata"><span class="header-section-number">3</span> Deterministic finite-state automata</a>
+  <ul class="collapse">
+  <li><a href="#formal-definition-of-a-dfa" id="toc-formal-definition-of-a-dfa" class="nav-link" data-scroll-target="#formal-definition-of-a-dfa"><span class="header-section-number">3.1</span> Formal definition of a DFA</a></li>
+  <li><a href="#extending-the-transition-function-to-words" id="toc-extending-the-transition-function-to-words" class="nav-link" data-scroll-target="#extending-the-transition-function-to-words"><span class="header-section-number">3.2</span> Extending the transition function to words</a></li>
+  <li><a href="#acceptance-of-words-and-the-language-of-a-dfa" id="toc-acceptance-of-words-and-the-language-of-a-dfa" class="nav-link" data-scroll-target="#acceptance-of-words-and-the-language-of-a-dfa"><span class="header-section-number">3.3</span> Acceptance of words and the language of a DFA</a>
+  <ul class="collapse">
+  <li><a href="#example-processing-the-word-cbaba" id="toc-example-processing-the-word-cbaba" class="nav-link" data-scroll-target="#example-processing-the-word-cbaba"><span class="header-section-number">3.3.1</span> Example: processing the word <code>cbaba</code></a></li>
+  </ul></li>
+  <li><a href="#completing-an-incomplete-automaton" id="toc-completing-an-incomplete-automaton" class="nav-link" data-scroll-target="#completing-an-incomplete-automaton"><span class="header-section-number">3.4</span> Completing an incomplete automaton</a></li>
+  <li><a href="#the-membership-problem-and-regular-languages" id="toc-the-membership-problem-and-regular-languages" class="nav-link" data-scroll-target="#the-membership-problem-and-regular-languages"><span class="header-section-number">3.5</span> The membership problem and regular languages</a></li>
+  </ul></li>
+  <li><a href="#non-deterministic-finite-state-automata" id="toc-non-deterministic-finite-state-automata" class="nav-link" data-scroll-target="#non-deterministic-finite-state-automata"><span class="header-section-number">4</span> Non-deterministic finite-state automata</a>
+  <ul class="collapse">
+  <li><a href="#formal-definition-of-an-nfa" id="toc-formal-definition-of-an-nfa" class="nav-link" data-scroll-target="#formal-definition-of-an-nfa"><span class="header-section-number">4.1</span> Formal definition of an NFA</a></li>
+  <li><a href="#reading-the-same-symbol-along-multiple-possible-transitions" id="toc-reading-the-same-symbol-along-multiple-possible-transitions" class="nav-link" data-scroll-target="#reading-the-same-symbol-along-multiple-possible-transitions"><span class="header-section-number">4.2</span> Reading the same symbol along multiple possible transitions</a></li>
+  <li><a href="#extending-the-nfa-transition-function-to-words" id="toc-extending-the-nfa-transition-function-to-words" class="nav-link" data-scroll-target="#extending-the-nfa-transition-function-to-words"><span class="header-section-number">4.3</span> Extending the NFA transition function to words</a></li>
+  <li><a href="#acceptance-of-words-by-an-nfa" id="toc-acceptance-of-words-by-an-nfa" class="nav-link" data-scroll-target="#acceptance-of-words-by-an-nfa"><span class="header-section-number">4.4</span> Acceptance of words by an NFA</a></li>
+  </ul></li>
+  <li><a href="#equivalence-of-dfa-and-nfa" id="toc-equivalence-of-dfa-and-nfa" class="nav-link" data-scroll-target="#equivalence-of-dfa-and-nfa"><span class="header-section-number">5</span> Equivalence of DFA and NFA</a></li>
   </ul>
 </nav>
     </div>
@@ -603,10 +633,10 @@ ul.task-list li input[type="checkbox"] {
 <main class="content" id="quarto-document-content" tabindex="-1">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/module-2/notes/01-verification-and-model-checking.html">Module 2</a></li><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/module-2/notes/01-verification-and-model-checking.html">Verification and Validation Techniques: From Testing to Model Checking</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/module-2/notes/01-preliminaries-on-automata-theory.html">Module 2</a></li><li class="breadcrumb-item"><a href="../../../03-foundations-cybersecurity-ethics/module-2/notes/01-preliminaries-on-automata-theory.html">Preliminaries on Automata Theory: Finite Words and Finite-State Automata</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Verification and Validation Techniques: From Testing to Model Checking</h1>
-<p class="subtitle lead">Module 2 - Lecture 1 - 1 October 2026</p>
+<h1 class="title">Preliminaries on Automata Theory: Finite Words and Finite-State Automata</h1>
+<p class="subtitle lead">Module 2 - Lecture 01 - 26 November 2026</p>
 </div>
 
 
@@ -623,117 +653,295 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="why-testing-may-not-be-enough" class="level1" data-number="1">
-<h1 data-number="1"><span class="header-section-number">1</span> Why Testing May Not Be Enough</h1>
-<p>The number of possible inputs to a program is sometimes infinite. In such cases, testing cannot simply try every possible input: a finite collection of tests can cover only a portion of the possible behaviours.</p>
-<p>This limitation is particularly relevant to <strong>reactive systems</strong>. A reactive system maintains an ongoing interaction with its environment rather than performing one isolated computation and then stopping. An office printer is a simple example: it receives print requests and other inputs, responds to them, and continues interacting with its environment over time.</p>
-<p>Some reactive systems are <strong>safety-critical</strong>. In these systems, failures may have serious consequences; the notes emphasise that human lives may depend on their correct behaviour. For such systems, relying on testing alone is not sufficient.</p>
-<p>The point is not that testing is useless. Rather, testing by itself cannot establish that every possible behaviour is correct when the system can receive an unbounded range of inputs or interact with its environment continuously.</p>
+<style>
+.theorem-box {
+  border: 2px solid #b02a37;
+  border-left: 0.55rem solid #b02a37;
+  border-radius: 0.45rem;
+  padding: 1rem 1.15rem 0.85rem;
+  margin: 1.25rem 0;
+  background: rgba(176, 42, 55, 0.07);
+}
+.theorem-box > :first-child { margin-top: 0; }
+.theorem-box > :last-child { margin-bottom: 0; }
+.theorem-title {
+  color: #b02a37;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+@media (prefers-color-scheme: dark) {
+  .theorem-box {
+    background: rgba(255, 107, 122, 0.10);
+    border-color: #ff6b7a;
+  }
+  .theorem-title { color: #ff8a96; }
+}
+</style>
+<section id="preliminaries-finite-words-and-languages" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Preliminaries: finite words and languages</h1>
+<p>The lecture begins with automata over finite words. Finite-state automata and regular expressions are introduced as two ways of representing the same kind of objects. Before defining automata, it establishes the basic vocabulary for symbols, words, concatenation, alphabets and languages.</p>
+<section id="symbols-words-and-the-empty-word" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="symbols-words-and-the-empty-word"><span class="header-section-number">1.1</span> Symbols, words and the empty word</h2>
+<p>A <strong>symbol</strong> is an elementary character from which words are formed. Symbols are commonly denoted by letters such as (a), (b), and (c).</p>
+<p>A <strong>word</strong> is a finite sequence of symbols. For example,</p>
+<p>[ w = abcaa ]</p>
+<p>is a word consisting of five symbols. The <strong>length</strong> of a word (w), written (|w|), is the number of symbols in that sequence. Thus, (|abcaa|=5).</p>
+<p>The <strong>empty word</strong>, denoted by (), is the unique word containing no symbols. Its length is zero:</p>
+<p>[ ||=0. ]</p>
+<p>The empty word is still a word. It plays the role of an identity for concatenation.</p>
 </section>
-<section id="model-checking" class="level1" data-number="2">
-<h1 data-number="2"><span class="header-section-number">2</span> Model Checking</h1>
-<p>The lecture introduces <strong>model checking</strong> as an approach based on exhaustive algorithms for checking whether a model satisfies a specification.</p>
-<p>The central question is:</p>
-<blockquote class="blockquote">
-<p>Do all infinite executions of the model satisfy the specification?</p>
-</blockquote>
-<p>This question brings together three elements:</p>
+<section id="concatenation-of-words" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="concatenation-of-words"><span class="header-section-number">1.2</span> Concatenation of words</h2>
+<p>The basic operation on words is <strong>concatenation</strong>. Given two words (w) and (v), their concatenation, written (wv) (or simply (wv)), is the word obtained by writing the symbols of (v) immediately after the symbols of (w), without inserting a separator.</p>
+<p>For example, let</p>
+<p>[ w=abba, v=ccc. ]</p>
+<p>Then</p>
+<p>[ wv=abbaccc. ]</p>
+<p>Concatenation is not commutative in general: the order of the two words matters. In this example,</p>
+<p>[ wv=abbaccc cccabba=vw. ]</p>
+<p>The empty word is the identity element:</p>
+<p>[ w=w=w. ]</p>
+<p>The dot is often omitted when the meaning is clear. The lecture uses it explicitly when introducing concatenation and then relies on the shorter notation where convenient.</p>
+</section>
+<section id="concatenation-of-sets-of-words" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="concatenation-of-sets-of-words"><span class="header-section-number">1.3</span> Concatenation of sets of words</h2>
+<p>Let (A) and (B) be two sets of words. Their concatenation is the set containing every word obtained by concatenating one element of (A) with one element of (B):</p>
+<p>[ AB ={uw uA wB}. ]</p>
+<p>This definition lifts word concatenation to sets: every possible choice of a first word from (A) and a second word from (B) contributes a concatenated word to the result.</p>
+<p>The empty word and the empty set give the following identities:</p>
+<p>[ A{}=A, {}A=A, A=. ]</p>
+<p>The first two identities follow because concatenating any word with () leaves it unchanged. The last identity follows because there is no element to choose from the empty set.</p>
+</section>
+<section id="powers-of-a-set-and-kleene-closure" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="powers-of-a-set-and-kleene-closure"><span class="header-section-number">1.4</span> Powers of a set and Kleene closure</h2>
+<p>For every integer (m), the power (A^m) denotes the concatenation of (m) copies of (A):</p>
+<p>[ A^m=_{m}. ]</p>
+<p>The zero-th power is defined separately as</p>
+<p>[ A^0={}, ]</p>
+<p>and the powers can be defined recursively by</p>
+<p>[ A<sup>{m+1}=A</sup>mA. ]</p>
+<p>The <strong>Kleene closure</strong> of a set of words (A), denoted by (A^*), is the union of all its finite powers, including the zero-th power:</p>
+<p>[ A^*=_{m} A^m ={}AA^2A^3. ]</p>
+<p>Consequently, (A^*) contains the empty word as well as every word that can be formed by concatenating finitely many elements of (A).</p>
+<p>For the example (A={a}), the closure is</p>
+<p>[ A^*={,a,aa,aaa,}. ]</p>
+<p>The <strong>positive closure</strong> excludes the empty word:</p>
+<p>[ A<sup>+=A</sup>*{} =_{m&gt;0}A^m. ]</p>
+<p>The distinction is therefore whether zero repetitions are allowed: (A^*) includes zero repetitions, while (A^+) contains only positive numbers of repetitions.</p>
+</section>
+</section>
+<section id="alphabets-and-languages" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Alphabets and languages</h1>
+<section id="alphabets-and-words-over-an-alphabet" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="alphabets-and-words-over-an-alphabet"><span class="header-section-number">2.1</span> Alphabets and words over an alphabet</h2>
+<p>An <strong>alphabet</strong> is a finite set of symbols. For example, consider</p>
+<p>[ A={a,b,c}. ]</p>
+<p>A word over the alphabet (A) is any finite sequence whose symbols all belong to (A). Equivalently, it is an element of (A^*).</p>
+<p>For example, the word</p>
+<p>[ w=abbca ]</p>
+<p>has length five and satisfies</p>
+<p>[ wA^5A^*. ]</p>
+<p>Here, (A^5) is the set of all words of length five over the alphabet (A), whereas (A^*) contains words of every finite length, including zero.</p>
+</section>
+<section id="languages" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="languages"><span class="header-section-number">2.2</span> Languages</h2>
+<p>A <strong>language over the alphabet</strong> (A) is any subset of (A^*):</p>
+<p>[ LA^*. ]</p>
+<p>Thus, a language is a set of words over a fixed alphabet. It may contain words of different lengths. The automata introduced next provide a finite-state mechanism for deciding which words belong to a language.</p>
+</section>
+</section>
+<section id="deterministic-finite-state-automata" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Deterministic finite-state automata</h1>
+<p>A <strong>deterministic finite automaton</strong> (DFA) is a finite-state machine that reads a word one symbol at a time. At each step, the current state and the next input symbol uniquely determine the next state.</p>
+<section id="formal-definition-of-a-dfa" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="formal-definition-of-a-dfa"><span class="header-section-number">3.1</span> Formal definition of a DFA</h2>
+<p>A DFA (A) is a tuple</p>
+<p>[ A=(Q,A,,q_0,F), ]</p>
+<p>where:</p>
 <ul>
-<li><strong>Model:</strong> a representation of the system whose behaviour is to be analysed.</li>
-<li><strong>Execution:</strong> one possible behaviour of the model over time. The question explicitly concerns infinite executions.</li>
-<li><strong>Specification:</strong> the formal requirement against which the model’s behaviour is checked.</li>
+<li>(Q) is a finite set of states, often written (Q={q_0,q_1,,q_n});</li>
+<li>(A) is a finite input alphabet;</li>
+<li>() is the transition function, [ :QAQ; ]</li>
+<li>(q_0Q) is the initial state;</li>
+<li>(FQ) is the set of final, or accepting, states.</li>
 </ul>
-<p>The word <em>all</em> is important. The question is universal: the specification must hold along every infinite execution represented by the model. It is not enough for the property to hold along only one possible execution. If an execution violates the specification, then the answer to this universal question is negative.</p>
-<p>Model checking is therefore presented as an exhaustive alternative to relying only on a selected set of tests. At this introductory point, the precise algorithms, model representations and specification languages have not yet been developed; the key idea is the exhaustive verification question itself.</p>
+<p>The transition function takes a state-symbol pair and returns exactly one state. This is the formal meaning of <em>deterministic</em>: there is one prescribed next state for every current state and input symbol.</p>
+<p>In the graphical notation for automata, states are drawn as nodes, transitions as directed labelled edges, and the initial state is identified by an incoming arrow from nowhere. Accepting states are represented by double circles. The following is the transition-graph example introduced with the definition.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../assets/01-preliminaries-on-automata-theory/dfa-transition-example.png" class="img-fluid figure-img" alt="Handwritten DFA transition graph with an initial arrow, labelled transitions, and a loop"></p>
+<figcaption>Example of a finite-state automaton in graphical notation.</figcaption>
+</figure>
+</div>
 </section>
-<section id="infinite-linear-time-and-infinite-branching-time" class="level1" data-number="3">
-<h1 data-number="3"><span class="header-section-number">3</span> Infinite Linear Time and Infinite Branching Time</h1>
-<p>The notes distinguish between <strong>infinite linear time</strong> and <strong>infinite branching time</strong>. These labels describe two different ways of viewing the possible temporal behaviour of a system.</p>
-<p>In an infinite linear view, behaviour is represented as one continuing sequence of states or moments. In an infinite branching view, a point may have alternative continuations, so the structure represents more than one possible future.</p>
-<p>The following diagram is schematic: it illustrates the contrast between a single continuing sequence and a structure with alternative branches. It does not introduce a formal definition of either structure.</p>
-<div class="cell" data-layout-align="default">
-<div class="cell-output-display">
-<div>
-<p></p><figure class="figure"><p></p>
-<div>
-
-<pre class="mermaid mermaid-js">flowchart TB
-  subgraph L["Infinite linear time"]
-    L0["s0"] --&gt; L1["s1"] --&gt; L2["s2"] --&gt; L3["..."]
-  end
-  subgraph B["Infinite branching time"]
-    B0["s0"] --&gt; B1["s1"]
-    B0 --&gt; B2["s2"]
-    B1 --&gt; B3["..."]
-    B1 --&gt; B4["..."]
-    B2 --&gt; B5["..."]
-    B2 --&gt; B6["..."]
-  end
-</pre>
-</div>
-<p></p><figcaption> Schematic contrast between infinite linear time and infinite branching time</figcaption> </figure><p></p>
-</div>
-</div>
-</div>
-<p>The distinction matters for the model-checking question because a model may represent one or many possible continuations. The question written in the notes asks whether <strong>all</strong> infinite executions satisfy the specification. In a branching representation, this means that the requirement must hold for every possible infinite path represented by the model, not merely for one selected path.</p>
+<section id="extending-the-transition-function-to-words" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="extending-the-transition-function-to-words"><span class="header-section-number">3.2</span> Extending the transition function to words</h2>
+<p>The function () is initially defined for one input symbol. To describe the effect of reading a complete word, it is extended to</p>
+<p>[ :QA^*Q. ]</p>
+<p>The extension is defined recursively. Reading the empty word leaves the automaton in the state where it started:</p>
+<p>[ (q,)=q. ]</p>
+<p>If a word is written as (wa), where (wA^*) and (aA), first read (w), then process the final symbol (a):</p>
+<p>[ (q,wa) =((q,w),a). ]</p>
+<p>The recursive definition follows the order in which the symbols are read. It first determines the state reached after the prefix (w), and then applies the ordinary one-symbol transition for (a).</p>
+<p>For a single symbol, the extended and original functions agree:</p>
+<p>[ (q,a)=(q,a). ]</p>
+<p>For simplicity, the notation ((q,w)) is also often used for the extended function, with the hat omitted when the meaning is clear.</p>
 </section>
-<section id="logic-as-a-language-for-formal-properties" class="level1" data-number="4">
-<h1 data-number="4"><span class="header-section-number">4</span> Logic as a Language for Formal Properties</h1>
-<p>To state precisely what a model should satisfy, the lecture introduces <strong>logic</strong>. Logic is compared to a programming language: it provides a language for expressing formal properties and also serves as a formal tool.</p>
-<p>The language has three fundamental aspects:</p>
+<section id="acceptance-of-words-and-the-language-of-a-dfa" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="acceptance-of-words-and-the-language-of-a-dfa"><span class="header-section-number">3.3</span> Acceptance of words and the language of a DFA</h2>
+<p>A word (wA^*) is <strong>accepted</strong> by a DFA (A) if and only if the state reached after reading the entire word is final:</p>
+<p>[ (q_0,w)F. ]</p>
+<p>The initial state matters because the computation always begins at (q_0). The final-state condition is checked only after all symbols of the word have been consumed.</p>
+<p>The language accepted by (A), denoted by (L(A)), consists of all and only the words over its alphabet that it accepts:</p>
+<p>[ L(A) ={wA^*(q_0,w)F}. ]</p>
+<section id="example-processing-the-word-cbaba" class="level3" data-number="3.3.1">
+<h3 data-number="3.3.1" class="anchored" data-anchor-id="example-processing-the-word-cbaba"><span class="header-section-number">3.3.1</span> Example: processing the word <code>cbaba</code></h3>
+<p>The following automaton reproduces the example in the lecture. Its initial state is (q_0), its accepting state is (q_1), and its third state is (q_2).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../assets/01-preliminaries-on-automata-theory/dfa-word-run.svg" class="img-fluid figure-img" alt="DFA used to process the word cbaba"></p>
+<figcaption>A DFA whose accepting state is q1, with transitions q0 to q1, q1 to q2, and q2 back to q1.</figcaption>
+</figure>
+</div>
+<p>For the input word (w=cbaba), the computation proceeds as follows:</p>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>Aspect</th>
-<th>Meaning</th>
-<th>Role</th>
+<th style="text-align: left;">Input read so far</th>
+<th style="text-align: center;">Current state</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Vocabulary</strong></td>
-<td>The symbols of the language</td>
-<td>Supplies the basic elements from which expressions are built.</td>
+<td style="text-align: left;">()</td>
+<td style="text-align: center;">(q_0)</td>
 </tr>
 <tr class="even">
-<td><strong>Syntax</strong></td>
-<td>The rules for combining symbols</td>
-<td>Determines which combinations form valid expressions or formulas.</td>
+<td style="text-align: left;">(c)</td>
+<td style="text-align: center;">(q_1)</td>
 </tr>
 <tr class="odd">
-<td><strong>Semantics</strong></td>
-<td>The meaning of formulas</td>
-<td>Explains what a formula expresses or means.</td>
+<td style="text-align: left;">(cb)</td>
+<td style="text-align: center;">(q_2)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(cba)</td>
+<td style="text-align: center;">(q_1)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(cbab)</td>
+<td style="text-align: center;">(q_2)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(cbaba)</td>
+<td style="text-align: center;">(q_1)</td>
 </tr>
 </tbody>
 </table>
-<p>These aspects must be distinguished. Vocabulary identifies the available symbols; syntax governs how those symbols may be combined; semantics gives meaning to the resulting formulas. A sequence of symbols may use vocabulary from a language but still fail to be a valid formula if it does not follow the syntax. Conversely, knowing that an expression is syntactically valid does not by itself explain what it means: that is the role of semantics.</p>
-<p>The relationship between the elements introduced in the lecture can be represented as follows:</p>
-<div class="cell" data-layout-align="default">
-<div class="cell-output-display">
-<div>
-<p></p><figure class="figure"><p></p>
-<div>
-
-<pre class="mermaid mermaid-js">flowchart TD
-  L["Logic"] --&gt; P["Language for expressing formal properties"]
-  L --&gt; F["Formal tool"]
-  P --&gt; V["Vocabulary: symbols"]
-  P --&gt; S["Syntax: rules for combining symbols"]
-  P --&gt; M["Semantics: meaning of formulas"]
-</pre>
+<p>The word is accepted because the computation finishes in (q_1), which is an accepting state. In the notation of the extended transition function,</p>
+<p>[ (q_0,cbaba)=q_1F. ]</p>
+<p>This illustrates that acceptance depends on the state reached after the <em>whole</em> word, not on whether an accepting state was visited at some intermediate point.</p>
+</section>
+</section>
+<section id="completing-an-incomplete-automaton" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="completing-an-incomplete-automaton"><span class="header-section-number">3.4</span> Completing an incomplete automaton</h2>
+<p>The formal definition of a DFA uses a transition function</p>
+<p>[ :QAQ. ]</p>
+<p>This function is defined for every pair consisting of a state and an alphabet symbol. A diagram may nevertheless omit some transitions. Such a drawing is an <strong>incomplete representation</strong> of the transition function.</p>
+<p>The lecture’s completion method is to add a <strong>sink state</strong>. Every transition that was missing is directed to this new state, and the sink state loops to itself on every input symbol. The sink is not accepting. Therefore, once a computation enters it, it cannot later reach an accepting state.</p>
+<p>This completion does not change the language recognized by the automaton: a word that previously encountered a missing transition is rejected, and after completion it reaches the non-accepting sink instead.</p>
+</section>
+<section id="the-membership-problem-and-regular-languages" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="the-membership-problem-and-regular-languages"><span class="header-section-number">3.5</span> The membership problem and regular languages</h2>
+<p>Given an automaton (A) and a word (w), the <strong>membership problem</strong> asks whether</p>
+<p>[ wL(A)? ]</p>
+<p>For a language (LA^*), the lecture uses the following definition:</p>
+<p>[ L AL=L(A). ]</p>
+<p>In other words, a language is regular when some deterministic finite-state automaton accepts exactly its words.</p>
+</section>
+</section>
+<section id="non-deterministic-finite-state-automata" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Non-deterministic finite-state automata</h1>
+<p>A <strong>non-deterministic finite automaton</strong> (NFA) has the same overall components as a DFA, but its transition function may return a set of possible next states rather than one state. This is the only component of the tuple that changes in the definition given in the lecture.</p>
+<section id="formal-definition-of-an-nfa" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="formal-definition-of-an-nfa"><span class="header-section-number">4.1</span> Formal definition of an NFA</h2>
+<p>An NFA (A) is a tuple</p>
+<p>[ A=(Q,A,,q_0,F), ]</p>
+<p>with:</p>
+<ul>
+<li>(Q) a finite set of states;</li>
+<li>(A) a finite alphabet;</li>
+<li>() a transition function of type [ :QA^Q; ]</li>
+<li>(q_0Q) the initial state;</li>
+<li>(FQ) the set of final states.</li>
+</ul>
+<p>The notation (2^Q) denotes the <strong>power set</strong> of (Q), namely the set of all subsets of (Q). Consequently, for a state (q) and symbol (a), the value ((q,a)) is a set of possible destination states.</p>
+<p>Equivalently, the transitions can be represented as a relation</p>
+<p>[ QAQ. ]</p>
+<p>A triple ((q,a,q’)) means that the automaton may move from (q) to (q’) while reading symbol (a). Unlike a function into a single state, this relation can associate the same state-symbol pair with several destinations.</p>
+</section>
+<section id="reading-the-same-symbol-along-multiple-possible-transitions" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="reading-the-same-symbol-along-multiple-possible-transitions"><span class="header-section-number">4.2</span> Reading the same symbol along multiple possible transitions</h2>
+<p>The following schematic diagram shows the non-deterministic choice represented in the lecture: from state (q), reading (a) may leave the machine in (q), or move it to (q’), or move it to (q’’).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../assets/01-preliminaries-on-automata-theory/nfa-multiple-transitions.svg" class="img-fluid figure-img" alt="An NFA with three possible destinations from q on input a"></p>
+<figcaption>NFA transition example: from q, input a can lead to q, q-prime, or q-double-prime.</figcaption>
+</figure>
 </div>
-<p></p><figcaption> Logic as a language for expressing formal properties and as a formal tool</figcaption> </figure><p></p>
+<p>Thus, after reading one symbol, an NFA may have several possible current states. The transition function records all of them together as a subset of (Q).</p>
+</section>
+<section id="extending-the-nfa-transition-function-to-words" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="extending-the-nfa-transition-function-to-words"><span class="header-section-number">4.3</span> Extending the NFA transition function to words</h2>
+<p>For an NFA, the extended transition function returns a set of states:</p>
+<p>[ :QA^*^Q. ]</p>
+<p>The base case is</p>
+<p>[ (q,)={q}. ]</p>
+<p>For a word (wa), the automaton considers every state reachable after reading (w), takes its possible transitions on (a), and unions all the resulting sets:</p>
+<p>[ (q,wa) =_{r(q,w)}(r,a). ]</p>
+<p>The union is essential. It collects every state that can be reached by extending any possible computation on the prefix (w) with the final symbol (a).</p>
+<p>The lecture also gives the corresponding extension to a set of starting states. For (PQ) and (wA^*),</p>
+<p>[ :2^QA^*^Q, (P,w)=_{qP}(q,w). ]</p>
+<p>This expression combines the states reachable after reading (w) from each possible starting state in (P).</p>
+</section>
+<section id="acceptance-of-words-by-an-nfa" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="acceptance-of-words-by-an-nfa"><span class="header-section-number">4.4</span> Acceptance of words by an NFA</h2>
+<p>A word (wA^*) is accepted by an NFA (A) if and only if at least one state reachable after reading the complete word is final:</p>
+<p>[ (q_0,w)F. ]</p>
+<p>The intersection condition expresses the existential nature of NFA acceptance. It is sufficient that one possible computation ends in a final state; other possible computations may end in non-final states.</p>
+<p>As for a DFA, the language (L(A)) consists of all and only the words over (A) accepted by the automaton. The definition of the language is therefore the same in purpose, although the acceptance test differs:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Automaton</th>
+<th style="text-align: left;">Acceptance condition for (w)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">DFA</td>
+<td style="text-align: left;">((q_0,w)F)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NFA</td>
+<td style="text-align: left;">((q_0,w)F)</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="equivalence-of-dfa-and-nfa" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Equivalence of DFA and NFA</h1>
+<p>The lecture concludes with the equivalence theorem for deterministic and non-deterministic finite automata.</p>
+<div class="theorem-box">
+<div class="theorem-title">
+DFA–NFA language equivalence
 </div>
+<p>For every NFA (A), there exists a DFA (A’) such that</p>
+<p>[ L(A)=L(A’). ]</p>
+<p>Conversely, every DFA can also be regarded as an NFA. Therefore, DFA and NFA recognize exactly the same class of languages.</p>
 </div>
-</div>
-<p>In the context of model checking, logic provides the means to express the properties that the model is expected to satisfy. The model represents possible system behaviour; the specification states the required property; and the logic supplies a formal language in which that property can be expressed. The model-checking question can then be phrased as whether every relevant infinite execution of the model satisfies the specification.</p>
-<p>At this stage, the lecture introduces the role and basic components of logic, but does not yet specify a particular logic, its operators, or the detailed semantics used by a model-checking algorithm.</p>
+<p>The theorem says that allowing several possible next states does not increase the class of languages that finite-state automata can recognize. An NFA may offer a different representation of a language, but a DFA exists that recognizes the same language. The reverse direction follows because a deterministic transition can be represented as a set containing exactly one destination state.</p>
 
 
 </section>

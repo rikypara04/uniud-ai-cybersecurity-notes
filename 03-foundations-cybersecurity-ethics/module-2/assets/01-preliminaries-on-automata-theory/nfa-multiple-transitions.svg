@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="330" viewBox="0 0 760 330" role="img" aria-labelledby="title desc">
+  <title id="title">Nondeterministic transitions on the same input</title>
+  <desc id="desc">From state q, input a may keep the automaton in q or move it to q-prime or q-double-prime.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 z" fill="#263746"/>
+    </marker>
+  </defs>
+  <rect x="1" y="1" width="758" height="328" rx="14" fill="#ffffff" stroke="#d6dee6"/>
+  <g fill="none" stroke="#263746" stroke-width="3" marker-end="url(#arrow)">
+    <path d="M140 119 C62 68 62 239 140 187"/>
+    <path d="M205 127 C302 62 390 65 474 86"/>
+    <path d="M205 178 C302 241 390 250 474 242"/>
+  </g>
+  <g fill="#263746" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">
+    <text x="86" y="78">a</text>
+    <text x="335" y="76">a</text>
+    <text x="335" y="246">a</text>
+  </g>
+  <g fill="#ffffff" stroke="#263746" stroke-width="3">
+    <circle cx="170" cy="153" r="42"/>
+    <circle cx="520" cy="92" r="42"/>
+    <circle cx="520" cy="242" r="42"/>
+  </g>
+  <g fill="#17212b" font-family="Arial, sans-serif" font-size="25" text-anchor="middle" dominant-baseline="middle">
+    <text x="170" y="153">q</text>
+    <text x="520" y="92">q′</text>
+    <text x="520" y="242">q″</text>
+  </g>
+  <text x="380" y="307" fill="#17212b" font-family="Arial, sans-serif" font-size="17" text-anchor="middle">One state and one input symbol can lead to several possible next states.</text>
+</svg>
