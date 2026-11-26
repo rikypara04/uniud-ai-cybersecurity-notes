@@ -48,9 +48,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../site_libs/bootstrap/bootstrap-3082eec3e79281681b14d846b97bad40.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../../site_libs/bootstrap/bootstrap-dark-059dca92c57e5918a295c76b33e7f3f7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../../site_libs/bootstrap/bootstrap-3082eec3e79281681b14d846b97bad40.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-8b65b85e975d7f3f1568c6942320d45d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-fde9458ef0b1e16825af5fd4e348d8e6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-8b65b85e975d7f3f1568c6942320d45d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -80,6 +80,35 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../../styles.css">
 </head>
@@ -595,9 +624,9 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#preliminaries-finite-words-and-languages" id="toc-preliminaries-finite-words-and-languages" class="nav-link active" data-scroll-target="#preliminaries-finite-words-and-languages"><span class="header-section-number">1</span> Preliminaries: finite words and languages</a>
+  <li><a href="#finite-words-and-languages" id="toc-finite-words-and-languages" class="nav-link active" data-scroll-target="#finite-words-and-languages"><span class="header-section-number">1</span> Finite words and languages</a>
   <ul class="collapse">
-  <li><a href="#symbols-words-and-the-empty-word" id="toc-symbols-words-and-the-empty-word" class="nav-link" data-scroll-target="#symbols-words-and-the-empty-word"><span class="header-section-number">1.1</span> Symbols, words and the empty word</a></li>
+  <li><a href="#symbols-words-and-the-empty-word" id="toc-symbols-words-and-the-empty-word" class="nav-link" data-scroll-target="#symbols-words-and-the-empty-word"><span class="header-section-number">1.1</span> Symbols, words, and the empty word</a></li>
   <li><a href="#concatenation-of-words" id="toc-concatenation-of-words" class="nav-link" data-scroll-target="#concatenation-of-words"><span class="header-section-number">1.2</span> Concatenation of words</a></li>
   <li><a href="#concatenation-of-sets-of-words" id="toc-concatenation-of-sets-of-words" class="nav-link" data-scroll-target="#concatenation-of-sets-of-words"><span class="header-section-number">1.3</span> Concatenation of sets of words</a></li>
   <li><a href="#powers-of-a-set-and-kleene-closure" id="toc-powers-of-a-set-and-kleene-closure" class="nav-link" data-scroll-target="#powers-of-a-set-and-kleene-closure"><span class="header-section-number">1.4</span> Powers of a set and Kleene closure</a></li>
@@ -621,8 +650,8 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#non-deterministic-finite-state-automata" id="toc-non-deterministic-finite-state-automata" class="nav-link" data-scroll-target="#non-deterministic-finite-state-automata"><span class="header-section-number">4</span> Non-deterministic finite-state automata</a>
   <ul class="collapse">
   <li><a href="#formal-definition-of-an-nfa" id="toc-formal-definition-of-an-nfa" class="nav-link" data-scroll-target="#formal-definition-of-an-nfa"><span class="header-section-number">4.1</span> Formal definition of an NFA</a></li>
-  <li><a href="#reading-the-same-symbol-along-multiple-possible-transitions" id="toc-reading-the-same-symbol-along-multiple-possible-transitions" class="nav-link" data-scroll-target="#reading-the-same-symbol-along-multiple-possible-transitions"><span class="header-section-number">4.2</span> Reading the same symbol along multiple possible transitions</a></li>
-  <li><a href="#extending-the-nfa-transition-function-to-words" id="toc-extending-the-nfa-transition-function-to-words" class="nav-link" data-scroll-target="#extending-the-nfa-transition-function-to-words"><span class="header-section-number">4.3</span> Extending the NFA transition function to words</a></li>
+  <li><a href="#multiple-possible-transitions-on-one-symbol" id="toc-multiple-possible-transitions-on-one-symbol" class="nav-link" data-scroll-target="#multiple-possible-transitions-on-one-symbol"><span class="header-section-number">4.2</span> Multiple possible transitions on one symbol</a></li>
+  <li><a href="#extending-the-transition-function-to-words-1" id="toc-extending-the-transition-function-to-words-1" class="nav-link" data-scroll-target="#extending-the-transition-function-to-words-1"><span class="header-section-number">4.3</span> Extending the transition function to words</a></li>
   <li><a href="#acceptance-of-words-by-an-nfa" id="toc-acceptance-of-words-by-an-nfa" class="nav-link" data-scroll-target="#acceptance-of-words-by-an-nfa"><span class="header-section-number">4.4</span> Acceptance of words by an NFA</a></li>
   </ul></li>
   <li><a href="#equivalence-of-dfa-and-nfa" id="toc-equivalence-of-dfa-and-nfa" class="nav-link" data-scroll-target="#equivalence-of-dfa-and-nfa"><span class="header-section-number">5</span> Equivalence of DFA and NFA</a></li>
@@ -654,277 +683,537 @@ ul.task-list li input[type="checkbox"] {
 
 
 <style>
+.definition-box,
+.formula-box,
+.theorem-box {
+  border-radius: 0.45rem;
+  padding: 1rem 1.15rem 0.85rem;
+  margin: 1.15rem 0;
+}
+.definition-box {
+  border: 1px solid #3f718e;
+  border-left: 0.55rem solid #3f718e;
+  background: rgba(63, 113, 142, 0.08);
+}
+.formula-box {
+  border: 1px solid #aab4bf;
+  border-left: 0.45rem solid #748596;
+  background: rgba(127, 127, 127, 0.06);
+}
 .theorem-box {
   border: 2px solid #b02a37;
   border-left: 0.55rem solid #b02a37;
-  border-radius: 0.45rem;
-  padding: 1rem 1.15rem 0.85rem;
-  margin: 1.25rem 0;
   background: rgba(176, 42, 55, 0.07);
 }
+.definition-box > :first-child,
+.formula-box > :first-child,
 .theorem-box > :first-child { margin-top: 0; }
+.definition-box > :last-child,
+.formula-box > :last-child,
 .theorem-box > :last-child { margin-bottom: 0; }
+.definition-title,
+.formula-title,
 .theorem-title {
-  color: #b02a37;
   font-weight: 700;
   margin-bottom: 0.45rem;
 }
+.definition-title { color: #285d78; }
+.formula-title { color: #526475; }
+.theorem-title { color: #b02a37; }
 @media (prefers-color-scheme: dark) {
+  .definition-box {
+    border-color: #79b6d4;
+    background: rgba(121, 182, 212, 0.10);
+  }
+  .definition-title { color: #9bd1eb; }
+  .formula-box {
+    border-color: #8999aa;
+    background: rgba(170, 185, 200, 0.08);
+  }
+  .formula-title { color: #c2ced9; }
   .theorem-box {
-    background: rgba(255, 107, 122, 0.10);
     border-color: #ff6b7a;
+    background: rgba(255, 107, 122, 0.10);
   }
   .theorem-title { color: #ff8a96; }
 }
 </style>
-<section id="preliminaries-finite-words-and-languages" class="level1" data-number="1">
-<h1 data-number="1"><span class="header-section-number">1</span> Preliminaries: finite words and languages</h1>
-<p>The lecture begins with automata over finite words. Finite-state automata and regular expressions are introduced as two ways of representing the same kind of objects. Before defining automata, it establishes the basic vocabulary for symbols, words, concatenation, alphabets and languages.</p>
+<section id="finite-words-and-languages" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Finite words and languages</h1>
+<p>The lecture studies automata that operate on finite words. <strong>Finite-state automata</strong> and <strong>regular expressions</strong> are introduced as two ways of representing the same objects. The first step is to establish the vocabulary of symbols, words, concatenation, alphabets, and languages.</p>
 <section id="symbols-words-and-the-empty-word" class="level2" data-number="1.1">
-<h2 data-number="1.1" class="anchored" data-anchor-id="symbols-words-and-the-empty-word"><span class="header-section-number">1.1</span> Symbols, words and the empty word</h2>
-<p>A <strong>symbol</strong> is an elementary character from which words are formed. Symbols are commonly denoted by letters such as (a), (b), and (c).</p>
+<h2 data-number="1.1" class="anchored" data-anchor-id="symbols-words-and-the-empty-word"><span class="header-section-number">1.1</span> Symbols, words, and the empty word</h2>
+<p>A <strong>symbol</strong> is an elementary character used to build words. Symbols are commonly denoted by letters such as <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, and <span class="math inline">\(c\)</span>.</p>
 <p>A <strong>word</strong> is a finite sequence of symbols. For example,</p>
-<p>[ w = abcaa ]</p>
-<p>is a word consisting of five symbols. The <strong>length</strong> of a word (w), written (|w|), is the number of symbols in that sequence. Thus, (|abcaa|=5).</p>
-<p>The <strong>empty word</strong>, denoted by (), is the unique word containing no symbols. Its length is zero:</p>
-<p>[ ||=0. ]</p>
-<p>The empty word is still a word. It plays the role of an identity for concatenation.</p>
+<p><span class="math display">\[
+w=abcaa
+\]</span></p>
+<p>is a word containing five symbols. The <strong>length</strong> of a word <span class="math inline">\(w\)</span>, denoted by <span class="math inline">\(|w|\)</span>, is the number of symbols in the sequence. Therefore,</p>
+<p><span class="math display">\[
+|abcaa|=5.
+\]</span></p>
+<div class="definition-box">
+<div class="definition-title">
+Definition - Empty word
+</div>
+<p>The <strong>empty word</strong> is the unique word containing no symbols. It is denoted by the Greek letter epsilon, <span class="math inline">\(\varepsilon\)</span>, and has length zero.</p>
+<p><span class="math display">\[
+|\varepsilon|=0.
+\]</span></p>
+<p>The empty word is a word even though it contains no symbols. It acts as the identity element for concatenation.</p>
+</div>
 </section>
 <section id="concatenation-of-words" class="level2" data-number="1.2">
 <h2 data-number="1.2" class="anchored" data-anchor-id="concatenation-of-words"><span class="header-section-number">1.2</span> Concatenation of words</h2>
-<p>The basic operation on words is <strong>concatenation</strong>. Given two words (w) and (v), their concatenation, written (wv) (or simply (wv)), is the word obtained by writing the symbols of (v) immediately after the symbols of (w), without inserting a separator.</p>
-<p>For example, let</p>
-<p>[ w=abba, v=ccc. ]</p>
-<p>Then</p>
-<p>[ wv=abbaccc. ]</p>
-<p>Concatenation is not commutative in general: the order of the two words matters. In this example,</p>
-<p>[ wv=abbaccc cccabba=vw. ]</p>
-<p>The empty word is the identity element:</p>
-<p>[ w=w=w. ]</p>
-<p>The dot is often omitted when the meaning is clear. The lecture uses it explicitly when introducing concatenation and then relies on the shorter notation where convenient.</p>
+<p>The basic operation on words is <strong>concatenation</strong>. Given two words <span class="math inline">\(w\)</span> and <span class="math inline">\(v\)</span>, their concatenation is obtained by writing the symbols of <span class="math inline">\(v\)</span> immediately after the symbols of <span class="math inline">\(w\)</span>. The operation is denoted by a dot, <span class="math inline">\(\cdot\)</span>.</p>
+<p>For the example in the lecture, let</p>
+<p><span class="math display">\[
+w=abbca, \qquad v=ccc.
+\]</span></p>
+<p>Their concatenation is</p>
+<div class="formula-box">
+<div class="formula-title">
+Concatenation
+</div>
+<p><span class="math display">\[
+w\cdot v=abbcaccc.
+\]</span></p>
+</div>
+<p>Concatenation is <strong>not commutative</strong> in general. The order of the words matters, so <span class="math inline">\(w\cdot v\)</span> and <span class="math inline">\(v\cdot w\)</span> need not be equal. The empty word is the identity element:</p>
+<div class="formula-box">
+<div class="formula-title">
+Identity property of the empty word
+</div>
+<p><span class="math display">\[
+\varepsilon\cdot w=w\cdot\varepsilon=w.
+\]</span></p>
+</div>
+<p>When the meaning is clear, the dot is omitted and concatenation is written simply as <span class="math inline">\(wv\)</span>.</p>
 </section>
 <section id="concatenation-of-sets-of-words" class="level2" data-number="1.3">
 <h2 data-number="1.3" class="anchored" data-anchor-id="concatenation-of-sets-of-words"><span class="header-section-number">1.3</span> Concatenation of sets of words</h2>
-<p>Let (A) and (B) be two sets of words. Their concatenation is the set containing every word obtained by concatenating one element of (A) with one element of (B):</p>
-<p>[ AB ={uw uA wB}. ]</p>
-<p>This definition lifts word concatenation to sets: every possible choice of a first word from (A) and a second word from (B) contributes a concatenated word to the result.</p>
-<p>The empty word and the empty set give the following identities:</p>
-<p>[ A{}=A, {}A=A, A=. ]</p>
-<p>The first two identities follow because concatenating any word with () leaves it unchanged. The last identity follows because there is no element to choose from the empty set.</p>
+<p>Let <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> be two sets of words. Their concatenation contains every word obtained by concatenating one word from <span class="math inline">\(A\)</span> with one word from <span class="math inline">\(B\)</span>.</p>
+<div class="definition-box">
+<div class="definition-title">
+Definition - Concatenation of languages or word sets
+</div>
+<p><span class="math display">\[
+A\cdot B
+=\{u\cdot w\mid u\in A\text{ and }w\in B\}.
+\]</span></p>
+</div>
+<p>This definition extends concatenation from individual words to sets of words. Every possible pair of choices, with the first word taken from <span class="math inline">\(A\)</span> and the second from <span class="math inline">\(B\)</span>, contributes a word to the resulting set.</p>
+<p>The identities recorded in the lecture are</p>
+<div class="formula-box">
+<div class="formula-title">
+Set concatenation identities
+</div>
+<p><span class="math display">\[
+A\cdot\{\varepsilon\}=A,
+\qquad
+\{\varepsilon\}\cdot A=A,
+\qquad
+A\cdot\varnothing=\varnothing.
+\]</span></p>
+</div>
+<p>The first two identities follow from the identity property of <span class="math inline">\(\varepsilon\)</span>. The last identity holds because the empty set contains no word that could be selected for concatenation.</p>
 </section>
 <section id="powers-of-a-set-and-kleene-closure" class="level2" data-number="1.4">
 <h2 data-number="1.4" class="anchored" data-anchor-id="powers-of-a-set-and-kleene-closure"><span class="header-section-number">1.4</span> Powers of a set and Kleene closure</h2>
-<p>For every integer (m), the power (A^m) denotes the concatenation of (m) copies of (A):</p>
-<p>[ A^m=_{m}. ]</p>
-<p>The zero-th power is defined separately as</p>
-<p>[ A^0={}, ]</p>
-<p>and the powers can be defined recursively by</p>
-<p>[ A<sup>{m+1}=A</sup>mA. ]</p>
-<p>The <strong>Kleene closure</strong> of a set of words (A), denoted by (A^*), is the union of all its finite powers, including the zero-th power:</p>
-<p>[ A^*=_{m} A^m ={}AA^2A^3. ]</p>
-<p>Consequently, (A^*) contains the empty word as well as every word that can be formed by concatenating finitely many elements of (A).</p>
-<p>For the example (A={a}), the closure is</p>
-<p>[ A^*={,a,aa,aaa,}. ]</p>
-<p>The <strong>positive closure</strong> excludes the empty word:</p>
-<p>[ A<sup>+=A</sup>*{} =_{m&gt;0}A^m. ]</p>
-<p>The distinction is therefore whether zero repetitions are allowed: (A^*) includes zero repetitions, while (A^+) contains only positive numbers of repetitions.</p>
+<p>For every integer <span class="math inline">\(m\geq 0\)</span>, the power <span class="math inline">\(A^m\)</span> denotes the concatenation of <span class="math inline">\(m\)</span> copies of <span class="math inline">\(A\)</span>.</p>
+<div class="definition-box">
+<div class="definition-title">
+Definition - Powers of a set of words
+</div>
+<p>For <span class="math inline">\(m&gt;0\)</span>,</p>
+<p><span class="math display">\[
+A^m=\underbrace{A\cdot A\cdots A}_{m\text{ times}}.
+\]</span></p>
+<p>The zero-th power and the recursive step are defined by</p>
+<p><span class="math display">\[
+A^0=\{\varepsilon\},
+\qquad
+A^{m+1}=A^m\cdot A.
+\]</span></p>
+</div>
+<p>The <strong>Kleene closure</strong> of a set of words <span class="math inline">\(A\)</span>, denoted by <span class="math inline">\(A^*\)</span>, is the union of all its finite powers. The zero-th power is included, so the empty word belongs to the closure.</p>
+<div class="definition-box">
+<div class="definition-title">
+Definition - Kleene closure
+</div>
+<p><span class="math display">\[
+A^*=\bigcup_{m\geq 0}A^m
+=\{\varepsilon\}\cup A\cup A^2\cup A^3\cup\cdots.
+\]</span></p>
+</div>
+<p>For example, when <span class="math inline">\(A=\{a\}\)</span>,</p>
+<p><span class="math display">\[
+A^*=\{\varepsilon,a,aa,aaa,\ldots\}.
+\]</span></p>
+<p>The <strong>positive closure</strong> contains the positive powers and excludes the empty word.</p>
+<div class="formula-box">
+<div class="formula-title">
+Positive closure
+</div>
+<p><span class="math display">\[
+A^+=A^*\setminus\{\varepsilon\}
+=\bigcup_{m&gt;0}A^m.
+\]</span></p>
+</div>
+<p>The difference between <span class="math inline">\(A^*\)</span> and <span class="math inline">\(A^+\)</span> is whether zero repetitions are allowed. Kleene closure includes zero repetitions, while positive closure requires at least one repetition.</p>
 </section>
 </section>
 <section id="alphabets-and-languages" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> Alphabets and languages</h1>
 <section id="alphabets-and-words-over-an-alphabet" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="alphabets-and-words-over-an-alphabet"><span class="header-section-number">2.1</span> Alphabets and words over an alphabet</h2>
-<p>An <strong>alphabet</strong> is a finite set of symbols. For example, consider</p>
-<p>[ A={a,b,c}. ]</p>
-<p>A word over the alphabet (A) is any finite sequence whose symbols all belong to (A). Equivalently, it is an element of (A^*).</p>
-<p>For example, the word</p>
-<p>[ w=abbca ]</p>
-<p>has length five and satisfies</p>
-<p>[ wA^5A^*. ]</p>
-<p>Here, (A^5) is the set of all words of length five over the alphabet (A), whereas (A^*) contains words of every finite length, including zero.</p>
+<p>An <strong>alphabet</strong> is a finite set of symbols. The lecture uses the alphabet</p>
+<div class="definition-box">
+<div class="definition-title">
+Definition - Alphabet
+</div>
+<p><span class="math display">\[
+A=\{a,b,c\}.
+\]</span></p>
+<p>A word over <span class="math inline">\(A\)</span> is any finite sequence whose symbols all belong to <span class="math inline">\(A\)</span>. Equivalently, every word over <span class="math inline">\(A\)</span> is an element of <span class="math inline">\(A^*\)</span>.</p>
+</div>
+<p>For example, the word <span class="math inline">\(w=abbca\)</span> has length five and is therefore an element of <span class="math inline">\(A^5\)</span>. Since every word of length five is also a finite word over <span class="math inline">\(A\)</span>,</p>
+<p><span class="math display">\[
+w=abbca\in A^5\subseteq A^*.
+\]</span></p>
+<p>Here, <span class="math inline">\(A^5\)</span> is the set of all words of length five over <span class="math inline">\(A\)</span>, while <span class="math inline">\(A^*\)</span> contains words of every finite length, including zero.</p>
 </section>
 <section id="languages" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="languages"><span class="header-section-number">2.2</span> Languages</h2>
-<p>A <strong>language over the alphabet</strong> (A) is any subset of (A^*):</p>
-<p>[ LA^*. ]</p>
-<p>Thus, a language is a set of words over a fixed alphabet. It may contain words of different lengths. The automata introduced next provide a finite-state mechanism for deciding which words belong to a language.</p>
+<p>A <strong>language over the alphabet <span class="math inline">\(A\)</span></strong> is any subset of <span class="math inline">\(A^*\)</span>.</p>
+<div class="definition-box">
+<div class="definition-title">
+Definition - Language over an alphabet
+</div>
+<p><span class="math display">\[
+L\subseteq A^*.
+\]</span></p>
+</div>
+<p>A language is therefore a set of finite words over a fixed alphabet. The automata introduced next provide a finite-state mechanism for deciding which words belong to a language.</p>
 </section>
 </section>
 <section id="deterministic-finite-state-automata" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> Deterministic finite-state automata</h1>
-<p>A <strong>deterministic finite automaton</strong> (DFA) is a finite-state machine that reads a word one symbol at a time. At each step, the current state and the next input symbol uniquely determine the next state.</p>
+<p>A <strong>deterministic finite-state automaton</strong>, abbreviated DFA, reads a word one symbol at a time. At every step, the current state and the next input symbol determine exactly one next state.</p>
 <section id="formal-definition-of-a-dfa" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="formal-definition-of-a-dfa"><span class="header-section-number">3.1</span> Formal definition of a DFA</h2>
-<p>A DFA (A) is a tuple</p>
-<p>[ A=(Q,A,,q_0,F), ]</p>
-<p>where:</p>
+<p>The lecture denotes a deterministic finite automaton by the calligraphic letter <span class="math inline">\(\mathcal{A}\)</span>. Its formal definition is a five-component tuple.</p>
+<div class="definition-box">
+<div class="definition-title">
+Definition - Deterministic finite automaton
+</div>
+<p>A DFA <span class="math inline">\(\mathcal{A}\)</span> is a tuple</p>
+<p><span class="math display">\[
+\mathcal{A}=(Q,A,\delta,q_0,F),
+\]</span></p>
+<p>where</p>
 <ul>
-<li>(Q) is a finite set of states, often written (Q={q_0,q_1,,q_n});</li>
-<li>(A) is a finite input alphabet;</li>
-<li>() is the transition function, [ :QAQ; ]</li>
-<li>(q_0Q) is the initial state;</li>
-<li>(FQ) is the set of final, or accepting, states.</li>
+<li><span class="math inline">\(Q\)</span> is a finite set of states, often written <span class="math inline">\(Q=\{q_0,q_1,\ldots,q_n\}\)</span>;</li>
+<li><span class="math inline">\(A\)</span> is a finite input alphabet;</li>
+<li><span class="math inline">\(\delta\)</span> is the transition function, with type <span class="math display">\[
+\delta:Q\times A\longrightarrow Q;
+\]</span></li>
+<li><span class="math inline">\(q_0\in Q\)</span> is the initial state;</li>
+<li><span class="math inline">\(F\subseteq Q\)</span> is the set of final states.</li>
 </ul>
-<p>The transition function takes a state-symbol pair and returns exactly one state. This is the formal meaning of <em>deterministic</em>: there is one prescribed next state for every current state and input symbol.</p>
-<p>In the graphical notation for automata, states are drawn as nodes, transitions as directed labelled edges, and the initial state is identified by an incoming arrow from nowhere. Accepting states are represented by double circles. The following is the transition-graph example introduced with the definition.</p>
+</div>
+<p>The transition function <span class="math inline">\(\delta\)</span> takes a state and one input symbol and returns exactly one state. This is the defining feature of determinism: there is one prescribed next state for each state-symbol pair.</p>
+<p>In the graphical representation of a finite-state automaton:</p>
+<ul>
+<li>states are drawn as nodes;</li>
+<li>transitions are directed edges labelled with input symbols;</li>
+<li>the initial state is marked by an incoming arrow that does not originate at another state;</li>
+<li>final states are drawn with a double circle.</li>
+</ul>
+<p>The following image preserves the handwritten transition-graph example introduced with the DFA definition.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="../assets/01-preliminaries-on-automata-theory/dfa-transition-example.png" class="img-fluid figure-img" alt="Handwritten DFA transition graph with an initial arrow, labelled transitions, and a loop"></p>
-<figcaption>Example of a finite-state automaton in graphical notation.</figcaption>
+<p><img src="../assets/01-preliminaries-on-automata-theory/dfa-transition-example.png" class="img-fluid figure-img" alt="Handwritten finite-state transition graph with an initial arrow, labelled edges, and a loop."></p>
+<figcaption>Handwritten transition graph used to introduce the notation for a DFA.</figcaption>
 </figure>
 </div>
 </section>
 <section id="extending-the-transition-function-to-words" class="level2" data-number="3.2">
 <h2 data-number="3.2" class="anchored" data-anchor-id="extending-the-transition-function-to-words"><span class="header-section-number">3.2</span> Extending the transition function to words</h2>
-<p>The function () is initially defined for one input symbol. To describe the effect of reading a complete word, it is extended to</p>
-<p>[ :QA^*Q. ]</p>
-<p>The extension is defined recursively. Reading the empty word leaves the automaton in the state where it started:</p>
-<p>[ (q,)=q. ]</p>
-<p>If a word is written as (wa), where (wA^*) and (aA), first read (w), then process the final symbol (a):</p>
-<p>[ (q,wa) =((q,w),a). ]</p>
-<p>The recursive definition follows the order in which the symbols are read. It first determines the state reached after the prefix (w), and then applies the ordinary one-symbol transition for (a).</p>
-<p>For a single symbol, the extended and original functions agree:</p>
-<p>[ (q,a)=(q,a). ]</p>
-<p>For simplicity, the notation ((q,w)) is also often used for the extended function, with the hat omitted when the meaning is clear.</p>
+<p>The transition function <span class="math inline">\(\delta\)</span> is defined for one input symbol. To describe the effect of reading a complete word, the lecture introduces an extended transition function denoted by <strong>delta with a hat</strong>, <span class="math inline">\(\widehat{\delta}\)</span>.</p>
+<div class="definition-box">
+<div class="definition-title">
+Definition - Extended transition function for a DFA
+</div>
+<p>The extended transition function has type</p>
+<p><span class="math display">\[
+\widehat{\delta}:Q\times A^*\longrightarrow Q.
+\]</span></p>
+<p>It is defined recursively by the following two clauses:</p>
+<p><span class="math display">\[
+\widehat{\delta}(q,\varepsilon)=q,
+\]</span></p>
+<p><span class="math display">\[
+\widehat{\delta}(q,wa)
+=\delta\bigl(\widehat{\delta}(q,w),a\bigr),
+\qquad w\in A^*,\ a\in A.
+\]</span></p>
+</div>
+<p>The first clause says that reading the empty word leaves the automaton in its starting state. The second clause describes a non-empty word as a prefix <span class="math inline">\(w\)</span> followed by its last symbol <span class="math inline">\(a\)</span>. The automaton first reads <span class="math inline">\(w\)</span>, then applies the ordinary transition function to the state reached and the final symbol <span class="math inline">\(a\)</span>.</p>
+<p>For a word consisting of one symbol, the extended and ordinary transition functions agree:</p>
+<div class="formula-box">
+<div class="formula-title">
+One-symbol case
+</div>
+<p><span class="math display">\[
+\widehat{\delta}(q,a)=\delta(q,a).
+\]</span></p>
+</div>
+<p>The hat is retained whenever the transition function is applied to a word. This keeps the distinction between the one-symbol function <span class="math inline">\(\delta\)</span> and the word function <span class="math inline">\(\widehat{\delta}\)</span> explicit.</p>
 </section>
 <section id="acceptance-of-words-and-the-language-of-a-dfa" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="acceptance-of-words-and-the-language-of-a-dfa"><span class="header-section-number">3.3</span> Acceptance of words and the language of a DFA</h2>
-<p>A word (wA^*) is <strong>accepted</strong> by a DFA (A) if and only if the state reached after reading the entire word is final:</p>
-<p>[ (q_0,w)F. ]</p>
-<p>The initial state matters because the computation always begins at (q_0). The final-state condition is checked only after all symbols of the word have been consumed.</p>
-<p>The language accepted by (A), denoted by (L(A)), consists of all and only the words over its alphabet that it accepts:</p>
-<p>[ L(A) ={wA^*(q_0,w)F}. ]</p>
+<p>A word is accepted when the automaton reaches a final state after consuming the entire word.</p>
+<div class="definition-box">
+<div class="definition-title">
+Definition - Acceptance by a DFA
+</div>
+<p>A word <span class="math inline">\(w\in A^*\)</span> is accepted by a DFA <span class="math inline">\(\mathcal{A}\)</span> if and only if</p>
+<p><span class="math display">\[
+\widehat{\delta}(q_0,w)\in F.
+\]</span></p>
+</div>
+<p>The computation always starts at <span class="math inline">\(q_0\)</span>. The condition is checked after every symbol of the word has been read, not at an intermediate step.</p>
+<p>The language accepted by <span class="math inline">\(\mathcal{A}\)</span> is denoted by <span class="math inline">\(L(\mathcal{A})\)</span>.</p>
+<div class="definition-box">
+<div class="definition-title">
+Definition - Language accepted by a DFA
+</div>
+<p><span class="math display">\[
+L(\mathcal{A})
+=\{w\in A^*\mid \widehat{\delta}(q_0,w)\in F\}.
+\]</span></p>
+</div>
 <section id="example-processing-the-word-cbaba" class="level3" data-number="3.3.1">
 <h3 data-number="3.3.1" class="anchored" data-anchor-id="example-processing-the-word-cbaba"><span class="header-section-number">3.3.1</span> Example: processing the word <code>cbaba</code></h3>
-<p>The following automaton reproduces the example in the lecture. Its initial state is (q_0), its accepting state is (q_1), and its third state is (q_2).</p>
+<p>The lecture considers the word</p>
+<p><span class="math display">\[
+w=cbaba.
+\]</span></p>
+<p>The corresponding DFA has initial state <span class="math inline">\(q_0\)</span>, accepting state <span class="math inline">\(q_1\)</span>, and a third state <span class="math inline">\(q_2\)</span>. Its transitions for this example are shown below.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="../assets/01-preliminaries-on-automata-theory/dfa-word-run.svg" class="img-fluid figure-img" alt="DFA used to process the word cbaba"></p>
-<figcaption>A DFA whose accepting state is q1, with transitions q0 to q1, q1 to q2, and q2 back to q1.</figcaption>
+<p><img src="../assets/01-preliminaries-on-automata-theory/dfa-word-run.svg" class="img-fluid figure-img" alt="A three-state DFA. The initial state q0 moves to accepting state q1 on c, q1 moves to q2 on b, and q2 returns to q1 on a."></p>
+<figcaption>DFA used to process the word cbaba.</figcaption>
 </figure>
 </div>
-<p>For the input word (w=cbaba), the computation proceeds as follows:</p>
+<p>Reading the input from left to right gives the following sequence of states.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;">Input read so far</th>
-<th style="text-align: center;">Current state</th>
+<th style="text-align: center;">State reached</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">()</td>
-<td style="text-align: center;">(q_0)</td>
+<td style="text-align: left;"><span class="math inline">\(\varepsilon\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(q_0\)</span></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">(c)</td>
-<td style="text-align: center;">(q_1)</td>
+<td style="text-align: left;"><span class="math inline">\(c\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(q_1\)</span></td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">(cb)</td>
-<td style="text-align: center;">(q_2)</td>
+<td style="text-align: left;"><span class="math inline">\(cb\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(q_2\)</span></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">(cba)</td>
-<td style="text-align: center;">(q_1)</td>
+<td style="text-align: left;"><span class="math inline">\(cba\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(q_1\)</span></td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">(cbab)</td>
-<td style="text-align: center;">(q_2)</td>
+<td style="text-align: left;"><span class="math inline">\(cbab\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(q_2\)</span></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">(cbaba)</td>
-<td style="text-align: center;">(q_1)</td>
+<td style="text-align: left;"><span class="math inline">\(cbaba\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(q_1\)</span></td>
 </tr>
 </tbody>
 </table>
-<p>The word is accepted because the computation finishes in (q_1), which is an accepting state. In the notation of the extended transition function,</p>
-<p>[ (q_0,cbaba)=q_1F. ]</p>
-<p>This illustrates that acceptance depends on the state reached after the <em>whole</em> word, not on whether an accepting state was visited at some intermediate point.</p>
+<p>The last state is <span class="math inline">\(q_1\)</span>, which is accepting. Therefore the complete word is accepted:</p>
+<div class="formula-box">
+<div class="formula-title">
+Result of the computation
+</div>
+<p><span class="math display">\[
+\widehat{\delta}(q_0,cbaba)=q_1\in F.
+\]</span></p>
+</div>
+<p>The trace also illustrates why visiting a final state during the computation is not sufficient. Acceptance depends on the state reached after the whole input word has been consumed.</p>
 </section>
 </section>
 <section id="completing-an-incomplete-automaton" class="level2" data-number="3.4">
 <h2 data-number="3.4" class="anchored" data-anchor-id="completing-an-incomplete-automaton"><span class="header-section-number">3.4</span> Completing an incomplete automaton</h2>
-<p>The formal definition of a DFA uses a transition function</p>
-<p>[ :QAQ. ]</p>
-<p>This function is defined for every pair consisting of a state and an alphabet symbol. A diagram may nevertheless omit some transitions. Such a drawing is an <strong>incomplete representation</strong> of the transition function.</p>
-<p>The lecture’s completion method is to add a <strong>sink state</strong>. Every transition that was missing is directed to this new state, and the sink state loops to itself on every input symbol. The sink is not accepting. Therefore, once a computation enters it, it cannot later reach an accepting state.</p>
-<p>This completion does not change the language recognized by the automaton: a word that previously encountered a missing transition is rejected, and after completion it reaches the non-accepting sink instead.</p>
+<p>The definition of a DFA requires a transition for every pair in <span class="math inline">\(Q\times A\)</span>. A drawn automaton may omit some transitions, so its diagram may be an incomplete representation of the required transition function.</p>
+<p>The lecture’s method for completing such an automaton is to add a <strong>sink state</strong>:</p>
+<ol type="1">
+<li>Add a new state that is not final.</li>
+<li>Direct every previously missing transition to this state.</li>
+<li>Add a self-loop at the sink state for every symbol in the alphabet.</li>
+</ol>
+<p>Once the automaton enters the sink state, it remains there and cannot reach a final state. The language is unchanged: an input that previously encountered a missing transition is rejected, and after completion its computation ends in the non-final sink state.</p>
 </section>
 <section id="the-membership-problem-and-regular-languages" class="level2" data-number="3.5">
 <h2 data-number="3.5" class="anchored" data-anchor-id="the-membership-problem-and-regular-languages"><span class="header-section-number">3.5</span> The membership problem and regular languages</h2>
-<p>Given an automaton (A) and a word (w), the <strong>membership problem</strong> asks whether</p>
-<p>[ wL(A)? ]</p>
-<p>For a language (LA^*), the lecture uses the following definition:</p>
-<p>[ L AL=L(A). ]</p>
-<p>In other words, a language is regular when some deterministic finite-state automaton accepts exactly its words.</p>
+<p>Given a DFA <span class="math inline">\(\mathcal{A}\)</span> and a word <span class="math inline">\(w\)</span>, the <strong>membership problem</strong> asks whether the word belongs to the language accepted by the automaton.</p>
+<div class="formula-box">
+<div class="formula-title">
+Membership question
+</div>
+<p><span class="math display">\[
+w\in L(\mathcal{A})\ ?
+\]</span></p>
+</div>
+<p>A language over <span class="math inline">\(A\)</span> is called <strong>regular</strong> when it is accepted by some DFA.</p>
+<div class="definition-box">
+<div class="definition-title">
+Definition - Regular language
+</div>
+<p>A language <span class="math inline">\(L\subseteq A^*\)</span> is regular if and only if there exists a DFA <span class="math inline">\(\mathcal{A}\)</span> such that</p>
+<p><span class="math display">\[
+L=L(\mathcal{A}).
+\]</span></p>
+</div>
 </section>
 </section>
 <section id="non-deterministic-finite-state-automata" class="level1" data-number="4">
 <h1 data-number="4"><span class="header-section-number">4</span> Non-deterministic finite-state automata</h1>
-<p>A <strong>non-deterministic finite automaton</strong> (NFA) has the same overall components as a DFA, but its transition function may return a set of possible next states rather than one state. This is the only component of the tuple that changes in the definition given in the lecture.</p>
+<p>A <strong>non-deterministic finite-state automaton</strong>, abbreviated NFA, has the same five components as a DFA. The difference is its transition function: a state-symbol pair may lead to a set of possible next states rather than a single state.</p>
 <section id="formal-definition-of-an-nfa" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="formal-definition-of-an-nfa"><span class="header-section-number">4.1</span> Formal definition of an NFA</h2>
-<p>An NFA (A) is a tuple</p>
-<p>[ A=(Q,A,,q_0,F), ]</p>
-<p>with:</p>
+<div class="definition-box">
+<div class="definition-title">
+Definition - Non-deterministic finite automaton
+</div>
+<p>An NFA <span class="math inline">\(\mathcal{A}\)</span> is a tuple</p>
+<p><span class="math display">\[
+\mathcal{A}=(Q,A,\delta,q_0,F),
+\]</span></p>
+<p>where</p>
 <ul>
-<li>(Q) a finite set of states;</li>
-<li>(A) a finite alphabet;</li>
-<li>() a transition function of type [ :QA^Q; ]</li>
-<li>(q_0Q) the initial state;</li>
-<li>(FQ) the set of final states.</li>
+<li><span class="math inline">\(Q\)</span> is a finite set of states;</li>
+<li><span class="math inline">\(A\)</span> is a finite input alphabet;</li>
+<li><span class="math inline">\(\delta\)</span> is a transition function with type <span class="math display">\[
+\delta:Q\times A\longrightarrow 2^Q;
+\]</span></li>
+<li><span class="math inline">\(q_0\in Q\)</span> is the initial state;</li>
+<li><span class="math inline">\(F\subseteq Q\)</span> is the set of final states.</li>
 </ul>
-<p>The notation (2^Q) denotes the <strong>power set</strong> of (Q), namely the set of all subsets of (Q). Consequently, for a state (q) and symbol (a), the value ((q,a)) is a set of possible destination states.</p>
-<p>Equivalently, the transitions can be represented as a relation</p>
-<p>[ QAQ. ]</p>
-<p>A triple ((q,a,q’)) means that the automaton may move from (q) to (q’) while reading symbol (a). Unlike a function into a single state, this relation can associate the same state-symbol pair with several destinations.</p>
+</div>
+<p>The notation <span class="math inline">\(2^Q\)</span> denotes the <strong>power set</strong> of <span class="math inline">\(Q\)</span>, which is the set of all subsets of <span class="math inline">\(Q\)</span>. Thus, <span class="math inline">\(\delta(q,a)\)</span> is a set of possible destination states.</p>
+<p>The same transitions can also be represented by a relation</p>
+<div class="formula-box">
+<div class="formula-title">
+Relational representation of NFA transitions
+</div>
+<p><span class="math display">\[
+\Delta\subseteq Q\times A\times Q.
+\]</span></p>
+</div>
+<p>A triple <span class="math inline">\((q,a,q')\in\Delta\)</span> means that the automaton may move from state <span class="math inline">\(q\)</span> to state <span class="math inline">\(q'\)</span> while reading the symbol <span class="math inline">\(a\)</span>. The relation can contain several triples with the same first two components, representing several possible destinations for the same state-symbol pair.</p>
 </section>
-<section id="reading-the-same-symbol-along-multiple-possible-transitions" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="reading-the-same-symbol-along-multiple-possible-transitions"><span class="header-section-number">4.2</span> Reading the same symbol along multiple possible transitions</h2>
-<p>The following schematic diagram shows the non-deterministic choice represented in the lecture: from state (q), reading (a) may leave the machine in (q), or move it to (q’), or move it to (q’’).</p>
+<section id="multiple-possible-transitions-on-one-symbol" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="multiple-possible-transitions-on-one-symbol"><span class="header-section-number">4.2</span> Multiple possible transitions on one symbol</h2>
+<p>The diagram in the lecture illustrates the difference between a DFA and an NFA. From state <span class="math inline">\(q\)</span>, reading the symbol <span class="math inline">\(a\)</span> may leave the automaton in <span class="math inline">\(q\)</span> through a loop, or move it to <span class="math inline">\(q'\)</span>, or move it to <span class="math inline">\(q''\)</span>.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="../assets/01-preliminaries-on-automata-theory/nfa-multiple-transitions.svg" class="img-fluid figure-img" alt="An NFA with three possible destinations from q on input a"></p>
-<figcaption>NFA transition example: from q, input a can lead to q, q-prime, or q-double-prime.</figcaption>
+<p><img src="../assets/01-preliminaries-on-automata-theory/nfa-multiple-transitions.svg" class="img-fluid figure-img" alt="An NFA with a self-loop on q and two outgoing transitions labelled a, leading to q-prime and q-double-prime."></p>
+<figcaption>NFA example with three possible destinations from q on input a.</figcaption>
 </figure>
 </div>
-<p>Thus, after reading one symbol, an NFA may have several possible current states. The transition function records all of them together as a subset of (Q).</p>
+<p>The transition function collects all possible destinations in a single set. The automaton therefore tracks a set of possible current states after reading an input prefix.</p>
 </section>
-<section id="extending-the-nfa-transition-function-to-words" class="level2" data-number="4.3">
-<h2 data-number="4.3" class="anchored" data-anchor-id="extending-the-nfa-transition-function-to-words"><span class="header-section-number">4.3</span> Extending the NFA transition function to words</h2>
-<p>For an NFA, the extended transition function returns a set of states:</p>
-<p>[ :QA^*^Q. ]</p>
-<p>The base case is</p>
-<p>[ (q,)={q}. ]</p>
-<p>For a word (wa), the automaton considers every state reachable after reading (w), takes its possible transitions on (a), and unions all the resulting sets:</p>
-<p>[ (q,wa) =_{r(q,w)}(r,a). ]</p>
-<p>The union is essential. It collects every state that can be reached by extending any possible computation on the prefix (w) with the final symbol (a).</p>
-<p>The lecture also gives the corresponding extension to a set of starting states. For (PQ) and (wA^*),</p>
-<p>[ :2^QA^*^Q, (P,w)=_{qP}(q,w). ]</p>
-<p>This expression combines the states reachable after reading (w) from each possible starting state in (P).</p>
+<section id="extending-the-transition-function-to-words-1" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="extending-the-transition-function-to-words-1"><span class="header-section-number">4.3</span> Extending the transition function to words</h2>
+<p>For an NFA, the extended transition function returns a set of states. The lecture again denotes the extension by a hat over delta.</p>
+<div class="definition-box">
+<div class="definition-title">
+Definition - Extended transition function for an NFA
+</div>
+<p>The extended transition function has type</p>
+<p><span class="math display">\[
+\widehat{\delta}:Q\times A^*\longrightarrow 2^Q.
+\]</span></p>
+<p>Its initial condition is</p>
+<p><span class="math display">\[
+\widehat{\delta}(q,\varepsilon)=\{q\}.
+\]</span></p>
+<p>For a word <span class="math inline">\(wa\)</span>, its recursive definition is</p>
+<p><span class="math display">\[
+\widehat{\delta}(q,wa)
+=\bigcup_{r\in\widehat{\delta}(q,w)}\delta(r,a),
+\qquad w\in A^*,\ a\in A.
+\]</span></p>
+</div>
+<p>The empty word leaves the NFA in its original state, so the result is the singleton set containing that state. For a word <span class="math inline">\(wa\)</span>, the automaton considers every state reachable after reading <span class="math inline">\(w\)</span>. It then takes the transitions on the final symbol <span class="math inline">\(a\)</span> from all of those states and unions the resulting sets.</p>
+<p>The lecture also extends the function to a set of starting states. This is useful when the automaton is already in several possible states.</p>
+<div class="definition-box">
+<div class="definition-title">
+Extension to a set of starting states
+</div>
+<p>For a set <span class="math inline">\(P\subseteq Q\)</span>, the extended transition function is</p>
+<p><span class="math display">\[
+\widehat{\delta}:2^Q\times A^*\longrightarrow 2^Q,
+\]</span></p>
+<p>with</p>
+<p><span class="math display">\[
+\widehat{\delta}(P,w)
+=\bigcup_{q\in P}\widehat{\delta}(q,w).
+\]</span></p>
+</div>
+<p>The result is the union of all states reachable after reading <span class="math inline">\(w\)</span> from each state in the starting set <span class="math inline">\(P\)</span>.</p>
 </section>
 <section id="acceptance-of-words-by-an-nfa" class="level2" data-number="4.4">
 <h2 data-number="4.4" class="anchored" data-anchor-id="acceptance-of-words-by-an-nfa"><span class="header-section-number">4.4</span> Acceptance of words by an NFA</h2>
-<p>A word (wA^*) is accepted by an NFA (A) if and only if at least one state reachable after reading the complete word is final:</p>
-<p>[ (q_0,w)F. ]</p>
-<p>The intersection condition expresses the existential nature of NFA acceptance. It is sufficient that one possible computation ends in a final state; other possible computations may end in non-final states.</p>
-<p>As for a DFA, the language (L(A)) consists of all and only the words over (A) accepted by the automaton. The definition of the language is therefore the same in purpose, although the acceptance test differs:</p>
+<p>An NFA accepts a word when at least one possible computation ends in a final state.</p>
+<div class="definition-box">
+<div class="definition-title">
+Definition - Acceptance by an NFA
+</div>
+<p>A word <span class="math inline">\(w\in A^*\)</span> is accepted by an NFA <span class="math inline">\(\mathcal{A}\)</span> if and only if</p>
+<p><span class="math display">\[
+\widehat{\delta}(q_0,w)\cap F\neq\varnothing.
+\]</span></p>
+</div>
+<p>The intersection condition expresses the existential nature of NFA acceptance. It is enough that the set of reachable states contains at least one final state. Other possible computations may end in non-final states.</p>
+<p>As for a DFA, the language accepted by an NFA is the set of all words that it accepts. The acceptance condition is the only part of the definition that needs to be interpreted differently.</p>
+<div class="formula-box">
+<div class="formula-title">
+Language accepted by an NFA
+</div>
+<p><span class="math display">\[
+L(\mathcal{A})
+=\{w\in A^*\mid \widehat{\delta}(q_0,w)\cap F\neq\varnothing\}.
+\]</span></p>
+</div>
+<p>The two acceptance tests can be compared directly.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;">Automaton</th>
-<th style="text-align: left;">Acceptance condition for (w)</th>
+<th style="text-align: left;">Acceptance condition</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">DFA</td>
-<td style="text-align: left;">((q_0,w)F)</td>
+<td style="text-align: left;"><span class="math inline">\(\widehat{\delta}(q_0,w)\in F\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">NFA</td>
-<td style="text-align: left;">((q_0,w)F)</td>
+<td style="text-align: left;"><span class="math inline">\(\widehat{\delta}(q_0,w)\cap F\neq\varnothing\)</span></td>
 </tr>
 </tbody>
 </table>
@@ -932,16 +1221,19 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="equivalence-of-dfa-and-nfa" class="level1" data-number="5">
 <h1 data-number="5"><span class="header-section-number">5</span> Equivalence of DFA and NFA</h1>
-<p>The lecture concludes with the equivalence theorem for deterministic and non-deterministic finite automata.</p>
+<p>The lecture concludes with the equivalence theorem for deterministic and non-deterministic finite-state automata.</p>
 <div class="theorem-box">
 <div class="theorem-title">
-DFA–NFA language equivalence
+Equivalence of DFA and NFA
 </div>
-<p>For every NFA (A), there exists a DFA (A’) such that</p>
-<p>[ L(A)=L(A’). ]</p>
-<p>Conversely, every DFA can also be regarded as an NFA. Therefore, DFA and NFA recognize exactly the same class of languages.</p>
+<p>For every NFA <span class="math inline">\(\mathcal{A}\)</span>, there exists a DFA <span class="math inline">\(\mathcal{A}'\)</span> such that</p>
+<p><span class="math display">\[
+L(\mathcal{A})=L(\mathcal{A}').
+\]</span></p>
+<p>The converse also holds: for every DFA, there exists an NFA accepting the same language.</p>
 </div>
-<p>The theorem says that allowing several possible next states does not increase the class of languages that finite-state automata can recognize. An NFA may offer a different representation of a language, but a DFA exists that recognizes the same language. The reverse direction follows because a deterministic transition can be represented as a set containing exactly one destination state.</p>
+<p>The theorem states that allowing several possible next states does not increase the class of languages recognized by finite-state automata. A non-deterministic automaton may provide a different representation of a language, but a deterministic automaton exists that accepts exactly the same language. Conversely, a DFA is a special case of an NFA in which every transition set contains exactly one state.</p>
+<p>The lecture states the equivalence result here. It does not develop the construction of the equivalent DFA, so that construction is not added to this chapter.</p>
 
 
 </section>
