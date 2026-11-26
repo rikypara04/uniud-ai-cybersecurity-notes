@@ -2,166 +2,170 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/index.html</loc>
-    <lastmod>2026-11-24T10:39:14.899Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.187Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/02-automated-reasoning/notes/12-unification-sld-resolution-and-computability.html</loc>
-    <lastmod>2026-11-24T10:39:14.889Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.177Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.html</loc>
-    <lastmod>2026-11-24T10:39:14.889Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.177Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/02-automated-reasoning/notes/11-semantics-of-logic-programs.html</loc>
-    <lastmod>2026-11-24T10:39:14.889Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.177Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.html</loc>
-    <lastmod>2026-11-24T10:39:14.887Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.176Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/02-automated-reasoning/notes/06-minizinc-modeling-examples-and-exercises.html</loc>
-    <lastmod>2026-11-24T10:39:14.888Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.177Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/02-automated-reasoning/notes/14-negation-program-completion-stable-models.html</loc>
-    <lastmod>2026-11-24T10:39:14.889Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.177Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/02-automated-reasoning/notes/05-minizinc-search-annotations-and-modeling.html</loc>
-    <lastmod>2026-11-24T10:39:14.888Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.177Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/03-foundations-cybersecurity-ethics/index.html</loc>
-    <lastmod>2026-11-24T10:39:14.889Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/03-foundations-cybersecurity-ethics/module-1/notes/05-uppaal.html</loc>
-    <lastmod>2026-11-24T10:39:14.899Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html</loc>
-    <lastmod>2026-11-24T10:39:14.899Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html</loc>
-    <lastmod>2026-11-24T10:39:14.899Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/index.html</loc>
-    <lastmod>2026-11-24T10:39:14.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html</loc>
-    <lastmod>2026-11-24T10:39:14.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/03-properties-of-entropy-and-conditional-entropy.html</loc>
-    <lastmod>2026-11-24T10:39:14.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/12-time-and-space-complexity-classes.html</loc>
-    <lastmod>2026-11-24T10:39:14.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/07-lz77-and-kolmogorov-complexity.html</loc>
-    <lastmod>2026-11-24T10:39:14.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html</loc>
-    <lastmod>2026-11-24T10:39:14.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/04-mutual-information-relative-entropy-and-source-coding.html</loc>
-    <lastmod>2026-11-24T10:39:14.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/16-gap-theorem-and-time-space-relationships.html</loc>
-    <lastmod>2026-11-24T10:39:14.885Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/14-reachability-proper-functions-and-complements.html</loc>
-    <lastmod>2026-11-24T10:39:14.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/11-multitape-simulation-time-speedup.html</loc>
-    <lastmod>2026-11-24T10:39:14.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html</loc>
-    <lastmod>2026-11-24T10:39:14.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/06-shannon-codes-huffman-codes-and-asymptotic-optimality.html</loc>
-    <lastmod>2026-11-24T10:39:14.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/09-computational-complexity-models-and-cost-criteria.html</loc>
-    <lastmod>2026-11-24T10:39:14.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/02-information-probability-and-random-variables.html</loc>
-    <lastmod>2026-11-24T10:39:14.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/13-random-access-machines-and-nondeterministic-complexity.html</loc>
-    <lastmod>2026-11-24T10:39:14.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/15-deterministic-time-hierarchy.html</loc>
-    <lastmod>2026-11-24T10:39:14.885Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/01-introduction-to-information-theory.html</loc>
-    <lastmod>2026-11-24T10:39:14.884Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/references/reading-notes.html</loc>
-    <lastmod>2026-11-24T10:39:14.885Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.html</loc>
-    <lastmod>2026-11-24T10:39:14.898Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html</loc>
-    <lastmod>2026-11-24T10:39:14.899Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.178Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/03-foundations-cybersecurity-ethics/module-1/notes/06-symbolic-verification-with-tamarin.html</loc>
-    <lastmod>2026-11-24T10:39:14.899Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.187Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/03-foundations-cybersecurity-ethics/module-1/notes/04-learning-automata.html</loc>
+    <lastmod>2026-11-26T10:32:03.187Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/03-foundations-cybersecurity-ethics/module-1/notes/01-introduction-to-formal-verification-and-logic.html</loc>
+    <lastmod>2026-11-26T10:32:03.186Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/references/reading-notes.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/01-introduction-to-information-theory.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/15-deterministic-time-hierarchy.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/13-random-access-machines-and-nondeterministic-complexity.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/02-information-probability-and-random-variables.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/09-computational-complexity-models-and-cost-criteria.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/06-shannon-codes-huffman-codes-and-asymptotic-optimality.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/10-operational-semantics-time-complexity.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/11-multitape-simulation-time-speedup.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/14-reachability-proper-functions-and-complements.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/16-gap-theorem-and-time-space-relationships.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/04-mutual-information-relative-entropy-and-source-coding.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/08-kolmogorov-complexity-and-entropy.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/07-lz77-and-kolmogorov-complexity.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/12-time-and-space-complexity-classes.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/03-properties-of-entropy-and-conditional-entropy.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/notes/05-prefix-codes-and-kraft-mcmillan-inequality.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/01-complexity-information-theory/index.html</loc>
+    <lastmod>2026-11-26T10:32:03.173Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/03-foundations-cybersecurity-ethics/module-1/notes/03-games-in-logic.html</loc>
+    <lastmod>2026-11-26T10:32:03.187Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/03-foundations-cybersecurity-ethics/module-1/notes/02-classical-logics.html</loc>
+    <lastmod>2026-11-26T10:32:03.187Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/03-foundations-cybersecurity-ethics/module-1/notes/05-uppaal.html</loc>
+    <lastmod>2026-11-26T10:32:03.187Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/03-foundations-cybersecurity-ethics/module-2/notes/01-verification-and-model-checking.html</loc>
+    <lastmod>2026-11-26T10:32:03.187Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/02-automated-reasoning/notes/04-bounds-hyper-arc-and-path-consistency.html</loc>
-    <lastmod>2026-11-24T10:39:14.888Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.177Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/02-automated-reasoning/notes/09-global-constraints-matching-and-cumulative-scheduling.html</loc>
-    <lastmod>2026-11-24T10:39:14.888Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.177Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/02-automated-reasoning/notes/10-syntax-and-definite-clause-programs.html</loc>
-    <lastmod>2026-11-24T10:39:14.889Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.177Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/02-automated-reasoning/notes/07-scheduling-hamming-codes-and-timetabling.html</loc>
-    <lastmod>2026-11-24T10:39:14.888Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.177Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/02-automated-reasoning/notes/08-constraint-optimization-local-search-and-bioinformatics.html</loc>
-    <lastmod>2026-11-24T10:39:14.888Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.177Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/02-automated-reasoning/notes/03-constraint-propagation-and-local-consistency.html</loc>
-    <lastmod>2026-11-24T10:39:14.888Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.177Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/02-automated-reasoning/notes/02-sat-encodings-and-dpll.html</loc>
-    <lastmod>2026-11-24T10:39:14.888Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.177Z</lastmod>
   </url>
   <url>
     <loc>https://rikypara04.github.io/uniud-ai-cybersecurity-notes/02-automated-reasoning/index.html</loc>
-    <lastmod>2026-11-24T10:39:14.887Z</lastmod>
+    <lastmod>2026-11-26T10:32:03.176Z</lastmod>
   </url>
 </urlset>
