@@ -70,6 +70,9 @@ website:
           - href: 01-complexity-information-theory/notes/16-gap-theorem-and-time-space-relationships.qmd
             text: "The Gap Theorem and Relationships Between Time and Space Complexity"
 
+          - href: 01-complexity-information-theory/notes/17-reachability-and-space-complexity.qmd
+            text: "Reachability Methods and Space Complexity"
+
       - section: "Automated Reasoning"
         contents:
           - href: 02-automated-reasoning/index.qmd

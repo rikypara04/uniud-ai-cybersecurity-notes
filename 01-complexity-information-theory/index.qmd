@@ -9,7 +9,7 @@ page-layout: full
 <p class="course-kicker">MSc Artificial Intelligence &amp; Cybersecurity</p>
 
 <details class="lecture-list" open>
-<summary>Lectures <span aria-hidden="true">(16)</span></summary>
+<summary>Lectures <span aria-hidden="true">(17)</span></summary>
 <ul>
   <li><a href="notes/01-introduction-to-information-theory.qmd">Introduction to Information Theory</a></li>
   <li><a href="notes/02-information-probability-and-random-variables.qmd">Information, Probability, and Random Variables</a></li>
@@ -27,6 +27,7 @@ page-layout: full
   <li><a href="notes/14-reachability-proper-functions-and-complements.qmd">Reachability, Proper Complexity Bounds, and Complements</a></li>
   <li><a href="notes/15-deterministic-time-hierarchy.qmd">The Deterministic Time Hierarchy Theorem</a></li>
   <li><a href="notes/16-gap-theorem-and-time-space-relationships.qmd">The Gap Theorem and Relationships Between Time and Space Complexity</a></li>
+  <li><a href="notes/17-reachability-and-space-complexity.qmd">Reachability Methods and Space Complexity</a></li>
 </ul>
 </details>
 </div>

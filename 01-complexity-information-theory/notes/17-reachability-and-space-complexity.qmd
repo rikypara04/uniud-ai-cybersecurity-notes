@@ -1,0 +1,249 @@
+---
+title: "Reachability Methods and Space Complexity"
+subtitle: "Lecture 17 - 26 November 2026"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+```{=html}
+<style>
+.theorem-box {
+  border: 2px solid #b02a37;
+  border-left: 0.55rem solid #b02a37;
+  border-radius: 0.45rem;
+  padding: 1rem 1.15rem 0.85rem;
+  margin: 1.25rem 0;
+  background: rgba(176, 42, 55, 0.07);
+}
+.theorem-box > :first-child { margin-top: 0; }
+.theorem-box > :last-child { margin-bottom: 0; }
+.theorem-title {
+  color: #b02a37;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+@media (prefers-color-scheme: dark) {
+  .theorem-box {
+    background: rgba(255, 107, 122, 0.10);
+    border-color: #ff6b7a;
+  }
+  .theorem-title { color: #ff8a96; }
+}
+</style>
+```
+
+
+# Reachability and Space Complexity
+
+Reachability is a central graph problem and a useful way to represent nondeterministic computation. Instead of storing an entire computation tree, we can consider the graph of configurations and ask whether one configuration can reach another. The size of this graph and the amount of space needed to reason about paths lead to important relationships between deterministic and nondeterministic space.
+
+
+## The reachability graph of a computation
+
+Let $N$ be a nondeterministic Turing machine and let $x$ be an input. We can construct a directed graph $G_{N,x}$ whose vertices represent configurations of $N$ on input $x$. A directed edge connects two configurations whenever one legal transition of $N$ takes the first configuration to the second.
+
+The initial configuration is the starting vertex. An accepting configuration is a target vertex. The machine accepts $x$ if and only if there exists a path from the initial configuration to an accepting configuration in this graph.
+
+If $N$ uses $f(n)$ space on inputs of length $n$, then a configuration can be described using the machine state, head positions, and the contents of the bounded work tapes. The number of possible configurations is exponential in the amount of space used, with an additional logarithmic contribution for the input-head position. In the lecture's notation, for a fixed alphabet and machine,
+
+$$
+|G_{N,x}| = O\left(\alpha^{f(n)+\log n}\right)
+$$
+
+for a constant base $\alpha>1$. The graph can be very large even when the machine uses relatively little space.
+
+The important point is that we do not necessarily need to construct and store the entire graph. Given a configuration, its description is enough to generate its possible successor configurations when they are needed. This is the **on-the-fly** approach: generate only the portions of the configuration graph required by the computation.
+
+
+## Complexity-class relationships
+
+The lecture places reachability in the context of the following chain of containments:
+
+
+$$
+\mathrm{L}\subseteq\mathrm{NL}\subseteq\mathrm{P}\subseteq\mathrm{NP}
+\subseteq\mathrm{PSPACE}\subseteq\mathrm{NPSPACE}\subseteq\mathrm{EXPSPACE}\subseteq\cdots
+$$
+
+Here, $\mathrm{L}$ is deterministic logarithmic space, $\mathrm{NL}$ is nondeterministic logarithmic space, $\mathrm{P}$ and $\mathrm{NP}$ are polynomial time, and $\mathrm{PSPACE}$ and $\mathrm{NPSPACE}$ are deterministic and nondeterministic polynomial space, respectively. The containments follow from the corresponding simulation and resource relationships.
+
+Two equality questions highlighted in the notes are:
+
+- **$\mathrm{L}=\mathrm{NL}$?** This remains an open problem.
+- **$\mathrm{PSPACE}=\mathrm{NPSPACE}$?** Yes; Savitch's theorem implies this equality.
+
+The reachability method gives a deterministic simulation of nondeterministic space with a quadratic increase in the space bound, which is enough to establish the second equality.
+
+
+## Savitch's theorem
+
+The key problem is directed reachability. Given a directed graph $G=(V,E)$ with $|V|=m$ and vertices $u,v\in V$, determine whether there is a directed path from $u$ to $v$.
+
+A path, if one exists, can be assumed to have length at most $m-1$: if a path repeats a vertex, the cycle between the repeated occurrences can be removed. Therefore it is sufficient to consider paths whose length is at most $m$.
+
+<div class="theorem-box">
+<div class="theorem-title">Savitch's Theorem (Reachability)</div>
+
+Directed reachability in a graph with $m$ vertices can be decided deterministically using
+
+$$
+O\left((\log m)^2\right)
+$$
+space.
+</div>
+
+
+### Recursive path predicate
+
+Define $\operatorname{Path}(u,v,i)$ to mean that there is a path from $u$ to $v$ of length at most $2^i$.
+
+The base case checks whether the path has length at most one:
+
+$$
+\operatorname{Path}(u,v,0)\iff (u=v)\lor((u,v)\in E).
+$$
+
+For $i>0$, a path of length at most $2^i$ can be split into two portions, each of length at most $2^{i-1}$, by choosing an intermediate vertex $z$. Conversely, if both portions exist, concatenating them produces a path of length at most $2^i$. Thus,
+
+$$
+\operatorname{Path}(u,v,i)\iff
+\exists z\in V:\
+\operatorname{Path}(u,z,i-1)\land
+\operatorname{Path}(z,v,i-1).
+$$
+
+The recursive procedure tries each possible intermediate vertex $z$. For each one, it recursively tests the two smaller path questions. It accepts as soon as one vertex $z$ makes both recursive tests true; if no vertex works, it rejects. The recursion reduces the path-length bound by half at each level. To test reachability, it is enough to call the predicate with $i=\lceil\log m\rceil$, since $2^i\ge m$.
+
+```{mermaid}
+%%| fig-cap: "A path of length at most 2^i is divided at an intermediate vertex into two paths, each bounded by 2^(i-1)."
+flowchart LR
+    U["u"] --> Z["Intermediate vertex z"]
+    Z --> V["v"]
+    subgraph L["First subpath"]
+      U --> Z
+    L1["Length at most 2^(i-1)"]
+    L1 -.-> U
+    L1 -.-> Z
+    end
+    subgraph R["Second subpath"]
+      Z --> V
+      R1["Length at most 2^(i-1)"]
+      R1 -.-> Z
+      R1 -.-> V
+    end
+```
+
+### Space analysis
+
+The recursive algorithm does not need to store a complete path. It stores the current recursive call's parameters: the two vertices, the level $i$, and the intermediate vertex being tried. Each vertex can be represented by $O(\log m)$ bits, and the level also needs $O(\log m)$ bits.
+
+The recursion depth is $O(\log m)$, because the parameter decreases from $\lceil\log m\rceil$ to zero. Each level stores only a constant number of vertex identifiers and counters, requiring $O(\log m)$ bits. Consequently, the total space is
+
+$$
+O(\log m)\cdot O(\log m)=O((\log m)^2).
+$$
+
+The algorithm may take much longer than polynomial time because it repeatedly solves recursive subproblems. The theorem is a **space bound**, not a claim of an efficient running time.
+
+
+## A consequence for nondeterministic space
+
+The reachability graph of a nondeterministic machine can be exponentially large in its space bound. However, the graph need not be explicitly stored: its vertices and edges can be generated from configuration descriptions on demand. Applying Savitch's reachability algorithm to this implicitly represented graph gives a deterministic space simulation.
+
+<div class="theorem-box">
+<div class="theorem-title">Space Simulation Corollary</div>
+
+If $f(n)$ is a proper space bound and $f(n)\geq\log n$, then
+
+$$
+\mathrm{NSPACE}(f(n))\subseteq
+\mathrm{SPACE}\left((f(n))^2\right).
+$$
+</div>
+
+For the configuration graph, the logarithm of its number of vertices is $O(f(n)+\log n)$. Under the assumption $f(n)\geq\log n$, this is $O(f(n))$. Savitch's algorithm therefore uses
+
+$$
+O\left((\log |G_{N,x}|)^2\right)=O((f(n))^2)
+$$
+space. This explains why the lower-bound condition on $f(n)$ matters: it absorbs the contribution of the input-head position into the space bound.
+
+Taking $f(n)$ to be a polynomial yields the equality
+
+$$
+\mathrm{NPSPACE}=\mathrm{PSPACE},
+$$
+which is the equality marked as established in the lecture. In particular, nondeterminism does not increase the class of languages decidable with polynomial space.
+
+For logarithmic space, the same corollary gives the containment
+
+$$
+\mathrm{NL}\subseteq\mathrm{SPACE}((\log n)^2).
+$$
+
+
+## Counting reachable vertices in nondeterministic space
+
+A different reachability question is to count how many vertices of a directed graph are reachable from a given vertex. This counting task is used in the Immerman–Szelepcsényi theorem.
+
+Given $G=(V,E)$ and a starting vertex $u\in V$, let $S(i)$ denote the set of vertices reachable from $u$ in at most $i$ steps. If $|V|=m$, then
+
+$$
+S(0)=\{u\},\qquad |S(0)|=1,
+$$
+ and every reachable vertex has a path of length at most $m-1$, so $S(m-1)$ contains all vertices reachable from $u$.
+
+The sets grow monotonically:
+
+$$
+S(i-1)\subseteq S(i).
+$$
+To obtain $S(i)$ from $S(i-1)$, consider each candidate vertex $v\in V$. It belongs to $S(i)$ exactly when it is already in $S(i-1)$ or when there is an edge from some vertex in $S(i-1)$ to $v$:
+
+$$
+ v\in S(i)\iff v\in S(i-1)\lor
+ \exists w\in S(i-1):(w,v)\in E.
+$$
+The notes outline a nondeterministic counting procedure that scans vertices, maintains a counter, and checks candidate predecessor vertices from the previous reachable set. The counter is bounded by $m$, so it needs only $O(\log m)$ bits. The method uses the count $|S(i-1)|$ to ensure that the nondeterministic scan has accounted for the entire previous set rather than accepting an incomplete guessed collection.
+
+```{mermaid}
+%%| fig-cap: "Reachability sets are built in stages: S(0) contains the start vertex, and each subsequent set adds vertices with a predecessor in the previous set."
+flowchart TD
+    S0["S(0) = {u}"] --> S1["S(1): vertices reachable in at most 1 step"]
+    S1 --> S2["S(2): vertices reachable in at most 2 steps"]
+    S2 --> S3["..."]
+    S3 --> Sm["S(m-1): all reachable vertices"]
+```
+
+The important resource observation is that the procedure stores vertex identifiers, counters, and a small amount of bookkeeping information. It does not store all of $S(i)$ as a bit-vector. The reachable-set size is represented by its count, and membership checks are performed through the nondeterministic verification procedure.
+
+<div class="theorem-box">
+<div class="theorem-title">Immerman–Szelepcsényi Theorem</div>
+
+Given a directed graph $G$ and a vertex $u$, the number of vertices reachable from $u$ in $G$ can be computed in nondeterministic space $O(\log m)$, where $m=|V|$.
+</div>
+
+
+## Nondeterministic space is closed under complement
+
+The reachable-vertex counting method leads to the space-complexity corollary that nondeterministic space and its complement class coincide for space bounds at least logarithmic.
+
+<div class="theorem-box">
+<div class="theorem-title">Nondeterministic Space Complementation</div>
+
+For a proper space bound $f(n)\geq\log n$,
+
+$$
+\mathrm{NSPACE}(f(n))=\mathrm{coNSPACE}(f(n)).
+$$
+</div>
+
+This result is particularly important for logarithmic space. It implies
+
+$$
+\mathrm{NL}=\mathrm{coNL},
+$$
+so a problem that can be decided in nondeterministic logarithmic space can also have its complement decided in nondeterministic logarithmic space. The theorem does not imply $\mathrm{L}=\mathrm{NL}$; that equality remains open.
