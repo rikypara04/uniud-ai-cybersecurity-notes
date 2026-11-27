@@ -118,6 +118,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
 <link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -1049,14 +1078,19 @@ Value of a cardinality constraint in a set S
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>p(bartolomeo<span class="kw">,</span>verdi<span class="kw">,</span>m<span class="kw">,</span><span class="dv">1983</span><span class="kw">,</span>gorizia)<span class="kw">.</span></span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>p(berenice<span class="kw">,</span>neri<span class="kw">,</span>f<span class="kw">,</span><span class="dv">1995</span><span class="kw">,</span>pordenone)<span class="kw">.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The question asks for an ASP program that defines an auxiliary predicate <code>phi</code> with the same truth value as the quantified formula</p>
-<p>[ = X,Y,Z,W,Q;p(X,Y,Z,W,Q). ]</p>
+<p><span class="math display">\[
+\Phi = \exists X\,\forall Y\,\exists Z\,\forall W\,\exists Q\; p(X,Y,Z,W,Q).
+\]</span></p>
 <p>The program must include the extensional facts for <code>p/5</code>. The lecturer suggests introducing auxiliary predicates, likely one for each quantifier alternation, to express the formula’s truth. The computational reflection asks how this kind of formula relates to material studied with Professor Carla Piazza, and whether the approach is coherent with ASP’s NP-completeness; the exercise is left open for the student.</p>
 </section>
 <section id="extra-notes-on-cardinality-constraints-in-rule-heads" class="level1" data-number="9">
 <h1 data-number="9"><span class="header-section-number">9</span> Extra notes on cardinality constraints in rule heads</h1>
 <p>The last slides provide a schematic translation of cardinality constraints used in rule heads, including default-negated literals. They note that including default-negated literals among the head literals has no effect on the stable model: such literals cannot contribute to supporting an atom.</p>
 <p>For the form</p>
-<p>[ {a_1,,a_m,; d_1,, d_n}u BODY, ]</p>
+<p><span class="math display">\[
+\ell\{a_1,\ldots,a_m,\;\operatorname{not} d_1,\ldots,\operatorname{not} d_n\}u
+\leftarrow \mathrm{BODY},
+\]</span></p>
 <p>the slides introduce fresh atoms <code>b</code> and <code>c</code> and outline the following translation:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode prolog code-with-copy"><code class="sourceCode prolog"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>b <span class="kw">:-</span> <span class="dt">BODY</span><span class="kw">.</span></span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span> a1<span class="kw">,</span> ...<span class="kw">,</span> am <span class="kw">}</span> <span class="kw">:-</span> b<span class="kw">.</span></span>
