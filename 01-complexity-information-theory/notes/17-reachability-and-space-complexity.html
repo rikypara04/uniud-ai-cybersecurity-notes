@@ -639,19 +639,47 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#reachability-and-space-complexity" id="toc-reachability-and-space-complexity" class="nav-link active" data-scroll-target="#reachability-and-space-complexity"><span class="header-section-number">1</span> Reachability and Space Complexity</a>
+  <li><a href="#reachability-method" id="toc-reachability-method" class="nav-link active" data-scroll-target="#reachability-method"><span class="header-section-number">1</span> Reachability Method</a>
   <ul class="collapse">
-  <li><a href="#the-reachability-graph-of-a-computation" id="toc-the-reachability-graph-of-a-computation" class="nav-link" data-scroll-target="#the-reachability-graph-of-a-computation"><span class="header-section-number">1.1</span> The reachability graph of a computation</a></li>
-  <li><a href="#complexity-class-relationships" id="toc-complexity-class-relationships" class="nav-link" data-scroll-target="#complexity-class-relationships"><span class="header-section-number">1.2</span> Complexity-class relationships</a></li>
-  <li><a href="#savitchs-theorem" id="toc-savitchs-theorem" class="nav-link" data-scroll-target="#savitchs-theorem"><span class="header-section-number">1.3</span> Savitch’s theorem</a>
+  <li><a href="#the-configuration-graph" id="toc-the-configuration-graph" class="nav-link" data-scroll-target="#the-configuration-graph"><span class="header-section-number">1.1</span> The configuration graph</a></li>
+  <li><a href="#complexity-class-containments-and-open-questions" id="toc-complexity-class-containments-and-open-questions" class="nav-link" data-scroll-target="#complexity-class-containments-and-open-questions"><span class="header-section-number">1.2</span> Complexity-class containments and open questions</a></li>
+  </ul></li>
+  <li><a href="#savitchs-theorem" id="toc-savitchs-theorem" class="nav-link" data-scroll-target="#savitchs-theorem"><span class="header-section-number">2</span> Savitch’s Theorem</a>
   <ul class="collapse">
-  <li><a href="#recursive-path-predicate" id="toc-recursive-path-predicate" class="nav-link" data-scroll-target="#recursive-path-predicate"><span class="header-section-number">1.3.1</span> Recursive path predicate</a></li>
-  <li><a href="#space-analysis" id="toc-space-analysis" class="nav-link" data-scroll-target="#space-analysis"><span class="header-section-number">1.3.2</span> Space analysis</a></li>
+  <li><a href="#proof-recursive-path-testing" id="toc-proof-recursive-path-testing" class="nav-link" data-scroll-target="#proof-recursive-path-testing"><span class="header-section-number">2.1</span> Proof: recursive path testing</a>
+  <ul class="collapse">
+  <li><a href="#base-case" id="toc-base-case" class="nav-link" data-scroll-target="#base-case"><span class="header-section-number">2.1.1</span> Base case</a></li>
+  <li><a href="#recursive-case" id="toc-recursive-case" class="nav-link" data-scroll-target="#recursive-case"><span class="header-section-number">2.1.2</span> Recursive case</a></li>
+  <li><a href="#the-recursive-algorithm" id="toc-the-recursive-algorithm" class="nav-link" data-scroll-target="#the-recursive-algorithm"><span class="header-section-number">2.1.3</span> The recursive algorithm</a></li>
   </ul></li>
-  <li><a href="#a-consequence-for-nondeterministic-space" id="toc-a-consequence-for-nondeterministic-space" class="nav-link" data-scroll-target="#a-consequence-for-nondeterministic-space"><span class="header-section-number">1.4</span> A consequence for nondeterministic space</a></li>
-  <li><a href="#counting-reachable-vertices-in-nondeterministic-space" id="toc-counting-reachable-vertices-in-nondeterministic-space" class="nav-link" data-scroll-target="#counting-reachable-vertices-in-nondeterministic-space"><span class="header-section-number">1.5</span> Counting reachable vertices in nondeterministic space</a></li>
-  <li><a href="#nondeterministic-space-is-closed-under-complement" id="toc-nondeterministic-space-is-closed-under-complement" class="nav-link" data-scroll-target="#nondeterministic-space-is-closed-under-complement"><span class="header-section-number">1.6</span> Nondeterministic space is closed under complement</a></li>
+  <li><a href="#space-analysis" id="toc-space-analysis" class="nav-link" data-scroll-target="#space-analysis"><span class="header-section-number">2.2</span> Space analysis</a></li>
   </ul></li>
+  <li><a href="#corollaries-of-savitchs-theorem" id="toc-corollaries-of-savitchs-theorem" class="nav-link" data-scroll-target="#corollaries-of-savitchs-theorem"><span class="header-section-number">3</span> Corollaries of Savitch’s Theorem</a>
+  <ul class="collapse">
+  <li><a href="#nondeterministic-space-can-be-simulated-deterministically" id="toc-nondeterministic-space-can-be-simulated-deterministically" class="nav-link" data-scroll-target="#nondeterministic-space-can-be-simulated-deterministically"><span class="header-section-number">3.1</span> Nondeterministic space can be simulated deterministically</a>
+  <ul class="collapse">
+  <li><a href="#proof" id="toc-proof" class="nav-link" data-scroll-target="#proof"><span class="header-section-number">3.1.1</span> Proof</a></li>
+  </ul></li>
+  <li><a href="#equality-of-pspace-and-npspace" id="toc-equality-of-pspace-and-npspace" class="nav-link" data-scroll-target="#equality-of-pspace-and-npspace"><span class="header-section-number">3.2</span> Equality of PSPACE and NPSPACE</a>
+  <ul class="collapse">
+  <li><a href="#proof-1" id="toc-proof-1" class="nav-link" data-scroll-target="#proof-1"><span class="header-section-number">3.2.1</span> Proof</a></li>
+  </ul></li>
+  <li><a href="#a-logarithmic-space-corollary" id="toc-a-logarithmic-space-corollary" class="nav-link" data-scroll-target="#a-logarithmic-space-corollary"><span class="header-section-number">3.3</span> A logarithmic-space corollary</a>
+  <ul class="collapse">
+  <li><a href="#proof-2" id="toc-proof-2" class="nav-link" data-scroll-target="#proof-2"><span class="header-section-number">3.3.1</span> Proof</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#reachability-counting-in-nondeterministic-space" id="toc-reachability-counting-in-nondeterministic-space" class="nav-link" data-scroll-target="#reachability-counting-in-nondeterministic-space"><span class="header-section-number">4</span> Reachability Counting in Nondeterministic Space</a>
+  <ul class="collapse">
+  <li><a href="#reachable-sets-at-bounded-distance" id="toc-reachable-sets-at-bounded-distance" class="nav-link" data-scroll-target="#reachable-sets-at-bounded-distance"><span class="header-section-number">4.1</span> Reachable sets at bounded distance</a></li>
+  <li><a href="#the-counting-procedure" id="toc-the-counting-procedure" class="nav-link" data-scroll-target="#the-counting-procedure"><span class="header-section-number">4.2</span> The counting procedure</a>
+  <ul class="collapse">
+  <li><a href="#why-the-counter-check-is-necessary" id="toc-why-the-counter-check-is-necessary" class="nav-link" data-scroll-target="#why-the-counter-check-is-necessary"><span class="header-section-number">4.2.1</span> Why the counter check is necessary</a></li>
+  <li><a href="#correctness-by-induction-on-i" id="toc-correctness-by-induction-on-i" class="nav-link" data-scroll-target="#correctness-by-induction-on-i"><span class="header-section-number">4.2.2</span> Correctness by induction on <span class="math inline">\(i\)</span></a></li>
+  </ul></li>
+  <li><a href="#why-the-count-is-useful-for-complementing-reachability" id="toc-why-the-count-is-useful-for-complementing-reachability" class="nav-link" data-scroll-target="#why-the-count-is-useful-for-complementing-reachability"><span class="header-section-number">4.3</span> Why the count is useful for complementing reachability</a></li>
+  </ul></li>
+  <li><a href="#corollary-nondeterministic-space-is-closed-under-complement" id="toc-corollary-nondeterministic-space-is-closed-under-complement" class="nav-link" data-scroll-target="#corollary-nondeterministic-space-is-closed-under-complement"><span class="header-section-number">5</span> Corollary: Nondeterministic Space Is Closed Under Complement</a></li>
   </ul>
 </nav>
     </div>
@@ -703,63 +731,89 @@ window.Quarto = {
   .theorem-title { color: #ff8a96; }
 }
 </style>
-<section id="reachability-and-space-complexity" class="level1" data-number="1">
-<h1 data-number="1"><span class="header-section-number">1</span> Reachability and Space Complexity</h1>
-<p>Reachability is a central graph problem and a useful way to represent nondeterministic computation. Instead of storing an entire computation tree, we can consider the graph of configurations and ask whether one configuration can reach another. The size of this graph and the amount of space needed to reason about paths lead to important relationships between deterministic and nondeterministic space.</p>
-<section id="the-reachability-graph-of-a-computation" class="level2" data-number="1.1">
-<h2 data-number="1.1" class="anchored" data-anchor-id="the-reachability-graph-of-a-computation"><span class="header-section-number">1.1</span> The reachability graph of a computation</h2>
-<p>Let <span class="math inline">\(N\)</span> be a nondeterministic Turing machine and let <span class="math inline">\(x\)</span> be an input. We can construct a directed graph <span class="math inline">\(G_{N,x}\)</span> whose vertices represent configurations of <span class="math inline">\(N\)</span> on input <span class="math inline">\(x\)</span>. A directed edge connects two configurations whenever one legal transition of <span class="math inline">\(N\)</span> takes the first configuration to the second.</p>
-<p>The initial configuration is the starting vertex. An accepting configuration is a target vertex. The machine accepts <span class="math inline">\(x\)</span> if and only if there exists a path from the initial configuration to an accepting configuration in this graph.</p>
-<p>If <span class="math inline">\(N\)</span> uses <span class="math inline">\(f(n)\)</span> space on inputs of length <span class="math inline">\(n\)</span>, then a configuration can be described using the machine state, head positions, and the contents of the bounded work tapes. The number of possible configurations is exponential in the amount of space used, with an additional logarithmic contribution for the input-head position. In the lecture’s notation, for a fixed alphabet and machine,</p>
-<p><span class="math display">\[
-|G_{N,x}| = O\left(\alpha^{f(n)+\log n}\right)
-\]</span></p>
-<p>for a constant base <span class="math inline">\(\alpha&gt;1\)</span>. The graph can be very large even when the machine uses relatively little space.</p>
-<p>The important point is that we do not necessarily need to construct and store the entire graph. Given a configuration, its description is enough to generate its possible successor configurations when they are needed. This is the <strong>on-the-fly</strong> approach: generate only the portions of the configuration graph required by the computation.</p>
-</section>
-<section id="complexity-class-relationships" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="complexity-class-relationships"><span class="header-section-number">1.2</span> Complexity-class relationships</h2>
-<p>The lecture places reachability in the context of the following chain of containments:</p>
-<p><span class="math display">\[
-\mathrm{L}\subseteq\mathrm{NL}\subseteq\mathrm{P}\subseteq\mathrm{NP}
-\subseteq\mathrm{PSPACE}\subseteq\mathrm{NPSPACE}\subseteq\mathrm{EXPSPACE}\subseteq\cdots
-\]</span></p>
-<p>Here, <span class="math inline">\(\mathrm{L}\)</span> is deterministic logarithmic space, <span class="math inline">\(\mathrm{NL}\)</span> is nondeterministic logarithmic space, <span class="math inline">\(\mathrm{P}\)</span> and <span class="math inline">\(\mathrm{NP}\)</span> are polynomial time, and <span class="math inline">\(\mathrm{PSPACE}\)</span> and <span class="math inline">\(\mathrm{NPSPACE}\)</span> are deterministic and nondeterministic polynomial space, respectively. The containments follow from the corresponding simulation and resource relationships.</p>
-<p>Two equality questions highlighted in the notes are:</p>
+<section id="reachability-method" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Reachability Method</h1>
+<p>The reachability method represents the possible executions of a nondeterministic machine as a directed graph. The central idea is to reason about the machine by asking whether one configuration can reach another. This viewpoint is useful because a configuration is a compact description of the machine at one instant, and its possible next configurations can be generated when needed rather than stored all at once.</p>
+<section id="the-configuration-graph" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="the-configuration-graph"><span class="header-section-number">1.1</span> The configuration graph</h2>
+<p>Let <span class="math inline">\(N\)</span> be a nondeterministic Turing machine and let <span class="math inline">\(x\)</span> be an input. Denote by <span class="math inline">\(G_{N,x}\)</span> the directed graph associated with the computation of <span class="math inline">\(N\)</span> on <span class="math inline">\(x\)</span>:</p>
 <ul>
-<li><strong><span class="math inline">\(\mathrm{L}=\mathrm{NL}\)</span>?</strong> This remains an open problem.</li>
-<li><strong><span class="math inline">\(\mathrm{PSPACE}=\mathrm{NPSPACE}\)</span>?</strong> Yes; Savitch’s theorem implies this equality.</li>
+<li>every vertex is a configuration of <span class="math inline">\(N\)</span> on input <span class="math inline">\(x\)</span>;</li>
+<li>an edge <span class="math inline">\((C,C')\)</span> exists exactly when <span class="math inline">\(C'\)</span> can follow <span class="math inline">\(C\)</span> in one legal transition of <span class="math inline">\(N\)</span>;</li>
+<li>the initial configuration is the start vertex;</li>
+<li>accepting configurations are target vertices.</li>
 </ul>
-<p>The reachability method gives a deterministic simulation of nondeterministic space with a quadratic increase in the space bound, which is enough to establish the second equality.</p>
+<p>The machine accepts <span class="math inline">\(x\)</span> if and only if at least one accepting configuration is reachable from its initial configuration. Thus acceptance is equivalent to a graph-reachability question.</p>
+<p>Suppose <span class="math inline">\(N\)</span> uses at most <span class="math inline">\(f(n)\)</span> work-space cells on inputs of length <span class="math inline">\(n\)</span>. A configuration records the finite control state, the head positions, and the contents of the work tapes. For a fixed machine and alphabet, the number of configurations is bounded exponentially in the space used, with an additional contribution for the input-head position. In the notation of the lecture, for some constant <span class="math inline">\(b&gt;1\)</span>,</p>
+<p><span class="math display">\[
+|G_{N,x}|=O\left(b^{f(n)+\log n}\right).
+\]</span></p>
+<p>The graph may therefore be exponentially large, even when the machine uses a small amount of space. Crucially, it is not necessary to construct the entire graph explicitly. From a configuration description, we can generate its legal successors as needed. This is called generating the graph <strong>on-the-fly</strong>.</p>
 </section>
-<section id="savitchs-theorem" class="level2" data-number="1.3">
-<h2 data-number="1.3" class="anchored" data-anchor-id="savitchs-theorem"><span class="header-section-number">1.3</span> Savitch’s theorem</h2>
-<p>The key problem is directed reachability. Given a directed graph <span class="math inline">\(G=(V,E)\)</span> with <span class="math inline">\(|V|=m\)</span> and vertices <span class="math inline">\(u,v\in V\)</span>, determine whether there is a directed path from <span class="math inline">\(u\)</span> to <span class="math inline">\(v\)</span>.</p>
-<p>A path, if one exists, can be assumed to have length at most <span class="math inline">\(m-1\)</span>: if a path repeats a vertex, the cycle between the repeated occurrences can be removed. Therefore it is sufficient to consider paths whose length is at most <span class="math inline">\(m\)</span>.</p>
+<section id="complexity-class-containments-and-open-questions" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="complexity-class-containments-and-open-questions"><span class="header-section-number">1.2</span> Complexity-class containments and open questions</h2>
+<p>The reachability viewpoint is placed alongside the familiar containments:</p>
+<p><span class="math display">\[
+\mathrm{L}\subseteq\mathrm{NL}\subseteq\mathrm{P}\subseteq\mathrm{NP}\subseteq\mathrm{PSPACE}\subseteq\mathrm{NPSPACE}\subseteq\mathrm{EXPSPACE}\subseteq\cdots
+\]</span></p>
+<p>The two questions highlighted in the lecture are:</p>
+<ul>
+<li>Is <span class="math inline">\(\mathrm{L}=\mathrm{NL}\)</span>? This is still an open problem.</li>
+<li>Is <span class="math inline">\(\mathrm{PSPACE}=\mathrm{NPSPACE}\)</span>? Yes. Savitch’s theorem establishes this equality.</li>
+</ul>
+<p>The next result is the key space-efficient algorithm for directed reachability.</p>
+</section>
+</section>
+<section id="savitchs-theorem" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Savitch’s Theorem</h1>
+<p>Consider a directed graph <span class="math inline">\(G=(V,E)\)</span> with <span class="math inline">\(|V|=m\)</span>, and two vertices <span class="math inline">\(u,v\in V\)</span>. We want to decide whether there is a directed path from <span class="math inline">\(u\)</span> to <span class="math inline">\(v\)</span>.</p>
+<p>If a path exists, we can choose one with no repeated vertices: whenever a vertex appears twice, the cycle between those occurrences can be removed. A simple path contains at most <span class="math inline">\(m\)</span> vertices and hence at most <span class="math inline">\(m-1\)</span> edges. Therefore, it is enough to decide whether a path of length at most <span class="math inline">\(m\)</span> exists.</p>
 <div class="theorem-box">
 <div class="theorem-title">
-Savitch’s Theorem (Reachability)
+Savitch’s Theorem — Directed Reachability
 </div>
 <p>Directed reachability in a graph with <span class="math inline">\(m\)</span> vertices can be decided deterministically using</p>
 <p><span class="math display">\[
 O\left((\log m)^2\right)
 \]</span> space.</p>
 </div>
-<section id="recursive-path-predicate" class="level3" data-number="1.3.1">
-<h3 data-number="1.3.1" class="anchored" data-anchor-id="recursive-path-predicate"><span class="header-section-number">1.3.1</span> Recursive path predicate</h3>
-<p>Define <span class="math inline">\(\operatorname{Path}(u,v,i)\)</span> to mean that there is a path from <span class="math inline">\(u\)</span> to <span class="math inline">\(v\)</span> of length at most <span class="math inline">\(2^i\)</span>.</p>
-<p>The base case checks whether the path has length at most one:</p>
+<section id="proof-recursive-path-testing" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="proof-recursive-path-testing"><span class="header-section-number">2.1</span> Proof: recursive path testing</h2>
+<p>Define the predicate <span class="math inline">\(\operatorname{Path}(u,v,i)\)</span> as follows:</p>
 <p><span class="math display">\[
-\operatorname{Path}(u,v,0)\iff (u=v)\lor((u,v)\in E).
-\]</span></p>
-<p>For <span class="math inline">\(i&gt;0\)</span>, a path of length at most <span class="math inline">\(2^i\)</span> can be split into two portions, each of length at most <span class="math inline">\(2^{i-1}\)</span>, by choosing an intermediate vertex <span class="math inline">\(z\)</span>. Conversely, if both portions exist, concatenating them produces a path of length at most <span class="math inline">\(2^i\)</span>. Thus,</p>
+\operatorname{Path}(u,v,i)\ \Longleftrightarrow\ \text{there is a path from }u\text{ to }v\text{ of length at most }2^i.
+\]</span> The parameter <span class="math inline">\(i\)</span> controls the maximum path length allowed. We will test increasingly larger path bounds by recursively reducing <span class="math inline">\(i\)</span>.</p>
+<section id="base-case" class="level3" data-number="2.1.1">
+<h3 data-number="2.1.1" class="anchored" data-anchor-id="base-case"><span class="header-section-number">2.1.1</span> Base case</h3>
+<p>When <span class="math inline">\(i=0\)</span>, the allowed path length is <span class="math inline">\(2^0=1\)</span>. A path of length at most one is either:</p>
+<ul>
+<li>a path of length zero, which is possible precisely when <span class="math inline">\(u=v\)</span>; or</li>
+<li>a single edge from <span class="math inline">\(u\)</span> to <span class="math inline">\(v\)</span>, which is possible precisely when <span class="math inline">\((u,v)\in E\)</span>.</li>
+</ul>
+<p>Therefore,</p>
 <p><span class="math display">\[
-\operatorname{Path}(u,v,i)\iff
-\exists z\in V:\
-\operatorname{Path}(u,z,i-1)\land
-\operatorname{Path}(z,v,i-1).
+\operatorname{Path}(u,v,0)\Longleftrightarrow (u=v)\lor((u,v)\in E).
+\]</span> This base case is directly checkable from the graph representation.</p>
+</section>
+<section id="recursive-case" class="level3" data-number="2.1.2">
+<h3 data-number="2.1.2" class="anchored" data-anchor-id="recursive-case"><span class="header-section-number">2.1.2</span> Recursive case</h3>
+<p>Assume <span class="math inline">\(i&gt;0\)</span>. We claim that</p>
+<p><span class="math display">\[
+\begin{aligned}
+\operatorname{Path}(u,v,i)\Longleftrightarrow\ &amp;\exists z\in V:\\
+&amp;\operatorname{Path}(u,z,i-1)\\
+&amp;\qquad\land\operatorname{Path}(z,v,i-1).
+\end{aligned}
 \]</span></p>
-<p>The recursive procedure tries each possible intermediate vertex <span class="math inline">\(z\)</span>. For each one, it recursively tests the two smaller path questions. It accepts as soon as one vertex <span class="math inline">\(z\)</span> makes both recursive tests true; if no vertex works, it rejects. The recursion reduces the path-length bound by half at each level. To test reachability, it is enough to call the predicate with <span class="math inline">\(i=\lceil\log m\rceil\)</span>, since <span class="math inline">\(2^i\ge m\)</span>.</p>
+<p><strong>Forward direction.</strong> Suppose there is a path from <span class="math inline">\(u\)</span> to <span class="math inline">\(v\)</span> of length at most <span class="math inline">\(2^i\)</span>. Choose a vertex <span class="math inline">\(z\)</span> on this path so that the path is split into two subpaths, each of length at most <span class="math inline">\(2^{i-1}\)</span>. Such a split exists because</p>
+<p><span class="math display">\[
+2^{i-1}+2^{i-1}=2^i.
+\]</span> The first subpath witnesses <span class="math inline">\(\operatorname{Path}(u,z,i-1)\)</span> and the second witnesses <span class="math inline">\(\operatorname{Path}(z,v,i-1)\)</span>. Hence a suitable intermediate vertex <span class="math inline">\(z\)</span> exists.</p>
+<p><strong>Reverse direction.</strong> Conversely, suppose there is a vertex <span class="math inline">\(z\in V\)</span> such that both <span class="math inline">\(\operatorname{Path}(u,z,i-1)\)</span> and <span class="math inline">\(\operatorname{Path}(z,v,i-1)\)</span> are true. The first gives a path of length at most <span class="math inline">\(2^{i-1}\)</span> from <span class="math inline">\(u\)</span> to <span class="math inline">\(z\)</span>; the second gives a path of length at most <span class="math inline">\(2^{i-1}\)</span> from <span class="math inline">\(z\)</span> to <span class="math inline">\(v\)</span>. Concatenating these paths produces a path from <span class="math inline">\(u\)</span> to <span class="math inline">\(v\)</span> of length at most</p>
+<p><span class="math display">\[
+2^{i-1}+2^{i-1}=2^i.
+\]</span></p>
+<p>Thus <span class="math inline">\(\operatorname{Path}(u,v,i)\)</span> is true. This proves the recursive equivalence.</p>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
@@ -769,104 +823,193 @@ O\left((\log m)^2\right)
 <pre class="mermaid mermaid-js">flowchart LR
     U["u"] --&gt; Z["Intermediate vertex z"]
     Z --&gt; V["v"]
-    subgraph L["First subpath"]
-      U --&gt; Z
-    L1["Length at most 2^(i-1)"]
-    L1 -.-&gt; U
-    L1 -.-&gt; Z
-    end
-    subgraph R["Second subpath"]
-      Z --&gt; V
-      R1["Length at most 2^(i-1)"]
-      R1 -.-&gt; Z
-      R1 -.-&gt; V
-    end
+    U -.-&gt; A["First subpath: at most 2^(i-1)"]
+    Z -.-&gt; A
+    Z -.-&gt; B["Second subpath: at most 2^(i-1)"]
+    V -.-&gt; B
 </pre>
 </div>
-<p></p><figcaption> A path of length at most 2^i is divided at an intermediate vertex into two paths, each bounded by 2^(i-1).</figcaption> </figure><p></p>
+<p></p><figcaption> A path bounded by 2^i is split at an intermediate vertex z into two subpaths, each bounded by 2^(i-1).</figcaption> </figure><p></p>
 </div>
 </div>
 </div>
 </section>
-<section id="space-analysis" class="level3" data-number="1.3.2">
-<h3 data-number="1.3.2" class="anchored" data-anchor-id="space-analysis"><span class="header-section-number">1.3.2</span> Space analysis</h3>
-<p>The recursive algorithm does not need to store a complete path. It stores the current recursive call’s parameters: the two vertices, the level <span class="math inline">\(i\)</span>, and the intermediate vertex being tried. Each vertex can be represented by <span class="math inline">\(O(\log m)\)</span> bits, and the level also needs <span class="math inline">\(O(\log m)\)</span> bits.</p>
-<p>The recursion depth is <span class="math inline">\(O(\log m)\)</span>, because the parameter decreases from <span class="math inline">\(\lceil\log m\rceil\)</span> to zero. Each level stores only a constant number of vertex identifiers and counters, requiring <span class="math inline">\(O(\log m)\)</span> bits. Consequently, the total space is</p>
+<section id="the-recursive-algorithm" class="level3" data-number="2.1.3">
+<h3 data-number="2.1.3" class="anchored" data-anchor-id="the-recursive-algorithm"><span class="header-section-number">2.1.3</span> The recursive algorithm</h3>
+<p>The deterministic algorithm evaluates the recursive predicate by enumerating every candidate intermediate vertex:</p>
+<ol type="1">
+<li>If <span class="math inline">\(i=0\)</span>, test whether <span class="math inline">\(u=v\)</span> or <span class="math inline">\((u,v)\in E\)</span>.</li>
+<li>Otherwise, enumerate <span class="math inline">\(z\in V\)</span>.</li>
+<li>For each <span class="math inline">\(z\)</span>, recursively test <span class="math inline">\(\operatorname{Path}(u,z,i-1)\)</span> and <span class="math inline">\(\operatorname{Path}(z,v,i-1)\)</span>.</li>
+<li>If both tests succeed for some <span class="math inline">\(z\)</span>, return true; if all vertices have been tried without success, return false.</li>
+</ol>
+<p>To decide ordinary reachability, call the procedure with <span class="math inline">\(i=\lceil\log m\rceil\)</span>. Then <span class="math inline">\(2^i\geq m\)</span>, which is at least the length of a simple path in the graph.</p>
+</section>
+</section>
+<section id="space-analysis" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="space-analysis"><span class="header-section-number">2.2</span> Space analysis</h2>
+<p>We analyze the memory used by one recursive call and the depth of recursion. A call needs to retain only:</p>
+<ul>
+<li>the current endpoints <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span>;</li>
+<li>the recursion index <span class="math inline">\(i\)</span>;</li>
+<li>the intermediate vertex currently being tested;</li>
+<li>a constant amount of control information indicating which recursive call is being evaluated.</li>
+</ul>
+<p>Each vertex can be encoded using <span class="math inline">\(O(\log m)\)</span> bits. The index <span class="math inline">\(i\)</span> and the loop counter over candidate vertices also require <span class="math inline">\(O(\log m)\)</span> bits. Thus, one level of recursion requires <span class="math inline">\(O(\log m)\)</span> space.</p>
+<p>The index starts at <span class="math inline">\(\lceil\log m\rceil\)</span> and decreases by one at every recursive level, until it reaches zero. The recursion depth is therefore <span class="math inline">\(O(\log m)\)</span>. The algorithm evaluates the two recursive calls sequentially, retaining the parameters of the current call but not both entire recursive computation trees at once. The memory used is the sum of the information stored along the active recursion stack:</p>
 <p><span class="math display">\[
-O(\log m)\cdot O(\log m)=O((\log m)^2).
-\]</span></p>
-<p>The algorithm may take much longer than polynomial time because it repeatedly solves recursive subproblems. The theorem is a <strong>space bound</strong>, not a claim of an efficient running time.</p>
+\underbrace{O(\log m)}_{\text{space per level}}\cdot\underbrace{O(\log m)}_{\text{levels}}=O((\log m)^2).
+\]</span> This proves Savitch’s theorem. The running time can be much larger: this is a deterministic <strong>space</strong> bound, and the repeated recursive enumeration is not claimed to be time-efficient.</p>
 </section>
 </section>
-<section id="a-consequence-for-nondeterministic-space" class="level2" data-number="1.4">
-<h2 data-number="1.4" class="anchored" data-anchor-id="a-consequence-for-nondeterministic-space"><span class="header-section-number">1.4</span> A consequence for nondeterministic space</h2>
-<p>The reachability graph of a nondeterministic machine can be exponentially large in its space bound. However, the graph need not be explicitly stored: its vertices and edges can be generated from configuration descriptions on demand. Applying Savitch’s reachability algorithm to this implicitly represented graph gives a deterministic space simulation.</p>
+<section id="corollaries-of-savitchs-theorem" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Corollaries of Savitch’s Theorem</h1>
+<section id="nondeterministic-space-can-be-simulated-deterministically" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="nondeterministic-space-can-be-simulated-deterministically"><span class="header-section-number">3.1</span> Nondeterministic space can be simulated deterministically</h2>
 <div class="theorem-box">
 <div class="theorem-title">
 Space Simulation Corollary
 </div>
 <p>If <span class="math inline">\(f(n)\)</span> is a proper space bound and <span class="math inline">\(f(n)\geq\log n\)</span>, then</p>
 <p><span class="math display">\[
-\mathrm{NSPACE}(f(n))\subseteq
-\mathrm{SPACE}\left((f(n))^2\right).
+\mathrm{NSPACE}(f(n))\subseteq\mathrm{SPACE}((f(n))^2).
 \]</span></p>
 </div>
-<p>For the configuration graph, the logarithm of its number of vertices is <span class="math inline">\(O(f(n)+\log n)\)</span>. Under the assumption <span class="math inline">\(f(n)\geq\log n\)</span>, this is <span class="math inline">\(O(f(n))\)</span>. Savitch’s algorithm therefore uses</p>
+<section id="proof" class="level3" data-number="3.1.1">
+<h3 data-number="3.1.1" class="anchored" data-anchor-id="proof"><span class="header-section-number">3.1.1</span> Proof</h3>
+<p>Let <span class="math inline">\(N\)</span> be a nondeterministic machine that decides a language using <span class="math inline">\(f(n)\)</span> space. On input <span class="math inline">\(x\)</span>, construct its configuration graph <span class="math inline">\(G_{N,x}\)</span>.</p>
+<p>The configuration graph has at most</p>
 <p><span class="math display">\[
-O\left((\log |G_{N,x}|)^2\right)=O((f(n))^2)
-\]</span> space. This explains why the lower-bound condition on <span class="math inline">\(f(n)\)</span> matters: it absorbs the contribution of the input-head position into the space bound.</p>
-<p>Taking <span class="math inline">\(f(n)\)</span> to be a polynomial yields the equality</p>
+|G_{N,x}|=O\left(b^{f(n)+\log n}\right)
+\]</span> vertices for a constant base greater than one. The graph is generated on-the-fly: while performing the reachability verification, we generate only the configurations and transitions needed at that point, rather than storing the whole graph. This is essential because explicitly storing all vertices would require exponential space.</p>
+<p>Savitch’s reachability procedure uses space quadratic in the logarithm of the graph size. Hence,</p>
 <p><span class="math display">\[
-\mathrm{NPSPACE}=\mathrm{PSPACE},
-\]</span> which is the equality marked as established in the lecture. In particular, nondeterminism does not increase the class of languages decidable with polynomial space.</p>
-<p>For logarithmic space, the same corollary gives the containment</p>
-<p><span class="math display">\[
-\mathrm{NL}\subseteq\mathrm{SPACE}((\log n)^2).
+\begin{aligned}
+O\left((\log|G_{N,x}|)^2\right)
+&amp;=O\left((f(n)+\log n)^2\right).\\
+\end{aligned}
 \]</span></p>
+<p>Since <span class="math inline">\(f(n)\geq\log n\)</span>, we have <span class="math inline">\(f(n)+\log n=O(f(n))\)</span>. Therefore,</p>
+<p><span class="math display">\[
+O\left((f(n)+\log n)^2\right)=O((f(n))^2).
+\]</span></p>
+<p>The deterministic machine can decide whether the initial configuration reaches an accepting configuration, so it decides the same language within this space. This proves the inclusion.</p>
 </section>
-<section id="counting-reachable-vertices-in-nondeterministic-space" class="level2" data-number="1.5">
-<h2 data-number="1.5" class="anchored" data-anchor-id="counting-reachable-vertices-in-nondeterministic-space"><span class="header-section-number">1.5</span> Counting reachable vertices in nondeterministic space</h2>
-<p>A different reachability question is to count how many vertices of a directed graph are reachable from a given vertex. This counting task is used in the Immerman–Szelepcsényi theorem.</p>
-<p>Given <span class="math inline">\(G=(V,E)\)</span> and a starting vertex <span class="math inline">\(u\in V\)</span>, let <span class="math inline">\(S(i)\)</span> denote the set of vertices reachable from <span class="math inline">\(u\)</span> in at most <span class="math inline">\(i\)</span> steps. If <span class="math inline">\(|V|=m\)</span>, then</p>
-<p><span class="math display">\[
-S(0)=\{u\},\qquad |S(0)|=1,
-\]</span> and every reachable vertex has a path of length at most <span class="math inline">\(m-1\)</span>, so <span class="math inline">\(S(m-1)\)</span> contains all vertices reachable from <span class="math inline">\(u\)</span>.</p>
-<p>The sets grow monotonically:</p>
-<p><span class="math display">\[
-S(i-1)\subseteq S(i).
-\]</span> To obtain <span class="math inline">\(S(i)\)</span> from <span class="math inline">\(S(i-1)\)</span>, consider each candidate vertex <span class="math inline">\(v\in V\)</span>. It belongs to <span class="math inline">\(S(i)\)</span> exactly when it is already in <span class="math inline">\(S(i-1)\)</span> or when there is an edge from some vertex in <span class="math inline">\(S(i-1)\)</span> to <span class="math inline">\(v\)</span>:</p>
-<p><span class="math display">\[
-v\in S(i)\iff v\in S(i-1)\lor
-\exists w\in S(i-1):(w,v)\in E.
-\]</span> The notes outline a nondeterministic counting procedure that scans vertices, maintains a counter, and checks candidate predecessor vertices from the previous reachable set. The counter is bounded by <span class="math inline">\(m\)</span>, so it needs only <span class="math inline">\(O(\log m)\)</span> bits. The method uses the count <span class="math inline">\(|S(i-1)|\)</span> to ensure that the nondeterministic scan has accounted for the entire previous set rather than accepting an incomplete guessed collection.</p>
-<div class="cell" data-layout-align="default">
-<div class="cell-output-display">
-<div>
-<p></p><figure class="figure"><p></p>
-<div>
-
-<pre class="mermaid mermaid-js">flowchart TD
-    S0["S(0) = {u}"] --&gt; S1["S(1): vertices reachable in at most 1 step"]
-    S1 --&gt; S2["S(2): vertices reachable in at most 2 steps"]
-    S2 --&gt; S3["..."]
-    S3 --&gt; Sm["S(m-1): all reachable vertices"]
-</pre>
-</div>
-<p></p><figcaption> Reachability sets are built in stages: S(0) contains the start vertex, and each subsequent set adds vertices with a predecessor in the previous set.</figcaption> </figure><p></p>
-</div>
-</div>
-</div>
-<p>The important resource observation is that the procedure stores vertex identifiers, counters, and a small amount of bookkeeping information. It does not store all of <span class="math inline">\(S(i)\)</span> as a bit-vector. The reachable-set size is represented by its count, and membership checks are performed through the nondeterministic verification procedure.</p>
+</section>
+<section id="equality-of-pspace-and-npspace" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="equality-of-pspace-and-npspace"><span class="header-section-number">3.2</span> Equality of PSPACE and NPSPACE</h2>
 <div class="theorem-box">
 <div class="theorem-title">
-Immerman–Szelepcsényi Theorem
+Corollary: <span class="math inline">\(\mathrm{NPSPACE}=\mathrm{PSPACE}\)</span>
+</div>
+<p><span class="math display">\[
+\mathrm{NPSPACE}=\mathrm{PSPACE}.
+\]</span></p>
+</div>
+<section id="proof-1" class="level3" data-number="3.2.1">
+<h3 data-number="3.2.1" class="anchored" data-anchor-id="proof-1"><span class="header-section-number">3.2.1</span> Proof</h3>
+<p>First, <span class="math inline">\(\mathrm{PSPACE}\subseteq\mathrm{NPSPACE}\)</span> because a deterministic machine is a special case of a nondeterministic machine: at every step it has exactly one possible move.</p>
+<p>For the opposite inclusion, let <span class="math inline">\(L\in\mathrm{NPSPACE}\)</span>. Then there is a polynomial <span class="math inline">\(p(n)\)</span> such that <span class="math inline">\(L\in\mathrm{NSPACE}(p(n))\)</span>. By the space-simulation corollary,</p>
+<p><span class="math display">\[
+L\in\mathrm{SPACE}((p(n))^2).
+\]</span></p>
+<p>Since <span class="math inline">\((p(n))^2\)</span> is still a polynomial, <span class="math inline">\(L\in\mathrm{PSPACE}\)</span>. Thus <span class="math inline">\(\mathrm{NPSPACE}\subseteq\mathrm{PSPACE},\)</span> and the two inclusions establish equality.</p>
+</section>
+</section>
+<section id="a-logarithmic-space-corollary" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="a-logarithmic-space-corollary"><span class="header-section-number">3.3</span> A logarithmic-space corollary</h2>
+<p>Applying the same simulation to <span class="math inline">\(f(n)=\log n\)</span> gives</p>
+<p><span class="math display">\[
+\mathrm{NL}\subseteq\mathrm{SPACE}((\log n)^2).
+\]</span> This is the direct logarithmic-space consequence of Savitch’s theorem noted in the lecture.</p>
+<section id="proof-2" class="level3" data-number="3.3.1">
+<h3 data-number="3.3.1" class="anchored" data-anchor-id="proof-2"><span class="header-section-number">3.3.1</span> Proof</h3>
+<p>By definition, <span class="math inline">\(\mathrm{NL}=\mathrm{NSPACE}(\log n)\)</span>. Apply the space-simulation corollary with <span class="math inline">\(f(n)=\log n\)</span>:</p>
+<p><span class="math display">\[
+\mathrm{NSPACE}(\log n)\subseteq\mathrm{SPACE}((\log n)^2).
+\]</span></p>
+<p>Substituting the definition of <span class="math inline">\(\mathrm{NL}\)</span> gives the claimed containment.</p>
+</section>
+</section>
+</section>
+<section id="reachability-counting-in-nondeterministic-space" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Reachability Counting in Nondeterministic Space</h1>
+<p>The next part considers a counting task on graphs. Given a directed graph <span class="math inline">\(G=(V,E)\)</span> and a vertex <span class="math inline">\(u\in V\)</span>, we want to count how many vertices are reachable from <span class="math inline">\(u\)</span>. The lecture uses this procedure as the central ingredient for nondeterministically verifying that vertices are <strong>not</strong> reachable.</p>
+<section id="reachable-sets-at-bounded-distance" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="reachable-sets-at-bounded-distance"><span class="header-section-number">4.1</span> Reachable sets at bounded distance</h2>
+<p>Let <span class="math inline">\(|V|=m\)</span>. For each integer <span class="math inline">\(i\geq0\)</span>, define</p>
+<p><span class="math display">\[
+S(i)=\{v\in V\mid\text{there is a path from }u\text{ to }v\text{ of length at most }i\}.
+\]</span></p>
+<p>The initial set contains only the starting vertex:</p>
+<p><span class="math display">\[
+S(0)=\{u\},\qquad |S(0)|=1.
+\]</span> The sets are monotone:</p>
+<p><span class="math display">\[
+S(i-1)\subseteq S(i).
+\]</span> Moreover, any reachable vertex has a simple path from <span class="math inline">\(u\)</span> of length at most <span class="math inline">\(m-1\)</span>. Therefore <span class="math inline">\(S(m-1)\)</span> is precisely the set of all vertices reachable from <span class="math inline">\(u\)</span>.</p>
+<p>A vertex <span class="math inline">\(v\)</span> belongs to the next set exactly when it was already reachable within <span class="math inline">\(i-1\)</span> steps, or when an edge into <span class="math inline">\(v\)</span> comes from some vertex in the previous set:</p>
+<p><span class="math display">\[
+\boxed{\ v\in S(i)\Longleftrightarrow v\in S(i-1)\lor\exists w\in S(i-1):(w,v)\in E.\ }
+\]</span></p>
+<p>This recurrence is the basis of the counting procedure.</p>
+</section>
+<section id="the-counting-procedure" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="the-counting-procedure"><span class="header-section-number">4.2</span> The counting procedure</h2>
+<p>Suppose we know the number <span class="math inline">\(|S(i-1)|\)</span>, but we do not store the set <span class="math inline">\(S(i-1)\)</span> as a bit-vector. We compute <span class="math inline">\(|S(i)|\)</span> by scanning the vertices <span class="math inline">\(v\in V\)</span> one at a time.</p>
+<p>For each candidate <span class="math inline">\(v\)</span>, we need to determine whether <span class="math inline">\(v\in S(i)\)</span>. We nondeterministically search for a witness <span class="math inline">\(w\)</span> in the previous reachable set:</p>
+<ul>
+<li>either <span class="math inline">\(w=v\)</span>, which certifies that <span class="math inline">\(v\)</span> was already in <span class="math inline">\(S(i-1)\)</span>;</li>
+<li>or <span class="math inline">\((w,v)\in E\)</span>, which certifies that <span class="math inline">\(v\)</span> can be reached by extending a path to <span class="math inline">\(w\)</span> by one edge.</li>
+</ul>
+<p>The membership test for <span class="math inline">\(w\in S(i-1)\)</span> is carried out by the same counting/verifying procedure. A counter <span class="math inline">\(m_0\)</span> tracks how many vertices of the previous set have been accounted for during the scan. The branch is rejected if this count fails to reach the known value <span class="math inline">\(|S(i-1)|\)</span>; this prevents a branch from accepting merely because it guessed an incomplete subset of the previous reachable vertices.</p>
+<p>The pseudocode below spells out the bookkeeping shown in the notes. Here <code>CHECK-OLD(w)</code> denotes the nondeterministic verification that <span class="math inline">\(w\in S(i-1)\)</span>, implemented by the preceding stage of the procedure.</p>
+<pre class="text"><code>S(0) := {u};  count := |S(0)| = 1
+
+for i := 1, 2, ..., m-1:
+    l := 0
+    for v := 1, 2, ..., m:
+        reply := false
+        m0 := 0
+        for w := 1, 2, ..., m:
+            if CHECK-OLD(w):
+                m0 := m0 + 1
+                if (w = v) or ((w,v) in E):
+                    reply := true
+        if m0 &lt; |S(i-1)|:
+            reject this computation branch
+        if reply:
+            l := l + 1
+    |S(i)| := l</code></pre>
+<p>The value <span class="math inline">\(l\)</span> is incremented once for every vertex found to belong to <span class="math inline">\(S(i)\)</span>, so after the scan it equals <span class="math inline">\(|S(i)|\)</span>. The outer loop repeats this computation for <span class="math inline">\(i=1,\ldots,m-1\)</span>. At the end, the counter gives the number of vertices reachable from <span class="math inline">\(u\)</span>.</p>
+<section id="why-the-counter-check-is-necessary" class="level3" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="why-the-counter-check-is-necessary"><span class="header-section-number">4.2.1</span> Why the counter check is necessary</h3>
+<p>The machine must not accept simply because it has guessed a predecessor <span class="math inline">\(w\)</span> that appears to be reachable. In a nondeterministic computation, a branch could otherwise omit some members of <span class="math inline">\(S(i-1)\)</span> and still claim to have completed the scan. The counter <span class="math inline">\(m_0\)</span> records how many distinct vertices in the fixed scan of <span class="math inline">\(w\)</span> have been verified as members of <span class="math inline">\(S(i-1)\)</span>. Since each vertex is examined once, no vertex can be counted twice. The test</p>
+<p><span class="math display">\[
+m_0&lt;|S(i-1)|\quad\Longrightarrow\quad\text{reject},
+\]</span></p>
+<p>forces a successful branch to account for the entire previous reachable set: it cannot certify fewer than the known cardinality. Conversely, because the checks are sound, it cannot certify more than that cardinality either. Thus, on any surviving branch, the scan has correctly considered all of <span class="math inline">\(S(i-1)\)</span>.</p>
+</section>
+<section id="correctness-by-induction-on-i" class="level3" data-number="4.2.2">
+<h3 data-number="4.2.2" class="anchored" data-anchor-id="correctness-by-induction-on-i"><span class="header-section-number">4.2.2</span> Correctness by induction on <span class="math inline">\(i\)</span></h3>
+<p>At <span class="math inline">\(i=0\)</span>, the initialization is correct because only <span class="math inline">\(u\)</span> is reachable in zero steps, so <span class="math inline">\(S(0)=\{u\}\)</span> and the count is one. Assume the previous count is correct for <span class="math inline">\(S(i-1)\)</span>. For each candidate vertex <span class="math inline">\(v\)</span>, the inner scan checks all members <span class="math inline">\(w\)</span> of that set and sets <code>reply</code> to true exactly when either <span class="math inline">\(w=v\)</span> or <span class="math inline">\((w,v)\in E\)</span>. By the definition of reachability in at most <span class="math inline">\(i\)</span> steps, this condition is equivalent to <span class="math inline">\(v\in S(i)\)</span>. The outer counter <span class="math inline">\(l\)</span> therefore counts exactly those vertices in <span class="math inline">\(S(i)\)</span>, proving that the computed value is <span class="math inline">\(|S(i)|\)</span>. This completes the induction.</p>
+<p>The counters never exceed <span class="math inline">\(m\)</span>. A vertex identifier requires <span class="math inline">\(O(\log m)\)</span> bits, and counters such as <span class="math inline">\(l\)</span>, <span class="math inline">\(m_0\)</span>, and <span class="math inline">\(|S(i-1)|\)</span> also require <span class="math inline">\(O(\log m)\)</span> bits. The procedure stores only a constant number of such values, together with the current vertices and the verification state. Thus the space remains logarithmic in the number of graph vertices.</p>
+<div class="theorem-box">
+<div class="theorem-title">
+Immerman–Szelepcsényi Theorem (Reachability Counting)
 </div>
 <p>Given a directed graph <span class="math inline">\(G\)</span> and a vertex <span class="math inline">\(u\)</span>, the number of vertices reachable from <span class="math inline">\(u\)</span> in <span class="math inline">\(G\)</span> can be computed in nondeterministic space <span class="math inline">\(O(\log m)\)</span>, where <span class="math inline">\(m=|V|\)</span>.</p>
 </div>
 </section>
-<section id="nondeterministic-space-is-closed-under-complement" class="level2" data-number="1.6">
-<h2 data-number="1.6" class="anchored" data-anchor-id="nondeterministic-space-is-closed-under-complement"><span class="header-section-number">1.6</span> Nondeterministic space is closed under complement</h2>
-<p>The reachable-vertex counting method leads to the space-complexity corollary that nondeterministic space and its complement class coincide for space bounds at least logarithmic.</p>
+</section>
+<section id="why-the-count-is-useful-for-complementing-reachability" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="why-the-count-is-useful-for-complementing-reachability"><span class="header-section-number">4.3</span> Why the count is useful for complementing reachability</h2>
+<p>The counting routine is useful because it lets a nondeterministic machine verify that its scan has accounted for every vertex in a reachable set. In particular, it avoids accepting a branch that simply guesses too few reachable vertices. Once the size of a reachable set is known, the machine can use the count as a completeness check while enumerating and testing candidate vertices.</p>
+<p>This is the key idea behind the closure of nondeterministic logarithmic space under complement: the machine can verify non-reachability using logarithmic-space bookkeeping instead of having to deterministically explore the entire graph.</p>
+</section>
+</section>
+<section id="corollary-nondeterministic-space-is-closed-under-complement" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Corollary: Nondeterministic Space Is Closed Under Complement</h1>
 <div class="theorem-box">
 <div class="theorem-title">
 Nondeterministic Space Complementation
@@ -876,13 +1019,14 @@ Nondeterministic Space Complementation
 \mathrm{NSPACE}(f(n))=\mathrm{coNSPACE}(f(n)).
 \]</span></p>
 </div>
-<p>This result is particularly important for logarithmic space. It implies</p>
+<p>The inclusion from left to right is the nontrivial direction: it says that if a language is decided in nondeterministic space <span class="math inline">\(f(n)\)</span>, then its complement can also be decided in nondeterministic space <span class="math inline">\(f(n)\)</span>. The reverse inclusion follows by taking complements twice.</p>
+<p>The lecture’s counting method supplies the nondeterministic verification needed for the non-reachability side. The requirement <span class="math inline">\(f(n)\geq\log n\)</span> ensures that configuration identifiers and the bookkeeping counters can be represented within the stated space bound. This result yields, in particular,</p>
 <p><span class="math display">\[
-\mathrm{NL}=\mathrm{coNL},
-\]</span> so a problem that can be decided in nondeterministic logarithmic space can also have its complement decided in nondeterministic logarithmic space. The theorem does not imply <span class="math inline">\(\mathrm{L}=\mathrm{NL}\)</span>; that equality remains open.</p>
+\mathrm{NL}=\mathrm{coNL}.
+\]</span></p>
+<p>It does <strong>not</strong> establish <span class="math inline">\(\mathrm{L}=\mathrm{NL}\)</span>; that question remains open, as indicated earlier in the lecture.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
