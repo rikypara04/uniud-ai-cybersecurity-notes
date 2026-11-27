@@ -13,7 +13,7 @@ page-layout: full
 </div>
 <div class="home-hero__stats" aria-label="Site overview">
 <div><strong>3</strong><span>courses</span></div>
-<div><strong>38</strong><span>lectures</span></div>
+<div><strong>39</strong><span>lectures</span></div>
 </div>
 </div>
 
@@ -53,7 +53,7 @@ page-layout: full
 <p>Constraint solving, logic programming, semantics, and reasoning methods.</p>
 </div>
 <details class="lecture-list" open>
-<summary>Available lectures <span aria-hidden="true">(15)</span></summary>
+<summary>Available lectures <span aria-hidden="true">(16)</span></summary>
 <ul>
   <li><a href="02-automated-reasoning/notes/01-introduction-to-automated-reasoning-and-constraint-programming.qmd">Introduction to Automated Reasoning and Constraint Programming</a></li>
   <li><a href="02-automated-reasoning/notes/02-sat-encodings-and-dpll.qmd">SAT Encodings and DPLL</a></li>
@@ -70,6 +70,7 @@ page-layout: full
   <li><a href="02-automated-reasoning/notes/13-bottom-up-semantics-and-fixpoint-computation.qmd">Bottom-Up Semantics and Fixpoint Computation</a></li>
   <li><a href="02-automated-reasoning/notes/14-negation-program-completion-stable-models.qmd">Negation, Program Completion, and Stable Models</a></li>
   <li><a href="02-automated-reasoning/notes/15-stable-models-and-answer-set-programming.qmd">Stable Models and Answer Set Programming</a></li>
+  <li><a href="02-automated-reasoning/notes/16-asp-programming.qmd">ASP Programming: Syntactic Extensions and Modelling Examples</a></li>
 </ul>
 </details>
 </section>

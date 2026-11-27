@@ -9,7 +9,7 @@ page-layout: full
 <p class="course-kicker">MSc Artificial Intelligence &amp; Cybersecurity</p>
 
 <details class="lecture-list" open>
-<summary>Lectures <span aria-hidden="true">(15)</span></summary>
+<summary>Lectures <span aria-hidden="true">(16)</span></summary>
 <ul>
   <li><a href="notes/01-introduction-to-automated-reasoning-and-constraint-programming.qmd">Introduction to Automated Reasoning and Constraint Programming</a></li>
   <li><a href="notes/02-sat-encodings-and-dpll.qmd">SAT Encodings and DPLL</a></li>
@@ -26,6 +26,7 @@ page-layout: full
   <li><a href="notes/13-bottom-up-semantics-and-fixpoint-computation.qmd">Bottom-Up Semantics and Fixpoint Computation</a></li>
   <li><a href="notes/14-negation-program-completion-stable-models.qmd">Negation, Program Completion, and Stable Models</a></li>
   <li><a href="notes/15-stable-models-and-answer-set-programming.qmd">Stable Models and Answer Set Programming</a></li>
+  <li><a href="notes/16-asp-programming.qmd">ASP Programming: Syntactic Extensions and Modelling Examples</a></li>
 </ul>
 </details>
 </div>

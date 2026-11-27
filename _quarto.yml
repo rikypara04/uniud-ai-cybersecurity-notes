@@ -119,6 +119,9 @@ website:
           - href: 02-automated-reasoning/notes/15-stable-models-and-answer-set-programming.qmd
             text: "Stable Models and Answer Set Programming"
 
+          - href: 02-automated-reasoning/notes/16-asp-programming.qmd
+            text: "ASP Programming: Syntactic Extensions and Modelling Examples"
+
       - section: "Foundations of Cybersecurity and Ethics"
         contents:
           - href: 03-foundations-cybersecurity-ethics/index.qmd
