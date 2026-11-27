@@ -465,9 +465,9 @@ p(berenice,neri,f,1995,pordenone).
 
 The question asks for an ASP program that defines an auxiliary predicate `phi` with the same truth value as the quantified formula
 
-\[
-\Phi = \exists X\,\forall Y\,\exists Z\,\forall W\,\exists Q\;p(X,Y,Z,W,Q).
-\]
+$$
+\Phi = \exists X\,\forall Y\,\exists Z\,\forall W\,\exists Q\; p(X,Y,Z,W,Q).
+$$
 
 The program must include the extensional facts for `p/5`. The lecturer suggests introducing auxiliary predicates, likely one for each quantifier alternation, to express the formula's truth. The computational reflection asks how this kind of formula relates to material studied with Professor Carla Piazza, and whether the approach is coherent with ASP's NP-completeness; the exercise is left open for the student.
 
@@ -477,9 +477,10 @@ The last slides provide a schematic translation of cardinality constraints used 
 
 For the form
 
-\[
-\ell\{a_1,\ldots,a_m,\;\mathop{\mathrm{not}} d_1,\ldots,\mathop{\mathrm{not}} d_n\}u \leftarrow BODY,
-\]
+$$
+\ell\{a_1,\ldots,a_m,\;\operatorname{not} d_1,\ldots,\operatorname{not} d_n\}u
+\leftarrow \mathrm{BODY},
+$$
 
 the slides introduce fresh atoms `b` and `c` and outline the following translation:
 
